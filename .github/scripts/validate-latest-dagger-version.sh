@@ -10,8 +10,8 @@ function yml-dagger-version {
 
 function yml-hilt-version {
   # TODO(bcorso): Consider installing a proper yml parser like "yq"
-  # We expect something like `hiltVersion: "2.32-alpha"`
-  # and convert it into `2.32-alpha`
+  # We expect something like `hiltVersion: "2.32"`
+  # and convert it into `2.32`
   sed -rn 's/hiltVersion: "(.*)"/\1/p' $1
 }
 
@@ -21,7 +21,7 @@ readonly YML_CONFIG=$1
 readonly CWD=$(dirname $0)
 
 readonly LATEST_DAGGER_VERSION=$($CWD/latest-dagger-version.sh)
-readonly LATEST_HILT_VERSION="$LATEST_DAGGER_VERSION-beta"
+readonly LATEST_HILT_VERSION="$LATEST_DAGGER_VERSION"
 
 readonly YML_DAGGER_VERSION=$(yml-dagger-version $YML_CONFIG)
 readonly YML_HILT_VERSION=$(yml-hilt-version $YML_CONFIG)
