@@ -56,3 +56,18 @@ option.
 Because the shared components must include entry points from every test class,
 explicit `@EntryPoint` methods may not clash. Test `@EntryPoint` methods must
 either be uniquely named across test classes, or must return the same type.
+
+## Turning off the cross compilation root validation {#disable-cross-compilation-root-validation}
+
+By default, Hilt checks that:
+
+  * If there are `@HiltAndroidTest` or `@HiltAndroidApp` usages in the current
+    compilation unit, then there cannot be `@HiltAndroidTest` usages in any
+    previous compilation units.
+  * If there are `@HiltAndroidApp` usages in the current compilation unit, then
+    there cannot be `@HiltAndroidApp` usages in any previous compilation units.
+
+This check can sometimes be overly broad though, especially if in the middle of
+a migration. To turn off this check, this flag can be used:
+
+`-Adagger.hilt.disableCrossCompilationRootValidation=true`.
