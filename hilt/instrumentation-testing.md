@@ -19,6 +19,7 @@ application class name. For Hilt tests, the application must either be
 
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
 <div class="c-codeselector__button c-codeselector__button_kotlin">Kotlin</div>
+
 ```java
 package my.pkg;
 
@@ -32,6 +33,7 @@ public final class MyTestRunner extends AndroidJUnitRunner {
 }
 ```
 {: .c-codeselector__code .c-codeselector__code_java }
+
 ```kotlin
 package my.pkg
 
