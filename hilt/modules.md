@@ -68,7 +68,7 @@ binding to the lifetime of the component. For example, to scope a binding to the
 ```java
 @Module
 @InstallIn(SingletonComponent.class)
-public final class FooModule {
+final class FooModule {
   // @Singleton providers are only called once per SingletonComponent instance.
   @Provides
   @Singleton
@@ -101,7 +101,7 @@ binding:
 ```java
 @Module
 @InstallIn(SingletonComponent.class)
-public final class FooModule {
+final class FooModule {
   // @InstallIn(SingletonComponent.class) module providers have access to
   // the Application binding.
   @Provides
