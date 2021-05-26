@@ -10,16 +10,16 @@ To use Hilt, add the following build dependencies to the Android Gradle module's
 
 ```groovy
 dependencies {
-  implementation 'com.google.dagger:hilt-android:{{site.hiltVersion}}'
-  annotationProcessor 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  implementation 'com.google.dagger:hilt-android:{{site.daggerVersion}}'
+  annotationProcessor 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 
   // For instrumentation tests
-  androidTestImplementation  'com.google.dagger:hilt-android-testing:{{site.hiltVersion}}'
-  androidTestAnnotationProcessor 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  androidTestImplementation  'com.google.dagger:hilt-android-testing:{{site.daggerVersion}}'
+  androidTestAnnotationProcessor 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 
   // For local unit tests
-  testImplementation 'com.google.dagger:hilt-android-testing:{{site.hiltVersion}}'
-  testAnnotationProcessor 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  testImplementation 'com.google.dagger:hilt-android-testing:{{site.daggerVersion}}'
+  testAnnotationProcessor 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 }
 ```
 
@@ -35,16 +35,16 @@ to true.
 
 ```groovy
 dependencies {
-  implementation 'com.google.dagger:hilt-android:{{site.hiltVersion}}'
-  kapt 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  implementation 'com.google.dagger:hilt-android:{{site.daggerVersion}}'
+  kapt 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 
   // For instrumentation tests
-  androidTestImplementation  'com.google.dagger:hilt-android-testing:{{site.hiltVersion}}'
-  kaptAndroidTest 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  androidTestImplementation  'com.google.dagger:hilt-android-testing:{{site.daggerVersion}}'
+  kaptAndroidTest 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 
   // For local unit tests
-  testImplementation 'com.google.dagger:hilt-android-testing:{{site.hiltVersion}}'
-  kaptTest 'com.google.dagger:hilt-compiler:{{site.hiltVersion}}'
+  testImplementation 'com.google.dagger:hilt-android-testing:{{site.daggerVersion}}'
+  kaptTest 'com.google.dagger:hilt-compiler:{{site.daggerVersion}}'
 }
 
 kapt {
@@ -71,7 +71,7 @@ buildscript {
   }
   dependencies {
     // other plugins...
-    classpath 'com.google.dagger:hilt-android-gradle-plugin:{{site.hiltVersion}}'
+    classpath 'com.google.dagger:hilt-android-gradle-plugin:{{site.daggerVersion}}'
   }
 }
 ```
