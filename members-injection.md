@@ -1,7 +1,7 @@
 # Members injection
 
 The default way for a class to request its dependencies is
-via its `@Inject`-annotated cosntructor.
+via its `@Inject`-annotated constructor.
 
 That ensures that the dependencies are present when the object is fully
 constructed, as is normal Java best practice. There are, however, a few other
