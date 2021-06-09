@@ -203,7 +203,33 @@ If the `+` is missing and `arguments` are overridden, it is likely Hilt will
 fail to compile with errors like the following: `Expected @HiltAndroidApp to
 have a value. Did you forget to apply the Gradle Plugin?`
 
+### Aggregating Task {#aggregating-task}
+
+The Hilt Gradle plugin offers an option for performing Hilt's classpath
+aggregation in a dedicated Gradle task. This allows the Hilt annotation
+processors to be
+[isolating](https://docs.gradle.org/current/userguide/java_plugin.html#isolating_annotation_processors)
+so they are only invoked when necessary. This reduces incremental compilation
+times by reducing how often an incremental change causes a rebuild of the Dagger
+components. Enabling this option also enables
+[sharing test components](compiler-options.md#sharing-test-components) and
+[classpath aggregation](#classpath-aggregation). Note that this option replaces
+`enableExperimentalClasspathAggregation` since it has the same benefits without
+any of its caveats.
+
+To enable the aggregating task, apply the following configuration in your
+Android module's `build.gradle`:
+
+```
+hilt {
+    enableAggregatingTask = true
+}
+```
+
 ### Classpath Aggregation {#classpath-aggregation}
+
+**Note:** This option will soon be deprecated in favor of
+[enableAggregatingTask](#aggregating-task).
 
 The Hilt Gradle plugin also offers an experimental option for configuring the
 compile classpath for annotation processing such that Hilt and Dagger are able
