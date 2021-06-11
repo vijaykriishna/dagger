@@ -27,7 +27,10 @@ due to their `onCreate` being called at startup, but you can access dependencies
 via an [entry point](entry-points.md).
 
 The following example shows how to add the annotation to an activity, but the
-process is the same for other types.
+process is the same for other types. When adding to other types, note that as a
+general rule, Hilt types need to be attached to other Hilt types to work. So
+before adding [`@AndroidEntryPoint`] to a fragment, the activity must be
+annotated as well.
 
 [^1]: Unlike the other supported Android classes, `BroadcastReceivers` do not
     have their own Dagger component and are instead simply injected from the
