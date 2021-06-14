@@ -396,17 +396,6 @@ class BigCoffeeMaker {
 }
 ```
 
-**Note:** Injecting `Provider<T>` has the possibility of creating confusing
-   code, and may be a design smell of mis-scoped or mis-structured objects in
-   your graph.  Often you will want to use a [factory][Factory Pattern] or a
-   `Lazy<T>` or re-organize the lifetimes and structure of your code to be able
-   to just inject a `T`.  Injecting `Provider<T>` can, however, be a life saver
-   in some cases.  A common use is when you must use a legacy architecture that
-   doesn't line up with your object's natural lifetimes (e.g. servlets are
-   singletons by design, but only are valid in the context of request-specfic
-   data).
-{: .c-callouts__note }
-
 ### Qualifiers
 
 Sometimes the type alone is insufficient to identify a dependency. For example,
