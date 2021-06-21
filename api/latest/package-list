@@ -22,3 +22,4 @@ dagger.multibindings
 dagger.producers
 dagger.producers.monitoring
 dagger.spi
+dagger.spi.model
