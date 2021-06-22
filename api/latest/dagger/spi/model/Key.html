@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":6,"i2":6,"i3":6,"i4":10,"i5":6,"i6":10,"i7":10};
+var methods = {"i0":9,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":10,"i7":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -110,7 +110,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public abstract class <span class="typeNameLabel">Key</span>
 extends java.lang.Object</pre>
-<div class="block">A type and an optional qualifier that
+<div class="block">A <a href="../../../dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">type</a> and an optional qualifier that
  is the lookup key for a binding.</div>
 </li>
 </ul>
@@ -177,7 +177,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="../../../dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Key.html#builder-javax.lang.model.type.TypeMirror-">builder</a></span>(javax.lang.model.type.TypeMirror&nbsp;type)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Key.html#builder-dagger.spi.model.DaggerType-">builder</a></span>(<a href="../../../dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;type)</code>
 <div class="block">Returns a builder for <a href="../../../dagger/spi/model/Key.html" title="class in dagger.spi.model"><code>Key</code></a>s.</div>
 </td>
 </tr>
@@ -196,10 +196,10 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>java.util.Optional&lt;javax.lang.model.element.AnnotationMirror&gt;</code></td>
+<td class="colFirst"><code>abstract java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Key.html#qualifier--">qualifier</a></span>()</code>
-<div class="block">A <code>Qualifier</code> annotation that provides a unique namespace prefix
- for the type of this key.</div>
+<div class="block">A <code>Qualifier</code> annotation that provides a unique namespace prefix for the
+ type of this key.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -213,7 +213,7 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Key.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>javax.lang.model.type.TypeMirror</code></td>
+<td class="colFirst"><code>abstract <a href="../../../dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Key.html#type--">type</a></span>()</code>
 <div class="block">The type represented by this key.</div>
 </td>
@@ -263,9 +263,9 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>qualifier</h4>
-<pre>public final&nbsp;java.util.Optional&lt;javax.lang.model.element.AnnotationMirror&gt;&nbsp;qualifier()</pre>
-<div class="block">A <code>Qualifier</code> annotation that provides a unique namespace prefix
- for the type of this key.</div>
+<pre>public abstract&nbsp;java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&gt;&nbsp;qualifier()</pre>
+<div class="block">A <code>Qualifier</code> annotation that provides a unique namespace prefix for the
+ type of this key.</div>
 </li>
 </ul>
 <a name="type--">
@@ -274,7 +274,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre>public final&nbsp;javax.lang.model.type.TypeMirror&nbsp;type()</pre>
+<pre>public abstract&nbsp;<a href="../../../dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;type()</pre>
 <div class="block">The type represented by this key.</div>
 </li>
 </ul>
@@ -343,13 +343,13 @@ public abstract&nbsp;int&nbsp;hashCode()</pre>
 </dl>
 </li>
 </ul>
-<a name="builder-javax.lang.model.type.TypeMirror-">
+<a name="builder-dagger.spi.model.DaggerType-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>builder</h4>
-<pre>public static&nbsp;<a href="../../../dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a>&nbsp;builder(javax.lang.model.type.TypeMirror&nbsp;type)</pre>
+<pre>public static&nbsp;<a href="../../../dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a>&nbsp;builder(<a href="../../../dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;type)</pre>
 <div class="block">Returns a builder for <a href="../../../dagger/spi/model/Key.html" title="class in dagger.spi.model"><code>Key</code></a>s.</div>
 </li>
 </ul>
