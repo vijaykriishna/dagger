@@ -189,6 +189,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#annotations--">annotations()</a></span> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#annotationTypeElement--">annotationTypeElement()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/qualifiers/ApplicationContext.html" title="annotation in dagger.hilt.android.qualifiers"><span class="typeNameLink">ApplicationContext</span></a> - Annotation Type in <a href="dagger/hilt/android/qualifiers/package-summary.html">dagger.hilt.android.qualifiers</a></dt>
 <dd>
 <div class="block">Annotation for an Application Context dependency.</div>
@@ -519,6 +521,12 @@
 <dd>
 <div class="block">A <a href="dagger/MapKey.html" title="annotation in dagger"><code>MapKey</code></a> annotation for maps with <code>Class&lt;?&gt;</code> keys.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#className--">className()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#className--">className()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#className--">className()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/Component.html" title="annotation in dagger"><span class="typeNameLink">Component</span></a> - Annotation Type in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">Annotates an interface or abstract class for which a fully-formed, dependency-injected
@@ -859,6 +867,18 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/android/support/DaggerDialogFragment.html#DaggerDialogFragment--">DaggerDialogFragment()</a></span> - Constructor for class dagger.android.support.<a href="dagger/android/support/DaggerDialogFragment.html" title="class in dagger.android.support">DaggerDialogFragment</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model"><span class="typeNameLink">DaggerElement</span></a> - Class in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
+<dd>
+<div class="block">Wrapper type for an element.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#DaggerElement--">DaggerElement()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model"><span class="typeNameLink">DaggerExecutableElement</span></a> - Class in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
+<dd>
+<div class="block">Wrapper type for an executable element.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#DaggerExecutableElement--">DaggerExecutableElement()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/android/DaggerFragment.html" title="class in dagger.android"><span class="typeNameLink">DaggerFragment</span></a> - Class in <a href="dagger/android/package-summary.html">dagger.android</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -895,6 +915,12 @@
 <div class="block">Wrapper type for a type.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#DaggerType--">DaggerType()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><span class="typeNameLink">DaggerTypeElement</span></a> - Class in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
+<dd>
+<div class="block">Wrapper type for a type element.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#DaggerTypeElement--">DaggerTypeElement()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/BindingGraph.SubcomponentCreatorBindingEdge.html#declaringModules--">declaringModules()</a></span> - Method in interface dagger.model.<a href="dagger/model/BindingGraph.SubcomponentCreatorBindingEdge.html" title="interface in dagger.model">BindingGraph.SubcomponentCreatorBindingEdge</a></dt>
 <dd>
@@ -1159,7 +1185,13 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#fromJava-javax.lang.model.element.AnnotationMirror-">fromJava(AnnotationMirror)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#fromJava-javax.lang.model.element.Element-">fromJava(Element)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#fromJava-javax.lang.model.element.ExecutableElement-">fromJava(ExecutableElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#fromJava-javax.lang.model.type.TypeMirror-">fromJava(TypeMirror)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#fromJava-javax.lang.model.element.TypeElement-">fromJava(TypeElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#fromKsp-com.google.devtools.ksp.symbol.KSAnnotation-">fromKsp(KSAnnotation)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
@@ -1532,11 +1564,11 @@
 <dd>
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#isScope-javax.lang.model.element.AnnotationMirror-">isScope(AnnotationMirror)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#isScope-dagger.spi.model.DaggerAnnotation-">isScope(DaggerAnnotation)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>
 <div class="block">Returns <code>true</code> if <a href="dagger/spi/model/Scope.html#scopeAnnotation--"><code>Scope.scopeAnnotation()</code></a> is a <code>Scope</code> annotation.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#isScope-javax.lang.model.element.TypeElement-">isScope(TypeElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#isScope-dagger.spi.model.DaggerTypeElement-">isScope(DaggerTypeElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
 </dd>
@@ -1566,7 +1598,13 @@
 <dl>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a name="I:K">
@@ -1656,7 +1694,13 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#ksp--">ksp()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#ksp--">ksp()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#ksp--">ksp()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#ksp--">ksp()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#ksp--">ksp()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a name="I:L">
@@ -2270,7 +2314,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#Scope--">Scope()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#scope-javax.lang.model.element.AnnotationMirror-">scope(AnnotationMirror)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#scope-dagger.spi.model.DaggerAnnotation-">scope(DaggerAnnotation)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>
 <div class="block">Creates a <a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model"><code>Scope</code></a> object from the <code>Scope</code>-annotated annotation type.</div>
 </dd>
@@ -2280,13 +2324,9 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#scopeAnnotation--">scopeAnnotation()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>
-<div class="block">The <code>AnnotationMirror</code> that represents the scope annotation.</div>
+<div class="block">The <a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model"><code>DaggerAnnotation</code></a> that represents the scope annotation.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Scope.html#scopeAnnotationElement--">scopeAnnotationElement()</a></span> - Method in class dagger.model.<a href="dagger/model/Scope.html" title="class in dagger.model">Scope</a></dt>
-<dd>
-<div class="block">The scope annotation element.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#scopeAnnotationElement--">scopeAnnotationElement()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>
 <div class="block">The scope annotation element.</div>
 </dd>
@@ -2419,7 +2459,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#toString--">toString()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>

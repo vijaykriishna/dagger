@@ -112,6 +112,12 @@
 <td class="colFirst"><code>static <a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></code></td>
 <td class="colLast"><span class="typeNameLabel">DaggerAnnotation.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/DaggerAnnotation.html#fromKsp-com.google.devtools.ksp.symbol.KSAnnotation-">fromKsp</a></span>(com.google.devtools.ksp.symbol.KSAnnotation&nbsp;ksAnnotation)</code>&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>abstract <a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></code></td>
+<td class="colLast"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Scope.html#scopeAnnotation--">scopeAnnotation</a></span>()</code>
+<div class="block">The <a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model"><code>DaggerAnnotation</code></a> that represents the scope annotation.</div>
+</td>
+</tr>
 </tbody>
 </table>
 <table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -138,8 +144,20 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Scope.html#isScope-dagger.spi.model.DaggerAnnotation-">isScope</a></span>(<a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;scopeAnnotation)</code>
+<div class="block">Returns <code>true</code> if <a href="../../../../dagger/spi/model/Scope.html#scopeAnnotation--"><code>Scope.scopeAnnotation()</code></a> is a <code>Scope</code> annotation.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../../dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Key.Builder.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Key.Builder.html#qualifier-dagger.spi.model.DaggerAnnotation-">qualifier</a></span>(<a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;qualifier)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></code></td>
+<td class="colLast"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Scope.html#scope-dagger.spi.model.DaggerAnnotation-">scope</a></span>(<a href="../../../../dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;scopeAnnotation)</code>
+<div class="block">Creates a <a href="../../../../dagger/spi/model/Scope.html" title="class in dagger.spi.model"><code>Scope</code></a> object from the <code>Scope</code>-annotated annotation type.</div>
+</td>
 </tr>
 </tbody>
 </table>
