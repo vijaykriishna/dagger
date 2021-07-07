@@ -3,9 +3,9 @@ layout: default
 title: Dagger SPI
 ---
 
-The Dagger [SPI] is a mechanism to hook into Dagger's annotation processor and
-access the same binding graph  model that Dagger uses. With the SPI, you can
-write a plugin that
+The Dagger Service Provider Interface ([SPI]) is a mechanism to hook into
+Dagger's annotation processor and access the same binding graph model that
+Dagger uses. With the SPI, you can write a plugin that
 
 - adds project-specific errors and warnings, e.g. `Bindings for
   android.content.Context must have a @Qualifier` or `Bindings that implement
