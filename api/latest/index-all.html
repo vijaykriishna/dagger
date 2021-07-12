@@ -527,6 +527,20 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Scope.html#className--">className()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Scope.html" title="class in dagger.spi.model">Scope</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#compiler--">compiler()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#compiler--">compiler()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#compiler--">compiler()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#compiler--">compiler()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#compiler--">compiler()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/spi/model/CompilerEnvironment.html" title="enum in dagger.spi.model"><span class="typeNameLink">CompilerEnvironment</span></a> - Enum in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
+<dd>
+<div class="block">Types for the compiler in use for annotation processing.</div>
+</dd>
 <dt><a href="dagger/Component.html" title="annotation in dagger"><span class="typeNameLink">Component</span></a> - Annotation Type in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">Annotates an interface or abstract class for which a fully-formed, dependency-injected
@@ -1195,7 +1209,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerAnnotation.html#fromKsp-com.google.devtools.ksp.symbol.KSAnnotation-">fromKsp(KSAnnotation)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#fromKsp-com.google.devtools.ksp.symbol.KSDeclaration-">fromKsp(KSDeclaration)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#fromKsp-com.google.devtools.ksp.symbol.KSFunctionDeclaration-">fromKsp(KSFunctionDeclaration)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#fromKsp-com.google.devtools.ksp.symbol.KSType-">fromKsp(KSType)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#fromKsp-com.google.devtools.ksp.symbol.KSClassDeclaration-">fromKsp(KSClassDeclaration)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/EntryPointAccessors.html#fromView-android.view.View-java.lang.Class-">fromView(View, Class&lt;T&gt;)</a></span> - Static method in class dagger.hilt.android.<a href="dagger/hilt/android/EntryPointAccessors.html" title="class in dagger.hilt.android">EntryPointAccessors</a></dt>
 <dd>
@@ -2518,6 +2538,10 @@
 <dd>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/CompilerEnvironment.html#valueOf-java.lang.String-">valueOf(String)</a></span> - Static method in enum dagger.spi.model.<a href="dagger/spi/model/CompilerEnvironment.html" title="enum in dagger.spi.model">CompilerEnvironment</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this type with the specified name.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/RequestKind.html#valueOf-java.lang.String-">valueOf(String)</a></span> - Static method in enum dagger.spi.model.<a href="dagger/spi/model/RequestKind.html" title="enum in dagger.spi.model">RequestKind</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
@@ -2538,6 +2562,11 @@ the order they are declared.</div>
 the order they are declared.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/BindingKind.html#values--">values()</a></span> - Static method in enum dagger.spi.model.<a href="dagger/spi/model/BindingKind.html" title="enum in dagger.spi.model">BindingKind</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum type, in
+the order they are declared.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/CompilerEnvironment.html#values--">values()</a></span> - Static method in enum dagger.spi.model.<a href="dagger/spi/model/CompilerEnvironment.html" title="enum in dagger.spi.model">CompilerEnvironment</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.</div>
