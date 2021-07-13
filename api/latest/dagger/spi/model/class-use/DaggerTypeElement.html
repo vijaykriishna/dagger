@@ -156,6 +156,13 @@
 <div class="block">The <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a> of the module which contributes this binding.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">BindingGraph.SubcomponentCreatorBindingEdge.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/BindingGraph.SubcomponentCreatorBindingEdge.html#declaringModules--">declaringModules</a></span>()</code>
+<div class="block">The modules that <a href="../../../../dagger/Module.html#subcomponents--">declare the subcomponent</a> that generated
+ this edge.</div>
+</td>
+</tr>
 </tbody>
 </table>
 <table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -172,6 +179,12 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="../../../../dagger/spi/model/BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">BindingGraph.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/BindingGraph.html#componentNodes-dagger.spi.model.DaggerTypeElement-">componentNodes</a></span>(<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;component)</code>
+<div class="block">Returns the component nodes for a component.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Scope.html#isScope-dagger.spi.model.DaggerTypeElement-">isScope</a></span>(<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;scopeAnnotationType)</code>
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
