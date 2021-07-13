@@ -155,12 +155,12 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#childPath-javax.lang.model.element.TypeElement-">childPath</a></span>(javax.lang.model.element.TypeElement&nbsp;child)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#childPath-dagger.spi.model.DaggerTypeElement-">childPath</a></span>(<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;child)</code>
 <div class="block">Returns the path from the root component to the <code>child</code> of the current component.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>abstract com.google.common.collect.ImmutableList&lt;javax.lang.model.element.TypeElement&gt;</code></td>
+<td class="colFirst"><code>abstract com.google.common.collect.ImmutableList&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#components--">components</a></span>()</code>
 <div class="block">Returns the component types, starting from the <a href="../../../dagger/spi/model/ComponentPath.html#rootComponent--">root
  component</a> and ending with the <a href="../../../dagger/spi/model/ComponentPath.html#currentComponent--">current component</a>.</div>
@@ -168,12 +168,12 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#create-java.lang.Iterable-">create</a></span>(java.lang.Iterable&lt;javax.lang.model.element.TypeElement&gt;&nbsp;components)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#create-java.lang.Iterable-">create</a></span>(java.lang.Iterable&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;&nbsp;components)</code>
 <div class="block">Returns a new <a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model"><code>ComponentPath</code></a> from <code>components</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>javax.lang.model.element.TypeElement</code></td>
+<td class="colFirst"><code><a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#currentComponent--">currentComponent</a></span>()</code>
 <div class="block">Returns the component at the end of the path.</div>
 </td>
@@ -193,13 +193,13 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>javax.lang.model.element.TypeElement</code></td>
+<td class="colFirst"><code><a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#parentComponent--">parentComponent</a></span>()</code>
 <div class="block">Returns the parent of the <a href="../../../dagger/spi/model/ComponentPath.html#currentComponent--">currentComponent()</a> current component}.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>javax.lang.model.element.TypeElement</code></td>
+<td class="colFirst"><code><a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/ComponentPath.html#rootComponent--">rootComponent</a></span>()</code>
 <div class="block">Returns the root <a href="../../../dagger/Component.html" title="annotation in dagger"><code>Component</code></a>- or <a href="../../../dagger/producers/ProductionComponent.html" title="annotation in dagger.producers"><code>ProductionComponent</code></a>-annotated type</div>
 </td>
@@ -253,7 +253,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>create</h4>
-<pre>public static&nbsp;<a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;create(java.lang.Iterable&lt;javax.lang.model.element.TypeElement&gt;&nbsp;components)</pre>
+<pre>public static&nbsp;<a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;create(java.lang.Iterable&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;&nbsp;components)</pre>
 <div class="block">Returns a new <a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model"><code>ComponentPath</code></a> from <code>components</code>.</div>
 </li>
 </ul>
@@ -263,7 +263,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>components</h4>
-<pre>public abstract&nbsp;com.google.common.collect.ImmutableList&lt;javax.lang.model.element.TypeElement&gt;&nbsp;components()</pre>
+<pre>public abstract&nbsp;com.google.common.collect.ImmutableList&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;&nbsp;components()</pre>
 <div class="block">Returns the component types, starting from the <a href="../../../dagger/spi/model/ComponentPath.html#rootComponent--">root
  component</a> and ending with the <a href="../../../dagger/spi/model/ComponentPath.html#currentComponent--">current component</a>.</div>
 </li>
@@ -274,7 +274,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>rootComponent</h4>
-<pre>public final&nbsp;javax.lang.model.element.TypeElement&nbsp;rootComponent()</pre>
+<pre>public final&nbsp;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;rootComponent()</pre>
 <div class="block">Returns the root <a href="../../../dagger/Component.html" title="annotation in dagger"><code>Component</code></a>- or <a href="../../../dagger/producers/ProductionComponent.html" title="annotation in dagger.producers"><code>ProductionComponent</code></a>-annotated type</div>
 </li>
 </ul>
@@ -285,7 +285,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>currentComponent</h4>
 <pre>@Memoized
-public&nbsp;javax.lang.model.element.TypeElement&nbsp;currentComponent()</pre>
+public&nbsp;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;currentComponent()</pre>
 <div class="block">Returns the component at the end of the path.</div>
 </li>
 </ul>
@@ -295,7 +295,7 @@ public&nbsp;javax.lang.model.element.TypeElement&nbsp;currentComponent()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>parentComponent</h4>
-<pre>public final&nbsp;javax.lang.model.element.TypeElement&nbsp;parentComponent()</pre>
+<pre>public final&nbsp;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;parentComponent()</pre>
 <div class="block">Returns the parent of the <a href="../../../dagger/spi/model/ComponentPath.html#currentComponent--">currentComponent()</a> current component}.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -317,13 +317,13 @@ public&nbsp;javax.lang.model.element.TypeElement&nbsp;currentComponent()</pre>
 </dl>
 </li>
 </ul>
-<a name="childPath-javax.lang.model.element.TypeElement-">
+<a name="childPath-dagger.spi.model.DaggerTypeElement-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>childPath</h4>
-<pre>public final&nbsp;<a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;childPath(javax.lang.model.element.TypeElement&nbsp;child)</pre>
+<pre>public final&nbsp;<a href="../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;childPath(<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;child)</pre>
 <div class="block">Returns the path from the root component to the <code>child</code> of the current component.</div>
 </li>
 </ul>

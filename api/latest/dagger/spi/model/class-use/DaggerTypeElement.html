@@ -109,12 +109,30 @@
 <td class="colLast"><span class="typeNameLabel">DaggerAnnotation.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/DaggerAnnotation.html#annotationTypeElement--">annotationTypeElement</a></span>()</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
-<td class="colLast"><span class="typeNameLabel">DaggerTypeElement.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/DaggerTypeElement.html#fromJava-javax.lang.model.element.TypeElement-">fromJava</a></span>(javax.lang.model.element.TypeElement&nbsp;element)</code>&nbsp;</td>
+<td class="colFirst"><code><a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#currentComponent--">currentComponent</a></span>()</code>
+<div class="block">Returns the component at the end of the path.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<td class="colLast"><span class="typeNameLabel">DaggerTypeElement.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/DaggerTypeElement.html#fromJava-javax.lang.model.element.TypeElement-">fromJava</a></span>(javax.lang.model.element.TypeElement&nbsp;element)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <td class="colLast"><span class="typeNameLabel">DaggerTypeElement.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/DaggerTypeElement.html#fromKsp-com.google.devtools.ksp.symbol.KSClassDeclaration-">fromKsp</a></span>(com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;element)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#parentComponent--">parentComponent</a></span>()</code>
+<div class="block">Returns the parent of the <a href="../../../../dagger/spi/model/ComponentPath.html#currentComponent--">ComponentPath.currentComponent()</a> current component}.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#rootComponent--">rootComponent</a></span>()</code>
+<div class="block">Returns the root <a href="../../../../dagger/Component.html" title="annotation in dagger"><code>Component</code></a>- or <a href="../../../../dagger/producers/ProductionComponent.html" title="annotation in dagger.producers"><code>ProductionComponent</code></a>-annotated type</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -126,6 +144,13 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>abstract com.google.common.collect.ImmutableList&lt;<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#components--">components</a></span>()</code>
+<div class="block">Returns the component types, starting from the <a href="../../../../dagger/spi/model/ComponentPath.html#rootComponent--">root
+ component</a> and ending with the <a href="../../../../dagger/spi/model/ComponentPath.html#currentComponent--">current component</a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">Binding.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Binding.html#contributingModule--">contributingModule</a></span>()</code>
 <div class="block">The <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a> of the module which contributes this binding.</div>
@@ -141,9 +166,30 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#childPath-dagger.spi.model.DaggerTypeElement-">childPath</a></span>(<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;child)</code>
+<div class="block">Returns the path from the root component to the <code>child</code> of the current component.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/Scope.html#isScope-dagger.spi.model.DaggerTypeElement-">isScope</a></span>(<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;scopeAnnotationType)</code>
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../../../dagger/spi/model/package-summary.html">dagger.spi.model</a> with type arguments of type <a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></code></td>
+<td class="colLast"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../../../../dagger/spi/model/ComponentPath.html#create-java.lang.Iterable-">create</a></span>(java.lang.Iterable&lt;<a href="../../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;&nbsp;components)</code>
+<div class="block">Returns a new <a href="../../../../dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model"><code>ComponentPath</code></a> from <code>components</code>.</div>
 </td>
 </tr>
 </tbody>
