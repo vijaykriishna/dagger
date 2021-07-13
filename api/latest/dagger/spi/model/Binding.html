@@ -139,9 +139,9 @@ extends <a href="../../../dagger/spi/model/BindingGraph.MaybeBinding.html" title
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.util.Optional&lt;javax.lang.model.element.Element&gt;</code></td>
+<td class="colFirst"><code>java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Binding.html#bindingElement--">bindingElement</a></span>()</code>
-<div class="block">The <code>Element</code> that declares this binding.</div>
+<div class="block">The <a href="../../../dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model"><code>DaggerElement</code></a> that declares this binding.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -151,9 +151,9 @@ extends <a href="../../../dagger/spi/model/BindingGraph.MaybeBinding.html" title
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>java.util.Optional&lt;javax.lang.model.element.TypeElement&gt;</code></td>
+<td class="colFirst"><code>java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/Binding.html#contributingModule--">contributingModule</a></span>()</code>
-<div class="block">The <code>TypeElement</code> of the module which contributes this binding.</div>
+<div class="block">The <a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a> of the module which contributes this binding.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -265,9 +265,9 @@ default&nbsp;java.util.Optional&lt;<a href="../../../dagger/spi/model/Binding.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>bindingElement</h4>
-<pre>java.util.Optional&lt;javax.lang.model.element.Element&gt;&nbsp;bindingElement()</pre>
-<div class="block">The <code>Element</code> that declares this binding. Absent for <a href="../../../dagger/spi/model/BindingKind.html" title="enum in dagger.spi.model">binding
- kinds</a> that are not always declared by exactly one element.
+<pre>java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a>&gt;&nbsp;bindingElement()</pre>
+<div class="block">The <a href="../../../dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model"><code>DaggerElement</code></a> that declares this binding. Absent for
+ <a href="../../../dagger/spi/model/BindingKind.html" title="enum in dagger.spi.model">binding kinds</a> that are not always declared by exactly one element.
 
  <p>For example, consider <a href="../../../dagger/spi/model/BindingKind.html#MULTIBOUND_SET"><code>BindingKind.MULTIBOUND_SET</code></a>. A component with many
  <code>@IntoSet</code> bindings for the same key will have a synthetic binding that depends on all
@@ -282,9 +282,9 @@ default&nbsp;java.util.Optional&lt;<a href="../../../dagger/spi/model/Binding.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>contributingModule</h4>
-<pre>java.util.Optional&lt;javax.lang.model.element.TypeElement&gt;&nbsp;contributingModule()</pre>
-<div class="block">The <code>TypeElement</code> of the module which contributes this binding. Absent for bindings that
- have no <a href="../../../dagger/spi/model/Binding.html#bindingElement--"><code>binding element</code></a>.</div>
+<pre>java.util.Optional&lt;<a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&gt;&nbsp;contributingModule()</pre>
+<div class="block">The <a href="../../../dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a> of the module which contributes this binding. Absent for bindings
+ that have no <a href="../../../dagger/spi/model/Binding.html#bindingElement--"><code>binding element</code></a>.</div>
 </li>
 </ul>
 <a name="requiresModuleInstance--">
