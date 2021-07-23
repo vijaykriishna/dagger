@@ -102,14 +102,16 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  example, <code>@Component interface MyComponent {...}</code> will produce an implementation named
  <code>DaggerMyComponent</code>.
 
- <a id="component-methods"></a>
+ <p><a id="component-methods"></a>
+
  <h2>Component methods</h2>
 
  <p>Every type annotated with <code>@Component</code> must contain at least one abstract component
  method. Component methods may have any name, but must have signatures that conform to either
  provision or <a href="../dagger/MembersInjector.html" title="interface in dagger">members-injection</a> contracts.
 
- <a id="provision-methods"></a>
+ <p><a id="provision-methods"></a>
+
  <h3>Provision methods</h3>
 
  <p>Provision methods have no parameters and return an <code>injected</code> or <a href="../dagger/Provides.html" title="annotation in dagger"><code>provided</code></a> type. Each method may have a <code>Qualifier</code> annotation as well. The following are
@@ -133,6 +135,7 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  </code></pre>
 
  <a id="members-injection-methods"></a>
+
  <h3>Members-injection methods</h3>
 
  <p>Members-injection methods have a single parameter and inject dependencies into each of the
@@ -175,6 +178,7 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  </code></pre>
 
  <a id="instantiation"></a>
+
  <h2>Instantiation</h2>
 
  <p>Component implementations are primarily instantiated via a generated <a
@@ -194,17 +198,17 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  <p>Example of using a builder:
 
  <pre><code>
-   public static void main(String[] args) {
-     OtherComponent otherComponent = ...;
-     MyComponent component = DaggerMyComponent.builder()
-         // required because component dependencies must be set
-         .otherComponent(otherComponent)
-         // required because FlagsModule has constructor parameters
-         .flagsModule(new FlagsModule(args))
-         // may be elided because a no-args constructor is visible
-         .myApplicationModule(new MyApplicationModule())
-         .build();
-   }
+ public static void main(String[] args) {
+   OtherComponent otherComponent = ...;
+   MyComponent component = DaggerMyComponent.builder()
+       // required because component dependencies must be set
+       .otherComponent(otherComponent)
+       // required because FlagsModule has constructor parameters
+       .flagsModule(new FlagsModule(args))
+       // may be elided because a no-args constructor is visible
+       .myApplicationModule(new MyApplicationModule())
+       .build();
+ }
  </code></pre>
 
  <p>Example of using a factory:
@@ -224,7 +228,8 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  generated component will also have a factory method <code>create()</code>. <code>SomeComponent.create()</code> and <code>SomeComponent.builder().build()</code> are both valid and
  equivalent.
 
- <a id="scope"></a>
+ <p><a id="scope"></a>
+
  <h2>Scope</h2>
 
  <p>Each Dagger component can be associated with a scope by annotating it with the scope annotation. The component implementation ensures that there is only one provision of
@@ -244,14 +249,16 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  self-contained implementations, exiting a scope is as simple as dropping all references to the
  component instance.
 
- <a id="component-relationships"></a>
+ <p><a id="component-relationships"></a>
+
  <h2>Component relationships</h2>
 
  <p>While there is much utility in isolated components with purely unscoped bindings, many
  applications will call for multiple components with multiple scopes to interact. Dagger provides
  two mechanisms for relating components.
 
- <a id="subcomponents"></a>
+ <p><a id="subcomponents"></a>
+
  <h3>Subcomponents</h3>
 
  <p>The simplest way to relate two components is by declaring a <a href="../dagger/Subcomponent.html" title="annotation in dagger"><code>Subcomponent</code></a>. A
@@ -280,6 +287,7 @@ public @interface <span class="memberNameLabel">Component</span></pre>
  </code></pre>
 
  <a id="component-dependencies"></a>
+
  <h3>Component dependencies</h3>
 
  <p>While subcomponents are the simplest way to compose subgraphs of bindings, subcomponents are
