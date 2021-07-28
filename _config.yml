@@ -26,7 +26,7 @@ sass:
 
 googleAnalyticsId: UA-43772875-7
 
-daggerVersion: "2.38"
+daggerVersion: "2.38.1"
 
 plugins:
   - jekyll-redirect-from
