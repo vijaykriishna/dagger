@@ -141,9 +141,9 @@ interface AggregatorModule {}
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
-**Warning:** Modules that are not annotated with `@InstallIn` are not used by Hilt.
-Hilt by default raises an error when unannotated modules are found, but this
-error can be [disabled](compiler-options.md#disable-install-in-check).
+**Warning:** Modules that are not annotated with `@InstallIn` are not used by
+Hilt. Hilt by default raises an error when unannotated modules are found, but
+this error can be [disabled](flags.md#disable-install-in-check).
 {: .c-callouts__warning }
 
 #### b. Handle any extended interfaces or methods

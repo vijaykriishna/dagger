@@ -143,8 +143,8 @@ nav:
                   name: "Scope aliases"
                   url: /scope-aliases
         - item:
-            name: "Compiler Options"
-            url: /compiler-options
+            name: "Flags"
+            url: /flags
         - item:
             name: "Creating Extensions"
             url: /creating-extensions

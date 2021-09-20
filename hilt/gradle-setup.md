@@ -212,7 +212,7 @@ processors to be
 so they are only invoked when necessary. This reduces incremental compilation
 times by reducing how often an incremental change causes a rebuild of the Dagger
 components. Enabling this option also enables
-[sharing test components](compiler-options.md#sharing-test-components) and
+[sharing test components](flags.md#sharing-test-components) and
 [classpath aggregation](#classpath-aggregation). Note that this option replaces
 `enableExperimentalClasspathAggregation` since it has the same benefits without
 any of its caveats.

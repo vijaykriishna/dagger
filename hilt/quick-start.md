@@ -225,7 +225,7 @@ module with the
 [`@InstallIn`](https://dagger.dev/api/latest/dagger/hilt/InstallIn.html)
 annotation. These annotations are required on all Dagger modules when using
 Hilt, but this check may be optionally
-[disabled](compiler-options.md#disable-install-in-check).
+[disabled](flags.md#disable-install-in-check).
 
 **Note:** If a module does not have an `@InstallIn` annotation, the module will
 not be part of the component and may result in compilation errors.
