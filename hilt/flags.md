@@ -23,45 +23,47 @@ Alternatively, the check can be disabled at the individual module level by
 annotating the module with
 [`@DisableInstallInCheck`](https://dagger.dev/api/latest/dagger/hilt/migration/DisableInstallInCheck.html).
 
-### Sharing test components {#sharing-test-components}
+## Sharing test components {#sharing-test-components}
 
-By default, Hilt generates a Dagger `@Component` for each `@HiltAndroidTest`.
-However, in cases where a test does not define `@BindValue` fields or inner
-modules, it can share a component with other tests in the same compilation unit.
+In cases where a test does not define `@BindValue` fields or inner modules, it
+can share a generated component with other tests in the same compilation unit.
 Sharing components may reduce the amount of generated code that javac needs to
-compile.
+compile, improving build times.
 
-To enable test component sharing, use this flag:
+When component sharing is enabled, all test components are generated in a
+separate package from your test class. This may cause visibility and name
+collision issues. Those issues are described in the sections below.
 
-`-Adagger.hilt.shareTestComponents=true`
+Sharing components is enabled by default. If your project does not build due to
+component sharing, you can disable this behavior and have Hilt generate a Dagger
+separate `@Component` for each `@HiltAndroidTest` using this flag:
 
-#### Caveats
+`-Adagger.hilt.shareTestComponents=false`
 
-You may run into the following issues concerning entry point visibility when
-first enabling shared test components, which stem from the fact that enabling
-this feature causes Hilt to generate the shared component in a separate package
-from your test class.
+However, consider the following fixes in order to avoid disabling this behavior.
 
-These limitations are similar to those for production entry points, in which the
-`@HiltAndroidApp` typically lives in separate package from application entry
-points.
-
-##### Entry point type visibility
+### Entry point method return types must be public
 
 Because the shared components must be generated in a common package location
 that is outside of the tests' packages, any entry points included by the test
 must only provide publicly visible bindings. This is in order to be referenced
 by the generated components. You may find that you will have to mark some Java
-types as `public` (or remove `internal` in Kotlin) when first enabling this
-option.
+types as `public` (or remove `internal` in Kotlin).
 
-##### Entry point method names
+### Entry point method names must be unique
 
 Because the shared components must include entry points from every test class,
-explicit `@EntryPoint` methods may not clash. Test `@EntryPoint` methods must
+explicit `@EntryPoint` methods must not clash. Test `@EntryPoint` methods must
 either be uniquely named across test classes, or must return the same type.
 
-### Turning off the cross compilation root validation {#disable-cross-compilation-root-validation}
+### Modules with non-static/non-abstract methods must be public
+
+The generated Dagger component must be able to instantiate modules that have
+methods that are non-static and non-abstract. This requires referencing the
+module type explicitly across package boundaries. You may need to mark some
+package-private test modules as `public`.
+
+## Turning off the cross compilation root validation {#disable-cross-compilation-root-validation}
 
 By default, Hilt checks that:
 
