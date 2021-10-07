@@ -18,72 +18,14 @@ application to operate normally. That approach lends itself to having one (or
 maybe a small finite number) of test configurations, where the test
 configuration replaces some of the bindings in the prod configuration.
 
-### Option 1: Override bindings by subclassing modules (don’t do this!)
-
-The simplest way to replace bindings in a testing component is to override
-modules’ `@Provides` methods in a subclass. (But see [below](#do-not-override)
-for problems.)
-
-When you create an instance of your Dagger component, you pass in instances of
-the modules it uses. (You do not have to pass instances for modules with no-arg
-constructors or those without instance methods, but you can.) That means that
-you can pass instances of subclasses of those modules, and those subclasses can
-override some `@Provides` methods to replace some bindings.
-
-```java
-@Component(modules = {AuthModule.class, /* … */})
-interface MyApplicationComponent { /* … */ }
-
-@Module
-class AuthModule {
-  @Provides AuthManager authManager(AuthManagerImpl impl) {
-    return impl;
-  }
-}
-
-class FakeAuthModule extends AuthModule {
-  @Override
-  AuthManager authManager(AuthManagerImpl impl) {
-    return new FakeAuthManager();
-  }
-}
-
-MyApplicationComponent testingComponent = DaggerMyApplicationComponent.builder()
-    .authModule(new FakeAuthModule())
-    .build();
-```
-
-<a name="do-not-override"></a>
-But there are limitations to this approach:
-
-*   Using a module subclass cannot change the static shape of the binding graph:
-    it cannot add or remove bindings, or change bindings’ dependencies.
-    Specifically:
-
-    *   Overriding a `@Provides` method can’t change its parameter types, and
-        narrowing the return type has no effect on the binding graph as Dagger
-        understands it. In the example above, `testingComponent` still requires
-        a binding for `AuthManagerImpl` *and all its dependencies*, even though
-        they are not used.
-
-    *   Similarly, the overriding module cannot add bindings to the graph,
-        including new [multibinding](multibindings.md)
-        contributions (although you can still override a `SET_VALUES` method to
-        return a different set). Any new `@Provides` methods in the subclass are
-        silently ignored by Dagger. Practically, this means that your fakes
-        cannot take advantage of dependency injection.
-
-*   `@Provides` methods that are overridable in this way cannot be static, so
-    their module instances cannot be [elided][elide-static-module-instances].
-
 <a name="separate-component-configurations"></a>
 
-### Option 2: Separate component configurations
+### Separate component configurations
 
-Another approach requires more up-front design of the modules in your
-application. Each configuration of your application (production and testing)
-uses a different component configuration. The testing component type extends
-the production component type and installs a different set of modules.
+The recommended approach is to have a separate component configuration for each
+environment (e.g. production and testing). The testing component type extends
+the production component type so that it gets all of the same entry point and
+corresponding interfaces, but it installs a different set of modules.
 
 ```java
 @Component(modules = {
@@ -112,7 +54,64 @@ interface can add provision handles to the fake instances (`fakeAuthManager()`
 and `fakeFooService()`) so that the test can access them to control the harness
 if necessary.
 
-But how do you design your modules to make this pattern easy?
+### Do not override bindings by subclassing modules
+
+You might think a simple way to replace bindings in a testing component is to
+override modules’ `@Provides` methods in a subclass. Then, when you create an
+instance of your Dagger component, you can pass in instances of the modules it
+uses. (You do not have to pass instances for modules with no-arg constructors or
+those without instance methods, but you can.) For example:
+
+```java
+@Component(modules = {AuthModule.class, /* … */})
+interface MyApplicationComponent { /* … */ }
+
+@Module
+class AuthModule {
+  @Provides AuthManager authManager(AuthManagerImpl impl) {
+    return impl;
+  }
+}
+
+class FakeAuthModule extends AuthModule {
+  @Override
+  AuthManager authManager(AuthManagerImpl impl) {
+    return new FakeAuthManager();
+  }
+}
+
+MyApplicationComponent testingComponent = DaggerMyApplicationComponent.builder()
+    .authModule(new FakeAuthModule())
+    .build();
+```
+
+<a name="do-not-override"></a> But there are problems with this approach:
+
+*   Using a module subclass cannot change the static shape of the binding graph:
+    it cannot add or remove bindings, or change bindings’ dependencies.
+    Specifically:
+
+    *   Overriding a `@Provides` method can’t change its parameter types, and
+        narrowing the return type has no effect on the binding graph as Dagger
+        understands it. In the example above, `testingComponent` still requires
+        a binding for `AuthManagerImpl` *and all its dependencies*, even though
+        they are not used.
+
+    *   Similarly, the overriding module cannot add bindings to the graph,
+        including new [multibinding](multibindings.md) contributions (although
+        you can still override a `SET_VALUES` method to return a different set).
+        Any new `@Provides` methods in the subclass are silently ignored by
+        Dagger. Practically, this means that your fakes cannot take advantage of
+        dependency injection.
+
+*   `@Provides` methods that are overridable in this way cannot be static, so
+    their module instances cannot be [elided][elide-static-module-instances].
+    This will affect runtime performance of your production code as well.
+
+*   This method is brittle and usually makes code changes difficult. Most users
+    won't expect the `@Provides` methods to be overridden by a test, and so
+    adding new dependencies will break tests even when it would be a functional
+    no-op in Dagger.
 
 ## Organize modules for testability
 
@@ -220,35 +219,18 @@ Then your production configuration will use the real modules, and the testing
 configuration the fake modules, as described
 [above](#separate-component-configurations).
 
-## You don’t have to use Dagger for single-class [unit tests]
+## Unit tests and manual instantiation [unit tests]
 
-If you want to write a small unit test that tests only one `@Inject`-annotated
-class, you don’t need to use Dagger to instantiate that class. If you want to
-write a traditional unit test, you can directly call the `@Inject`-annotated
-constructor and methods and set the `@Inject`-annotated fields, if any, passing
-fake or mock dependencies directly, just as you would if they weren’t annotated.
+For smaller unit tests, it might seem like a good idea to just avoid using
+Dagger entirely and just instantiate objects by calling the `@Inject`
+constructor. However, there are downsides to this approach. See this
+[testing philosophy] discussion for those downsides.
 
-```java
-final class ThingDoer {
-  private final ThingGetter getter;
-  private final ThingPutter putter;
+[Dagger docs]:https://dagger.dev/hilt/testing-philosophy#manual-instantiation
 
-  @Inject ThingDoer(ThingGetter getter, ThingPutter putter) {
-    this.getter = getter;
-    this.putter = putter;
-  }
-
-  String doTheThing(int howManyTimes) { /* … */ }
-}
-
-public class ThingDoerTest {
-  @Test
-  public void testDoTheThing() {
-    ThingDoer doer = new ThingDoer(fakeGetter, fakePutter);
-    assertEquals("done", doer.doTheThing(5));
-  }
-}
-```
+It is generally recommended to create a Dagger component in your tests to
+instantiate objects, whether that is a larger test component for many tests or a
+small focused test component for the individual test.
 
 <!-- References -->
 

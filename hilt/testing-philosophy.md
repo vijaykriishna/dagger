@@ -90,7 +90,7 @@ for setting up different configurations of bindings for tests when you do need a
 fake or a mock. With Hilt, this issue should no longer be a deterrent to writing
 tests with Dagger and therefore easily using real dependencies.
 
-## Downsides of the alternative
+## Downsides of the alternative {#manual-instantiation}
 
 The alternative of not using Dagger in unit tests is actually pretty common
 advice. This, unfortunately, ends up having significant drawbacks, though it is
