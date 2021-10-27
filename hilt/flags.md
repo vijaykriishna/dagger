@@ -92,13 +92,12 @@ the `getContext()` fix. This flag controls if fragment code should use the fixed
 `getContext()` behavior where it correctly returns null after a fragment is
 removed. This fixed behavior matches the behavior of a regular, non-Hilt
 fragment and can help catch issues where a removed or leaked fragment is
-incorrectly used.
+incorrectly used. This is a runtime flag though because code previous relying on
+the method returning a non-null value after fragment removal could break.
 
-This flag is paired with the compiler option flag
-`dagger.hilt.android.useFragmentGetContextFix`. When that flag is false, this
-runtime flag has no effect on behavior (e.g. the compiler flag being off takes
-precedence). When the compiler flag is on, then the runtime flag may be used to
-disable the behavior at runtime.
+By default, the fix is turned off (e.g. the flag for disabling is true), but the
+fixed version may be used by setting the flag at runtime. The default for this
+flag may change in a future release.
 
 In order to set the flag, bind a boolean value qualified with
 `DisableFragmentGetContextFix` into a set in the `SingletonComponent`. A set is
@@ -114,7 +113,13 @@ public final class DisableFragmentGetContextFixModule {
 @IntoSet
 @FragmentGetContextFix.DisableFragmentGetContextFix
   static Boolean provideDisableFragmentGetContextFix() {
-    return // true or false depending on some rollout logic for your app
+    // Return true or false depending on some rollout logic for your app
+    // True is the default value if unset. Use false to use the fixed behavior.
  }
 }
 ```
+
+This flag used to be paired with a compiler option flag
+`dagger.hilt.android.useFragmentGetContextFix`, however, as of Dagger 2.40 this
+compiler option has now been removed and this behavior is only controlled via
+the runtime flag.
