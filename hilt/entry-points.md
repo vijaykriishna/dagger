@@ -1,3 +1,4 @@
+<!--* freshness: { owner: "kuanyingchou" reviewed: "2021-11-18" } *-->
 ---
 layout: default
 title: Entry Points
@@ -77,10 +78,10 @@ val bar = EntryPoints.get(applicationContext, FooBarInterface::class.java).getBa
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
-Additionally, the methods in
-[`EntryPointAccessors`](https://dagger.dev/api/latest/dagger/hilt/android/EntryPointAccessors.html)
-are more appropriate and type safe for retrieving entry points from the standard
-Android components.
+<!-- TODO(user): Add link back for EntryPointAccessors once we have KDoc
+or Dokka ready. -->
+Additionally, the methods in `EntryPointAccessors` are more appropriate and type
+safe for retrieving entry points from the standard Android components.
 
 ## Best practice: where to define an entry point interface?
 
