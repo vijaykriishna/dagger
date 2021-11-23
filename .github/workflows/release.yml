@@ -250,8 +250,19 @@ jobs:
       - name: 'Publish tagged release'
         run: util/publish-tagged-release.sh ${{ env.DAGGER_RELEASE_VERSION }}
         shell: bash
+      - name: 'Check out gh-pages repository'
+        uses: actions/checkout@v2
+        with:
+          ref: 'refs/heads/gh-pages'
+          path: gh-pages
       - name: 'Publish tagged docs'
-        run: util/publish-tagged-docs.sh ${{ env.DAGGER_RELEASE_VERSION }}
+        run: |
+          bazel build //:user-docs.jar
+          unzip bazel-bin/user-docs.jar -d gh-pages/api/$VERSION_NAME
+          cd gh-pages
+          util/publish-tagged-docs.sh ${{ env.DAGGER_RELEASE_VERSION }}
+          cd ..
+          rm -rf gh-pages
         shell: bash
       - name: 'Clean bazel cache'
         # According to the documentation, we should be able to exclude these via
