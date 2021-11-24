@@ -20,14 +20,7 @@ if [[ "$VERSION_NAME" =~ " " ]]; then
 fi
 
 # Publish javadocs to gh-pages
-bazel build //:user-docs.jar
-git clone --quiet --branch gh-pages \
-    https://github.com/google/dagger gh-pages > /dev/null
-cd gh-pages
-unzip ../bazel-bin/user-docs.jar -d api/$VERSION_NAME
 rm -rf api/$VERSION_NAME/META-INF/
 git add api/$VERSION_NAME
 git commit -m "$VERSION_NAME docs"
 git push origin gh-pages
-cd ..
-rm -rf gh-pages

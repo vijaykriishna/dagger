@@ -15,6 +15,7 @@ env:
   # Our Bazel builds currently rely on 4.2.1. The version is set via
   # baselisk by USE_BAZEL_VERSION: https://github.com/bazelbuild/bazelisk.
   USE_BAZEL_VERSION: '4.2.1'
+  DAGGER_RELEASE_VERSION: "2.40.2"
 
 jobs:
   validate-latest-dagger-version:
@@ -35,9 +36,9 @@ jobs:
       - name: 'Validate latest Dagger version'
         run: ./gh-pages/.github/scripts/validate-latest-dagger-version.sh gh-pages/_config.yml
         shell: bash
-  bazel-build:
-    name: 'Bazel build'
-    needs: validate-latest-dagger-version
+  publish-artifacts:
+    name: 'Publish Artifact'
+    needs: [validate-latest-dagger-version]
     runs-on: ubuntu-latest
     steps:
       - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
@@ -45,195 +46,11 @@ jobs:
         with:
           distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
           java-version: '${{ env.USE_JAVA_VERSION }}'
-      - name: 'Check out repository'
-        uses: actions/checkout@v2
-      - name: 'Cache Bazel files'
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-build-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-build-
-      - name: 'Java build'
-        run: bazel build //java/...
-        shell: bash
-      - name: 'Install local snapshot'
-        run: ./util/install-local-snapshot.sh
-        shell: bash
-      - name: 'Upload local snapshot for tests'
-        uses: actions/upload-artifact@v2
-        with:
-          name: local-snapshot
-          path: ~/.m2/repository/com/google/dagger
-      - name: 'Clean bazel cache'
-        # According to the documentation, we should be able to exclude these via
-        # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
-        # doesn't seem to work.
-        run: |
-          rm -rf $(bazel info repository_cache)
-          rm -rf ~/.cache/bazel/*/*/external/
-        shell: bash
-  bazel-test:
-    name: 'Bazel tests'
-    needs: validate-latest-dagger-version
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
-        uses: actions/setup-java@v2
-        with:
-          distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
-          java-version: '${{ env.USE_JAVA_VERSION }}'
-      - name: 'Check out repository'
-        uses: actions/checkout@v2
-      - name: 'Cache local Maven repository'
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/com/google/dagger
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: 'Cache Bazel files'
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/bazel
-          # Note: we could use the same key as bazel-build, but we separate them
-          # so that bazel-build's cache is smaller (~200Mb vs ~900Mb) and faster
-          # to load than this cache since it's the bottleneck of all other steps
-          key: ${{ runner.os }}-bazel-test-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-test-
-            ${{ runner.os }}-bazel-build-
-      - name: 'Cache Gradle files'
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: 'Run Bazel tests'
-        run: bazel test --test_output=errors //...
-        shell: bash
-      - name: 'Run Bazel examples'
-        run: cd examples/bazel; bazel test --test_output=errors //...
-        shell: bash
-      - name: 'Clean bazel cache'
-        # According to the documentation, we should be able to exclude these via
-        # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
-        # doesn't seem to work.
-        run: |
-          rm -rf $(bazel info repository_cache)
-          rm -rf ~/.cache/bazel/*/*/external/
-        shell: bash
-  artifact-java-local-tests:
-    name: 'Artifact Java local tests'
-    needs: bazel-build
-    runs-on: ubuntu-latest
-    steps:
-    - name: 'Check out repository'
-      uses: actions/checkout@v2
-    - name: 'Cache Gradle files'
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-    - name: 'Download local snapshot for tests'
-      uses: actions/download-artifact@v2
-      with:
-        name: local-snapshot
-        path: ~/.m2/repository/com/google/dagger
-    - name: 'Gradle Java local tests'
-      run: ./util/run-local-gradle-tests.sh
-      shell: bash
-  artifact-android-local-tests:
-    name: 'Artifact Android local tests (AGP ${{ matrix.agp }})'
-    needs: bazel-build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        agp: ['4.1.0', '4.2.0', '7.0.0']
-    steps:
-      - name: 'Check out repository'
-        uses: actions/checkout@v2
-      - name: 'Cache Gradle files'
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: 'Download local snapshot for tests'
-        uses: actions/download-artifact@v2
-        with:
-          name: local-snapshot
-          path: ~/.m2/repository/com/google/dagger
-      - name: 'Gradle Android local tests (AGP ${{ matrix.agp }})'
-        run: ./util/run-local-gradle-android-tests.sh "${{ matrix.agp }}"
-        shell: bash
-      - name: 'Upload test reports (AGP ${{ matrix.agp }})'
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: tests-reports-agp-${{ matrix.agp }}
-          path: ${{ github.workspace }}/**/build/reports/tests/*
-  artifact-android-emulator-tests:
-    name: 'Artifact Android emulator tests (API 30)'
-    needs: bazel-build
-    # It's recommended to run emulator tests on macOS
-    # See https://github.com/marketplace/actions/android-emulator-runner
-    runs-on: macos-latest
-    steps:
-      - name: 'Check out repository'
-        uses: actions/checkout@v2
-      - name: 'Cache Gradle files'
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: 'Download local snapshot for tests'
-        uses: actions/download-artifact@v2
-        with:
-          name: local-snapshot
-          path: ~/.m2/repository/com/google/dagger
-      - name: 'Gradle Android emulator tests (API 30)'
-        uses: reactivecircus/android-emulator-runner@v2
-        timeout-minutes: 25
-        with:
-          api-level: 30
-          target: google_apis
-          script: ./util/run-local-emulator-tests.sh
-      - name: 'Upload test reports (API 30)'
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: androidTests-reports-api-30
-          path: ${{ github.workspace }}/**/build/reports/androidTests/connected/*
-  publish-snapshot:
-    name: 'Publish snapshot'
-    # TODO(bcorso): Consider also waiting on artifact-android-emulator-tests
-    # and artifact-android-emulator-legacy-api-tests after checking flakiness.
-    needs: [bazel-test, artifact-java-local-tests, artifact-android-local-tests]
-    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
-        uses: actions/setup-java@v2
-        with:
-          distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
-          java-version: '${{ env.USE_JAVA_VERSION }}'
+          server-id: sonatype-nexus-staging
+          server-username: CI_DEPLOY_USERNAME
+          server-password: CI_DEPLOY_PASSWORD
+          gpg-private-key: ${{ secrets.CI_GPG_PRIVATE_KEY }}
+          gpg-passphrase: CI_GPG_PASSPHRASE
       - name: 'Check out repository'
         uses: actions/checkout@v2
       - name: 'Cache local Maven repository'
@@ -261,17 +78,40 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: 'Publish latest docs'
-        run: ./util/generate-latest-docs.sh
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - name: 'Publish latest snapshot'
-        run: ./util/publish-snapshot-on-commit.sh
+      - name: Publish artifacts
+        run: |
+          util/deploy-all.sh \
+            "gpg:sign-and-deploy-file" \
+            "${{ env.DAGGER_RELEASE_VERSION }}" \
+            "-DrepositoryId=sonatype-nexus-staging" \
+            "-Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/"
         shell: bash
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          CI_GPG_PASSPHRASE: ${{ secrets.CI_GPG_PASSPHRASE }}
+      - name: 'Set git credentials'
+        run: |
+            git config --global user.email "dagger-dev+github@google.com"
+            git config --global user.name "Dagger Team"
+        shell: bash
+      - name: 'Publish tagged release'
+        run: util/publish-tagged-release.sh ${{ env.DAGGER_RELEASE_VERSION }}
+        shell: bash
+      - name: 'Check out gh-pages repository'
+        uses: actions/checkout@v2
+        with:
+          ref: 'refs/heads/gh-pages'
+          path: gh-pages
+      - name: 'Publish tagged docs'
+        run: |
+          bazel build //:user-docs.jar
+          unzip bazel-bin/user-docs.jar -d gh-pages/api/${{ env.DAGGER_RELEASE_VERSION }}
+          cd gh-pages
+          ../util/publish-tagged-docs.sh ${{ env.DAGGER_RELEASE_VERSION }}
+          cd ..
+          rm -rf gh-pages
+        shell: bash
       - name: 'Clean bazel cache'
         # According to the documentation, we should be able to exclude these via
         # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
@@ -280,98 +120,4 @@ jobs:
           rm -rf $(bazel info repository_cache)
           rm -rf ~/.cache/bazel/*/*/external/
         shell: bash
-  artifact-android-emulator-legacy-api-tests:
-    name: 'Artifact Android emulator tests (API ${{ matrix.api-level }})'
-    # We only run this on master push (essentially a postsubmit) since these
-    # can take a while to run
-    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
-    needs: bazel-build
-    # It's recommended to run emulator tests on macOS
-    # See https://github.com/marketplace/actions/android-emulator-runner
-    runs-on: macos-latest
-    strategy:
-      matrix: # Run on 16 (PreL), 21 (L), and 26 (O).
-        api-level: [16, 21, 26]
-    steps:
-      - name: 'Check out repository'
-        uses: actions/checkout@v2
-      - name: 'Cache Gradle files'
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: 'Download local snapshot for tests'
-        uses: actions/download-artifact@v2
-        with:
-          name: local-snapshot
-          path: ~/.m2/repository/com/google/dagger
-      - name: 'Gradle Android emulator tests (API ${{ matrix.api-level }})'
-        uses: reactivecircus/android-emulator-runner@v2
-        timeout-minutes: 25
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: google_apis
-          script: ./util/run-local-emulator-tests.sh
-      - name: 'Upload test reports (API ${{ matrix.api-level }})'
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: androidTests-report-api-${{ matrix.api-level }}
-          path: ${{ github.workspace }}/**/build/reports/androidTests/connected/*
-  build-gradle-plugin-latest-agp:
-    name: 'Build Hilt Gradle plugin against latest AGP version'
-    # We only run this on master push (essentially a postsubmit) since we
-    # don't want this job to prevent merges
-    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
-    needs: bazel-build
-    runs-on: ubuntu-latest
-    steps:
-    - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
-      uses: actions/setup-java@v2
-      with:
-          distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
-          java-version: '${{ env.USE_JAVA_VERSION }}'
-    - name: 'Check out repository'
-      uses: actions/checkout@v2
-    - name: 'Cache local Maven repository'
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.m2/repository
-          !~/.m2/repository/com/google/dagger
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-    - name: 'Cache Bazel files'
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/bazel
-        key: ${{ runner.os }}-bazel-build-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-bazel-build-
-    - name: 'Cache Gradle files'
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-    - name: 'Build and install Hilt Gradle plugin local snapshot'
-      run: ./util/deploy-hilt-gradle-plugin.sh "install:install-file" "LOCAL-SNAPSHOT"
-      shell: bash
-      env:
-        AGP_VERSION: '+'
-    - name: 'Clean bazel cache'
-      # According to the documentation, we should be able to exclude these via
-      # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
-      # doesn't seem to work.
-      run: |
-        rm -rf $(bazel info repository_cache)
-        rm -rf ~/.cache/bazel/*/*/external/
-      shell: bash
+

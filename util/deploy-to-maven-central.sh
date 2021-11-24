@@ -47,4 +47,12 @@ bash $(dirname $0)/publish-tagged-release.sh $VERSION_NAME
 # Switch back to the original HEAD
 git checkout -
 
+
+git clone --quiet --branch gh-pages \
+    https://github.com/google/dagger gh-pages > /dev/null
+bazel build //:user-docs.jar
+unzip bazel-bin/user-docs.jar -d gh-pages/api/$VERSION_NAME
+cd gh-pages
 bash $(dirname $0)/publish-tagged-docs.sh $VERSION_NAME
+cd ..
+rm -rf gh-pages
