@@ -1,4 +1,3 @@
-<!--* freshness: { owner: "kuanyingchou" reviewed: "2021-11-18" } *-->
 ---
 layout: default
 title: Entry Points
