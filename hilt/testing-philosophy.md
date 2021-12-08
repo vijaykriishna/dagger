@@ -90,14 +90,15 @@ for setting up different configurations of bindings for tests when you do need a
 fake or a mock. With Hilt, this issue should no longer be a deterrent to writing
 tests with Dagger and therefore easily using real dependencies.
 
-## Downsides of the alternative {#manual-instantiation}
+## Downsides of manual instantiation {#manual-instantiation}
 
-The alternative of not using Dagger in unit tests is actually pretty common
-advice. This, unfortunately, ends up having significant drawbacks, though it is
+One of the common alternatives to using Dagger in unit tests is to instantiate
+an object directly by manually calling its constructor (or `@Provides` method).
+This, unfortunately, ends up having significant drawbacks, though it is
 understandable advice given the difficulty of using Dagger in tests without
 Hilt.
 
-For example, let’s say we have a Foo class that we want to test:
+For example, let’s say we have a `Foo` class that we want to test:
 
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
 <div class="c-codeselector__button c-codeselector__button_kotlin">Kotlin</div>
@@ -113,10 +114,12 @@ class Foo @Inject constructor(bar: Bar) {
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
-In this case, if not using Dagger, the test would directly instantiate `Foo` by
-just calling the constructor. At first glance this seems like a very simple and
-reasonable thing to do; however, things start to unravel as you try to supply an
-instance of `Bar` into `Foo`'s constructor.
+The test directly instantiates `Foo` by calling its constructor. At first
+glance, this seems like a very simple and reasonable thing to do; however,
+things start to unravel as you try to supply `Foo`'s dependencies. In this
+case, `Foo` depends on `Bar`. `Bar` may have other dependencies of its own.
+As we'll see in the following sections, supplying all of these dependencies
+manually can lead brittle tests.
 
 ### Direct instantiation encourages mocks
 

@@ -224,9 +224,8 @@ configuration the fake modules, as described
 For smaller unit tests, it might seem like a good idea to just avoid using
 Dagger entirely and just instantiate objects by calling the `@Inject`
 constructor. However, there are downsides to this approach. See this
-[testing philosophy] discussion for those downsides.
-
-[Dagger docs]:https://dagger.dev/hilt/testing-philosophy#manual-instantiation
+[testing philosophy](../hilt/testing-philosophy.md#manual-instantiation)
+discussion for those downsides.
 
 It is generally recommended to create a Dagger component in your tests to
 instantiate objects, whether that is a larger test component for many tests or a
