@@ -13,6 +13,10 @@ These are some of the questions most commonly asked of the Dagger team.
 In addition to those listed below, be sure to check the highest voted [Dagger 2
 questions on Stack Overflow][dagger-2-stack-overflow].
 
+## How to try out fixes/features before a release?
+
+See [Dagger's `HEAD-SNAPSHOT` guide](versions.md#head-snapshot-artifacts).
+
 ## [`@Binds`]
 
 ### Why is `@Binds` different from `@Provides`?

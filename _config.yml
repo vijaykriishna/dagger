@@ -76,6 +76,9 @@ nav:
             name: gRPC
             url: /grpc
         - item:
+            name: Versions
+            url: /versions
+        - item:
             name: FAQ
             url: /faq
   - item:
