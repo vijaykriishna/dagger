@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Optional injection
+title: Optional inject
 ---
 
 ## Why would you need optional injection?
@@ -46,7 +46,7 @@ public final class MyFragment extends Fragment {
 
   @Override public void onAttach(Activity activity) {
     super.onAttach(activity);  // Injection will happen here, but only if the Activity used Hilt
-    if (!wasInjectedByHilt()) {
+    if (!OptionalInjectCheck.wasInjectedByHilt(this)) {
       // Get Dagger components the previous way and inject
     }
   }
@@ -62,7 +62,7 @@ class MyFragment : Fragment() {
 
   override fun onAttach(activity: Activity) {
     super.onAttach(activity)  // Injection will happen here, but only if the Activity used Hilt
-    if (!wasInjectedByHilt()) {
+    if (!OptionalInjectCheck.wasInjectedByHilt(this)) {
       // Get Dagger components the previous way and inject
     }
   }

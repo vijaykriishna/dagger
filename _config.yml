@@ -140,7 +140,10 @@ nav:
                   name: "Guide"
                   url: /migration-guide
               - item:
-                  name: "Optional injection"
+                  name: "Custom inject"
+                  url: /custom-inject
+              - item:
+                  name: "Optional inject"
                   url: /optional-inject
               - item:
                   name: "Scope aliases"
