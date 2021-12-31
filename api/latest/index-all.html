@@ -692,6 +692,16 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/grpc/server/CurrentContextModule.html#CurrentContextModule--">CurrentContextModule()</a></span> - Constructor for class dagger.grpc.server.<a href="dagger/grpc/server/CurrentContextModule.html" title="class in dagger.grpc.server">CurrentContextModule</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="dagger/hilt/android/migration/CustomInject.html" title="annotation in dagger.hilt.android.migration"><span class="typeNameLink">CustomInject</span></a> - Annotation Type in <a href="dagger/hilt/android/migration/package-summary.html">dagger.hilt.android.migration</a></dt>
+<dd>
+<div class="block">When used on a <a href="dagger/hilt/android/HiltAndroidApp.html" title="annotation in dagger.hilt.android"><code>HiltAndroidApp</code></a>-annotated application, this causes the
+ application to no longer inject itself in onCreate and instead allows it to be injected at some
+ other time.</div>
+</dd>
+<dt><a href="dagger/hilt/android/migration/CustomInjection.html" title="class in dagger.hilt.android.migration"><span class="typeNameLink">CustomInjection</span></a> - Class in <a href="dagger/hilt/android/migration/package-summary.html">dagger.hilt.android.migration</a></dt>
+<dd>
+<div class="block">Utility methods for injecting the application when using <a href="dagger/hilt/android/migration/CustomInject.html" title="annotation in dagger.hilt.android.migration"><code>CustomInject</code></a>.</div>
+</dd>
 <dt><a href="dagger/hilt/android/testing/CustomTestApplication.html" title="annotation in dagger.hilt.android.testing"><span class="typeNameLink">CustomTestApplication</span></a> - Annotation Type in <a href="dagger/hilt/android/testing/package-summary.html">dagger.hilt.android.testing</a></dt>
 <dd>
 <div class="block">An annotation that creates an application with the given base type that can be used for any
@@ -1402,6 +1412,10 @@
 <dd>
 <div class="block">Injects <code>fragment</code> if an associated <a href="dagger/android/AndroidInjector.html" title="interface in dagger.android"><code>AndroidInjector</code></a> implementation can be found,
  otherwise throws an <code>IllegalArgumentException</code>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/migration/CustomInjection.html#inject-android.app.Application-">inject(Application)</a></span> - Static method in class dagger.hilt.android.migration.<a href="dagger/hilt/android/migration/CustomInjection.html" title="class in dagger.hilt.android.migration">CustomInjection</a></dt>
+<dd>
+<div class="block">Injects the passed in application.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/testing/HiltAndroidRule.html#inject--">inject()</a></span> - Method in class dagger.hilt.android.testing.<a href="dagger/hilt/android/testing/HiltAndroidRule.html" title="class in dagger.hilt.android.testing">HiltAndroidRule</a></dt>
 <dd>
