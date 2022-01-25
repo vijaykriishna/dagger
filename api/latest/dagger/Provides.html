@@ -105,13 +105,11 @@ public @interface <span class="memberNameLabel">Provides</span></pre>
  <p>Dagger forbids injecting <code>null</code> by default. Component implementations that invoke
  <code>@Provides</code> methods that return <code>null</code> will throw a <code>NullPointerException</code>
  immediately thereafter. <code>@Provides</code> methods may opt into allowing <code>null</code> by
- annotating the method with any <code>@Nullable</code> annotation like
- <code>javax.annotation.Nullable</code> or <code>androidx.annotation.Nullable</code>.
+ annotating the method with any <code>@Nullable</code> annotation like <code>javax.annotation.Nullable</code> or <code>androidx.annotation.Nullable</code>.
 
- <p>If a <code>@Provides</code> method is marked <code>@Nullable</code>, Dagger will <em>only</em>
- allow injection into sites that are marked <code>@Nullable</code> as well. A component that
- attempts to pair a <code>@Nullable</code> provision with a non-<code>@Nullable</code> injection site
- will fail to compile.</div>
+ <p>If a <code>@Provides</code> method is marked <code>@Nullable</code>, Dagger will <em>only</em> allow
+ injection into sites that are marked <code>@Nullable</code> as well. A component that attempts to pair
+ a <code>@Nullable</code> provision with a non-<code>@Nullable</code> injection site will fail to compile.</div>
 </li>
 </ul>
 </div>
