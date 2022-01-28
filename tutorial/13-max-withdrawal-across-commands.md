@@ -37,6 +37,7 @@ if (amount.compareTo(remainingWithdrawalLimit) > 0) {
       String.format(
           "you may not withdraw %s; you may withdraw %s more in this session",
           amount, remainingWithdrawalLimit));
+  return;
 }
 
 ...
