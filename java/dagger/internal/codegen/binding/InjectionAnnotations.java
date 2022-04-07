@@ -99,7 +99,6 @@ public final class InjectionAnnotations {
    * superficially validated before we can determine if they are scopes or not.
    */
   public ImmutableSet<Scope> getScopes(XElement element) {
-    superficialValidation.validateTypeOf(element);
     ImmutableSet<Scope> scopes =
         getScopesFromScopeMetadata(element)
             .orElseGet(
@@ -202,7 +201,6 @@ public final class InjectionAnnotations {
    * superficially validated before we can determine if they are qualifiers or not.
    */
   public ImmutableSet<XAnnotation> getQualifiers(XElement element) {
-    superficialValidation.validateTypeOf(element);
     ImmutableSet<XAnnotation> qualifiers =
         getQualifiersFromQualifierMetadata(element)
             .orElseGet(

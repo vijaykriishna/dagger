@@ -165,7 +165,6 @@ public final class InjectValidator implements ClearableCache {
   }
 
   private ValidationReport validateConstructor(XConstructorElement constructorElement) {
-    superficialValidation.validateTypeOf(constructorElement);
     ValidationReport.Builder builder =
         ValidationReport.about(constructorElement.getEnclosingElement());
 
@@ -220,7 +219,6 @@ public final class InjectValidator implements ClearableCache {
     }
 
     for (XExecutableParameterElement parameter : constructorElement.getParameters()) {
-      superficialValidation.validateTypeOf(parameter);
       validateDependencyRequest(builder, parameter);
     }
 
@@ -276,7 +274,6 @@ public final class InjectValidator implements ClearableCache {
   }
 
   private ValidationReport validateField(XFieldElement fieldElement) {
-    superficialValidation.validateTypeOf(fieldElement);
     ValidationReport.Builder builder = ValidationReport.about(fieldElement);
     if (fieldElement.isFinal()) {
       builder.addError("@Inject fields may not be final", fieldElement);
@@ -302,7 +299,6 @@ public final class InjectValidator implements ClearableCache {
   }
 
   private ValidationReport validateMethod(XMethodElement methodElement) {
-    superficialValidation.validateTypeOf(methodElement);
     ValidationReport.Builder builder = ValidationReport.about(methodElement);
     if (methodElement.isAbstract()) {
       builder.addError("Methods with @Inject may not be abstract", methodElement);
@@ -334,7 +330,6 @@ public final class InjectValidator implements ClearableCache {
     }
 
     for (XExecutableParameterElement parameter : methodElement.getParameters()) {
-      superficialValidation.validateTypeOf(parameter);
       validateDependencyRequest(builder, parameter);
     }
 
