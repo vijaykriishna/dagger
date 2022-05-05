@@ -21,7 +21,7 @@ application must either be [`HiltTestApplication`] or one of Hilt's
 [custom test applications](testing.md#custom-test-application).
 
 **Note:** This setup is not particular to Hilt. See the
-[offical Robolectric documentation] for more details.
+[official Robolectric documentation] for more details.
 {: .c-callouts__note }
 
 ### Using @Config
@@ -61,5 +61,5 @@ Android instrumentation environments, since the `@Config` annotation cannot be
 used with Android instrumentation tests.
 
 [`@Config`]: http://robolectric.org/javadoc/latest/org/robolectric/annotation/Config.html
-[offical Robolectric documentation]: http://robolectric.org/configuring/
+[official Robolectric documentation]: http://robolectric.org/configuring/
 [`HiltTestApplication`]: https://dagger.dev/api/latest/dagger/hilt/android/testing/HiltTestApplication.html
