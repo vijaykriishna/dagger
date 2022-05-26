@@ -920,6 +920,12 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/android/DaggerIntentService.html#DaggerIntentService-java.lang.String-">DaggerIntentService(String)</a></span> - Constructor for class dagger.android.<a href="dagger/android/DaggerIntentService.html" title="class in dagger.android">DaggerIntentService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model"><span class="typeNameLink">DaggerProcessingEnv</span></a> - Class in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
+<dd>
+<div class="block">Wrapper type for an element.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerProcessingEnv.html#DaggerProcessingEnv--">DaggerProcessingEnv()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/android/DaggerService.html" title="class in dagger.android"><span class="typeNameLink">DaggerService</span></a> - Class in <a href="dagger/android/package-summary.html">dagger.android</a></dt>
 <dd>
 <div class="block">A <code>Service</code> that injects its members in <a href="dagger/android/DaggerService.html#onCreate--"><code>DaggerService.onCreate()</code></a>.</div>
@@ -1201,6 +1207,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#from-androidx.room.compiler.processing.XExecutableElement-">from(XExecutableElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerProcessingEnv.html#from-androidx.room.compiler.processing.XProcessingEnv-">from(XProcessingEnv)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#from-androidx.room.compiler.processing.XType-">from(XType)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerTypeElement.html#from-androidx.room.compiler.processing.XTypeElement-">from(XTypeElement)</a></span> - Static method in class dagger.spi.model.<a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></dt>
@@ -1335,20 +1343,15 @@
 <dd>
 <div class="block">Returns a producer that succeeds with the given value.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#init-dagger.spi.model.DaggerProcessingEnv-java.util.Map-">init(DaggerProcessingEnv, Map&lt;String, String&gt;)</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
+<dd>
+<div class="block">Initializes this plugin with a <a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model"><code>DaggerProcessingEnv</code></a>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/BindingGraphPlugin.html#initElements-javax.lang.model.util.Elements-">initElements(Elements)</a></span> - Method in interface dagger.spi.<a href="dagger/spi/BindingGraphPlugin.html" title="interface in dagger.spi">BindingGraphPlugin</a></dt>
 <dd>
 <div class="block">Initializes this plugin with a <code>Elements</code> instance.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#initElements-javax.lang.model.util.Elements-">initElements(Elements)</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
-<dd>
-<div class="block">Initializes this plugin with a <code>Elements</code> instance.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/BindingGraphPlugin.html#initFiler-javax.annotation.processing.Filer-">initFiler(Filer)</a></span> - Method in interface dagger.spi.<a href="dagger/spi/BindingGraphPlugin.html" title="interface in dagger.spi">BindingGraphPlugin</a></dt>
-<dd>
-<div class="block">Initializes this plugin with a <code>Filer</code> that it can use to write Java or other files based
- on the binding graph.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#initFiler-javax.annotation.processing.Filer-">initFiler(Filer)</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
 <dd>
 <div class="block">Initializes this plugin with a <code>Filer</code> that it can use to write Java or other files based
  on the binding graph.</div>
@@ -1358,18 +1361,9 @@
 <div class="block">Initializes this plugin with a filtered view of the options passed on the <code>javac</code>
  command-line for all keys from <a href="dagger/spi/BindingGraphPlugin.html#supportedOptions--"><code>BindingGraphPlugin.supportedOptions()</code></a>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#initOptions-java.util.Map-">initOptions(Map&lt;String, String&gt;)</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
-<dd>
-<div class="block">Initializes this plugin with a filtered view of the options passed on the <code>javac</code>
- command-line for all keys from <a href="dagger/spi/model/BindingGraphPlugin.html#supportedOptions--"><code>BindingGraphPlugin.supportedOptions()</code></a>.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#initSteps--">initSteps()</a></span> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/BindingGraphPlugin.html#initTypes-javax.lang.model.util.Types-">initTypes(Types)</a></span> - Method in interface dagger.spi.<a href="dagger/spi/BindingGraphPlugin.html" title="interface in dagger.spi">BindingGraphPlugin</a></dt>
-<dd>
-<div class="block">Initializes this plugin with a <code>Types</code> instance.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#initTypes-javax.lang.model.util.Types-">initTypes(Types)</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
 <dd>
 <div class="block">Initializes this plugin with a <code>Types</code> instance.</div>
 </dd>
@@ -1613,6 +1607,8 @@
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerProcessingEnv.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#java--">java()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
 <dd>&nbsp;</dd>
@@ -1974,7 +1970,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/BindingGraphPlugin.html#pluginName--">pluginName()</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/BindingGraphPlugin.html" title="interface in dagger.spi.model">BindingGraphPlugin</a></dt>
 <dd>
-<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the <code>Messager</code>.</div>
+<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#process-com.google.common.collect.SetMultimap-">process(SetMultimap&lt;Class&lt;? extends Annotation&gt;, Element&gt;)</a></span> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
 <dd>&nbsp;</dd>
@@ -2634,6 +2630,8 @@ the order they are declared.</div>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerElement.html#xprocessing--">xprocessing()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model">DaggerElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerExecutableElement.html#xprocessing--">xprocessing()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerProcessingEnv.html#xprocessing--">xprocessing()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/DaggerType.html#xprocessing--">xprocessing()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerType.html" title="class in dagger.spi.model">DaggerType</a></dt>
 <dd>&nbsp;</dd>

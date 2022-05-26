@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":6};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -124,43 +124,24 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#initElements-javax.lang.model.util.Elements-">initElements</a></span>(javax.lang.model.util.Elements&nbsp;elements)</code>
-<div class="block">Initializes this plugin with a <code>Elements</code> instance.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#init-dagger.spi.model.DaggerProcessingEnv-java.util.Map-">init</a></span>(<a href="../../../dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a>&nbsp;processingEnv,
+    java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;options)</code>
+<div class="block">Initializes this plugin with a <a href="../../../dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model"><code>DaggerProcessingEnv</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#initFiler-javax.annotation.processing.Filer-">initFiler</a></span>(javax.annotation.processing.Filer&nbsp;filer)</code>
-<div class="block">Initializes this plugin with a <code>Filer</code> that it can use to write Java or other files based
- on the binding graph.</div>
+<td class="colFirst"><code>default java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#pluginName--">pluginName</a></span>()</code>
+<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#initOptions-java.util.Map-">initOptions</a></span>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;options)</code>
-<div class="block">Initializes this plugin with a filtered view of the options passed on the <code>javac</code>
- command-line for all keys from <a href="../../../dagger/spi/model/BindingGraphPlugin.html#supportedOptions--"><code>supportedOptions()</code></a>.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#initTypes-javax.lang.model.util.Types-">initTypes</a></span>(javax.lang.model.util.Types&nbsp;types)</code>
-<div class="block">Initializes this plugin with a <code>Types</code> instance.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>default java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#pluginName--">pluginName</a></span>()</code>
-<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the <code>Messager</code>.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
 <td class="colFirst"><code>default java.util.Set&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#supportedOptions--">supportedOptions</a></span>()</code>
 <div class="block">Returns the annotation-processing options that this plugin uses to configure behavior.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../dagger/spi/model/BindingGraphPlugin.html#visitGraph-dagger.spi.model.BindingGraph-dagger.spi.model.DiagnosticReporter-">visitGraph</a></span>(<a href="../../../dagger/spi/model/BindingGraph.html" title="class in dagger.spi.model">BindingGraph</a>&nbsp;bindingGraph,
           <a href="../../../dagger/spi/model/DiagnosticReporter.html" title="interface in dagger.spi.model">DiagnosticReporter</a>&nbsp;diagnosticReporter)</code>
@@ -194,66 +175,18 @@ var activeTableTab = "activeTableTab";
  diagnostics using <code>diagnosticReporter</code>.</div>
 </li>
 </ul>
-<a name="initFiler-javax.annotation.processing.Filer-">
+<a name="init-dagger.spi.model.DaggerProcessingEnv-java.util.Map-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initFiler</h4>
-<pre>default&nbsp;void&nbsp;initFiler(javax.annotation.processing.Filer&nbsp;filer)</pre>
-<div class="block">Initializes this plugin with a <code>Filer</code> that it can use to write Java or other files based
- on the binding graph. This will be called once per instance of this plugin, before any graph is
+<h4>init</h4>
+<pre>default&nbsp;void&nbsp;init(<a href="../../../dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a>&nbsp;processingEnv,
+                  java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;options)</pre>
+<div class="block">Initializes this plugin with a <a href="../../../dagger/spi/model/DaggerProcessingEnv.html" title="class in dagger.spi.model"><code>DaggerProcessingEnv</code></a>.
+
+ <p>This will be called once per instance of this plugin, before any graph is
  <a href="../../../dagger/spi/model/BindingGraphPlugin.html#visitGraph-dagger.spi.model.BindingGraph-dagger.spi.model.DiagnosticReporter-">visited</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>ProcessingEnvironment.getFiler()</code></dd>
-</dl>
-</li>
-</ul>
-<a name="initTypes-javax.lang.model.util.Types-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>initTypes</h4>
-<pre>default&nbsp;void&nbsp;initTypes(javax.lang.model.util.Types&nbsp;types)</pre>
-<div class="block">Initializes this plugin with a <code>Types</code> instance. This will be called once per instance of
- this plugin, before any graph is <a href="../../../dagger/spi/model/BindingGraphPlugin.html#visitGraph-dagger.spi.model.BindingGraph-dagger.spi.model.DiagnosticReporter-">visited</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>ProcessingEnvironment.getTypeUtils()</code></dd>
-</dl>
-</li>
-</ul>
-<a name="initElements-javax.lang.model.util.Elements-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>initElements</h4>
-<pre>default&nbsp;void&nbsp;initElements(javax.lang.model.util.Elements&nbsp;elements)</pre>
-<div class="block">Initializes this plugin with a <code>Elements</code> instance. This will be called once per instance
- of this plugin, before any graph is <a href="../../../dagger/spi/model/BindingGraphPlugin.html#visitGraph-dagger.spi.model.BindingGraph-dagger.spi.model.DiagnosticReporter-">visited</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>ProcessingEnvironment.getElementUtils()</code></dd>
-</dl>
-</li>
-</ul>
-<a name="initOptions-java.util.Map-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>initOptions</h4>
-<pre>default&nbsp;void&nbsp;initOptions(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;options)</pre>
-<div class="block">Initializes this plugin with a filtered view of the options passed on the <code>javac</code>
- command-line for all keys from <a href="../../../dagger/spi/model/BindingGraphPlugin.html#supportedOptions--"><code>supportedOptions()</code></a>. This will be called once per
- instance of this plugin, before any graph is <a href="../../../dagger/spi/model/BindingGraphPlugin.html#visitGraph-dagger.spi.model.BindingGraph-dagger.spi.model.DiagnosticReporter-">visited</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>ProcessingEnvironment.getOptions()</code></dd>
-</dl>
 </li>
 </ul>
 <a name="supportedOptions--">
@@ -277,8 +210,9 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>pluginName</h4>
 <pre>default&nbsp;java.lang.String&nbsp;pluginName()</pre>
-<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the <code>Messager</code>. By default, the fully qualified name of the
- plugin is used.</div>
+<div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.
+ By default, the fully qualified name of the plugin is
+ used.</div>
 </li>
 </ul>
 </li>
