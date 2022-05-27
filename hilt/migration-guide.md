@@ -32,12 +32,12 @@ migration will be different. The recommended approach is to start at the
 `Application` and `@Singleton`, migrate activities and then fragments after
 that. This should generally be doable as an incremental migration. Even if you
 have a relatively small codebase, doing the migration incrementally will give
-you a chance to build in between steps to sanity check your progress.
+you a chance to build in between steps to check your progress.
 
 ### Compare component hierarchies
 
 The first thing to do is to compare your current component hierarchy to the one
-in [Hilt](components.md). You’ll want to decide which components map to which
+in [Hilt](components.md). You'll want to decide which components map to which
 Hilt component. Hopefully these should be relatively straightforward, but if
 there is not a clear mapping, you can keep custom components as manual Dagger
 components. These components can be children of the Hilt components. However,
@@ -48,7 +48,7 @@ assumes a migration where the components all map directly to Hilt components.**
 
 Also, if your code uses component dependencies, you should read the component
 dependencies
-[section](#component-dependencies-for-components-that-map-to-hilt-components)
+[section](#component-dependencies-matching-hilt-components)
 below first as well. **The rest of this guide assumes usage of subcomponents.**
 
 If you are using the dagger.android `@ContributesAndroidInjector` and are unsure
@@ -70,7 +70,8 @@ At the end of the migration, the code should be changed as follows:
     `@ContributesAndroidInjector`) usages should be removed.
 *   All `@Module` classes should be annotated with `@InstallIn`.
 *   All `Application`/`Activity`/`Fragment`/`View`/`Service`/`BroadcastReceiver`
-    classes should be annotated with `@AndroidEntryPoint`.
+    classes should be annotated with `@AndroidEntryPoint` (assuming use of
+    injection in those classes).
 *   Any code instantiating or propagating components (like interfaces on your
     Activity to expose the component) should be removed.
 *   All `dagger.android` references should be removed.
@@ -78,7 +79,7 @@ At the end of the migration, the code should be changed as follows:
 ## 1. Migrate the `Application`
 
 The first thing to change will be to migrate your `Application` and `@Singleton`
-component to the generated Hilt `SingletonComponent`. To do this, we’ll first
+component to the generated Hilt `SingletonComponent`. To do this, we'll first
 want to make sure that everything that is installed in your current component is
 installed in the Hilt `SingletonComponent`.
 
@@ -95,7 +96,7 @@ with `@InstallIn(SingletonComponent.class)`. If there are a lot of modules,
 instead of changing all of those now, you can create and install a single
 aggregator `@Module` class that includes all of the current modules. This is
 just a temporary solution, however, since in order to take full advantage of
-Hilt features like [uninstalling modules](testing.md#uninstall-modules), you
+Hilt features like [replacing bindings](testing.md#replacing-bindings), you
 will need to break up the aggregator module in the future.
 
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
@@ -279,7 +280,7 @@ interface AggregatorEntryPoint extends LegacyInterface, ... {
 
 @HiltAndroidApp
 public final class MyApplication extends Application {
-  // The return type changed the the AggregatorEntryPoint, but that should be
+  // The return type changed to AggregatorEntryPoint, but that should be
   // okay as this implements all the interfaces the old component used to.
   AggregatorEntryPoint component() {
     // Use EntryPoints to get an instance of the AggregatorEntryPoint.
@@ -305,7 +306,7 @@ interface AggregatorEntryPoint : LegacyInterface, ... {
 
 @HiltAndroidApp
 class MyApplication : Application() {
-  // The return type changed the the AggregatorEntryPoint, but that should be
+  // The return type changed to AggregatorEntryPoint, but that should be
   // okay as this implements all the interfaces the old component used to.
   fun component(): AggregatorEntryPoint {
     // Use EntryPoints to get an instance of the AggregatorEntryPoint.
@@ -317,14 +318,14 @@ class MyApplication : Application() {
 
 #### c. Scopes
 
-When migrating a component to Hilt, you’ll also need to migrate your bindings to
+When migrating a component to Hilt, you'll also need to migrate your bindings to
 use the Hilt scope annotations. In the case of the `SingletonComponent`, this
 is `@Singleton`. You can find which annotations correspond to which component
-[here](components.md#component-lifetimes). If you aren’t using `@Singleton` and
-have your own scoping annotation, you can tell Hilt that your annotation is
-equivalent to a Hilt scoping annotation using [scope aliases](scope-aliases.md).
-This will allow you to migrate and remove your scoping annotation at your
-leisure later in the process.
+in the [component lifetimes section](components.md#component-lifetimes). If you
+aren't using `@Singleton` and have your own scoping annotation, you can tell
+Hilt that your annotation is equivalent to a Hilt scoping annotation using
+[scope aliases](scope-aliases.md). This will allow you to migrate and remove
+your scoping annotation at your leisure later in the process.
 
 #### d. Handling component arguments
 
@@ -337,7 +338,7 @@ Hilt that are listed [here](components.md#component-bindings).
 If your component has any other arguments either through module instances passed
 to the builder or `@BindsInstance`, read this [section](#component-arguments) on
 handling those. Once you handle those, you can just remove your
-`@Component.Builder` interface as will be unused.
+`@Component.Builder` interface as it will be unused.
 
 #### e. Cleaning up aggregators
 
@@ -382,7 +383,7 @@ interface FooModule {
 Now you can just annotate your `Application` with `@HiltAndroidApp` as described
 in our [Quick Start](quick-start.md) guide. Apart from that, it should be empty of
 any code related to building or storing an instance of your component. You can
-delete your `@Component` class and `@Component.Builder` class if you haven’t
+delete your `@Component` class and `@Component.Builder` class if you haven't
 already.
 
 ### dagger.android Application
@@ -549,7 +550,7 @@ You do not have any interfaces to migrate with [`@EntryPoint`].
 ### Be aware of differences with monolithic components
 
 One of the design decisions of Hilt is to use a single component for all of the
-activities and a single component for all of the fragments. If you’re
+activities and a single component for all of the fragments. If you're
 interested, you can read about the reasons [here](monolithic.md). The reason
 this is important is that if you had a separate component for each activity (as
 is the default in dagger.android), you will be merging the components into a
@@ -562,20 +563,20 @@ The two most frequent issues are:
 
 This occurs if you defined the same binding key differently in two activities.
 When they are merged, you get a duplicate binding. This is a limitation of the
-global binding key space of Hilt and you’ll need to redefine that binding to
-have a single definition. Usually this isn’t too bad and is done by basing logic
+global binding key space of Hilt and you'll need to redefine that binding to
+have a single definition. Usually this isn't too bad and is done by basing logic
 off of the injected activity. See the section on
 [component arguments](#component-arguments) for examples.
 
 #### Depending on the specific activity type
 
 Because of the merged component, bindings for a `FooActivity` or `BarActivity`
-often won’t make sense anymore since when the component is used for a
-`BarActivity` (or any other activity), a `FooActivity` binding won’t be able to
-be satisfied. Usually code doesn’t really rely on the actual child type of the
+often won't make sense anymore since when the component is used for a
+`BarActivity` (or any other activity), a `FooActivity` binding won't be able to
+be satisfied. Usually code doesn't really rely on the actual child type of the
 activity and just needs an Activity or common subtype like `FragmentActivity`.
 Code using the child type needs to be refactored to use a more generic type. If
-you need a common subtype that isn’t automatically provided by Hilt, you can
+you need a common subtype that isn't automatically provided by Hilt, you can
 provide a binding with a cast (example [here](#component-arguments)), but be
 careful!
 
@@ -684,7 +685,7 @@ If your Activity or Fragment either extends from `DaggerAppCompatActivity`,
 `DaggerFragment`, or similar classes, these need to be removed and replaced with
 non-Dagger equivalents (like `AppCompatActivity` or a regular `Fragment`). If
 you have any child fragments or views that are still using dagger.android,
-you’ll need to implement `HasAndroidInjector` by injecting a
+you'll need to implement `HasAndroidInjector` by injecting a
 `DispatchingAndroidInjector` (see example below).
 
 When you have migrated all of the children off of dagger.android, come back
@@ -745,7 +746,7 @@ public final class MyActivity extends AppCompatActivity
   }
 }
 
-// If the list of modules is very short, you don’t need this aggregator
+// If the list of modules is very short, you don't need this aggregator
 // module, just put the @InstallIn(ActivityComponent.class) annotation on
 // all the modules in includes list like FooModule
 @Module(includes = { FooModule.class, ...})
@@ -764,7 +765,7 @@ class MyActivity : AppCompatActivity(), HasAndroidInjector {
   override fun androidInjector() = androidInjector
 }
 
-// If the list of modules is very short, you don’t need this aggregator
+// If the list of modules is very short, you don't need this aggregator
 // module, just put the @InstallIn(ActivityComponent.class) annotation on
 // all the modules in includes list like FooModule
 @Module(includes = [ FooModule::class, ...])
@@ -800,7 +801,7 @@ class MyActivity : AppCompatActivity() {
 
 You should be able to stop and build/run your app successfully after migrating
 an activity or fragment. It is a good idea to check after migrating each class
-to make sure you’re on the right track.
+to make sure you're on the right track.
 
 ## 3. Other Android components
 
@@ -812,8 +813,8 @@ Remember to:
 
 *   Go back and clean up any leftover `HasAndroidInjector` usages.
 *   Clean up any leftover aggregator modules or entry point interfaces. In
-    general, you shouldn’t need to use `@Module(includes=)` with Hilt, so if you
-    see that, you’ll want to remove it and just put an `@InstallIn` annotation
+    general, you shouldn't need to use `@Module(includes=)` with Hilt, so if you
+    see that, you'll want to remove it and just put an `@InstallIn` annotation
     on the included module.
 *   Migrate any old scope annotation and the scope alias if you used that
     feature
@@ -862,7 +863,7 @@ interface ApplicationContextModule {
 
 Because component instantiation is hidden when using Hilt, it is not possible to
 add in your own component arguments with either module instances or
-`@BindsInstance` calls. If you have these in your component, you’ll need to
+`@BindsInstance` calls. If you have these in your component, you'll need to
 refactor your code away from using these. Hilt comes with a set of default
 bindings in each component which can be seen
 [here](components.md#component-bindings). Depending on what your component
@@ -871,12 +872,12 @@ bindings. This sometimes requires a slight redesign, but most cases can be
 solved this way using the following strategies. If that is not the case though,
 you may need to consider using a [custom component](#custom-components).
 
-For example, in the simplest case, sometimes the binding didn’t need to be
+For example, in the simplest case, sometimes the binding didn't need to be
 passed in at all and it could be just a regular static `@Provides` method. In
 another simple case, your argument may just be a variation of the default
-binding like a custom BaseFragment type. Hilt can’t know that all Fragments are
+binding like a custom BaseFragment type. Hilt can't know that all Fragments are
 going to be an instance of your `BaseFragment`, so if you need the actual type
-bound to be your `BaseFragment`, you’ll need to do that with a cast.
+bound to be your `BaseFragment`, you'll need to do that with a cast.
 
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
 <div class="c-codeselector__button c-codeselector__button_kotlin">Kotlin</div>
@@ -1163,10 +1164,10 @@ interface FooModule {}
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
-### Component dependencies for components that map to Hilt components
+### Component dependencies for components that map to Hilt components {#component-dependencies-matching-hilt-components}
 
 If you currently use component dependencies and your components map relatively
-well to the Hilt components, then as you migrate you’ll also need to keep in the
+well to the Hilt components, then as you migrate you'll also need to keep in the
 mind the differences between component dependencies and subcomponents. You may
 also want to check out this page which describes some of the reasons Hilt chose
 to use [subcomponents](subcomponents-vs-deps.md).

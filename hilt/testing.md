@@ -276,7 +276,7 @@ fragment to be contained in a Hilt activity. One workaround for this is to
 launch a Hilt activity and then attach your fragment.
 {: .c-callouts__warning }
 
-## Replacing bindings
+## Replacing bindings {#replacing-bindings}
 
 It's often useful for tests to be able to replace a production binding with a
 fake or mock binding to make tests more hermetic or easier to control in test.
