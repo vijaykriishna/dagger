@@ -50,7 +50,7 @@ Performance can be an issue but is often not a problem for most dependencies.
 This likely is only an issue when using dependencies with significant I/O. So,
 if a test can be written more conveniently and robustly by using more real
 dependencies without significantly degrading performance, it should be written
-using those dependencies. For those classes that due come with large negative
+using those dependencies. For those classes that do come with large negative
 effects in tests, Hilt provides a means to switch out the bindings.
 
 Using more real dependencies has significant advantages:
