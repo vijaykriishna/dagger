@@ -112,8 +112,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>@CanIgnoreReturnValue
-public abstract static class <span class="typeNameLabel">Key.Builder</span>
+<pre>public abstract static class <span class="typeNameLabel">Key.Builder</span>
 extends java.lang.Object</pre>
 <div class="block">A builder for <a href="../../dagger/model/Key.html" title="class in dagger.model"><code>Key</code></a>s.</div>
 </li>
@@ -220,7 +219,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre>public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;type(javax.lang.model.type.TypeMirror&nbsp;type)</pre>
+<pre>@CanIgnoreReturnValue
+public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;type(javax.lang.model.type.TypeMirror&nbsp;type)</pre>
 </li>
 </ul>
 <a name="qualifier-javax.lang.model.element.AnnotationMirror-">
@@ -229,7 +229,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>qualifier</h4>
-<pre>public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;qualifier(javax.lang.model.element.AnnotationMirror&nbsp;qualifier)</pre>
+<pre>@CanIgnoreReturnValue
+public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;qualifier(javax.lang.model.element.AnnotationMirror&nbsp;qualifier)</pre>
 </li>
 </ul>
 <a name="qualifier-java.util.Optional-">
@@ -238,7 +239,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>qualifier</h4>
-<pre>public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;qualifier(java.util.Optional&lt;javax.lang.model.element.AnnotationMirror&gt;&nbsp;qualifier)</pre>
+<pre>@CanIgnoreReturnValue
+public final&nbsp;<a href="../../dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a>&nbsp;qualifier(java.util.Optional&lt;javax.lang.model.element.AnnotationMirror&gt;&nbsp;qualifier)</pre>
 </li>
 </ul>
 <a name="multibindingContributionIdentifier-java.util.Optional-">
@@ -265,8 +267,7 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>@CheckReturnValue
-public abstract&nbsp;<a href="../../dagger/model/Key.html" title="class in dagger.model">Key</a>&nbsp;build()</pre>
+<pre>public abstract&nbsp;<a href="../../dagger/model/Key.html" title="class in dagger.model">Key</a>&nbsp;build()</pre>
 </li>
 </ul>
 </li>

@@ -112,8 +112,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>@CanIgnoreReturnValue
-public abstract static class <span class="typeNameLabel">DependencyRequest.Builder</span>
+<pre>public abstract static class <span class="typeNameLabel">DependencyRequest.Builder</span>
 extends java.lang.Object</pre>
 <div class="block">A builder of <a href="../../dagger/model/DependencyRequest.html" title="class in dagger.model"><code>DependencyRequest</code></a>s.</div>
 </li>
@@ -234,7 +233,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>requestElement</h4>
-<pre>public abstract&nbsp;<a href="../../dagger/model/DependencyRequest.Builder.html" title="class in dagger.model">DependencyRequest.Builder</a>&nbsp;requestElement(javax.lang.model.element.Element&nbsp;element)</pre>
+<pre>@CanIgnoreReturnValue
+public abstract&nbsp;<a href="../../dagger/model/DependencyRequest.Builder.html" title="class in dagger.model">DependencyRequest.Builder</a>&nbsp;requestElement(javax.lang.model.element.Element&nbsp;element)</pre>
 </li>
 </ul>
 <a name="isNullable-boolean-">
@@ -252,8 +252,7 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>@CheckReturnValue
-public abstract&nbsp;<a href="../../dagger/model/DependencyRequest.html" title="class in dagger.model">DependencyRequest</a>&nbsp;build()</pre>
+<pre>public abstract&nbsp;<a href="../../dagger/model/DependencyRequest.html" title="class in dagger.model">DependencyRequest</a>&nbsp;build()</pre>
 </li>
 </ul>
 </li>
