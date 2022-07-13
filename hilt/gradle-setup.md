@@ -80,7 +80,7 @@ then in the `build.gradle` of your Android Gradle modules apply the plugin:
 
 ```groovy
 apply plugin: 'com.android.application'
-apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.google.dagger.hilt.android'
 
 android {
   // ...
