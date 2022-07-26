@@ -26,8 +26,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":10,"i2":10,"i3":42,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":6,"i1":6,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="Key.html" title="class in dagger.spi.model">Key</a></dd>
 </dl>
 <hr>
-<pre>public static final class <span class="typeNameLabel">Key.MultibindingContributionIdentifier</span>
+<pre>public abstract static class <span class="typeNameLabel">Key.MultibindingContributionIdentifier</span>
 extends java.lang.Object</pre>
 <div class="block">An object that identifies a multibinding contribution method and the module class that
  contributes it to the graph.</div>
@@ -163,29 +163,8 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(androidx.room.compiler.processing.XMethodElement,androidx.room.compiler.processing.XTypeElement)">MultibindingContributionIdentifier</a></span>&#8203;(androidx.room.compiler.processing.XMethodElement&nbsp;bindingMethod,
-                                  androidx.room.compiler.processing.XTypeElement&nbsp;contributingModule)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String)">MultibindingContributionIdentifier</a></span>&#8203;(java.lang.String&nbsp;bindingElement,
-                                  java.lang.String&nbsp;module)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(javax.lang.model.element.ExecutableElement,javax.lang.model.element.TypeElement)">MultibindingContributionIdentifier</a></span>&#8203;(javax.lang.model.element.ExecutableElement&nbsp;bindingMethod,
-                                  javax.lang.model.element.TypeElement&nbsp;contributingModule)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.</div>
-</div>
-</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">MultibindingContributionIdentifier</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -199,41 +178,27 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bindingElement()">bindingElement</a></span>()</code></th>
+<td class="colFirst"><code>abstract java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bindingMethod()">bindingMethod</a></span>()</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.</div>
-</div>
+<div class="block">Returns the multibinding method that defines teh multibinding contribution.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(java.lang.Object&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#module()">module</a></span>()</code></th>
+<td class="colFirst"><code>abstract java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contributingModule()">contributingModule</a></span>()</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.</div>
-</div>
+<div class="block">Returns the module containing the multibinding method.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 </tr>
@@ -243,7 +208,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, finalize, getClass, notify, notifyAll, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -261,46 +226,13 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(androidx.room.compiler.processing.XMethodElement,androidx.room.compiler.processing.XTypeElement)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MultibindingContributionIdentifier</h4>
-<pre>@Deprecated
-public&nbsp;MultibindingContributionIdentifier&#8203;(androidx.room.compiler.processing.XMethodElement&nbsp;bindingMethod,
-                                          androidx.room.compiler.processing.XTypeElement&nbsp;contributingModule)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>. It
-     is not part of a specified API and may change at any point.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(javax.lang.model.element.ExecutableElement,javax.lang.model.element.TypeElement)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MultibindingContributionIdentifier</h4>
-<pre>@Deprecated
-public&nbsp;MultibindingContributionIdentifier&#8203;(javax.lang.model.element.ExecutableElement&nbsp;bindingMethod,
-                                          javax.lang.model.element.TypeElement&nbsp;contributingModule)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.lang.String,java.lang.String)">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MultibindingContributionIdentifier</h4>
-<pre>@Deprecated
-public&nbsp;MultibindingContributionIdentifier&#8203;(java.lang.String&nbsp;bindingElement,
-                                          java.lang.String&nbsp;module)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<pre>public&nbsp;MultibindingContributionIdentifier()</pre>
 </li>
 </ul>
 </li>
@@ -313,38 +245,30 @@ public&nbsp;MultibindingContributionIdentifier&#8203;(java.lang.String&nbsp;bind
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="module()">
+<a id="contributingModule()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>module</h4>
-<pre class="methodSignature">@Deprecated
-public&nbsp;java.lang.String&nbsp;module()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
+<h4>contributingModule</h4>
+<pre class="methodSignature">public abstract&nbsp;java.lang.String&nbsp;contributingModule()</pre>
+<div class="block">Returns the module containing the multibinding method.</div>
 </li>
 </ul>
-<a id="bindingElement()">
+<a id="bindingMethod()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>bindingElement</h4>
-<pre class="methodSignature">@Deprecated
-public&nbsp;java.lang.String&nbsp;bindingElement()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
+<h4>bindingMethod</h4>
+<pre class="methodSignature">public abstract&nbsp;java.lang.String&nbsp;bindingMethod()</pre>
+<div class="block">Returns the multibinding method that defines teh multibinding contribution.</div>
 </li>
 </ul>
 <a id="toString()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
@@ -355,32 +279,6 @@ public&nbsp;java.lang.String&nbsp;bindingElement()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
-</dl>
-</li>
-</ul>
-<a id="equals(java.lang.Object)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>equals</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(java.lang.Object&nbsp;obj)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>equals</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
-</dl>
-</li>
-</ul>
-<a id="hashCode()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>hashCode</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>hashCode</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>

@@ -379,13 +379,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The <a href="dagger/spi/model/DaggerElement.html" title="class in dagger.spi.model"><code>DaggerElement</code></a> that declares this binding.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#bindingElement()">bindingElement()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
-</dd>
 <dt><a href="dagger/model/BindingGraph.html" title="class in dagger.model"><span class="typeNameLink">BindingGraph</span></a> - Class in <a href="dagger/model/package-summary.html">dagger.model</a></dt>
 <dd>
 <div class="block">A graph of bindings, dependency requests, and components.</div>
@@ -481,6 +474,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><a href="dagger/spi/model/BindingKind.html" title="enum in dagger.spi.model"><span class="typeNameLink">BindingKind</span></a> - Enum in <a href="dagger/spi/model/package-summary.html">dagger.spi.model</a></dt>
 <dd>
 <div class="block">Represents the different kinds of <a href="dagger/spi/model/Binding.html" title="interface in dagger.spi.model"><code>Binding</code></a>s that can exist in a binding graph.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#bindingMethod()">bindingMethod()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
+<dd>
+<div class="block">Returns the multibinding method that defines teh multibinding contribution.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/model/BindingGraph.html#bindings()">bindings()</a></span> - Method in class dagger.model.<a href="dagger/model/BindingGraph.html" title="class in dagger.model">BindingGraph</a></dt>
 <dd>
@@ -812,6 +809,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Binding.html#contributingModule()">contributingModule()</a></span> - Method in interface dagger.spi.model.<a href="dagger/spi/model/Binding.html" title="interface in dagger.spi.model">Binding</a></dt>
 <dd>
 <div class="block">The <a href="dagger/spi/model/DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a> of the module which contributes this binding.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#contributingModule()">contributingModule()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
+<dd>
+<div class="block">Returns the module containing the multibinding method.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/producers/monitoring/ProducerToken.html#create(java.lang.Class)">create(Class&lt;?&gt;)</a></span> - Static method in class dagger.producers.monitoring.<a href="dagger/producers/monitoring/ProducerToken.html" title="class in dagger.producers.monitoring">ProducerToken</a></dt>
 <dd>
@@ -1407,8 +1408,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#equals(java.lang.Object)">equals(Object)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#equals(java.lang.Object)">equals(Object)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>&nbsp;</dd>
 </dl>
 <a id="I:F">
 <!--   -->
@@ -1656,8 +1655,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="dagger/spi/model/ComponentPath.html#hashCode()">hashCode()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#hashCode()">hashCode()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#hashCode()">hashCode()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/HiltAndroidApp.html" title="annotation in dagger.hilt.android"><span class="typeNameLink">HiltAndroidApp</span></a> - Annotation Type in <a href="dagger/hilt/android/package-summary.html">dagger.hilt.android</a></dt>
 <dd>
@@ -2229,13 +2226,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  It is not part of a specified API and may change at any point.</div>
 </div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#module()">module()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
-</dd>
 <dt><a href="dagger/Module.html" title="annotation in dagger"><span class="typeNameLink">Module</span></a> - Annotation Type in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">Annotates a class that contributes to the object graph.</div>
@@ -2274,35 +2264,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Key.Builder.html#multibindingContributionIdentifier(dagger.model.Key.MultibindingContributionIdentifier)">multibindingContributionIdentifier(Key.MultibindingContributionIdentifier)</a></span> - Method in class dagger.model.<a href="dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.Builder.html#multibindingContributionIdentifier(dagger.spi.model.Key.MultibindingContributionIdentifier)">multibindingContributionIdentifier(Key.MultibindingContributionIdentifier)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.Builder.html#multibindingContributionIdentifier(dagger.spi.model.DaggerTypeElement,dagger.spi.model.DaggerExecutableElement)">multibindingContributionIdentifier(DaggerTypeElement, DaggerExecutableElement)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Key.Builder.html#multibindingContributionIdentifier(java.util.Optional)">multibindingContributionIdentifier(Optional&lt;Key.MultibindingContributionIdentifier&gt;)</a></span> - Method in class dagger.model.<a href="dagger/model/Key.Builder.html" title="class in dagger.model">Key.Builder</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.Builder.html#multibindingContributionIdentifier(java.util.Optional)">multibindingContributionIdentifier(Optional&lt;Key.MultibindingContributionIdentifier&gt;)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E()">MultibindingContributionIdentifier()</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E(androidx.room.compiler.processing.XMethodElement,androidx.room.compiler.processing.XTypeElement)">MultibindingContributionIdentifier(XMethodElement, XTypeElement)</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>. It
-     is not part of a specified API and may change at any point.</div>
-</div>
-</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E(java.lang.String,java.lang.String)">MultibindingContributionIdentifier(String, String)</a></span> - Constructor for class dagger.model.<a href="dagger/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.model">Key.MultibindingContributionIdentifier</a></dt>
 <dd>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E(java.lang.String,java.lang.String)">MultibindingContributionIdentifier(String, String)</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E(javax.lang.model.element.ExecutableElement,javax.lang.model.element.TypeElement)">MultibindingContributionIdentifier(ExecutableElement, TypeElement)</a></span> - Constructor for class dagger.model.<a href="dagger/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.model">Key.MultibindingContributionIdentifier</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
- It is not part of a specified API and may change at any point.</div>
-</div>
-</dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html#%3Cinit%3E(javax.lang.model.element.ExecutableElement,javax.lang.model.element.TypeElement)">MultibindingContributionIdentifier(ExecutableElement, TypeElement)</a></span> - Constructor for class dagger.spi.model.<a href="dagger/spi/model/Key.MultibindingContributionIdentifier.html" title="class in dagger.spi.model">Key.MultibindingContributionIdentifier</a></dt>
 <dd>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">This is only meant to be called from code in <code>dagger.internal.codegen</code>.
@@ -3102,10 +3074,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Returns a <a href="dagger/model/Key.Builder.html" title="class in dagger.model"><code>Key.Builder</code></a> that inherits the properties of this key.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#toBuilder()">toBuilder()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
-<dd>
-<div class="block">Returns a <a href="dagger/spi/model/Key.Builder.html" title="class in dagger.spi.model"><code>Key.Builder</code></a> that inherits the properties of this key.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/codegen/OriginatingElement.html#topLevelClass()">topLevelClass()</a></span> - Method in annotation type dagger.hilt.codegen.<a href="dagger/hilt/codegen/OriginatingElement.html" title="annotation in dagger.hilt.codegen">OriginatingElement</a></dt>
 <dd>
 <div class="block">Returns the top-level class enclosing the originating element.</div>
@@ -3388,6 +3356,19 @@ the order they are declared.</div>
 <dt><a href="dagger/hilt/android/WithFragmentBindings.html" title="annotation in dagger.hilt.android"><span class="typeNameLink">WithFragmentBindings</span></a> - Annotation Type in <a href="dagger/hilt/android/package-summary.html">dagger.hilt.android</a></dt>
 <dd>
 <div class="block">Makes a View annotated with <a href="dagger/hilt/android/AndroidEntryPoint.html" title="annotation in dagger.hilt.android"><code>AndroidEntryPoint</code></a> have access to fragment bindings.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#withMultibindingContributionIdentifier(dagger.spi.model.DaggerTypeElement,dagger.spi.model.DaggerExecutableElement)">withMultibindingContributionIdentifier(DaggerTypeElement, DaggerExecutableElement)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
+<dd>
+<div class="block">Returns a copy of this key with the multibinding contribution identifier replaced with the
+ given multibinding contribution identifier.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#withoutMultibindingContributionIdentifier()">withoutMultibindingContributionIdentifier()</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
+<dd>
+<div class="block">Returns a copy of this key with the multibinding contribution identifier, if any, removed.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/spi/model/Key.html#withType(dagger.spi.model.DaggerType)">withType(DaggerType)</a></span> - Method in class dagger.spi.model.<a href="dagger/spi/model/Key.html" title="class in dagger.spi.model">Key</a></dt>
+<dd>
+<div class="block">Returns a copy of this key with the type replaced with the given type.</div>
 </dd>
 </dl>
 <a id="I:X">
