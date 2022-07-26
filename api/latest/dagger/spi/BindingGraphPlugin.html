@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":6};
+var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -178,20 +178,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPluginEnd()">onPluginEnd</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Perform any extra work after the plugin finished all its visiting.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>default java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pluginName()">pluginName</a></span>()</code></th>
 <td class="colLast">
 <div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the <code>Messager</code>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>default java.util.Set&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportedOptions()">supportedOptions</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the annotation-processing options that this plugin uses to configure behavior.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#visitGraph(dagger.model.BindingGraph,dagger.spi.DiagnosticReporter)">visitGraph</a></span>&#8203;(<a href="../model/BindingGraph.html" title="class in dagger.model">BindingGraph</a>&nbsp;bindingGraph,
           <a href="DiagnosticReporter.html" title="interface in dagger.spi">DiagnosticReporter</a>&nbsp;diagnosticReporter)</code></th>
@@ -307,12 +314,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="pluginName()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>pluginName</h4>
 <pre class="methodSignature">default&nbsp;java.lang.String&nbsp;pluginName()</pre>
 <div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the <code>Messager</code>. By default, the fully qualified name of the
  plugin is used.</div>
+</li>
+</ul>
+<a id="onPluginEnd()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onPluginEnd</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onPluginEnd()</pre>
+<div class="block">Perform any extra work after the plugin finished all its visiting. This will be called once per
+ instance of this plugin, after all graphs were <a href="#visitGraph(dagger.model.BindingGraph,dagger.spi.DiagnosticReporter)">visited</a></div>
 </li>
 </ul>
 </li>
