@@ -87,6 +87,33 @@ android {
 }
 ```
 
+### Apply Hilt Gradle Plugin with Plugins DSL
+
+To configure the Hilt Gradle plugin with Gradle's new
+[plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block)
+, add the plugin id in your project's root `build.gradle` file:
+
+```groovy
+plugins {
+  // other plugins...
+  id 'com.google.dagger.hilt.android' version '{{site.daggerVersion}}' apply false
+}
+```
+
+then apply the plugin in the `build.gradle` of your Android Gradle modules:
+
+```groovy
+plugins {
+  // other plugins...
+  id 'com.android.application'
+  id 'com.google.dagger.hilt.android'
+}
+
+android {
+  // ...
+}
+```
+
 **Warning:** The Hilt Gradle plugin sets annotation processor arguments. If you
 are using other libraries that require annotation processor arguments, make sure
 you are adding arguments instead of overriding them. See
