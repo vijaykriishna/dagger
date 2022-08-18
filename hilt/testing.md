@@ -91,9 +91,9 @@ class FooTest {
 
   @Test
   public void testFoo() {
-    assertThat(foo).isNull();
+    assertNull(foo);
     hiltRule.inject();
-    assertThat(foo).isNotNull();
+    assertNotNull(foo);
   }
 }
 ```
@@ -107,9 +107,8 @@ class FooTest {
 
   @Test
   fun testFoo() {
-    assertThat(foo).isNull()
     hiltRule.inject()
-    assertThat(foo).isNotNull()
+    assertNotNull(foo)
   }
 }
 ```
