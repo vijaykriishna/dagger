@@ -39,7 +39,7 @@ class FooViewModel @Inject constructor(
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
-Then an activitiy or fragments annotated with
+Then an activity or fragments annotated with
 [`@AndroidEntryPoint`](android-entry-point.md) can get the `ViewModel` instance
 as normal using `ViewModelProvider` or the `by viewModels()` KTX extension:
 
