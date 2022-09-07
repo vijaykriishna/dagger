@@ -100,15 +100,17 @@ long as the map keys are known at compile time.
 
 To contribute an entry to a multibound map, add a method to a module that
 returns the value and is annotated with [`@IntoMap`] and with
-another custom annotation that specifies the map key for that entry. To
-contribute an entry to a qualified multibound map, annotate each `@IntoMap`
+another custom annotation that specifies the map key for that entry. Keys must
+be unique, and any collision within a Map will result in a compile-time error.
+To contribute an entry to a qualified multibound map, annotate each `@IntoMap`
 method with the qualifier.
 
 Then you can inject either the map itself (`Map<K, V>`) or a map containing
-value providers (`Map<K, Provider<V>>`). The latter is useful when you don't
-want all of the values to be instantiated because you're going to extract one
-value at a time, or because you want to get a potentially new instance of each
-value each time you query the map.
+value providers (`Map<K, Provider<V>>`). The latter is useful for various
+reasons. For example, it can be useful when you don't want all of the values to
+be instantiated, or because you want to handle Provider exceptions from
+entries, or because you want to get a potentially new instance of each value
+each time you query the map.
 
 ### Simple map keys
 
