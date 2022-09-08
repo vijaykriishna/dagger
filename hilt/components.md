@@ -62,7 +62,7 @@ annotation and bounded lifetime for each component.
 
 Component                       | Scope                     | Created at                | Destroyed at
 ------------------------------- | ------------------------- | ------------------------- | ------------
-**`SingletonComponent`**        | `@Singleton`              | `Application#onCreate()`  | `Application#onDestroy()`
+**`SingletonComponent`**        | `@Singleton`              | `Application#onCreate()`  | Application process is destroyed
 **`ActivityRetainedComponent`** | `@ActivityRetainedScoped` | `Activity#onCreate()`[^1] | `Activity#onDestroy()`[^1]
 **`ViewModelComponent`**        | `@ViewModelScoped`        | `ViewModel` created       | `ViewModel` destroyed
 **`ActivityComponent`**         | `@ActivityScoped`         | `Activity#onCreate()`     | `Activity#onDestroy()`
