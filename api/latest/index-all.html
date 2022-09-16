@@ -158,10 +158,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Must be called on the test thread, before the Statement is evaluated.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/hilt/android/ActivityRetainedLifecycle.html#addOnClearedListener(dagger.hilt.android.ActivityRetainedLifecycle.OnClearedListener)">addOnClearedListener(ActivityRetainedLifecycle.OnClearedListener)</a></span> - Method in interface dagger.hilt.android.<a href="dagger/hilt/android/ActivityRetainedLifecycle.html" title="interface in dagger.hilt.android">ActivityRetainedLifecycle</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html#addOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)">addOnClearedListener(RetainedLifecycle.OnClearedListener)</a></span> - Method in class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html" title="class in dagger.hilt.android.internal.lifecycle">RetainedLifecycleImpl</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html#addOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)">addOnClearedListener(RetainedLifecycle.OnClearedListener)</a></span> - Method in interface dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html" title="interface in dagger.hilt.android.lifecycle">RetainedLifecycle</a></dt>
 <dd>
-<div class="block">Adds a new <a href="dagger/hilt/android/ActivityRetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android"><code>ActivityRetainedLifecycle.OnClearedListener</code></a> for receiving a callback when the activity retained
- instances will no longer be needed and destroyed.</div>
+<div class="block">Adds a new <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle"><code>RetainedLifecycle.OnClearedListener</code></a> for receiving a callback when the lifecycle is cleared.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/internal/aliasof/AliasOfPropagatedData.html#alias()">alias()</a></span> - Method in annotation type dagger.hilt.internal.aliasof.<a href="dagger/hilt/internal/aliasof/AliasOfPropagatedData.html" title="annotation in dagger.hilt.internal.aliasof">AliasOfPropagatedData</a></dt>
 <dd>&nbsp;</dd>
@@ -947,7 +948,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><a href="dagger/hilt/android/internal/testing/package-summary.html">dagger.hilt.android.internal.testing</a> - package dagger.hilt.android.internal.testing</dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a> - package dagger.hilt.android.lifecycle</dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">This package contains Hilt APIs for Android applications.</div>
+</dd>
 <dt><a href="dagger/hilt/android/migration/package-summary.html">dagger.hilt.android.migration</a> - package dagger.hilt.android.migration</dt>
 <dd>
 <div class="block">This package contains Android APIs to help migrating a codebase to Hilt.</div>
@@ -1312,6 +1315,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Exception thrown if an incorrect binding is made for a <a href="dagger/android/AndroidInjector.Factory.html" title="interface in dagger.android"><code>AndroidInjector.Factory</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html#dispatchOnCleared()">dispatchOnCleared()</a></span> - Method in class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html" title="class in dagger.hilt.android.internal.lifecycle">RetainedLifecycleImpl</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <a id="I:E">
 <!--   -->
@@ -2372,10 +2377,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/android/support/DaggerFragment.html#onAttach(android.content.Context)">onAttach(Context)</a></span> - Method in class dagger.android.support.<a href="dagger/android/support/DaggerFragment.html" title="class in dagger.android.support">DaggerFragment</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="dagger/hilt/android/ActivityRetainedLifecycle.OnClearedListener.html#onCleared()">onCleared()</a></span> - Method in interface dagger.hilt.android.<a href="dagger/hilt/android/ActivityRetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android">ActivityRetainedLifecycle.OnClearedListener</a></dt>
-<dd>
-<div class="block">Called when the activity retained instances will no longer be used and destroyed.</div>
-</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html#onCleared()">onCleared()</a></span> - Method in interface dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle">RetainedLifecycle.OnClearedListener</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/testing/OnComponentReadyRunner.OnComponentReadyListener.html#onComponentReady(T)">onComponentReady(T)</a></span> - Method in interface dagger.hilt.android.testing.<a href="dagger/hilt/android/testing/OnComponentReadyRunner.OnComponentReadyListener.html" title="interface in dagger.hilt.android.testing">OnComponentReadyRunner.OnComponentReadyListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/testing/OnComponentReadyRunner.html" title="class in dagger.hilt.android.testing"><span class="typeNameLink">OnComponentReadyRunner</span></a> - Class in <a href="dagger/hilt/android/testing/package-summary.html">dagger.hilt.android.testing</a></dt>
@@ -2697,9 +2700,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">For framework use only! This method should be called when a required module is installed.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="dagger/hilt/android/ActivityRetainedLifecycle.html#removeOnClearedListener(dagger.hilt.android.ActivityRetainedLifecycle.OnClearedListener)">removeOnClearedListener(ActivityRetainedLifecycle.OnClearedListener)</a></span> - Method in interface dagger.hilt.android.<a href="dagger/hilt/android/ActivityRetainedLifecycle.html" title="interface in dagger.hilt.android">ActivityRetainedLifecycle</a></dt>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html#removeOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)">removeOnClearedListener(RetainedLifecycle.OnClearedListener)</a></span> - Method in class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html" title="class in dagger.hilt.android.internal.lifecycle">RetainedLifecycleImpl</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html#removeOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)">removeOnClearedListener(RetainedLifecycle.OnClearedListener)</a></span> - Method in interface dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html" title="interface in dagger.hilt.android.lifecycle">RetainedLifecycle</a></dt>
 <dd>
-<div class="block">Removes a <a href="dagger/hilt/android/ActivityRetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android"><code>ActivityRetainedLifecycle.OnClearedListener</code></a> previously added via <a href="dagger/hilt/android/ActivityRetainedLifecycle.html#addOnClearedListener(dagger.hilt.android.ActivityRetainedLifecycle.OnClearedListener)"><code>ActivityRetainedLifecycle.addOnClearedListener(OnClearedListener)</code></a>.</div>
+<div class="block">Removes a <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle"><code>RetainedLifecycle.OnClearedListener</code></a> previously added via <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html#addOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)"><code>RetainedLifecycle.addOnClearedListener(OnClearedListener)</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/testing/TestInstallIn.html#replaces()">replaces()</a></span> - Method in annotation type dagger.hilt.testing.<a href="dagger/hilt/testing/TestInstallIn.html" title="annotation in dagger.hilt.testing">TestInstallIn</a></dt>
 <dd>
@@ -2830,6 +2835,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Returns <code>true</code> if using this binding requires an instance of the <a href="dagger/spi/model/Binding.html#contributingModule()"><code>Binding.contributingModule()</code></a>.</div>
 </dd>
+<dt><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html" title="interface in dagger.hilt.android.lifecycle"><span class="typeNameLink">RetainedLifecycle</span></a> - Interface in <a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a></dt>
+<dd>
+<div class="block">A class for registered listeners on a retained lifecycle (generally backed up by a ViewModel).</div>
+</dd>
+<dt><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle"><span class="typeNameLink">RetainedLifecycle.OnClearedListener</span></a> - Interface in <a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a></dt>
+<dd>
+<div class="block">Listener for when the retained lifecycle is cleared.</div>
+</dd>
+<dt><a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html" title="class in dagger.hilt.android.internal.lifecycle"><span class="typeNameLink">RetainedLifecycleImpl</span></a> - Class in <a href="dagger/hilt/android/internal/lifecycle/package-summary.html">dagger.hilt.android.internal.lifecycle</a></dt>
+<dd>
+<div class="block">Internal implementation.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html#%3Cinit%3E()">RetainedLifecycleImpl()</a></span> - Constructor for class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/RetainedLifecycleImpl.html" title="class in dagger.hilt.android.internal.lifecycle">RetainedLifecycleImpl</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/Reusable.html" title="annotation in dagger"><span class="typeNameLink">Reusable</span></a> - Annotation Type in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">A scope that indicates that the object returned by a binding may be (but might not be) reused.</div>
@@ -3292,6 +3311,12 @@ the order they are declared.</div>
 <dt><a href="dagger/hilt/android/internal/builders/ViewModelComponentBuilder.html" title="interface in dagger.hilt.android.internal.builders"><span class="typeNameLink">ViewModelComponentBuilder</span></a> - Interface in <a href="dagger/hilt/android/internal/builders/package-summary.html">dagger.hilt.android.internal.builders</a></dt>
 <dd>
 <div class="block">Interface for creating a <a href="dagger/hilt/android/components/ViewModelComponent.html" title="interface in dagger.hilt.android.components"><code>ViewModelComponent</code></a>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/builders/ViewModelComponentBuilder.html#viewModelLifecycle(dagger.hilt.android.ViewModelLifecycle)">viewModelLifecycle(ViewModelLifecycle)</a></span> - Method in interface dagger.hilt.android.internal.builders.<a href="dagger/hilt/android/internal/builders/ViewModelComponentBuilder.html" title="interface in dagger.hilt.android.internal.builders">ViewModelComponentBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/hilt/android/ViewModelLifecycle.html" title="interface in dagger.hilt.android"><span class="typeNameLink">ViewModelLifecycle</span></a> - Interface in <a href="dagger/hilt/android/package-summary.html">dagger.hilt.android</a></dt>
+<dd>
+<div class="block">A class for registering listeners on the ViewModel lifecycle.</div>
 </dd>
 <dt><a href="dagger/hilt/android/scopes/ViewModelScoped.html" title="annotation in dagger.hilt.android.scopes"><span class="typeNameLink">ViewModelScoped</span></a> - Annotation Type in <a href="dagger/hilt/android/scopes/package-summary.html">dagger.hilt.android.scopes</a></dt>
 <dd>
