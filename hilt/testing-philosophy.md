@@ -151,6 +151,32 @@ finding real bugs. Because no one checks the mock behavior besides the test
 author, this usually means that after enough time, there is a decent likelihood
 that the test is no longer testing a useful scenario.
 
+### Direct instantiation encourages incorrect scoping
+
+By directly instantiating a dependency, you are assuming responsibility for
+correctly scoping that dependency. It is easy to accidentally create multiple
+instances of scoped bindings, or to provide the same instance of an unscoped
+binding multiple times.
+
+For example, a `FakeClock` may contain global state that maintains the current
+time and allows advancing this time manually in tests. Because of this, it is
+marked as `@Singleton` so that the code under test and the test itself reference
+the same instance. But if an additional instance is directly instantiated by the
+test, multiple instances would exist. This would lead to code under test
+observing skewed timestamps, or the test advancing the current time to no effect.
+
+Additionally, manually writing `Provider` and `Lazy` constructor parameters for
+scoped types is error-prone. You need to know whether the dependency is scoped,
+and store an instance of the object at the right level. For example, you would
+need to associate any `@ActivityScoped` bindings with the Activity under test,
+and recreate the dependency if the Activity undergoes a configuration change. To
+accurately reflect the real Dagger behavior, all of this would need to be made
+thread-safe.
+
+Finally, if the scope of a dependency is later changed, the tests using that
+dependency will not actually reflect that change without manual updates. This
+prevents tests from detecting unintended changes due to a change in scope.
+
 ### Direct instantiation encodes implementation details in the test
 
 Direct instantiation also breaks the philosophy of not encoding implementation
