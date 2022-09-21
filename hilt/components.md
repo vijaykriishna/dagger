@@ -195,7 +195,7 @@ Component                       | Default Bindings
 ------------------------------- | ---------------------------------------------
 **`SingletonComponent`**        | `Application`[^2]
 **`ActivityRetainedComponent`** | `Application`
-**`ViewModelComponent`**        | `SavedStateHandle`
+**`ViewModelComponent`**        | `SavedStateHandle`, `ViewModelLifecycle`
 **`ActivityComponent`**         | `Application`, `Activity`
 **`FragmentComponent`**         | `Application`, `Activity`, `Fragment`
 **`ViewComponent`**             | `Application`, `Activity`, `View`

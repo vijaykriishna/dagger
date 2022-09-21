@@ -73,11 +73,15 @@ since that would result in multiple instances. View Models must be retrieved
 through the `ViewModelProvider` API. This is checked at compile time by Hilt.
 {: .c-callouts__warning}
 
-[`SavedStateHandle`](https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate)
-is a default binding available to all Hilt View Models. Only dependencies from
-the
+Only dependencies from the
 [`ViewModelComponent`](https://dagger.dev/api/latest/dagger/hilt/android/components/ViewModelComponent.html)
 and its parent components can be provided into the `ViewModel`.
+
+The `ViewModelComponent` also comes with two default bindings available:
+
+ * [`SavedStateHandle`](https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate)
+ * [`ViewModelLifecycle`](https://dagger.dev/api/latest/dagger/hilt/android/ViewModelLifecycle.html)
+
 
 ## View Model Scope
 
