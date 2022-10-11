@@ -42,7 +42,7 @@ the entry point.
 @EntryPoint
 @InstallIn(SingletonComponent.class)
 public interface FooBarInterface {
-  @Foo Bar getBar();
+  @Foo Bar bar();
 }
 ```
 {: .c-codeselector__code .c-codeselector__code_java }
@@ -50,7 +50,7 @@ public interface FooBarInterface {
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface FooBarInterface {
-  @Foo fun getBar(): Bar
+  @Foo fun bar(): Bar
 }
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
@@ -69,11 +69,11 @@ Using the entry point interface we defined above:
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
 <div class="c-codeselector__button c-codeselector__button_kotlin">Kotlin</div>
 ```java
-Bar bar = EntryPoints.get(applicationContext, FooBarInterface.class).getBar();
+Bar bar = EntryPoints.get(applicationContext, FooBarInterface.class).bar();
 ```
 {: .c-codeselector__code .c-codeselector__code_java }
 ```kotlin
-val bar = EntryPoints.get(applicationContext, FooBarInterface::class.java).getBar()
+val bar = EntryPoints.get(applicationContext, FooBarInterface::class.java).bar()
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
@@ -110,16 +110,16 @@ public final MyClass extends NonHiltLibraryClass {
   @EntryPoint
   @InstallIn(SingletonComponent.class)
   public interface MyClassInterface {
-    Foo getFoo();
+    Foo foo();
 
-    Bar getBar();
+    Bar bar();
   }
 
   void doSomething(Context context) {
     MyClassInterface myClassInterface =
         EntryPoints.get(applicationContext, MyClassInterface.class);
-    Foo foo = myClassInterface.getFoo();
-    Bar bar = myClassInterface.getBar();
+    Foo foo = myClassInterface.foo();
+    Bar bar = myClassInterface.bar();
   }
 }
 ```
@@ -131,16 +131,16 @@ class MyClass : NonHiltLibraryClass() {
   @EntryPoint
   @InstallIn(SingletonComponent::class)
   interface MyClassInterface {
-    fun getFoo(): Foo
+    fun foo(): Foo
 
-    fun getBar(): Bar
+    fun bar(): Bar
   }
 
   fun doSomething(context: Context) {
     val myClassInterface =
         EntryPoints.get(applicationContext, MyClassInterface::class.java)
-    val foo = myClassInterface.getFoo()
-    val bar = myClassInterface.getBar()
+    val foo = myClassInterface.foo()
+    val bar = myClassInterface.bar()
   }
 }
 ```
@@ -162,7 +162,7 @@ public final class FooModule {
   @EntryPoint
   @InstallIn(SingletonComponent.class)
   public interface FooInterface {
-    Foo getFoo();
+    Foo foo();
   }
 }
 ```
@@ -179,7 +179,7 @@ object FooModule {
   @EntryPoint
   @InstallIn(SingletonComponent::class)
   interface FooInterface {
-    fun getFoo(): Foo
+    fun foo(): Foo
   }
 }
 ```
