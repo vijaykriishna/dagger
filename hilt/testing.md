@@ -578,7 +578,7 @@ Hilt's features (e.g. [`@BindValue`](#bind-value)) rely on the test instance,
 which is not available in tests until after `Application#onCreate` is called.
 Thus, unlike production applications, custom base applications must avoid
 calling into the component during `Application#onCreate`. This includes
-injecting memebers into the application. To prevent this issue, Hilt doesn't
+injecting members into the application. To prevent this issue, Hilt doesn't
 allow injection in the base application.
 
 ## Hilt rule order
