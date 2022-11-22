@@ -186,3 +186,21 @@ depending on the situation:
 It is recommended to choose the first method by default and use the second
 method only for bindings that need to be replaceable in tests. It is expected,
 though, that many libraries will use both methods.
+
+## Hilt module visibility best practice {#module-visibility}
+
+In Dagger, modules are usually public visibility because they are referenced by
+other components or other modules installing them. However, in Hilt, because
+modules are installed just by being in the transitive dependencies, modules
+don't really need to be public for the same reason (technical aside: Hilt will
+actually generate public wrappers to get around visibility requirements for
+compilation).
+
+In fact, doing the opposite and restricting visibility of Hilt modules is a best
+practice because it prevents non-Hilt Dagger components from installing the
+modules. Installing a Hilt module in a non-Hilt Dagger component would be
+confusing because it wouldn't be a component in the `@InstallIn` annotation. For
+libraries where you want a module for Hilt and non-Hilt users, it is usually
+best to have two separate modules for each case. If the code is going to be the
+same for both, have the non-Hilt module just be an empty module that uses
+`@Module(includes = ...)` to include the non-Hilt module.
