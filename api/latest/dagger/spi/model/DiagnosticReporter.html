@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":6,"i1":10,"i2":6,"i3":10,"i4":6,"i5":10,"i6":6,"i7":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -91,13 +91,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -117,14 +117,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">dagger.spi.model</a></div>
-<h2 title="Interface DiagnosticReporter" class="title">Interface DiagnosticReporter</h2>
+<h2 title="Class DiagnosticReporter" class="title">Class DiagnosticReporter</h2>
 </div>
 <div class="contentContainer">
+<ul class="inheritance">
+<li>java.lang.Object</li>
+<li>
+<ul class="inheritance">
+<li>dagger.spi.model.DiagnosticReporter</li>
+</ul>
+</li>
+</ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public interface <span class="typeNameLabel">DiagnosticReporter</span></pre>
+<pre>public abstract class <span class="typeNameLabel">DiagnosticReporter</span>
+extends java.lang.Object</pre>
 <div class="block">An object that <a href="BindingGraphPlugin.html" title="interface in dagger.spi.model"><code>BindingGraphPlugin</code></a>s can use to report diagnostics while visiting a <a href="BindingGraph.html" title="class in dagger.spi.model"><code>BindingGraph</code></a>.
 
  <p>Note: This API is still experimental and will change.</div>
@@ -134,6 +143,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DiagnosticReporter</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section>
 <ul class="blockList">
@@ -142,14 +172,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reportBinding(javax.tools.Diagnostic.Kind,dagger.spi.model.BindingGraph.MaybeBinding,java.lang.String)">reportBinding</a></span>&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
              <a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding,
              java.lang.String&nbsp;message)</code></th>
@@ -169,7 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reportComponent(javax.tools.Diagnostic.Kind,dagger.spi.model.BindingGraph.ComponentNode,java.lang.String)">reportComponent</a></span>&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
                <a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&nbsp;componentNode,
                java.lang.String&nbsp;message)</code></th>
@@ -189,7 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reportDependency(javax.tools.Diagnostic.Kind,dagger.spi.model.BindingGraph.DependencyEdge,java.lang.String)">reportDependency</a></span>&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
                 <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&nbsp;dependencyEdge,
                 java.lang.String&nbsp;message)</code></th>
@@ -209,7 +239,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reportSubcomponentFactoryMethod(javax.tools.Diagnostic.Kind,dagger.spi.model.BindingGraph.ChildFactoryMethodEdge,java.lang.String)">reportSubcomponentFactoryMethod</a></span>&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
                                <a href="BindingGraph.ChildFactoryMethodEdge.html" title="interface in dagger.spi.model">BindingGraph.ChildFactoryMethodEdge</a>&nbsp;childFactoryMethodEdge,
                                java.lang.String&nbsp;message)</code></th>
@@ -229,6 +259,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -238,6 +275,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DiagnosticReporter</h4>
+<pre>public&nbsp;DiagnosticReporter()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section>
 <ul class="blockList">
@@ -251,9 +307,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>reportComponent</h4>
-<pre class="methodSignature">void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                     <a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&nbsp;componentNode,
-                     java.lang.String&nbsp;message)</pre>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                     <a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&nbsp;componentNode,
+                                     java.lang.String&nbsp;message)</pre>
 <div class="block">Reports a diagnostic for a component. For non-root components, includes information about the
  path from the root component.</div>
 </li>
@@ -265,11 +321,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>reportComponent</h4>
 <pre class="methodSignature">@FormatMethod
-void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                     <a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&nbsp;componentNode,
-                     java.lang.String&nbsp;messageFormat,
-                     java.lang.Object&nbsp;firstArg,
-                     java.lang.Object...&nbsp;moreArgs)</pre>
+public final&nbsp;void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                  <a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&nbsp;componentNode,
+                                  java.lang.String&nbsp;messageFormat,
+                                  java.lang.Object&nbsp;firstArg,
+                                  java.lang.Object...&nbsp;moreArgs)</pre>
 <div class="block">Reports a diagnostic for a component. For non-root components, includes information about the
  path from the root component.</div>
 </li>
@@ -280,9 +336,9 @@ void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind
 <ul class="blockList">
 <li class="blockList">
 <h4>reportBinding</h4>
-<pre class="methodSignature">void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                   <a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding,
-                   java.lang.String&nbsp;message)</pre>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                   <a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding,
+                                   java.lang.String&nbsp;message)</pre>
 <div class="block">Reports a diagnostic for a binding or missing binding. Includes information about how the
  binding is reachable from entry points.</div>
 </li>
@@ -294,11 +350,11 @@ void&nbsp;reportComponent&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind
 <li class="blockList">
 <h4>reportBinding</h4>
 <pre class="methodSignature">@FormatMethod
-void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                   <a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding,
-                   java.lang.String&nbsp;messageFormat,
-                   java.lang.Object&nbsp;firstArg,
-                   java.lang.Object...&nbsp;moreArgs)</pre>
+public final&nbsp;void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                <a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding,
+                                java.lang.String&nbsp;messageFormat,
+                                java.lang.Object&nbsp;firstArg,
+                                java.lang.Object...&nbsp;moreArgs)</pre>
 <div class="block">Reports a diagnostic for a binding or missing binding. Includes information about how the
  binding is reachable from entry points.</div>
 </li>
@@ -309,9 +365,9 @@ void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
 <ul class="blockList">
 <li class="blockList">
 <h4>reportDependency</h4>
-<pre class="methodSignature">void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                      <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&nbsp;dependencyEdge,
-                      java.lang.String&nbsp;message)</pre>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                      <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&nbsp;dependencyEdge,
+                                      java.lang.String&nbsp;message)</pre>
 <div class="block">Reports a diagnostic for a dependency. Includes information about how the dependency is
  reachable from entry points.</div>
 </li>
@@ -323,11 +379,11 @@ void&nbsp;reportBinding&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
 <li class="blockList">
 <h4>reportDependency</h4>
 <pre class="methodSignature">@FormatMethod
-void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                      <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&nbsp;dependencyEdge,
-                      java.lang.String&nbsp;messageFormat,
-                      java.lang.Object&nbsp;firstArg,
-                      java.lang.Object...&nbsp;moreArgs)</pre>
+public final&nbsp;void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                   <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&nbsp;dependencyEdge,
+                                   java.lang.String&nbsp;messageFormat,
+                                   java.lang.Object&nbsp;firstArg,
+                                   java.lang.Object...&nbsp;moreArgs)</pre>
 <div class="block">Reports a diagnostic for a dependency. Includes information about how the dependency is
  reachable from entry points.</div>
 </li>
@@ -338,9 +394,9 @@ void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKin
 <ul class="blockList">
 <li class="blockList">
 <h4>reportSubcomponentFactoryMethod</h4>
-<pre class="methodSignature">void&nbsp;reportSubcomponentFactoryMethod&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                                     <a href="BindingGraph.ChildFactoryMethodEdge.html" title="interface in dagger.spi.model">BindingGraph.ChildFactoryMethodEdge</a>&nbsp;childFactoryMethodEdge,
-                                     java.lang.String&nbsp;message)</pre>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;reportSubcomponentFactoryMethod&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                                     <a href="BindingGraph.ChildFactoryMethodEdge.html" title="interface in dagger.spi.model">BindingGraph.ChildFactoryMethodEdge</a>&nbsp;childFactoryMethodEdge,
+                                                     java.lang.String&nbsp;message)</pre>
 <div class="block">Reports a diagnostic for a subcomponent factory method.</div>
 </li>
 </ul>
@@ -351,11 +407,11 @@ void&nbsp;reportDependency&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKin
 <li class="blockList">
 <h4>reportSubcomponentFactoryMethod</h4>
 <pre class="methodSignature">@FormatMethod
-void&nbsp;reportSubcomponentFactoryMethod&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
-                                     <a href="BindingGraph.ChildFactoryMethodEdge.html" title="interface in dagger.spi.model">BindingGraph.ChildFactoryMethodEdge</a>&nbsp;childFactoryMethodEdge,
-                                     java.lang.String&nbsp;messageFormat,
-                                     java.lang.Object&nbsp;firstArg,
-                                     java.lang.Object...&nbsp;moreArgs)</pre>
+public final&nbsp;void&nbsp;reportSubcomponentFactoryMethod&#8203;(javax.tools.Diagnostic.Kind&nbsp;diagnosticKind,
+                                                  <a href="BindingGraph.ChildFactoryMethodEdge.html" title="interface in dagger.spi.model">BindingGraph.ChildFactoryMethodEdge</a>&nbsp;childFactoryMethodEdge,
+                                                  java.lang.String&nbsp;messageFormat,
+                                                  java.lang.Object&nbsp;firstArg,
+                                                  java.lang.Object...&nbsp;moreArgs)</pre>
 <div class="block">Reports a diagnostic for a subcomponent factory method.</div>
 </li>
 </ul>
@@ -413,13 +469,13 @@ void&nbsp;reportSubcomponentFactoryMethod&#8203;(javax.tools.Diagnostic.Kind&nbs
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
