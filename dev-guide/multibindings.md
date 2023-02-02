@@ -55,6 +55,17 @@ class Bar {
 }
 ```
 
+**Warning:**
+With Kotlin sources, the type argument of a multibinding set may end up
+being [replaced with a wildcard type](https://kotlinlang.org/docs/java-to-kotlin-interop.html#variant-generics),
+i.e. `Foo` turns into `? extends Foo`. In such cases you might get an error
+like the following:
+`[Dagger/MissingBinding] Set<? extends Foo> cannot be provided without an @Provides-annotated method.`
+To fix such an error you need to annotate your element
+with `@JvmSuppressWildcards` at the injection site, e.g.
+`@Inject lateinit var foo: Set<@JvmSuppressWildcards Foo>`.
+{: .c-callouts__warning }
+
 Or the component can provide the set:
 
 ```java
@@ -111,6 +122,18 @@ reasons. For example, it can be useful when you don't want all of the values to
 be instantiated, or because you want to handle Provider exceptions from
 entries, or because you want to get a potentially new instance of each value
 each time you query the map.
+
+**Warning:**
+With Kotlin sources, the type argument of a multibinding set may end up
+being [replaced with a wildcard type](https://kotlinlang.org/docs/java-to-kotlin-interop.html#variant-generics),
+i.e. `Foo` turns into `? extends Foo`. In such cases you might get an error
+like the following:
+`[Dagger/MissingBinding] Map<String, ? extends Foo> cannot be provided without an @Provides-annotated method.`
+To fix such an error you need to annotate your element
+with `@JvmSuppressWildcards` at the injection site, e.g.
+`@Inject lateinit var foo: Map<String, @JvmSuppressWildcards Foo>`.
+{: .c-callouts__warning }
+
 
 ### Simple map keys
 
