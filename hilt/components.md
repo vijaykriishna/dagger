@@ -139,7 +139,7 @@ Example:
 <div class="c-codeselector__button c-codeselector__button_kotlin">Kotlin</div>
 ```java
 @Module
-@InstallIn(FragmentComponent::class)
+@InstallIn(FragmentComponent.class)
 abstract class FooModule {
   // This binding is "unscoped".
   @Provides
@@ -158,7 +158,7 @@ abstract class FooModule {
 {: .c-codeselector__code .c-codeselector__code_java }
 ```kotlin
 @Module
-@InstallIn(FragmentComponent.class)
+@InstallIn(FragmentComponent::class)
 object FooModule {
   // This binding is "unscoped".
   @Provides
