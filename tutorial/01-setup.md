@@ -29,7 +29,31 @@ interface Command {
   String key();
 
   /** Process the rest of the command's words and do something. */
-  Status handleInput(List<String> input);
+  Result handleInput(List<String> input);
+
+  /**
+   * This wrapper class is introduced to make a future change easier
+   * even though it looks unnecessary right now.
+   */
+  final class Result {
+    private final Status status;
+
+    private Result(Status status) {
+      this.status = status;
+    }
+
+    static Result invalid() {
+      return new Result(Status.INVALID);
+    }
+
+    static Result handled() {
+      return new Result(Status.HANDLED);
+    }
+
+    Status status() {
+      return status;
+    }
+  }
 
   enum Status {
     INVALID,
@@ -46,7 +70,7 @@ we'll give it an empty map of commands.
 final class CommandRouter {
   private final Map<String, Command> commands = Collections.emptyMap();
 
-  Status route(String input) {
+  Result route(String input) {
     List<String> splitInput = split(input);
     if (splitInput.isEmpty()) {
       return invalidCommand(input);
@@ -58,22 +82,23 @@ final class CommandRouter {
       return invalidCommand(input);
     }
 
-    Status status =
-        command.handleInput(splitInput.subList(1, splitInput.size()));
-    if (status == Status.INVALID) {
-      System.out.println(commandKey + ": invalid arguments");
-    }
-    return status;
+    List<String> args = splitInput.subList(1, splitInput.size());
+    Result result = command.handleInput(args);
+    return result.status().equals(Status.INVALID) ? 
+      invalidCommand(input) : result;
   }
 
-  private Status invalidCommand(String input) {
+  private Result invalidCommand(String input) {
     System.out.println(
-        String.format("couldn't understand \"%s\". please try again.", input));
-    return Status.INVALID;
+        String.format("couldn't understand \"%s\". please 
+        try again.", input));
+    return Result.invalid();
   }
 
   // Split on whitespace
-  private static List<String> split(String string) {  ...  }
+  private static List<String> split(String input) {
+    return Arrays.asList(input.trim().split("\\s+"));
+  }
 }
 ```
 
@@ -86,7 +111,7 @@ class CommandLineAtm {
     CommandRouter commandRouter = new CommandRouter();
 
     while (scanner.hasNextLine()) {
-      commandRouter.route(scanner.nextLine());
+      Status unused = commandRouter.route(scanner.nextLine());
     }
   }
 }

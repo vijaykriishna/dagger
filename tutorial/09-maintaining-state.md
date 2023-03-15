@@ -10,21 +10,25 @@ In order to help find it, let's first create a `deposit` command:
 
 ```java
 final class DepositCommand implements Command {
-  ...
+  private final Database database;
+  private final Outputter outputter;
 
   @Inject
-  DepositCommand(Database database, Outputter outputter) {  ...  }
+  DepositCommand(Database database, Outputter outputter) {
+    this.outputter = outputter;
+    this.database = database;
+  }
 
   @Override
-  public Status handleInput(List<String> input) {
+  public Result handleInput(List<String> input) {
     if (input.size() != 2) {
-      return Status.INVALID;
+      return Result.invalid();
     }
 
     Account account = database.getAccount(input.get(0));
     account.deposit(new BigDecimal(input.get(1)));
     outputter.output(account.username() + " now has: " + account.balance());
-    return Status.HANDLED;
+    return Result.handled();
   }
 }
 ```
@@ -43,7 +47,8 @@ abstract class UserCommandsModule {
 }
 ```
 
-Run the application with the following commands:
+Don't forget to add `UserCommandsModule` in the [`@Component`] annotation of
+`CommandRouterFactory`. Run the application with the following commands:
 
 ```
 deposit colin 2

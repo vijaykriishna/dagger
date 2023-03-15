@@ -20,9 +20,9 @@ final class LoginCommand extends SingleArgCommand {
   }
 
   @Override
-  public Status handleArg(String username) {
+  public Result handleArg(String username) {
     outputter.output(username + " is logged in.");
-    return Status.HANDLED;
+    return Result.handled();
   }
 }
 ```
@@ -43,7 +43,16 @@ abstract class LoginCommandModule {
 
 To start using the `LoginCommand` in `CommandRouter`, we'll replace
 `HelloWorldModule` in the [`@Component`] annotation with `LoginCommandModule`.
-Run the application and try to log in.
+
+```java
+  @Component(modules = {LoginCommandModule.class, SystemOutModule.class})
+  interface CommandRouterFactory {
+    CommandRouter router();
+  }
+```
+
+Run the application and try to log in by typing `login <your
+name>`.
 
 This begins to show some of the benefits of using Dagger. With a one line
 _declarative_ change, we were able to change what `Command` was received by

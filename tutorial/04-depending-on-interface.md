@@ -11,8 +11,9 @@ Let's instead specify `CommandRouter`'s dependency as a plain `Command`:
 ```java
 @Inject
 CommandRouter(Command command) {
-  ...
+  commands.put(command.key(), command);
 }
+...
 ```
 
 But now Dagger doesn't know how to get an instance of `Command`. If you try to

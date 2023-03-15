@@ -58,6 +58,16 @@ final class CommandRouter {
 }
 ```
 
+Now we can add both `HelloWorldModule` and `LoginCommandModule`
+in the [`@Component`] annotation of `CommandRouterFactory`.
+
+```java
+  @Component(modules = {HelloWorldModule.class, LoginCommandModule.class, SystemOutModule.class})
+  interface CommandRouterFactory {
+    CommandRouter router();
+  }
+```
+
 If you run the application now, you'll see that both `hello` and `login <your
 name>` both work. Make sure to update the [`@Component`] annotation to include
 both modules.

@@ -19,17 +19,18 @@ final class HelloWorldCommand implements Command {
   }
 
   @Override
-  public Status handleInput(List<String> input) {
+  public Result handleInput(List<String> input) {
     if (!input.isEmpty()) {
-      return Status.INVALID;
+      return Result.invalid();
     }
     System.out.println("world!");
-    return Status.HANDLED;
+    return Result.handled();
   }
 }
 ```
 
-Now let's add a parameter to `CommandRouter`'s constructor for that command:
+Now let's add a parameter to `CommandRouter`'s constructor for that command.
+Note that now we initialize the commands map with an empty HashMap.
 
 ```java
 final class CommandRouter {

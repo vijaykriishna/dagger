@@ -33,6 +33,10 @@ class Database {
     BigDecimal balance() {
       return balance;
     }
+
+    void deposit(BigDecimal amount) {
+      balance = balance.add(amount);
+    }
   }
 }
 ```
@@ -42,17 +46,20 @@ balance when a user logs in:
 
 ```java
 final class LoginCommand extends SingleArgCommand {
+  private final Database database;
   ...
 
   @Inject
-  LoginCommand(Database database, Outputter outputter) { … }
+  LoginCommand(Database database, Outputter outputter) {
+    this.database = database;
+    this.outputter = outputter;
+  }
 
   @Override
-  public Status handleArg(String username) {
+  public Result handleArg(String username) {
     Account account = database.getAccount(username);
-    outputter.output(
-        username + " is logged in with balance: " + account.balance());
-    return Status.HANDLED;
+    outputter.output(username + " is logged in with balance: " + account.balance());
+    return Result.handled();
   }
 }
 ```

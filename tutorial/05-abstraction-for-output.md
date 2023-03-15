@@ -30,10 +30,15 @@ HelloWorldCommand(Outputter outputter) {
   this.outputter = outputter;
 }
 
+...
+
 @Override
-public Status handleInput(List<String> input) {
+public Result handleInput(List<String> input) {
+  if (!input.isEmpty()) {
+    return Result.invalid();
+  }
   outputter.output("world!");
-  return Status.HANDLED;
+  return Result.handled();
 }
 ```
 
@@ -63,14 +68,10 @@ Again, we'll need to add our new module to our component definition to tell
 Dagger that it should use that module for our application:
 
 ```java
-class CommandLineAtm {
-  ...
-
   @Component(modules = {HelloWorldModule.class, SystemOutModule.class})
   interface CommandRouterFactory {
     CommandRouter router();
   }
-}
 ```
 
 Once again, nothing has changed about the _behavior_ of our application, but

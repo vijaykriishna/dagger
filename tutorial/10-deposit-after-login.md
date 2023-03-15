@@ -11,32 +11,7 @@ refactoring.
 
 We can introduce a `CommandProcessor` that contains a [stack] of
 `CommandRouter`s. Pushing onto the stack will enable a new set of commands to be
-processed. Popping will return to the previous set of commands. We can modify
-`Command.handleInput()` to return a `Result` that is a combination of the
-`Status` enum and an optional `CommandRouter` that should be pushed on the
-stack. Finally, an `INPUT_COMPLETED` enum value can be added to `Status` to
-indicate when to pop the stack:
-
-```java
-interface Command {
-  Result handleInput(List<String> input);
-
-  class Result {
-    private final Status status;
-    private final Optional<CommandRouter> nestedCommandRouter;
-
-    // ...
-
-    static Result enterNestedCommandSet(CommandRouter nestedCommandRouter) {
-      return new Result(Status.HANDLED, Optional.of(nestedCommandRouter));
-    }
-  }
-
-  enum Status {
-    INVALID, HANDLED, INPUT_COMPLETED
-  }
-}
-```
+processed. Popping will return to the previous set of commands.
 
 ```java
 @Singleton
@@ -52,9 +27,7 @@ final class CommandProcessor {
     Result result = commandRouterStack.peek().route(input);
     if (result.status().equals(Status.INPUT_COMPLETED)) {
       commandRouterStack.pop();
-      return commandRouterStack.isEmpty()
-          ? Status.INPUT_COMPLETED
-          : Status.HANDLED;
+      return commandRouterStack.isEmpty() ? Status.INPUT_COMPLETED : Status.HANDLED;
     }
 
     result.nestedCommandRouter().ifPresent(commandRouterStack::push);
@@ -63,25 +36,82 @@ final class CommandProcessor {
 }
 ```
 
+We can modify `Command` as follows:
+
+```java
+interface Command {
+  Result handleInput(List<String> input);
+
+  final class Result {
+    private final Status status;
+    private final Optional<CommandRouter> nestedCommandRouter;
+
+    private Result(Status status, Optional<CommandRouter> nestedCommandRouter) {
+      this.status = status;
+      this.nestedCommandRouter = nestedCommandRouter;
+    }
+
+    static Result invalid() {
+      return new Result(Status.INVALID, Optional.empty());
+    }
+
+    static Result handled() {
+      return new Result(Status.HANDLED, Optional.empty());
+    }
+
+    Status status() {
+      return status;
+    }
+
+    Optional<CommandRouter> nestedCommandRouter() {
+      return nestedCommandRouter;
+    }
+
+    static Result enterNestedCommandSet(CommandRouter nestedCommandRouter) {
+      return new Result(Status.HANDLED, Optional.of(nestedCommandRouter));
+    }
+  }
+
+  enum Status {
+    INVALID,
+    HANDLED,
+    INPUT_COMPLETED
+  }
+}
+```
+
 `CommandProcessor` is marked with [`@Singleton`] to ensure that only one
 `CommandRouter` stack is created.
 
-We can refactor our [`@Component`] accordingly:
+We can rename our [`@Component`] to `CommandProcessorFactory`.
+Now it looks like this:
+
+```java
+@Singleton
+@Component(
+    modules = {
+      LoginCommandModule.class,
+      HelloWorldModule.class,
+      UserCommandsModule.class,
+      SystemOutModule.class
+    })
+interface CommandProcessorFactory {
+  CommandProcessor commandProcessor();
+}
+```
+
+Finally, we can refactor `CommandLineAtm` accordingly:
 
 ```java
 class CommandLineAtm {
   public static void main(String[] args) {
-    CommandProcessor commandProcessor =
-        DaggerCommandLineAtm_CommandProcessorFactory.create().processor();
+    Scanner scanner = new Scanner(System.in);
+    CommandProcessorFactory commandProcessorFactory = DaggerCommandProcessorFactory.create();
+    CommandProcessor commandProcessor = commandProcessorFactory.commandProcessor();
 
     while (scanner.hasNextLine()) {
-      commandProcessor.process(scanner.nextLine());
+      Status unused = commandProcessor.process(scanner.nextLine());
     }
-  }
-
-  @Component(modules =  ... )
-  interface CommandProcessorFactory {
-    CommandProcessor processor();
   }
 }
 ```
@@ -139,8 +169,23 @@ There are a few things that are happening here. Let's break it down:
     _another component_ will make the [`@Subcomponent.Factory`] available there.
     That's our bridge between the two components.
 
-If we include `UserCommandsRouter.InstallationModule` in our [`@Component`]
-annotation, we can start to use it in `LoginCommand`:
+We need to include `UserCommandsRouter.InstallationModule` in our [`@Component`]
+annotation:
+
+```java
+@Singleton
+@Component(
+    modules = {
+      ...
+      UserCommandsRouter.InstallationModule.class,
+    })
+interface CommandProcessorFactory {
+  CommandProcessor commandProcessor();
+}
+```
+
+
+Now we can start to use `UserCommandsRouter` in `LoginCommand`:
 
 ```java
 final class LoginCommand extends SingleArgCommand {
