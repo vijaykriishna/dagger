@@ -27,7 +27,8 @@ final class CommandProcessor {
     Result result = commandRouterStack.peek().route(input);
     if (result.status().equals(Status.INPUT_COMPLETED)) {
       commandRouterStack.pop();
-      return commandRouterStack.isEmpty() ? Status.INPUT_COMPLETED : Status.HANDLED;
+      return commandRouterStack.isEmpty()
+          ? Status.INPUT_COMPLETED : Status.HANDLED;
     }
 
     result.nestedCommandRouter().ifPresent(commandRouterStack::push);
@@ -106,8 +107,10 @@ Finally, we can refactor `CommandLineAtm` accordingly:
 class CommandLineAtm {
   public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
-    CommandProcessorFactory commandProcessorFactory = DaggerCommandProcessorFactory.create();
-    CommandProcessor commandProcessor = commandProcessorFactory.commandProcessor();
+    CommandProcessorFactory commandProcessorFactory =
+        DaggerCommandProcessorFactory.create();
+    CommandProcessor commandProcessor =
+        commandProcessorFactory.commandProcessor();
 
     while (scanner.hasNextLine()) {
       Status unused = commandProcessor.process(scanner.nextLine());

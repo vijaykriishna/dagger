@@ -84,13 +84,13 @@ final class CommandRouter {
 
     List<String> args = splitInput.subList(1, splitInput.size());
     Result result = command.handleInput(args);
-    return result.status().equals(Status.INVALID) ? 
+    return result.status().equals(Status.INVALID) ?
       invalidCommand(input) : result;
   }
 
   private Result invalidCommand(String input) {
     System.out.println(
-        String.format("couldn't understand \"%s\". please 
+        String.format("couldn't understand \"%s\". please
         try again.", input));
     return Result.invalid();
   }

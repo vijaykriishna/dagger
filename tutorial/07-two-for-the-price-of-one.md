@@ -62,7 +62,12 @@ Now we can add both `HelloWorldModule` and `LoginCommandModule`
 in the [`@Component`] annotation of `CommandRouterFactory`.
 
 ```java
-  @Component(modules = {HelloWorldModule.class, LoginCommandModule.class, SystemOutModule.class})
+  @Component(
+      modules = {
+        HelloWorldModule.class,
+        LoginCommandModule.class,
+        SystemOutModule.class
+      })
   interface CommandRouterFactory {
     CommandRouter router();
   }
