@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":9,"i5":10,"i6":9,"i7":6,"i8":10};
+var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":10,"i5":9,"i6":6,"i7":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -177,60 +177,55 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>com.squareup.javapoet.ClassName</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#className()">className</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isProductionScope()">isProductionScope</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if this scope is the <a href="../../producers/ProductionScope.html" title="annotation in dagger.producers"><code>@ProductionScope</code></a> scope.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReusable()">isReusable</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if this scope is the <a href="../../Reusable.html" title="annotation in dagger"><code>@Reusable</code></a> scope.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isScope(dagger.spi.model.DaggerAnnotation)">isScope</a></span>&#8203;(<a href="DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;scopeAnnotation)</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if <a href="#scopeAnnotation()"><code>scopeAnnotation()</code></a> is a <code>Scope</code> annotation.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isScope(dagger.spi.model.DaggerTypeElement)">isScope</a></span>&#8203;(<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;scopeAnnotationType)</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSingleton()">isSingleton</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if this scope is the <code>@Singleton</code> scope.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="Scope.html" title="class in dagger.spi.model">Scope</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scope(dagger.spi.model.DaggerAnnotation)">scope</a></span>&#8203;(<a href="DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;scopeAnnotation)</code></th>
 <td class="colLast">
 <div class="block">Creates a <a href="Scope.html" title="class in dagger.spi.model"><code>Scope</code></a> object from the <code>Scope</code>-annotated annotation type.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>abstract <a href="DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scopeAnnotation()">scopeAnnotation</a></span>()</code></th>
 <td class="colLast">
 <div class="block">The <a href="DaggerAnnotation.html" title="class in dagger.spi.model"><code>DaggerAnnotation</code></a> that represents the scope annotation.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">
@@ -318,15 +313,6 @@ extends java.lang.Object</pre>
 <h4>scopeAnnotation</h4>
 <pre class="methodSignature">public abstract&nbsp;<a href="DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a>&nbsp;scopeAnnotation()</pre>
 <div class="block">The <a href="DaggerAnnotation.html" title="class in dagger.spi.model"><code>DaggerAnnotation</code></a> that represents the scope annotation.</div>
-</li>
-</ul>
-<a id="className()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>className</h4>
-<pre class="methodSignature">public final&nbsp;com.squareup.javapoet.ClassName&nbsp;className()</pre>
 </li>
 </ul>
 <a id="isSingleton()">

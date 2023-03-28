@@ -132,30 +132,36 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<td class="colFirst"><code>abstract <a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">DaggerAnnotation.</span><code><span class="memberNameLink"><a href="../DaggerAnnotation.html#annotationTypeElement()">annotationTypeElement</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>abstract <a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DaggerTypeElement.Builder.</span><code><span class="memberNameLink"><a href="../DaggerTypeElement.Builder.html#build()">build</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../ComponentPath.html#currentComponent()">currentComponent</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the component at the end of the path.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">DaggerTypeElement.</span><code><span class="memberNameLink"><a href="../DaggerTypeElement.html#from(androidx.room.compiler.processing.XTypeElement)">from</a></span>&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DaggerTypeElement.</span><code><span class="memberNameLink"><a href="../DaggerTypeElement.html#from(androidx.room.compiler.processing.XTypeElement,androidx.room.compiler.processing.XProcessingEnv)">from</a></span>&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement,
+    androidx.room.compiler.processing.XProcessingEnv&nbsp;env)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../ComponentPath.html#parentComponent()">parentComponent</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the parent of the <a href="../ComponentPath.html#currentComponent()">ComponentPath.currentComponent()</a> current component}.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../ComponentPath.html#rootComponent()">rootComponent</a></span>()</code></th>
 <td class="colLast">
@@ -206,33 +212,38 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>abstract <a href="../DaggerAnnotation.Builder.html" title="class in dagger.spi.model">DaggerAnnotation.Builder</a></code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DaggerAnnotation.Builder.</span><code><span class="memberNameLink"><a href="../DaggerAnnotation.Builder.html#annotationTypeElement(dagger.spi.model.DaggerTypeElement)">annotationTypeElement</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">ComponentPath.</span><code><span class="memberNameLink"><a href="../ComponentPath.html#childPath(dagger.spi.model.DaggerTypeElement)">childPath</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;child)</code></th>
 <td class="colLast">
 <div class="block">Returns the path from the root component to the <code>child</code> of the current component.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="../BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&gt;</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">BindingGraph.</span><code><span class="memberNameLink"><a href="../BindingGraph.html#componentNodes(dagger.spi.model.DaggerTypeElement)">componentNodes</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;component)</code></th>
 <td class="colLast">
 <div class="block">Returns the component nodes for a component.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Scope.</span><code><span class="memberNameLink"><a href="../Scope.html#isScope(dagger.spi.model.DaggerTypeElement)">isScope</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;scopeAnnotationType)</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if <code>scopeAnnotationType</code> is a <code>Scope</code> annotation.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../Key.Builder.html" title="class in dagger.spi.model">Key.Builder</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Key.Builder.</span><code><span class="memberNameLink"><a href="../Key.Builder.html#multibindingContributionIdentifier(dagger.spi.model.DaggerTypeElement,dagger.spi.model.DaggerExecutableElement)">multibindingContributionIdentifier</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;contributingModule,
                                   <a href="../DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a>&nbsp;bindingMethod)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../Key.html" title="class in dagger.spi.model">Key</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Key.</span><code><span class="memberNameLink"><a href="../Key.html#withMultibindingContributionIdentifier(dagger.spi.model.DaggerTypeElement,dagger.spi.model.DaggerExecutableElement)">withMultibindingContributionIdentifier</a></span>&#8203;(<a href="../DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;contributingModule,
                                       <a href="../DaggerExecutableElement.html" title="class in dagger.spi.model">DaggerExecutableElement</a>&nbsp;bindingMethod)</code></th>

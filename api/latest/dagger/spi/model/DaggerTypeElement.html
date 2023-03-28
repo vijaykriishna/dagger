@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":6};
+var data = {"i0":6,"i1":9,"i2":9,"i3":10,"i4":6,"i5":6,"i6":6,"i7":6,"i8":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -141,6 +141,31 @@ extends java.lang.Object</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DaggerTypeElement.Builder.html" title="class in dagger.spi.model">DaggerTypeElement.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block">A builder for <a href="DaggerTypeElement.html" title="class in dagger.spi.model"><code>DaggerTypeElement</code></a>s.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -177,28 +202,53 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>com.squareup.javapoet.ClassName</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#className()">className</a></span>()</code></th>
+<td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#from(androidx.room.compiler.processing.XTypeElement)">from</a></span>&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement)</code></th>
+<td class="colFirst"><code>static <a href="DaggerTypeElement.Builder.html" title="class in dagger.spi.model">DaggerTypeElement.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#builder()">builder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>javax.lang.model.element.TypeElement</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
+<td class="colFirst"><code>static <a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#from(androidx.room.compiler.processing.XTypeElement,androidx.room.compiler.processing.XProcessingEnv)">from</a></span>&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement,
+    androidx.room.compiler.processing.XProcessingEnv&nbsp;env)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasAnnotation(java.lang.String)">hasAnnotation</a></span>&#8203;(java.lang.String&nbsp;annotationName)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>abstract androidx.room.compiler.processing.XTypeElement</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#xprocessing()">xprocessing</a></span>()</code></th>
+<td class="colFirst"><code>abstract javax.lang.model.element.TypeElement</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Java representation for the type, returns <code>null</code> not using java annotation processor.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSClassDeclaration</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
+<td class="colLast">
+<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>abstract java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packageName()">packageName</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>abstract java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#qualifiedName()">qualifiedName</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -244,22 +294,23 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="from(androidx.room.compiler.processing.XTypeElement)">
+<a id="from(androidx.room.compiler.processing.XTypeElement,androidx.room.compiler.processing.XProcessingEnv)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>from</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;from&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement)</pre>
+<pre class="methodSignature">public static&nbsp;<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;from&#8203;(androidx.room.compiler.processing.XTypeElement&nbsp;typeElement,
+                                     androidx.room.compiler.processing.XProcessingEnv&nbsp;env)</pre>
 </li>
 </ul>
-<a id="xprocessing()">
+<a id="builder()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>xprocessing</h4>
-<pre class="methodSignature">public abstract&nbsp;androidx.room.compiler.processing.XTypeElement&nbsp;xprocessing()</pre>
+<h4>builder</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DaggerTypeElement.Builder.html" title="class in dagger.spi.model">DaggerTypeElement.Builder</a>&nbsp;builder()</pre>
 </li>
 </ul>
 <a id="java()">
@@ -268,16 +319,56 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>java</h4>
-<pre class="methodSignature">public&nbsp;javax.lang.model.element.TypeElement&nbsp;java()</pre>
+<pre class="methodSignature">@Nullable
+public abstract&nbsp;javax.lang.model.element.TypeElement&nbsp;java()</pre>
+<div class="block">Java representation for the type, returns <code>null</code> not using java annotation processor.</div>
 </li>
 </ul>
-<a id="className()">
+<a id="ksp()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>className</h4>
-<pre class="methodSignature">public&nbsp;com.squareup.javapoet.ClassName&nbsp;className()</pre>
+<h4>ksp</h4>
+<pre class="methodSignature">@Nullable
+public abstract&nbsp;com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;ksp()</pre>
+<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+</li>
+</ul>
+<a id="packageName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>packageName</h4>
+<pre class="methodSignature">public abstract&nbsp;java.lang.String&nbsp;packageName()</pre>
+</li>
+</ul>
+<a id="qualifiedName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>qualifiedName</h4>
+<pre class="methodSignature">public abstract&nbsp;java.lang.String&nbsp;qualifiedName()</pre>
+</li>
+</ul>
+<a id="backend()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backend</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
+</li>
+</ul>
+<a id="hasAnnotation(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasAnnotation</h4>
+<pre class="methodSignature">public final&nbsp;boolean&nbsp;hasAnnotation&#8203;(java.lang.String&nbsp;annotationName)</pre>
 </li>
 </ul>
 <a id="toString()">
@@ -345,7 +436,7 @@ extends java.lang.Object</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
