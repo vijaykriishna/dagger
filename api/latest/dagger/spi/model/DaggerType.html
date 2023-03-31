@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":9,"i2":9,"i3":6,"i4":6,"i5":10};
+var data = {"i0":10,"i1":9,"i2":9,"i3":6,"i4":6,"i5":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -141,31 +141,6 @@ extends java.lang.Object</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<table class="memberSummary">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Class</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DaggerType.Builder.html" title="class in dagger.spi.model">DaggerType.Builder</a></span></code></th>
-<td class="colLast">
-<div class="block">A builder for <a href="DaggerType.html" title="class in dagger.spi.model"><code>DaggerType</code></a>s.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -202,19 +177,18 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
+<td class="colFirst"><code><a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="DaggerType.Builder.html" title="class in dagger.spi.model">DaggerType.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#builder()">builder</a></span>()</code></th>
+<td class="colFirst"><code>static <a href="DaggerType.html" title="class in dagger.spi.model">DaggerType</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromJavac(javax.lang.model.type.TypeMirror)">fromJavac</a></span>&#8203;(javax.lang.model.type.TypeMirror&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="DaggerType.html" title="class in dagger.spi.model">DaggerType</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#from(androidx.room.compiler.processing.XType,androidx.room.compiler.processing.XProcessingEnv)">from</a></span>&#8203;(androidx.room.compiler.processing.XType&nbsp;type,
-    androidx.room.compiler.processing.XProcessingEnv&nbsp;env)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromKsp(com.google.devtools.ksp.symbol.KSType)">fromKsp</a></span>&#8203;(com.google.devtools.ksp.symbol.KSType&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -279,23 +253,22 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="from(androidx.room.compiler.processing.XType,androidx.room.compiler.processing.XProcessingEnv)">
+<a id="fromJavac(javax.lang.model.type.TypeMirror)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>from</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;from&#8203;(androidx.room.compiler.processing.XType&nbsp;type,
-                              androidx.room.compiler.processing.XProcessingEnv&nbsp;env)</pre>
+<h4>fromJavac</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;fromJavac&#8203;(javax.lang.model.type.TypeMirror&nbsp;type)</pre>
 </li>
 </ul>
-<a id="builder()">
+<a id="fromKsp(com.google.devtools.ksp.symbol.KSType)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>builder</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerType.Builder.html" title="class in dagger.spi.model">DaggerType.Builder</a>&nbsp;builder()</pre>
+<h4>fromKsp</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DaggerType.html" title="class in dagger.spi.model">DaggerType</a>&nbsp;fromKsp&#8203;(com.google.devtools.ksp.symbol.KSType&nbsp;type)</pre>
 </li>
 </ul>
 <a id="java()">
@@ -326,7 +299,7 @@ public abstract&nbsp;com.google.devtools.ksp.symbol.KSType&nbsp;ksp()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>backend</h4>
-<pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
+<pre class="methodSignature">public&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
 </li>
 </ul>
 <a id="toString()">
@@ -394,7 +367,7 @@ public abstract&nbsp;com.google.devtools.ksp.symbol.KSType&nbsp;ksp()</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

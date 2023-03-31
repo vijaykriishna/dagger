@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":6,"i13":42,"i14":42,"i15":10,"i16":6,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
+var data = {"i0":6,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":6,"i14":42,"i15":42,"i16":10,"i17":6,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -294,83 +294,88 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bindings()">bindings</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the bindings.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bindings(dagger.spi.model.Key)">bindings</a></span>&#8203;(<a href="Key.html" title="class in dagger.spi.model">Key</a>&nbsp;key)</code></th>
 <td class="colLast">
 <div class="block">Returns the bindings for a key.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;<a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#componentNode(dagger.spi.model.ComponentPath)">componentNode</a></span>&#8203;(<a href="ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></th>
 <td class="colLast">
 <div class="block">Returns the component node for a component.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#componentNodes()">componentNodes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the component nodes.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#componentNodes(dagger.spi.model.DaggerTypeElement)">componentNodes</a></span>&#8203;(<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;component)</code></th>
 <td class="colLast">
 <div class="block">Returns the component nodes for a component.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dependencyEdges()">dependencyEdges</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the dependency edges.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSetMultimap&lt;<a href="DependencyRequest.html" title="class in dagger.spi.model">DependencyRequest</a>,&#8203;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dependencyEdges(dagger.spi.model.Binding)">dependencyEdges</a></span>&#8203;(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></th>
 <td class="colLast">
 <div class="block">Returns the dependency edges for the dependencies of a binding.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dependencyEdges(dagger.spi.model.DependencyRequest)">dependencyEdges</a></span>&#8203;(<a href="DependencyRequest.html" title="class in dagger.spi.model">DependencyRequest</a>&nbsp;dependencyRequest)</code></th>
 <td class="colLast">
 <div class="block">Returns the dependency edges for a dependency request.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entryPointBindings()">entryPointBindings</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the binding or missing binding nodes that directly satisfy entry points.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entryPointEdges()">entryPointEdges</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the dependency edges for all entry points for all components and subcomponents.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entryPointEdges(dagger.spi.model.ComponentPath)">entryPointEdges</a></span>&#8203;(<a href="ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></th>
 <td class="colLast">
 <div class="block">Returns the dependency edges for the entry points of a given <code>component</code>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entryPointEdgesDependingOnBinding(dagger.spi.model.BindingGraph.MaybeBinding)">entryPointEdgesDependingOnBinding</a></span>&#8203;(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></th>
 <td class="colLast">
@@ -378,7 +383,7 @@ extends java.lang.Object</pre>
  a key.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFullBindingGraph()">isFullBindingGraph</a></span>()</code></th>
 <td class="colLast">
@@ -387,7 +392,7 @@ extends java.lang.Object</pre>
  bindings that are reachable from at least one <a href="#entryPointEdges()">entry point</a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isModuleBindingGraph()">isModuleBindingGraph</a></span>()</code></th>
 <td class="colLast">
@@ -398,7 +403,7 @@ extends java.lang.Object</pre>
 </div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPartialBindingGraph()">isPartialBindingGraph</a></span>()</code></th>
 <td class="colLast">
@@ -408,33 +413,33 @@ extends java.lang.Object</pre>
 </div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MissingBinding.html" title="class in dagger.spi.model">BindingGraph.MissingBinding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#missingBindings()">missingBindings</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the nodes that represent missing bindings.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>abstract com.google.common.graph.ImmutableNetwork&lt;<a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,&#8203;<a href="BindingGraph.Edge.html" title="interface in dagger.spi.model">BindingGraph.Edge</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#network()">network</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the graph in its <code>Network</code> representation.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;java.lang.Class&lt;? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,&#8203;? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nodesByClass()">nodesByClass</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requestedBindings(dagger.spi.model.Binding)">requestedBindings</a></span>&#8203;(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></th>
 <td class="colLast">
 <div class="block">Returns the bindings that a given binding directly requests as a dependency.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requestedMaybeMissingBindings(dagger.spi.model.Binding)">requestedMaybeMissingBindings</a></span>&#8203;(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></th>
 <td class="colLast">
@@ -442,21 +447,21 @@ extends java.lang.Object</pre>
  dependency.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requestingBindings(dagger.spi.model.BindingGraph.MaybeBinding)">requestingBindings</a></span>&#8203;(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></th>
 <td class="colLast">
 <div class="block">Returns the bindings that directly request a given binding as a dependency.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rootComponentNode()">rootComponentNode</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the component node for the root component.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -560,6 +565,15 @@ public&nbsp;boolean&nbsp;isModuleBindingGraph()</pre>
 <dd><a href="https://dagger.dev/compiler-options#full-binding-graph-validation">Full binding
      graph validation</a></dd>
 </dl>
+</li>
+</ul>
+<a id="backend()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backend</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
 </li>
 </ul>
 <a id="isPartialBindingGraph()">
