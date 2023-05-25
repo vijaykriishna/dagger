@@ -7,7 +7,7 @@ repository: google/dagger
 title: Dagger
 description:
   Dagger is a fully static, compile-time dependency injection framework for both
-  Java and Android. It is developed by the Java Core Libraries Team at Google.
+  Java and Android.
 
 themeColor: blue
 
