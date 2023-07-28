@@ -202,5 +202,5 @@ modules. Installing a Hilt module in a non-Hilt Dagger component would be
 confusing because it wouldn't be a component in the `@InstallIn` annotation. For
 libraries where you want a module for Hilt and non-Hilt users, it is usually
 best to have two separate modules for each case. If the code is going to be the
-same for both, have the non-Hilt module just be an empty module that uses
+same for both, have the Hilt module just be an empty module that uses
 `@Module(includes = ...)` to include the non-Hilt module.
