@@ -228,6 +228,7 @@ final class DepositCommand extends BigDecimalCommand {
 
   @Inject
   DepositCommand(Account account, Outputter outputter) {
+    super(outputter);
     this.account = account;
     this.outputter = outputter;
   }
