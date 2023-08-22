@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":9,"i3":9,"i4":6,"i5":6,"i6":6};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -132,7 +132,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DaggerProcessingEnv</span>
+<pre>@DoNotMock("Only use real implementations created by Dagger")
+public abstract class <span class="typeNameLabel">DaggerProcessingEnv</span>
 extends java.lang.Object</pre>
 <div class="block">Wrapper type for an element.</div>
 </li>
@@ -195,36 +196,20 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
+<td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the backend used in this compilation.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromJavac(javax.annotation.processing.ProcessingEnvironment)">fromJavac</a></span>&#8203;(javax.annotation.processing.ProcessingEnvironment&nbsp;env)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromKsp(com.google.devtools.ksp.processing.SymbolProcessorEnvironment,com.google.devtools.ksp.processing.Resolver)">fromKsp</a></span>&#8203;(com.google.devtools.ksp.processing.SymbolProcessorEnvironment&nbsp;env,
-       com.google.devtools.ksp.processing.Resolver&nbsp;resolver)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isJavac(dagger.spi.model.DaggerProcessingEnv.Backend)">isJavac</a></span>&#8203;(<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>abstract javax.annotation.processing.ProcessingEnvironment</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
 <td class="colLast">
@@ -232,15 +217,19 @@ extends java.lang.Object</pre>
  annotation processor.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.processing.SymbolProcessorEnvironment</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Ksp symbol processing environment hosting symbol processors.</div>
+</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.processing.Resolver</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolver()">resolver</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Ksp resolver provides [SymbolProcessor] with access to compiler details such as Symbols.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -285,34 +274,6 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="isJavac(dagger.spi.model.DaggerProcessingEnv.Backend)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isJavac</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isJavac&#8203;(<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend)</pre>
-</li>
-</ul>
-<a id="fromJavac(javax.annotation.processing.ProcessingEnvironment)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromJavac</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a>&nbsp;fromJavac&#8203;(javax.annotation.processing.ProcessingEnvironment&nbsp;env)</pre>
-</li>
-</ul>
-<a id="fromKsp(com.google.devtools.ksp.processing.SymbolProcessorEnvironment,com.google.devtools.ksp.processing.Resolver)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromKsp</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerProcessingEnv.html" title="class in dagger.spi.model">DaggerProcessingEnv</a>&nbsp;fromKsp&#8203;(com.google.devtools.ksp.processing.SymbolProcessorEnvironment&nbsp;env,
-                                          com.google.devtools.ksp.processing.Resolver&nbsp;resolver)</pre>
-</li>
-</ul>
 <a id="java()">
 <!--   -->
 </a>
@@ -333,6 +294,7 @@ public abstract&nbsp;javax.annotation.processing.ProcessingEnvironment&nbsp;java
 <h4>ksp</h4>
 <pre class="methodSignature">@Nullable
 public abstract&nbsp;com.google.devtools.ksp.processing.SymbolProcessorEnvironment&nbsp;ksp()</pre>
+<div class="block">Ksp symbol processing environment hosting symbol processors.</div>
 </li>
 </ul>
 <a id="resolver()">
@@ -343,6 +305,7 @@ public abstract&nbsp;com.google.devtools.ksp.processing.SymbolProcessorEnvironme
 <h4>resolver</h4>
 <pre class="methodSignature">@Nullable
 public abstract&nbsp;com.google.devtools.ksp.processing.Resolver&nbsp;resolver()</pre>
+<div class="block">Ksp resolver provides [SymbolProcessor] with access to compiler details such as Symbols.</div>
 </li>
 </ul>
 <a id="backend()">
@@ -351,7 +314,7 @@ public abstract&nbsp;com.google.devtools.ksp.processing.Resolver&nbsp;resolver()
 <ul class="blockListLast">
 <li class="blockList">
 <h4>backend</h4>
-<pre class="methodSignature">public&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
+<pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
 <div class="block">Returns the backend used in this compilation.</div>
 </li>
 </ul>

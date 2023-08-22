@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":9,"i3":10,"i4":6,"i5":6,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":6,"i1":6,"i2":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -132,7 +132,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DaggerTypeElement</span>
+<pre>@DoNotMock("Only use real implementations created by Dagger")
+public abstract class <span class="typeNameLabel">DaggerTypeElement</span>
 extends java.lang.Object</pre>
 <div class="block">Wrapper type for a type element.</div>
 </li>
@@ -170,60 +171,30 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
+<td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromJavac(javax.lang.model.element.TypeElement)">fromJavac</a></span>&#8203;(javax.lang.model.element.TypeElement&nbsp;element)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromKsp(com.google.devtools.ksp.symbol.KSClassDeclaration)">fromKsp</a></span>&#8203;(com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;declaration)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasAnnotation(java.lang.String)">hasAnnotation</a></span>&#8203;(java.lang.String&nbsp;annotationName)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>abstract javax.lang.model.element.TypeElement</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Java representation for the type, returns <code>null</code> not using java annotation processor.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSClassDeclaration</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
 <td class="colLast">
 <div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
 </td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packageName()">packageName</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#qualifiedName()">qualifiedName</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -231,7 +202,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -268,26 +239,6 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="fromJavac(javax.lang.model.element.TypeElement)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromJavac</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;fromJavac&#8203;(@Nullable
-                                          javax.lang.model.element.TypeElement&nbsp;element)</pre>
-</li>
-</ul>
-<a id="fromKsp(com.google.devtools.ksp.symbol.KSClassDeclaration)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromKsp</h4>
-<pre class="methodSignature">public static&nbsp;<a href="DaggerTypeElement.html" title="class in dagger.spi.model">DaggerTypeElement</a>&nbsp;fromKsp&#8203;(@Nullable
-                                        com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;declaration)</pre>
-</li>
-</ul>
 <a id="java()">
 <!--   -->
 </a>
@@ -310,53 +261,13 @@ public abstract&nbsp;com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;ksp(
 <div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
 </li>
 </ul>
-<a id="hasAnnotation(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>hasAnnotation</h4>
-<pre class="methodSignature">public final&nbsp;boolean&nbsp;hasAnnotation&#8203;(java.lang.String&nbsp;annotationName)</pre>
-</li>
-</ul>
-<a id="packageName()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>packageName</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;packageName()</pre>
-</li>
-</ul>
-<a id="qualifiedName()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>qualifiedName</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;qualifiedName()</pre>
-</li>
-</ul>
 <a id="backend()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>backend</h4>
-<pre class="methodSignature">public&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
-</li>
-</ul>
-<a id="toString()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>toString</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
-</dl>
+<h4>backend</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
 </li>
 </ul>
 </li>
