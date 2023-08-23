@@ -186,16 +186,16 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract javax.lang.model.element.ExecutableElement</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#javac()">javac</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Java representation for the element, returns <code>null</code> not using java annotation processor.</div>
+<div class="block">Returns the Javac representation for the executable element.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSFunctionDeclaration</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
 <td class="colLast">
-<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+<div class="block">Returns the KSP representation for the executable element.</div>
 </td>
 </tr>
 </table>
@@ -241,15 +241,18 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="java()">
+<a id="javac()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>java</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;javax.lang.model.element.ExecutableElement&nbsp;java()</pre>
-<div class="block">Java representation for the element, returns <code>null</code> not using java annotation processor.</div>
+<h4>javac</h4>
+<pre class="methodSignature">public abstract&nbsp;javax.lang.model.element.ExecutableElement&nbsp;javac()</pre>
+<div class="block">Returns the Javac representation for the executable element.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't Javac.</dd>
+</dl>
 </li>
 </ul>
 <a id="ksp()">
@@ -258,9 +261,12 @@ public abstract&nbsp;javax.lang.model.element.ExecutableElement&nbsp;java()</pre
 <ul class="blockList">
 <li class="blockList">
 <h4>ksp</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;com.google.devtools.ksp.symbol.KSFunctionDeclaration&nbsp;ksp()</pre>
-<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.symbol.KSFunctionDeclaration&nbsp;ksp()</pre>
+<div class="block">Returns the KSP representation for the executable element.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't KSP.</dd>
+</dl>
 </li>
 </ul>
 <a id="backend()">

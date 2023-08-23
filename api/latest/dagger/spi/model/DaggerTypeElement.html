@@ -180,20 +180,22 @@ extends java.lang.Object</pre>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>abstract <a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backend()">backend</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Returns the backend used in this compilation.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract javax.lang.model.element.TypeElement</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#javac()">javac</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Java representation for the type, returns <code>null</code> not using java annotation processor.</div>
+<div class="block">Returns the Javac representation for the type element.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSClassDeclaration</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
 <td class="colLast">
-<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+<div class="block">Returns the KSP representation for the type element.</div>
 </td>
 </tr>
 </table>
@@ -239,15 +241,18 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="java()">
+<a id="javac()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>java</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;javax.lang.model.element.TypeElement&nbsp;java()</pre>
-<div class="block">Java representation for the type, returns <code>null</code> not using java annotation processor.</div>
+<h4>javac</h4>
+<pre class="methodSignature">public abstract&nbsp;javax.lang.model.element.TypeElement&nbsp;javac()</pre>
+<div class="block">Returns the Javac representation for the type element.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't Javac.</dd>
+</dl>
 </li>
 </ul>
 <a id="ksp()">
@@ -256,9 +261,12 @@ public abstract&nbsp;javax.lang.model.element.TypeElement&nbsp;java()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>ksp</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;ksp()</pre>
-<div class="block">KSP declaration for the element, returns <code>null</code> not using KSP.</div>
+<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;ksp()</pre>
+<div class="block">Returns the KSP representation for the type element.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't KSP.</dd>
+</dl>
 </li>
 </ul>
 <a id="backend()">
@@ -268,6 +276,7 @@ public abstract&nbsp;com.google.devtools.ksp.symbol.KSClassDeclaration&nbsp;ksp(
 <li class="blockList">
 <h4>backend</h4>
 <pre class="methodSignature">public abstract&nbsp;<a href="DaggerProcessingEnv.Backend.html" title="enum in dagger.spi.model">DaggerProcessingEnv.Backend</a>&nbsp;backend()</pre>
+<div class="block">Returns the backend used in this compilation.</div>
 </li>
 </ul>
 </li>

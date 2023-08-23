@@ -211,24 +211,23 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract javax.annotation.processing.ProcessingEnvironment</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#java()">java</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#javac()">javac</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Java representation for the processing environment, returns <code>null</code> not using java
- annotation processor.</div>
+<div class="block">Returns the Javac representation for the processing environment.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.processing.SymbolProcessorEnvironment</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Ksp symbol processing environment hosting symbol processors.</div>
+<div class="block">Returns the KSP representation for the processing environment.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>abstract com.google.devtools.ksp.processing.Resolver</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolver()">resolver</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Ksp resolver provides [SymbolProcessor] with access to compiler details such as Symbols.</div>
+<div class="block">Returns the KSP representation for the resolver.</div>
 </td>
 </tr>
 </table>
@@ -274,16 +273,18 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="java()">
+<a id="javac()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>java</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;javax.annotation.processing.ProcessingEnvironment&nbsp;java()</pre>
-<div class="block">Java representation for the processing environment, returns <code>null</code> not using java
- annotation processor.</div>
+<h4>javac</h4>
+<pre class="methodSignature">public abstract&nbsp;javax.annotation.processing.ProcessingEnvironment&nbsp;javac()</pre>
+<div class="block">Returns the Javac representation for the processing environment.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't Javac.</dd>
+</dl>
 </li>
 </ul>
 <a id="ksp()">
@@ -292,9 +293,12 @@ public abstract&nbsp;javax.annotation.processing.ProcessingEnvironment&nbsp;java
 <ul class="blockList">
 <li class="blockList">
 <h4>ksp</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;com.google.devtools.ksp.processing.SymbolProcessorEnvironment&nbsp;ksp()</pre>
-<div class="block">Ksp symbol processing environment hosting symbol processors.</div>
+<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.processing.SymbolProcessorEnvironment&nbsp;ksp()</pre>
+<div class="block">Returns the KSP representation for the processing environment.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't KSP.</dd>
+</dl>
 </li>
 </ul>
 <a id="resolver()">
@@ -303,9 +307,12 @@ public abstract&nbsp;com.google.devtools.ksp.processing.SymbolProcessorEnvironme
 <ul class="blockList">
 <li class="blockList">
 <h4>resolver</h4>
-<pre class="methodSignature">@Nullable
-public abstract&nbsp;com.google.devtools.ksp.processing.Resolver&nbsp;resolver()</pre>
-<div class="block">Ksp resolver provides [SymbolProcessor] with access to compiler details such as Symbols.</div>
+<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.processing.Resolver&nbsp;resolver()</pre>
+<div class="block">Returns the KSP representation for the resolver.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalStateException</code> - if the current backend isn't KSP.</dd>
+</dl>
 </li>
 </ul>
 <a id="backend()">
