@@ -3,6 +3,9 @@ layout: default
 title: Dagger KSP
 ---
 
+**Warning:** Dagger's KSP support is currently in alpha.
+{: .c-callouts__warning }
+
 ## Requirements
 
   * Dagger `2.48` (or above)
@@ -16,7 +19,7 @@ system, please consult the documentation for that build system to enable KSP.
 {: .c-callouts__note }
 
 A general guide for migrating Gradle processors from KAPT to KSP can be found at
-https://developer.android.com/build/migrate-to-ksp.
+[https://developer.android.com/build/migrate-to-ksp](https://developer.android.com/build/migrate-to-ksp).
 
 The main steps are:
 
@@ -27,13 +30,13 @@ The main steps are:
 // STEP 1: Apply the Kotlin JVM and KSP plugin
 plugins {
   id "org.jetbrains.kotlin.jvm" version "1.9.0"
-  id 'com.google.devtools.ksp' version '1.9.0-1.0.12'
+  id "com.google.devtools.ksp" version "1.9.0-1.0.12"
 }
 
 // STEP 2: Change compiler dependencies from 'kapt' to 'ksp' configuration.
 dependencies {
-  ksp 'com.google.dagger:dagger-compiler:2.48' // Dagger compiler
-  ksp 'com.google.dagger:hilt-compiler:2.48'   // Hilt compiler
+  ksp "com.google.dagger:dagger-compiler:2.48" // Dagger compiler
+  ksp "com.google.dagger:hilt-compiler:2.48"   // Hilt compiler
 }
 ```
 
