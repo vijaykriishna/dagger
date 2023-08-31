@@ -23,8 +23,8 @@ A general guide for migrating Gradle processors from KAPT to KSP can be found at
 
 The main steps are:
 
-  1. Apply the [Kotlin JVM plugin](https://plugins.gradle.org/plugin/org.jetbrains.kotlin.android)
-     (or [Kotlin Android plugin](https://plugins.gradle.org/plugin/org.jetbrains.kotlin.jvm))
+  1. Apply the [Kotlin JVM plugin](https://plugins.gradle.org/plugin/org.jetbrains.kotlin.jvm)
+     (or [Kotlin Android plugin](https://plugins.gradle.org/plugin/org.jetbrains.kotlin.android))
   2. Apply the [KSP plugin](https://central.sonatype.com/artifact/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin).
   3. Change the compiler dependency configurations from `kapt` to `ksp`.
 
