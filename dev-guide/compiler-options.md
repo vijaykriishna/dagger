@@ -35,7 +35,9 @@ leaks would always have the potential to have grow dependencies on the activity
 as the codebase changes (thereby leaking it in the default mode as well).
 
 To enable fastInit mode, pass the following option to javac when building your
-Dagger [`@Component`]: `-Adagger.fastInit=enabled`.
+Dagger [`@Component`]: `-Adagger.fastInit=enabled`. Note that if you are using
+the Hilt Gradle Plugin in your project, fastInit mode will already be enabled by
+default.
 
 ## Turning on code formatting
 
