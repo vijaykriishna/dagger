@@ -298,6 +298,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">A binding for an <code>Inject</code>-annotated constructor that contains at least one
  <a href="dagger/assisted/Assisted.html" title="annotation in dagger.assisted"><code>Assisted</code></a>-annotated parameter.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/lifecycle/HiltViewModel.html#assistedFactory()">assistedFactory()</a></span> - Method in annotation type dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/HiltViewModel.html" title="annotation in dagger.hilt.android.lifecycle">HiltViewModel</a></dt>
+<dd>
+<div class="block">Returns a factory class that can be used to create this ViewModel with assisted injection.</div>
+</dd>
 <dt><a href="dagger/assisted/AssistedFactory.html" title="annotation in dagger.assisted"><span class="typeNameLink">AssistedFactory</span></a> - Annotation Type in <a href="dagger/assisted/package-summary.html">dagger.assisted</a></dt>
 <dd>
 <div class="block">Annotates an abstract class or interface used to create an instance of a type via an <a href="dagger/assisted/AssistedInject.html" title="annotation in dagger.assisted"><code>AssistedInject</code></a> constructor.</div>
@@ -880,6 +884,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.html#createInternal(android.app.Activity,androidx.savedstate.SavedStateRegistryOwner,android.os.Bundle,androidx.lifecycle.ViewModelProvider.Factory)">createInternal(Activity, SavedStateRegistryOwner, Bundle, ViewModelProvider.Factory)</a></span> - Static method in class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.html" title="class in dagger.hilt.android.internal.lifecycle">HiltViewModelFactory</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.html#CREATION_CALLBACK_KEY">CREATION_CALLBACK_KEY</a></span> - Static variable in class dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.html" title="class in dagger.hilt.android.internal.lifecycle">HiltViewModelFactory</a></dt>
+<dd>
+<div class="block">Creation extra key for the callbacks that create @AssistedInject-annotated ViewModels.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/ComponentPath.html#currentComponent()">currentComponent()</a></span> - Method in class dagger.model.<a href="dagger/model/ComponentPath.html" title="class in dagger.model">ComponentPath</a></dt>
 <dd>
 <div class="block">Returns the component at the end of the path.</div>
@@ -1605,6 +1613,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/DefaultViewModelFactories.FragmentEntryPoint.html#getHiltInternalFactoryFactory()">getHiltInternalFactoryFactory()</a></span> - Method in interface dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/DefaultViewModelFactories.FragmentEntryPoint.html" title="interface in dagger.hilt.android.internal.lifecycle">DefaultViewModelFactories.FragmentEntryPoint</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.ViewModelFactoriesEntryPoint.html#getHiltViewModelAssistedMap()">getHiltViewModelAssistedMap()</a></span> - Method in interface dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.ViewModelFactoriesEntryPoint.html" title="interface in dagger.hilt.android.internal.lifecycle">HiltViewModelFactory.ViewModelFactoriesEntryPoint</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.ViewModelFactoriesEntryPoint.html#getHiltViewModelMap()">getHiltViewModelMap()</a></span> - Method in interface dagger.hilt.android.internal.lifecycle.<a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.ViewModelFactoriesEntryPoint.html" title="interface in dagger.hilt.android.internal.lifecycle">HiltViewModelFactory.ViewModelFactoriesEntryPoint</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/testing/TestApplicationComponentManager.html#getOnComponentReadyRunner()">getOnComponentReadyRunner()</a></span> - Method in class dagger.hilt.android.internal.testing.<a href="dagger/hilt/android/internal/testing/TestApplicationComponentManager.html" title="class in dagger.hilt.android.internal.testing">TestApplicationComponentManager</a></dt>
@@ -1705,6 +1715,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><a href="dagger/hilt/android/lifecycle/HiltViewModel.html" title="annotation in dagger.hilt.android.lifecycle"><span class="typeNameLink">HiltViewModel</span></a> - Annotation Type in <a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a></dt>
 <dd>
 <div class="block">Identifies a <code>ViewModel</code> for construction injection.</div>
+</dd>
+<dt><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelAssistedMap.html" title="annotation in dagger.hilt.android.internal.lifecycle"><span class="typeNameLink">HiltViewModelAssistedMap</span></a> - Annotation Type in <a href="dagger/hilt/android/internal/lifecycle/package-summary.html">dagger.hilt.android.internal.lifecycle</a></dt>
+<dd>
+<div class="block">Internal qualifier for the multibinding map of assisted factories for @AssistedInject-annotated
+ ViewModels used by the <code>dagger.hilt.android.lifecycle.HiltViewModelFactory</code>.</div>
 </dd>
 <dt><a href="dagger/hilt/android/internal/lifecycle/HiltViewModelFactory.html" title="class in dagger.hilt.android.internal.lifecycle"><span class="typeNameLink">HiltViewModelFactory</span></a> - Class in <a href="dagger/hilt/android/internal/lifecycle/package-summary.html">dagger.hilt.android.internal.lifecycle</a></dt>
 <dd>
