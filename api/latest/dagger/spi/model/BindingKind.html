@@ -185,7 +185,8 @@ extends java.lang.Enum&lt;<a href="BindingKind.html" title="enum in dagger.spi.m
 <tr class="rowColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#COMPONENT">COMPONENT</a></span></code></th>
 <td class="colLast">
-<div class="block">An implicit binding for a <a href="../../Component.html" title="annotation in dagger"><code>Component</code></a>- or <a href="../../producers/ProductionComponent.html" title="annotation in dagger.producers"><code>ProductionComponent</code></a>-annotated type.</div>
+<div class="block">An implicit binding for a <a href="../../Component.html" title="annotation in dagger"><code>Component</code></a>- or <code>ProductionComponent</code>-annotated
+ type.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -197,7 +198,9 @@ extends java.lang.Enum&lt;<a href="BindingKind.html" title="enum in dagger.spi.m
 <tr class="rowColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#COMPONENT_PRODUCTION">COMPONENT_PRODUCTION</a></span></code></th>
 <td class="colLast">
-<div class="block">A binding for a production method on a production component's <a href="../../producers/ProductionComponent.html#dependencies()">ProductionComponent.dependencies()</a> dependency} that returns a <code>ListenableFuture</code> or <code>FluentFuture</code>.</div>
+<div class="block">A binding for a production method on a production component's
+ <code>ProductionComponent#dependencies()</code> that returns a <code>ListenableFuture</code> or
+ <code>FluentFuture</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -252,7 +255,7 @@ extends java.lang.Enum&lt;<a href="BindingKind.html" title="enum in dagger.spi.m
 <tr class="altColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#PRODUCTION">PRODUCTION</a></span></code></th>
 <td class="colLast">
-<div class="block">A binding for a <a href="../../producers/Produces.html" title="annotation in dagger.producers"><code>Produces</code></a>-annotated method.</div>
+<div class="block">A binding for a <code>Produces</code>-annotated method.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -388,7 +391,8 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>COMPONENT</h4>
 <pre>public static final&nbsp;<a href="BindingKind.html" title="enum in dagger.spi.model">BindingKind</a> COMPONENT</pre>
-<div class="block">An implicit binding for a <a href="../../Component.html" title="annotation in dagger"><code>Component</code></a>- or <a href="../../producers/ProductionComponent.html" title="annotation in dagger.producers"><code>ProductionComponent</code></a>-annotated type.</div>
+<div class="block">An implicit binding for a <a href="../../Component.html" title="annotation in dagger"><code>Component</code></a>- or <code>ProductionComponent</code>-annotated
+ type.</div>
 </li>
 </ul>
 <a id="COMPONENT_PROVISION">
@@ -453,7 +457,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>PRODUCTION</h4>
 <pre>public static final&nbsp;<a href="BindingKind.html" title="enum in dagger.spi.model">BindingKind</a> PRODUCTION</pre>
-<div class="block">A binding for a <a href="../../producers/Produces.html" title="annotation in dagger.producers"><code>Produces</code></a>-annotated method.</div>
+<div class="block">A binding for a <code>Produces</code>-annotated method.</div>
 </li>
 </ul>
 <a id="COMPONENT_PRODUCTION">
@@ -463,9 +467,10 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>COMPONENT_PRODUCTION</h4>
 <pre>public static final&nbsp;<a href="BindingKind.html" title="enum in dagger.spi.model">BindingKind</a> COMPONENT_PRODUCTION</pre>
-<div class="block">A binding for a production method on a production component's <a href="../../producers/ProductionComponent.html#dependencies()">ProductionComponent.dependencies()</a> dependency} that returns a <code>ListenableFuture</code> or <code>FluentFuture</code>. Methods on production component dependencies
- that don't return a future are considered <a href="#COMPONENT_PROVISION">component provision
- bindings</a>.</div>
+<div class="block">A binding for a production method on a production component's
+ <code>ProductionComponent#dependencies()</code> that returns a <code>ListenableFuture</code> or
+ <code>FluentFuture</code>. Methods on production component dependencies
+ that don't return a future are considered component provision bindings.</div>
 </li>
 </ul>
 <a id="MULTIBOUND_SET">

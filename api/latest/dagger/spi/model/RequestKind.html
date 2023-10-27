@@ -182,7 +182,7 @@ extends java.lang.Enum&lt;<a href="RequestKind.html" title="enum in dagger.spi.m
 <tr class="altColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#LAZY">LAZY</a></span></code></th>
 <td class="colLast">
-<div class="block">A request for a <a href="../../Lazy.html" title="interface in dagger"><code>Lazy</code></a>.</div>
+<div class="block">A request for a <code>Lazy</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -194,13 +194,13 @@ extends java.lang.Enum&lt;<a href="RequestKind.html" title="enum in dagger.spi.m
 <tr class="altColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#PRODUCED">PRODUCED</a></span></code></th>
 <td class="colLast">
-<div class="block">A request for a <a href="../../producers/Produced.html" title="class in dagger.producers"><code>Produced</code></a>.</div>
+<div class="block">A request for a <code>Produced</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#PRODUCER">PRODUCER</a></span></code></th>
 <td class="colLast">
-<div class="block">A request for a <a href="../../producers/Producer.html" title="interface in dagger.producers"><code>Producer</code></a>.</div>
+<div class="block">A request for a <code>Producer</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -212,7 +212,7 @@ extends java.lang.Enum&lt;<a href="RequestKind.html" title="enum in dagger.spi.m
 <tr class="rowColor">
 <th class="colFirst" scope="row"><code><span class="memberNameLink"><a href="#PROVIDER_OF_LAZY">PROVIDER_OF_LAZY</a></span></code></th>
 <td class="colLast">
-<div class="block">A request for a <code>Provider</code> of a <a href="../../Lazy.html" title="interface in dagger"><code>Lazy</code></a>.</div>
+<div class="block">A request for a <code>Provider</code> of a <code>Lazy</code>.</div>
 </td>
 </tr>
 </table>
@@ -313,7 +313,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>LAZY</h4>
 <pre>public static final&nbsp;<a href="RequestKind.html" title="enum in dagger.spi.model">RequestKind</a> LAZY</pre>
-<div class="block">A request for a <a href="../../Lazy.html" title="interface in dagger"><code>Lazy</code></a>. E.g.: <code>Lazy&lt;FooType&gt;</code></div>
+<div class="block">A request for a <code>Lazy</code>. E.g.: <code>Lazy&lt;FooType&gt;</code></div>
 </li>
 </ul>
 <a id="PROVIDER_OF_LAZY">
@@ -323,7 +323,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>PROVIDER_OF_LAZY</h4>
 <pre>public static final&nbsp;<a href="RequestKind.html" title="enum in dagger.spi.model">RequestKind</a> PROVIDER_OF_LAZY</pre>
-<div class="block">A request for a <code>Provider</code> of a <a href="../../Lazy.html" title="interface in dagger"><code>Lazy</code></a>. E.g.: <code>Provider&lt;Lazy&lt;FooType&gt;&gt;</code></div>
+<div class="block">A request for a <code>Provider</code> of a <code>Lazy</code>. E.g.: <code>Provider&lt;Lazy&lt;FooType&gt;&gt;</code>.</div>
 </li>
 </ul>
 <a id="MEMBERS_INJECTION">
@@ -344,7 +344,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>PRODUCER</h4>
 <pre>public static final&nbsp;<a href="RequestKind.html" title="enum in dagger.spi.model">RequestKind</a> PRODUCER</pre>
-<div class="block">A request for a <a href="../../producers/Producer.html" title="interface in dagger.producers"><code>Producer</code></a>. E.g.: <code>Producer&lt;FooType&gt;</code></div>
+<div class="block">A request for a <code>Producer</code>. E.g.: <code>Producer&lt;FooType&gt;</code></div>
 </li>
 </ul>
 <a id="PRODUCED">
@@ -354,7 +354,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>PRODUCED</h4>
 <pre>public static final&nbsp;<a href="RequestKind.html" title="enum in dagger.spi.model">RequestKind</a> PRODUCED</pre>
-<div class="block">A request for a <a href="../../producers/Produced.html" title="class in dagger.producers"><code>Produced</code></a>. E.g.: <code>Produced&lt;FooType&gt;</code></div>
+<div class="block">A request for a <code>Produced</code>. E.g.: <code>Produced&lt;FooType&gt;</code></div>
 </li>
 </ul>
 <a id="FUTURE">
@@ -364,8 +364,8 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>FUTURE</h4>
 <pre>public static final&nbsp;<a href="RequestKind.html" title="enum in dagger.spi.model">RequestKind</a> FUTURE</pre>
-<div class="block">A request for a <code>ListenableFuture</code>. E.g.: <code>
- ListenableFuture&lt;FooType&gt;</code>. These can only be requested by component interfaces.</div>
+<div class="block">A request for a <code>ListenableFuture</code>. E.g.: <code>ListenableFuture&lt;FooType&gt;</code>. These can
+ only be requested by component interfaces.</div>
 </li>
 </ul>
 </li>
