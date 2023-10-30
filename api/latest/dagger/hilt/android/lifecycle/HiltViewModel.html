@@ -148,7 +148,46 @@ public @interface <span class="memberNameLabel">HiltViewModel</span></pre>
  }
  </pre>
 
- <p>Exactly one constructor in the <code>ViewModel</code> must be annotated with <code>Inject</code>.
+ <p><code>ViewModel</code>s annotated with <a href="HiltViewModel.html" title="annotation in dagger.hilt.android.lifecycle"><code>HiltViewModel</code></a> can also be used with assisted
+ injection:
+
+ <pre>
+ &#64;HiltViewModel(assistedFactory = DonutViewModel.Factory.class)
+ public class DonutViewModel extends ViewModel {
+     &#64;AssistedInject
+     public DonutViewModel(
+         SavedStateHandle handle,
+         RecipeRepository repository, 
+         $#64;Assisted int donutId
+     ) {
+         // ...
+     }
+
+     &#64;AssistedFactory
+     public interface Factory {
+         DonutViewModel create(int donutId);
+     }
+ }
+ </pre>
+
+ <pre>
+ &#64;AndroidEntryPoint
+ public class CookingActivity extends AppCompatActivity {
+     public void onCreate(Bundle savedInstanceState) {
+         DonutViewModel vm = new ViewModelProvider(
+             getViewModelStore(),
+             getDefaultViewModelProviderFactory(),
+             HiltViewModelExtensions.withCreationCallback(
+                 getDefaultViewModelCreationExtras(),
+                 (DonutViewModel.Factory factory) -> factory.create(1)
+             )
+         ).get(DonutViewModel.class);
+     }
+ }
+ </pre>
+
+ <p>Exactly one constructor in the <code>ViewModel</code> must be annotated with <code>Inject</code> or
+ <code>AssistedInject</code>.
 
  <p>Only dependencies available in the <a href="../components/ViewModelComponent.html" title="interface in dagger.hilt.android.components"><code>ViewModelComponent</code></a>
  can be injected into the <code>ViewModel</code>.
