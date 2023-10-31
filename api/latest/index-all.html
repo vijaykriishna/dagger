@@ -142,6 +142,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Listener for receiving a callback for when the <a href="dagger/hilt/android/components/ActivityRetainedComponent.html" title="interface in dagger.hilt.android.components"><code>ActivityRetainedComponent</code></a> will no longer be used and destroyed.</div>
 </dd>
+<dt><a href="dagger/hilt/android/lifecycle/ActivityRetainedSavedState.html" title="annotation in dagger.hilt.android.lifecycle"><span class="typeNameLink">ActivityRetainedSavedState</span></a> - Annotation Type in <a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a></dt>
+<dd>
+<div class="block">Qualifies a binding that belongs to ActivityRetainedComponent.</div>
+</dd>
 <dt><a href="dagger/hilt/android/scopes/ActivityRetainedScoped.html" title="annotation in dagger.hilt.android.scopes"><span class="typeNameLink">ActivityRetainedScoped</span></a> - Annotation Type in <a href="dagger/hilt/android/scopes/package-summary.html">dagger.hilt.android.scopes</a></dt>
 <dd>
 <div class="block">Scope annotation for bindings that should exist for the life of an activity, surviving
@@ -668,6 +672,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">A <a href="dagger/MapKey.html" title="annotation in dagger"><code>MapKey</code></a> annotation for maps with <code>Class&lt;?&gt;</code> keys.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html#clear()">clear()</a></span> - Method in class dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html" title="class in dagger.hilt.android.internal.managers">SavedStateHandleHolder</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/internal/definecomponent/DefineComponentClasses.html#component()">component()</a></span> - Method in annotation type dagger.hilt.internal.definecomponent.<a href="dagger/hilt/internal/definecomponent/DefineComponentClasses.html" title="annotation in dagger.hilt.internal.definecomponent">DefineComponentClasses</a></dt>
 <dd>
 <div class="block">Returns the fully qualified name of the <a href="dagger/hilt/DefineComponent.html" title="annotation in dagger.hilt"><code>DefineComponent</code></a> type, or an empty
@@ -1626,6 +1632,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/testing/OnComponentReadyRunner.OnComponentReadyRunnerHolder.html#getOnComponentReadyRunner()">getOnComponentReadyRunner()</a></span> - Method in interface dagger.hilt.android.testing.<a href="dagger/hilt/android/testing/OnComponentReadyRunner.OnComponentReadyRunnerHolder.html" title="interface in dagger.hilt.android.testing">OnComponentReadyRunner.OnComponentReadyRunnerHolder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/managers/ActivityComponentManager.html#getSavedStateHandleHolder()">getSavedStateHandleHolder()</a></span> - Method in class dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/ActivityComponentManager.html" title="class in dagger.hilt.android.internal.managers">ActivityComponentManager</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/grpc/server/ProxyServerCallHandler.ServiceDefinitionFactory.html#getServiceDefinition(io.grpc.Metadata)">getServiceDefinition(Metadata)</a></span> - Method in interface dagger.grpc.server.<a href="dagger/grpc/server/ProxyServerCallHandler.ServiceDefinitionFactory.html" title="interface in dagger.grpc.server">ProxyServerCallHandler.ServiceDefinitionFactory</a></dt>
 <dd>
 <div class="block">Returns a service definition that contains a <code>ServerCallHandler</code> for the
@@ -1926,6 +1934,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  the component, or <code>false</code> if it is a reachable binding graph, which contains only
  bindings that are reachable from at least one <a href="dagger/spi/model/BindingGraph.html#entryPointEdges()">entry point</a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html#isInvalid()">isInvalid()</a></span> - Method in class dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html" title="class in dagger.hilt.android.internal.managers">SavedStateHandleHolder</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/BindingGraph.html#isModuleBindingGraph()">isModuleBindingGraph()</a></span> - Method in class dagger.model.<a href="dagger/model/BindingGraph.html" title="class in dagger.model">BindingGraph</a></dt>
 <dd>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -2950,6 +2960,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/builders/ViewModelComponentBuilder.html#savedStateHandle(androidx.lifecycle.SavedStateHandle)">savedStateHandle(SavedStateHandle)</a></span> - Method in interface dagger.hilt.android.internal.builders.<a href="dagger/hilt/android/internal/builders/ViewModelComponentBuilder.html" title="interface in dagger.hilt.android.internal.builders">ViewModelComponentBuilder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/builders/ActivityRetainedComponentBuilder.html#savedStateHandleHolder(dagger.hilt.android.internal.managers.SavedStateHandleHolder)">savedStateHandleHolder(SavedStateHandleHolder)</a></span> - Method in interface dagger.hilt.android.internal.builders.<a href="dagger/hilt/android/internal/builders/ActivityRetainedComponentBuilder.html" title="interface in dagger.hilt.android.internal.builders">ActivityRetainedComponentBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html" title="class in dagger.hilt.android.internal.managers"><span class="typeNameLink">SavedStateHandleHolder</span></a> - Class in <a href="dagger/hilt/android/internal/managers/package-summary.html">dagger.hilt.android.internal.managers</a></dt>
+<dd>
+<div class="block">Implementation for SavedStateHandleHolder.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="dagger/model/Binding.html#scope()">scope()</a></span> - Method in interface dagger.model.<a href="dagger/model/Binding.html" title="interface in dagger.model">Binding</a></dt>
 <dd>
 <div class="block">The scope of this binding if it has one.</div>
@@ -3043,6 +3059,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Used by generated code, to notify listeners that the component has been created.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html#setExtras(androidx.lifecycle.viewmodel.CreationExtras)">setExtras(CreationExtras)</a></span> - Method in class dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/SavedStateHandleHolder.html" title="class in dagger.hilt.android.internal.managers">SavedStateHandleHolder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/components/SingletonComponent.html" title="interface in dagger.hilt.components"><span class="typeNameLink">SingletonComponent</span></a> - Interface in <a href="dagger/hilt/components/package-summary.html">dagger.hilt.components</a></dt>
 <dd>
 <div class="block">A Hilt component for singleton bindings.</div>
