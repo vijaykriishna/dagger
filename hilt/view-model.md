@@ -174,7 +174,7 @@ class MovieViewModel @Inject constructor(
 Hilt View Models can also be
 [assisted injected](https://dagger.dev/dev-guide/assisted-injection). Compared
 to using `SavedStateHandle`, this enables passing data that are not `Parcelable`
-to a Hilt View Model easily. To use asssited injection, annotate the view model
+to a Hilt View Model easily. To use assisted injection, annotate the view model
 constructor with `@AssistedInject` and the assisted parameters with `@Assisted`,
 and specify the assisted factory in the `@HiltViewModel` annotation:
 
