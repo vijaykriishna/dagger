@@ -36,7 +36,7 @@ features under active development, we cannot guarantee their stability.
 
 ### Non-`@Beta`
 
-Non-`@Beta` APIs are much more stable. API changes are typicially backwards-
+Non-`@Beta` APIs are much more stable. API changes are typically backwards-
 compatible and mostly the result of the proven stability of a previously `@Beta`
 API (i.e. removing the `@Beta` annotation).
 
@@ -48,14 +48,8 @@ instructions.
 ### Version "`NEXT`"
 
 For features that will be introduced in the upcoming release, use NEXT as the
-[`API`][#version-policy] version. These will be updated as part of the release
+[`API`](#version-policy) version. These will be updated as part of the release
 process.
-
-## Release schedule
-
-As of March 2016, the Dagger team is aiming to produce a versioned release every
-2 weeks. This is not a strict schedule, but a goal to ensure that changes made
-at `HEAD` are available within approximately 2 weeks.
 
 <!-- References -->
 
