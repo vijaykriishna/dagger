@@ -43,9 +43,6 @@ nav:
       url: /dev-guide
       sidenav:
         - item:
-            name: Android
-            url: /android
-        - item:
             name: Multibindings
             url: /multibindings
         - item:
@@ -70,12 +67,6 @@ nav:
             name: Resources
             url: /resources
         - item:
-            name: Dagger 1 Migration
-            url: /dagger-1-migration
-        - item:
-            name: gRPC
-            url: /grpc
-        - item:
             name: Versions
             url: /versions
         - item:
@@ -84,6 +75,15 @@ nav:
         - item:
             name: FAQ
             url: /faq
+        - item:
+            name: Dagger 1 Migration
+            url: /dagger-1-migration
+        - item:
+            name: gRPC
+            url: /grpc
+        - item:
+            name: dagger.android
+            url: /android
   - item:
       name: Hilt
       url: /hilt

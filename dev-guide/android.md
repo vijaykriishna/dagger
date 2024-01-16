@@ -1,19 +1,25 @@
 ---
 layout: default
-title: Dagger & Android
+title: dagger.android
 redirect_from:
   - /android
 ---
+
+**Warning**: `dagger.android` is in **maintenance mode** and is no longer under
+active development. This means that while we will still try to prioritize bugs,
+`dagger.android` will not receive any new features. Instead, see
+[Hilt](../hilt), Dagger's newly recommended approach to using Dagger on Android.
+{: .c-callouts__warning}
+
+## Philosophy
 
 One of the primary advantages of Dagger 2 over most other dependency injection
 frameworks is that its strictly generated implementation (no reflection) means
 that it can be used in Android applications. However, there _are_ still some
 considerations to be made when using Dagger within Android applications.
 
-## Philosophy
-
 While code written for Android is Java source, it is often quite different in
-terms of style.  Typically, such differences exist to accomodate the unique
+terms of style.  Typically, such differences exist to accommodate the unique
 [performance][android-performance] considerations of a mobile platform.
 
 But many of the patterns commonly applied to code intended for Android are
@@ -73,7 +79,7 @@ This has a few problems:
    dependency injection: a class shouldn't know anything about how it is
    injected.
 
-## `dagger.android`
+## Using `dagger.android`
 
 The classes in [`dagger.android`] offer one approach to simplify the above
 problems. This requires learning some extra APIs and concepts but gives you
@@ -85,12 +91,6 @@ the one
 [here](https://developer.android.com/training/dependency-injection/dagger-android).
 This may be simpler to understand but comes with the downside of having to write
 extra boilerplate manually.
-
-The Jetpack and Dagger teams are working together on a
-[new initiative](https://medium.com/androiddevelopers/dependency-injection-guidance-on-android-ads-2019-b0b56d774bc2)
-for Dagger on Android that hopes to be a large shift from the current status
-quo. While it is unfortunately not ready yet, this may be something to consider
-when choosing how to use Dagger in your Android projects today.
 
 ### Injecting `Activity` objects
 
