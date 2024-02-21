@@ -35,7 +35,7 @@ public final class FooViewModel extends ViewModel {
 class FooViewModel @Inject constructor(
   val handle: SavedStateHandle,
   val foo: Foo
-) : ViewModel
+) : ViewModel()
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
 
@@ -160,7 +160,7 @@ class MoviePosterFetcher @Inject constructor(
 class MovieViewModel @Inject constructor(
   val detailFetcher: MovieDetailFetcher,
   val posterFetcher: MoviePosterFetcher
-) : ViewModel {
+) : ViewModel() {
   init {
     // Both detailFetcher and posterFetcher will contain the same instance of
     // the MovieRepository.
