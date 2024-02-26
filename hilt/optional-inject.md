@@ -69,3 +69,12 @@ class MyFragment : Fragment() {
 }
 ```
 {: .c-codeselector__code .c-codeselector__code_kotlin }
+
+Note that for activities, because Hilt injection is usually run as a part of
+`super.onCreate()` and it is recommended to do your own injection before
+fragments are restored which also happens during `super.onCreate()`, you likely
+need to use an
+[`OnContextAvailableListener`](https://developer.android.com/reference/kotlin/androidx/activity/contextaware/OnContextAvailableListener)
+to run your non-Hilt injection code. Hilt uses the same listener under the hood,
+so then the order would be Hilt's `OnContextAvailableListener` would run,
+then yours, then fragments would be restored.

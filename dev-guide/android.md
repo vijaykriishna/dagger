@@ -311,12 +311,14 @@ calls `AndroidInjection.inject()` immediately in `onCreate()`, before calling
 `super.onCreate()`, and `DaggerFragment` does the same in `onAttach()`, which
 also prevents inconsistencies if the `Fragment` is reattached.
 
-It is crucial to call `AndroidInjection.inject()` before `super.onCreate()` in
-an `Activity`, since the call to `super` attaches `Fragment`s from the previous
-activity instance during configuration change, which in turn injects the
-`Fragment`s. In order for the `Fragment` injection to succeed, the `Activity`
-must already be injected. For users of [ErrorProne], it is a
-compiler error to call `AndroidInjection.inject()` after `super.onCreate()`.
+It is crucial to call `AndroidInjection.inject()` before fragments from the
+previous activity instance during configuration change are restored, in case any
+injected members on the Fragment rely on methods in the activity that may use
+injected members in the activity. Often this can be done by injecting before
+calling `super.onCreate`, but this can also be achieved by registering an
+[`OnContextAvailableListener`](https://developer.android.com/reference/kotlin/androidx/activity/contextaware/OnContextAvailableListener).
+For users of [ErrorProne], it is a compiler error to call
+`AndroidInjection.inject()` after `super.onCreate()`.
 
 ## FAQ
 
