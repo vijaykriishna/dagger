@@ -221,6 +221,23 @@ interface MyComponent {
 Your annotation's single member can be any valid annotation member type except
 for arrays, and can have any name.
 
+### Lazy class loading
+
+Using `@ClassKey` or a custom annotation with a `Class` type for the annotation
+member, allows you to inject a class keyed map. One issue with this approach is
+that all the classes in the key set will be loaded when constructing the map.
+Depending on the size of the map, this may cause performance problems in
+environments like Android. To avoid the unnecessary class loading,
+`@LazyClassKey` can be used to generate a string keyed map under the hood,
+so that classes are only loaded when used for a lookup.
+
+The `@LazyClassKey` map does not support returning `keySet()` or `entrySet()` as
+they will load all class keys and degrade the benefit of using the annotation.
+Usage of unqualified `@LazyClassKey` cannot co-exist with `@ClassKey`. This
+feature works by using the class names, and so is paired with configuration for
+R8 and Proguard. In Proguard, the names of classes used as keys will be kept as
+a result of this feature.
+
 ### Complex map keys
 
 If your map's key is more than can be expressed by a single annotation member,
