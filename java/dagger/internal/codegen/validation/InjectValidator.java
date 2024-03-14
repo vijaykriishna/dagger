@@ -302,10 +302,8 @@ public final class InjectValidator implements ClearableCache {
     if (fieldElement.isProtected()
         && fieldElement.getEnclosingElement().isFromKotlin()
         ) {
-      builder.addItem(
-          "Dagger injector does not have access to kotlin protected fields",
-          staticMemberDiagnosticKind(),
-          fieldElement);
+      builder.addError(
+          "Dagger injector does not have access to kotlin protected fields", fieldElement);
     }
 
     validateDependencyRequest(builder, fieldElement);
