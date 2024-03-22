@@ -42,6 +42,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XMethodElement;
@@ -80,6 +81,7 @@ import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescri
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.KeyVariableNamer;
 import dagger.internal.codegen.binding.MethodSignature;
+import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -705,6 +707,15 @@ public final class ComponentImplementation {
     @Override
     public TypeSpec generate() {
       TypeSpec.Builder builder = classBuilder(name);
+
+      // Ksp requires explicitly associating input classes that are generated with the output class,
+      // otherwise, the cached generated classes won't be discoverable in an incremental build.
+      if (processingEnv.getBackend() == XProcessingEnv.Backend.KSP) {
+        graph.componentDescriptor().modules().stream()
+            .filter(ModuleDescriptor::isImplicitlyIncluded)
+            .forEach(
+                module -> JavaPoetExtKt.addOriginatingElement(builder, module.moduleElement()));
+      }
 
       if (isComponentShard()) {
         TypeSpecs.addSupertype(builder, graph.componentTypeElement());
