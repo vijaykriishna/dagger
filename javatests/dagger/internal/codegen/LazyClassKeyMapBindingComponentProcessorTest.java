@@ -188,4 +188,88 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
         .withProcessingOptions(compilerMode.processorOptions())
         .compile(subject -> subject.hasErrorCount(0));
   }
+
+  @Test
+  public void lazyClassKeyProvider_compilesSuccessfully() throws Exception {
+    Source fooBar =
+        CompilerTests.javaSource("test.Foo_Bar", "package test;", "", "interface Foo_Bar {}");
+    Source fooBar2 =
+        CompilerTests.javaSource(
+            "test.Foo", "package test;", "", "interface Foo { interface Bar {} }");
+    Source mapKeyBindingsModule =
+        CompilerTests.javaSource(
+            "test.MapKeyBindingsModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import dagger.multibindings.LazyClassKey;",
+            "import dagger.multibindings.IntoMap;",
+            "",
+            "@Module",
+            "public interface MapKeyBindingsModule {",
+            " @Provides @IntoMap @LazyClassKey(test.Foo_Bar.class)",
+            " static int classKey() { return 1; }",
+            "}");
+
+    Source componentFile =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import javax.inject.Provider;",
+            "import java.util.Map;",
+            "",
+            "@Component(modules = MapKeyBindingsModule.class)",
+            "interface TestComponent {",
+            "  Map<Class<?>, Provider<Integer>> classKey();",
+            "}");
+    CompilerTests.daggerCompiler(fooBar, fooBar2, mapKeyBindingsModule, componentFile)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
+  public void scopedLazyClassKeyProvider_compilesSuccessfully() throws Exception {
+    Source fooBar =
+        CompilerTests.javaSource("test.Foo_Bar", "package test;", "", "interface Foo_Bar {}");
+    Source fooBar2 =
+        CompilerTests.javaSource(
+            "test.Foo", "package test;", "", "interface Foo { interface Bar {} }");
+    Source mapKeyBindingsModule =
+        CompilerTests.javaSource(
+            "test.MapKeyBindingsModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import dagger.multibindings.LazyClassKey;",
+            "import dagger.multibindings.IntoMap;",
+            "",
+            "@Module",
+            "public interface MapKeyBindingsModule {",
+            " @Provides @IntoMap @LazyClassKey(test.Foo_Bar.class)",
+            " static int classKey() { return 1; }",
+            "}");
+
+    Source componentFile =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import javax.inject.Singleton;",
+            "import javax.inject.Provider;",
+            "import java.util.Map;",
+            "",
+            "@Component(modules = MapKeyBindingsModule.class)",
+            "@Singleton",
+            "interface TestComponent {",
+            "  Provider<Map<Class<?>, Provider<Integer>>> classKey();",
+            "}");
+    CompilerTests.daggerCompiler(fooBar, fooBar2, mapKeyBindingsModule, componentFile)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(subject -> subject.hasErrorCount(0));
+  }
 }
