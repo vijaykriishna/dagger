@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":6};
+var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,20 +164,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessingRoundBegin()">onProcessingRoundBegin</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Runs before each round of Dagger annotation processing.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>default java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pluginName()">pluginName</a></span>()</code></th>
 <td class="colLast">
 <div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>default java.util.Set&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportedOptions()">supportedOptions</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the annotation-processing options that this plugin uses to configure behavior.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#visitGraph(dagger.spi.model.BindingGraph,dagger.spi.model.DiagnosticReporter)">visitGraph</a></span>&#8203;(<a href="BindingGraph.html" title="class in dagger.spi.model">BindingGraph</a>&nbsp;bindingGraph,
           <a href="DiagnosticReporter.html" title="class in dagger.spi.model">DiagnosticReporter</a>&nbsp;diagnosticReporter)</code></th>
@@ -252,6 +259,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.
  By default, the fully qualified name of the plugin is
  used.</div>
+</li>
+</ul>
+<a id="onProcessingRoundBegin()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onProcessingRoundBegin</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onProcessingRoundBegin()</pre>
+<div class="block">Runs before each round of Dagger annotation processing.
+
+ <p>If using the plugin to process elements that need resetting at the beginning of each
+ processing round, use this function to perform the setup.</div>
 </li>
 </ul>
 <a id="onPluginEnd()">
