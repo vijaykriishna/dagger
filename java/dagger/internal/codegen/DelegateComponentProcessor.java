@@ -108,13 +108,17 @@ final class DelegateComponentProcessor {
     DaggerDelegateComponentProcessor_Injector.factory()
         .create(env, plugins, legacyPlugins)
         .inject(this);
+    validationBindingGraphPlugins.initializePlugins();
+    externalBindingGraphPlugins.initializePlugins();
   }
 
   public Iterable<XProcessingStep> processingSteps() {
-    validationBindingGraphPlugins.initializePlugins();
-    externalBindingGraphPlugins.initializePlugins();
 
     return processingSteps;
+  }
+
+  public void onProcessingRoundBegin() {
+    externalBindingGraphPlugins.onProcessingRoundBegin();
   }
 
   public void postRound(XProcessingEnv env, XRoundEnv roundEnv) {
