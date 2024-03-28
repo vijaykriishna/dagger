@@ -16,8 +16,8 @@
 #   GWT-specific files for Dagger
 
 load("@rules_java//java:defs.bzl", "java_library")
-load("//tools:maven.bzl", "pom_file")
 load("//:build_defs.bzl", "POM_VERSION")
+load("//tools:maven.bzl", "pom_file")
 
 package(default_visibility = ["//:src"])
 
