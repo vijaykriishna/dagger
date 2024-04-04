@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 #############################
@@ -141,10 +142,10 @@ http_archive(
 
 load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "kotlinc_version")
 
-KOTLIN_VERSION = "1.9.20"
+KOTLIN_VERSION = "1.9.23"
 
 # Get from https://github.com/JetBrains/kotlin/releases/
-KOTLINC_RELEASE_SHA = "15a8a2825b74ccf6c44e04e97672db802d2df75ce2fbb63ef0539bf3ae5006f0"
+KOTLINC_RELEASE_SHA = "93137d3aab9afa9b27cb06a824c2324195c6b6f6179d8a8653f440f5bd58be88"
 
 kotlin_repositories(
     compiler_release = kotlinc_version(
@@ -193,7 +194,7 @@ CHECKER_FRAMEWORK_VERSION = "2.5.3"
 
 ERROR_PRONE_VERSION = "2.14.0"
 
-KSP_VERSION = KOTLIN_VERSION + "-1.0.14"
+KSP_VERSION = KOTLIN_VERSION + "-1.0.19"
 
 maven_install(
     artifacts = [
