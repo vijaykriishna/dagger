@@ -29,13 +29,19 @@ exports_files([
 bzl_library(
     name = "maven_bzl",
     srcs = ["maven.bzl"],
-    deps = [":maven_info_bzl"],
+    deps = [
+        ":maven_info_bzl",
+        "@rules_java//java:rules",
+    ],
 )
 
 bzl_library(
     name = "maven_info_bzl",
     srcs = ["maven_info.bzl"],
-    deps = ["@bazel_skylib//lib:unittest"],
+    deps = [
+        "@bazel_skylib//lib:unittest",
+        "@rules_java//java:rules",
+    ],
 )
 
 bzl_library(

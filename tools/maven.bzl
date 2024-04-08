@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Macros to simplify generating maven files.
 """
 
 load("@google_bazel_common//tools/jarjar:jarjar.bzl", "jarjar_library")
 load("@google_bazel_common//tools/javadoc:javadoc.bzl", "javadoc_library")
 load("@google_bazel_common//tools/maven:pom_file.bzl", default_pom_file = "pom_file")
+load("@rules_java//java:defs.bzl", "java_binary")
 load(":maven_info.bzl", "MavenInfo", "collect_maven_info")
 
 SHADED_MAVEN_DEPS = [
@@ -290,7 +290,7 @@ def _gen_maven_artifact(
         # Build an empty javadoc because Sonatype requires javadocs
         # even if the jar is empty.
         # https://central.sonatype.org/pages/requirements.html#supply-javadoc-and-sources
-        native.java_binary(
+        java_binary(
             name = name + "-javadoc",
         )
 

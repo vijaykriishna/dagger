@@ -47,6 +47,16 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
+#############################
+# Load rules_java repository
+#############################
+
+http_archive(
+    name = "rules_java",
+    sha256 = "c73336802d0b4882e40770666ad055212df4ea62cfa6edf9cb0f9d29828a0934",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/5.3.5/rules_java-5.3.5.tar.gz",
+)
+
 ####################################################
 # Load Protobuf repository (needed by bazel-common)
 ####################################################

@@ -14,6 +14,7 @@
 """Skylark rules to collect Maven artifacts information.
 """
 
+load("@rules_java//java:defs.bzl", "java_library")
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 
 # TODO(b/142057516): Unfork this file once we've settled on a more general API.
@@ -105,7 +106,7 @@ def _fake_java_library(name, deps = None, exports = None, is_artifact = True):
         outs = src_file,
         cmd = "echo 'package pkg; class %s {}' > $@" % name,
     )
-    native.java_library(
+    java_library(
         name = name,
         srcs = src_file,
         tags = ["maven_coordinates=%s:_:_" % name] if is_artifact else [],
