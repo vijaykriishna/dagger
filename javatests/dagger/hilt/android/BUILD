@@ -360,6 +360,22 @@ android_local_test(
 )
 
 android_local_test(
+    name = "PackagePrivateConstructorTest",
+    srcs = ["PackagePrivateConstructorTest.java"],
+    manifest = "AndroidManifest.xml",
+    manifest_values = {
+        "minSdkVersion": "14",
+    },
+    deps = [
+        "//:android_local_test_exports",
+        "//java/dagger/hilt/android:android_entry_point",
+        "//java/dagger/hilt/android:package_info",
+        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//javatests/dagger/hilt/android/testsubpackage:PackagePrivateConstructorTestClasses",
+    ],
+)
+
+android_local_test(
     name = "QualifierInKotlinFieldsTest",
     srcs = ["QualifierInKotlinFieldsTest.java"],
     manifest = "AndroidManifest.xml",

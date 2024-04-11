@@ -95,7 +95,8 @@ public final class ActivityGenerator {
       Generators.copyConstructors(
           metadata.baseElement(),
           CodeBlock.builder().addStatement("_initHiltInternal()").build(),
-          builder);
+          builder,
+          metadata.element());
       builder.addMethod(init());
       if (!metadata.overridesAndroidEntryPointClass()) {
         builder

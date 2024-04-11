@@ -78,7 +78,8 @@ public final class ViewGenerator {
     Generators.addInjectionMethods(metadata, builder);
 
     metadata.baseElement().getConstructors().stream()
-        .filter(this::isConstructorVisibleToGeneratedClass)
+        .filter(constructor -> Generators.isConstructorVisibleToSubclass(
+            constructor, metadata.element()))
         .map(this::constructorMethod)
         .forEach(builder::addMethod);
 
@@ -88,16 +89,6 @@ public final class ViewGenerator {
             XFiler.Mode.Isolating);
   }
 
-  private boolean isConstructorVisibleToGeneratedClass(XConstructorElement constructor) {
-    if (Processors.hasJavaPackagePrivateVisibility(constructor) && !isInOurPackage(constructor)) {
-      return false;
-    } else if (constructor.isPrivate()) {
-      return false;
-    }
-
-    // We extend the base class, so both protected and public methods are always accessible.
-    return true;
-  }
 
   /**
    * Returns a pass-through constructor matching the base class's provided constructorElement. The
@@ -184,12 +175,5 @@ public final class ViewGenerator {
   private static boolean isFirstRestrictedParameter(XType type) {
     return isDeclared(type)
         && Processors.isAssignableFrom(type.getTypeElement(), AndroidClassNames.CONTEXT);
-  }
-
-  private boolean isInOurPackage(XConstructorElement constructor) {
-    return constructor
-        .getEnclosingElement()
-        .getPackageName()
-        .contentEquals(metadata.element().getPackageName());
   }
 }

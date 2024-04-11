@@ -46,6 +46,10 @@
         android:exported="false"
         tools:ignore="MissingClass"/>
     <activity
+        android:name=".PackagePrivateConstructorTest$TestActivity"
+        android:exported="false"
+        tools:ignore="MissingClass"/>
+    <activity
         android:name=".QualifierInKotlinFieldsTest$TestActivity"
         android:exported="false"
         tools:ignore="MissingClass"/>

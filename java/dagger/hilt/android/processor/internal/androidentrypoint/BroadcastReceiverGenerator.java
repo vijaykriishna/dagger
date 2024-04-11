@@ -78,7 +78,7 @@ public final class BroadcastReceiverGenerator {
     JavaPoetExtKt.addOriginatingElement(builder, metadata.element());
     Generators.addGeneratedBaseClassJavadoc(builder, AndroidClassNames.ANDROID_ENTRY_POINT);
     Processors.addGeneratedAnnotation(builder, env, getClass());
-    Generators.copyConstructors(metadata.baseElement(), builder);
+    Generators.copyConstructors(metadata.baseElement(), builder, metadata.element());
 
     metadata.baseElement().getTypeParameters().stream()
         .map(XTypeParameterElement::getTypeVariableName)
