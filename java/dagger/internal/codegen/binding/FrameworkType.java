@@ -142,9 +142,7 @@ public enum FrameworkType {
                   from.codeBlock()));
 
         case PRODUCER:
-          return Expression.create(from.type(), to(
-              requestKind,
-              from.codeBlock()));
+          return from;
 
         default:
           throw new IllegalArgumentException(
