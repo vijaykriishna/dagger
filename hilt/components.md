@@ -189,18 +189,20 @@ consider using `@Reusable` instead of a component scope.
 ## Component default bindings {#component-bindings}
 
 Each Hilt component comes with a set of default bindings that can be injected
-as dependencies into your own custom bindings.
+as dependencies into your own custom bindings. Each component listed has the
+corresponding default bindings as well as any default bindings from an
+ancestor component.
 
 Component                       | Default Bindings
 ------------------------------- | ---------------------------------------------
 **`SingletonComponent`**        | `Application`[^2]
-**`ActivityRetainedComponent`** | `Application`, `ActivityRetainedLifecycle`
+**`ActivityRetainedComponent`** | `ActivityRetainedLifecycle`
 **`ViewModelComponent`**        | `SavedStateHandle`, `ViewModelLifecycle`
-**`ActivityComponent`**         | `Application`, `Activity`
-**`FragmentComponent`**         | `Application`, `Activity`, `Fragment`
-**`ViewComponent`**             | `Application`, `Activity`, `View`
-**`ViewWithFragmentComponent`** | `Application`, `Activity`, `Fragment`, `View`
-**`ServiceComponent`**          | `Application`, `Service`
+**`ActivityComponent`**         | `Activity`, `FragmentActivity`
+**`FragmentComponent`**         | `Fragment`
+**`ViewComponent`**             | `View`
+**`ViewWithFragmentComponent`** | `View`
+**`ServiceComponent`**          | `Service`
 
 [^2]: The `Application` binding is available using either `@ApplicationContext
     Context` or `Application`.
