@@ -66,7 +66,7 @@ final class DaggerTestComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.mapOfClassOfAndIntegerProvider = LazyClassKeyMap.Factory.<Integer>of(MapFactory.<String, Integer>builder(1).put(LazyClassKeyProvider.mapkeys_MapKeys_Inaccessible, MapModule_ClassKeyFactory.create()).build());
+      this.mapOfClassOfAndIntegerProvider = LazyClassKeyMap.MapFactory.<Integer>of(MapFactory.<String, Integer>builder(1).put(LazyClassKeyProvider.mapkeys_MapKeys_Inaccessible, MapModule_ClassKeyFactory.create()).build());
       this.mapOfComplexKeyAndIntegerProvider = MapFactory.<MapKeys.ComplexKey, Integer>builder(3).put(MapModule_ComplexKeyWithInaccessibleValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleValueFactory.create()).put(MapModule_ComplexKeyWithInaccessibleArrayValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleArrayValueFactory.create()).put(MapModule_ComplexKeyWithInaccessibleAnnotationValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleAnnotationValueFactory.create()).build();
     }
 

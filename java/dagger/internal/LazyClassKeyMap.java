@@ -111,24 +111,39 @@ public final class LazyClassKeyMap<V> implements Map<Class<?>, V> {
     throw new UnsupportedOperationException("Dagger map bindings are immutable");
   }
 
-  // TODO(wanyingd) Support @LazyClassKey on producer
-  /** A factory for {@code LazyClassKeyMap}. */
-  @SuppressWarnings("unchecked")
-  public static class Factory<V> implements Provider<Map<Class<?>, V>> {
-    Provider<?> delegate;
+  /** Wrapper around {@link MapFactory}. */
+  public static class MapFactory<V> implements Factory<Map<Class<?>, V>> {
+    Factory<Map<String, V>> delegate;
 
-    // MapProviderFactory or MapFactory
-    public static <V> Factory<V> of(Provider<?> delegate) {
-      return new Factory<V>(delegate);
+    public static <V> MapFactory<V> of(Factory<Map<String, V>> delegate) {
+      return new MapFactory<V>(delegate);
     }
 
-    private Factory(Provider<?> delegate) {
+    private MapFactory(Factory<Map<String, V>> delegate) {
       this.delegate = delegate;
     }
 
     @Override
     public Map<Class<?>, V> get() {
-      return LazyClassKeyMap.of((Map<String, V>) delegate.get());
+      return LazyClassKeyMap.of(delegate.get());
+    }
+  }
+
+  /** Wrapper around for {@link MapProviderFactory}. */
+  public static class MapProviderFactory<V> implements Factory<Map<Class<?>, Provider<V>>> {
+    Factory<Map<String, Provider<V>>> delegate;
+
+    public static <V> MapProviderFactory<V> of(Factory<Map<String, Provider<V>>> delegate) {
+      return new MapProviderFactory<V>(delegate);
+    }
+
+    private MapProviderFactory(Factory<Map<String, Provider<V>>> delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public Map<Class<?>, Provider<V>> get() {
+      return LazyClassKeyMap.of(delegate.get());
     }
   }
 }

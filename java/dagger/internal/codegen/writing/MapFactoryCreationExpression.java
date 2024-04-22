@@ -101,10 +101,28 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     return useLazyClassKey
         ? CodeBlock.of(
             "$T.<$T>of($L)",
-            TypeNames.LAZY_CLASS_KEY_MAP_FACTORY,
+            lazyMapFactoryClassName(binding),
             valueTypeName,
             builder.add(".build()").build())
         : builder.add(".build()").build();
+  }
+
+  private static ClassName lazyMapFactoryClassName(ContributionBinding binding) {
+    MapType mapType = MapType.from(binding.key());
+    switch (binding.bindingType()) {
+      case PROVISION:
+        return mapType.valuesAreTypeOf(TypeNames.PROVIDER)
+            ? TypeNames.LAZY_CLASS_KEY_MAP_PROVIDER_FACTORY
+            : TypeNames.LAZY_CLASS_KEY_MAP_FACTORY;
+      case PRODUCTION:
+        return mapType.valuesAreFrameworkType()
+            ? mapType.valuesAreTypeOf(TypeNames.PRODUCER)
+                ? TypeNames.LAZY_MAP_OF_PRODUCER_PRODUCER
+                : TypeNames.LAZY_MAP_OF_PRODUCED_PRODUCER
+            : TypeNames.LAZY_MAP_PRODUCER;
+      default:
+        throw new IllegalArgumentException(binding.bindingType().toString());
+    }
   }
 
   @AssistedFactory
