@@ -24,6 +24,39 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class MultibindingTest {
+  @Test
+  public void multibindingContributedWithKotlinProperty_compilesSucessfully() {
+    Source component =
+        CompilerTests.javaSource(
+            "test.MyComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import java.util.Set;",
+            "",
+            "@Component(modules = TestModule.class)",
+            "interface MyComponent {",
+            "  Set<String> getStrs();",
+            "}");
+    Source moduleSrc =
+        CompilerTests.kotlinSource(
+            "test.TestModule.kt",
+            "package test",
+            "",
+            "import dagger.Module",
+            "import dagger.Provides",
+            "import dagger.multibindings.IntoSet",
+            "",
+            "@Module",
+            "object TestModule {",
+            "@get:IntoSet",
+            "@get:Provides",
+            "val helloString: String",
+            "  get() = \"hello\"",
+            "}");
+
+    CompilerTests.daggerCompiler(component, moduleSrc).compile(subject -> subject.hasErrorCount(0));
+  }
 
   @Test
   public void providesWithTwoMultibindingAnnotations_failsToCompile() {
