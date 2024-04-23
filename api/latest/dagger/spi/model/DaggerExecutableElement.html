@@ -192,7 +192,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSFunctionDeclaration</code></td>
+<td class="colFirst"><code>abstract com.google.devtools.ksp.symbol.KSDeclaration</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ksp()">ksp</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the KSP representation for the executable element.</div>
@@ -261,8 +261,9 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>ksp</h4>
-<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.symbol.KSFunctionDeclaration&nbsp;ksp()</pre>
-<div class="block">Returns the KSP representation for the executable element.</div>
+<pre class="methodSignature">public abstract&nbsp;com.google.devtools.ksp.symbol.KSDeclaration&nbsp;ksp()</pre>
+<div class="block">Returns the KSP representation for the executable element. Can be either KSFunctionDeclaration
+ or KSPropertyDeclaration.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.IllegalStateException</code> - if the current backend isn't KSP.</dd>
