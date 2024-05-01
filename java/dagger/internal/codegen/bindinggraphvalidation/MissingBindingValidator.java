@@ -24,7 +24,7 @@ import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.base.Formatter.INDENT;
 import static dagger.internal.codegen.base.Keys.isValidImplicitProvisionKey;
 import static dagger.internal.codegen.base.Keys.isValidMembersInjectionKey;
-import static dagger.internal.codegen.base.RequestKinds.canBeSatisfiedByProductionBinding;
+import static dagger.internal.codegen.base.RequestKinds.dependencyCanBeProduction;
 import static dagger.internal.codegen.binding.DependencyRequestFormatter.DOUBLE_INDENT;
 import static dagger.internal.codegen.extension.DaggerStreams.instancesOf;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
@@ -44,7 +44,6 @@ import dagger.internal.codegen.binding.DependencyRequestFormatter;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
-import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.Edge;
 import dagger.internal.codegen.model.BindingGraph.MissingBinding;
@@ -280,20 +279,6 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
     return graph.network().inEdges(missingBinding).stream()
         .flatMap(instancesOf(DependencyEdge.class))
         .allMatch(edge -> dependencyCanBeProduction(edge, graph));
-  }
-
-  // TODO(ronshapiro): merge with
-  // ProvisionDependencyOnProduerBindingValidator.dependencyCanUseProduction
-  private boolean dependencyCanBeProduction(DependencyEdge edge, BindingGraph graph) {
-    Node source = graph.network().incidentNodes(edge).source();
-    if (source instanceof ComponentNode) {
-      return canBeSatisfiedByProductionBinding(edge.dependencyRequest().kind());
-    }
-    if (source instanceof Binding) {
-      return ((Binding) source).isProduction();
-    }
-    throw new IllegalArgumentException(
-        "expected a dagger.internal.codegen.model.Binding or ComponentNode: " + source);
   }
 
   private boolean typeHasInjectionSites(Key key) {
