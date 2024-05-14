@@ -142,13 +142,27 @@ needs the module at compile time, and can avoid class loading the module at
 runtime.
 {: .c-callouts__note }
 
-Finally, all `@Provides` methods must belong to a module. These are just classes
-that have an [`@Module`][Module] annotation.
+Finally, all `@Provides` and `@Binds` methods must belong to a module. These are
+just classes that have an [`@Module`][Module] annotation.
 
 ```java
 @Module
 interface HeaterModule {
   @Binds Heater bindHeater(ElectricHeater impl);
+}
+```
+
+Note that in Kotlin, `@Provides` methods can also be declared in the companion
+object of an `@Module` class.
+
+```kotlin
+@Module
+interface HeaterModule {
+  @Binds fun bindHeater(impl: ElectricHeater): Heater
+
+  companion object {
+    @Provides fun provideElectricHeater() = ElectricHeater()
+  }
 }
 ```
 
