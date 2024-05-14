@@ -18,7 +18,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class GenericClass_MembersInjector<A, B> implements MembersInjector<GenericClass<A, B>> {
   private final Provider<A> aProvider;

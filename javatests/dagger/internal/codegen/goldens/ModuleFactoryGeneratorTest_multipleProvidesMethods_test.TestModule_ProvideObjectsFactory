@@ -25,7 +25,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class TestModule_ProvideObjectsFactory implements Factory<List<Object>> {
   private final TestModule module;

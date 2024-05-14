@@ -18,7 +18,8 @@ import javax.annotation.processing.Generated;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class OuterType_A_Factory implements Factory<OuterType.A> {
   @Override

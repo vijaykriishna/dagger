@@ -24,7 +24,8 @@ import javax.annotation.processing.Generated;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerTestClass_SimpleComponent {
   private DaggerTestClass_SimpleComponent() {

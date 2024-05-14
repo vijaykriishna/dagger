@@ -21,7 +21,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class GenericClass_Factory<A, B> implements Factory<GenericClass<A, B>> {
   private final Provider<A> aProvider;

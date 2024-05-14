@@ -18,7 +18,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class OuterType_B_MembersInjector implements MembersInjector<OuterType.B> {
   private final Provider<OuterType.A> aProvider;

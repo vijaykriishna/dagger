@@ -16,7 +16,8 @@ import other.FooImpl_Factory;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerTestComponent {
   private DaggerTestComponent() {

@@ -20,7 +20,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class ParameterizedModule_ProvideNonGenericTypeWithDepsFactory implements Factory<String> {
   private final Provider<Object> oProvider;

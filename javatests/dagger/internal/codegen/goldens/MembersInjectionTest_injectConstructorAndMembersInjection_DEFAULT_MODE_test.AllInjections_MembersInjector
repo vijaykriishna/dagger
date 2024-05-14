@@ -18,7 +18,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class AllInjections_MembersInjector implements MembersInjector<AllInjections> {
   private final Provider<String> sProvider;

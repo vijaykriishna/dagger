@@ -17,7 +17,8 @@ import test.sub.TestComponentBase_ProtectedType_Factory;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class DaggerTestComponent {
   private DaggerTestComponent() {

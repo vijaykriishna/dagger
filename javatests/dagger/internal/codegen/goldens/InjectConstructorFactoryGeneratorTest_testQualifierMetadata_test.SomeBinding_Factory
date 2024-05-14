@@ -19,7 +19,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class SomeBinding_Factory implements Factory<SomeBinding> {
   private final Provider<Double> dProvider;

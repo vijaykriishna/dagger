@@ -14,7 +14,8 @@ import javax.annotation.processing.Generated;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class MapModule_ClassKeyMapKey {
   @KeepFieldType

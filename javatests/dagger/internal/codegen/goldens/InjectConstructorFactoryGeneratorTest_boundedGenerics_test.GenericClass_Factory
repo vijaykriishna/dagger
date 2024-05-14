@@ -20,7 +20,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class GenericClass_Factory<A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> implements Factory<GenericClass<A, B, C>> {
   private final Provider<A> aProvider;

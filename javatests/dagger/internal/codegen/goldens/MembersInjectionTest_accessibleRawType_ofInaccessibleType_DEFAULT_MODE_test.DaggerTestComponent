@@ -21,7 +21,8 @@ import other.UsesInaccessibles_MembersInjector;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerTestComponent {
   private DaggerTestComponent() {

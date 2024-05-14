@@ -21,7 +21,8 @@ import javax.inject.Provider;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 public final class TestModule_ProduceStringFactory extends AbstractProducesMethodProducer<Void, String> {
   private final TestModule module;

@@ -17,7 +17,8 @@ import other.Supertype;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerTestComponent {
   private DaggerTestComponent() {

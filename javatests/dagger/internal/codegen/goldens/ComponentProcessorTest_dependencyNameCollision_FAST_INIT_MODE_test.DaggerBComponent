@@ -17,7 +17,8 @@ import pkg1.AComponent;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerBComponent {
   private DaggerBComponent() {

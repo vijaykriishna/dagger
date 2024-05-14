@@ -16,7 +16,8 @@ import other.Supertype;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerRequestsSubtypeAsProvider {
   private DaggerRequestsSubtypeAsProvider() {

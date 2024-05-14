@@ -29,7 +29,8 @@ import mapkeys.MapModule_EnumKeyMapKey;
     "rawtypes",
     "KotlinInternal",
     "KotlinInternalInJava",
-    "cast"
+    "cast",
+    "deprecation"
 })
 final class DaggerTestComponent {
   private DaggerTestComponent() {
