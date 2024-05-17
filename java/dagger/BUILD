@@ -34,6 +34,7 @@ java_library(
     exports = ["//third_party/java/jsr330_inject"],
     deps = [
         "//third_party/java/jsr330_inject",
+        "@maven//:jakarta_inject_jakarta_inject_api",
     ],
 )
 
@@ -43,6 +44,7 @@ gen_maven_artifact(
     artifact_name = "Dagger",
     artifact_target = ":core",
     artifact_target_maven_deps = [
+        "jakarta.inject:jakarta.inject-api",
         "javax.inject:javax.inject",
     ],
     javadoc_root_packages = ["dagger"],
