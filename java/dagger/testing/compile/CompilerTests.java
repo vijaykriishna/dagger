@@ -137,7 +137,8 @@ public final class CompilerTests {
           /* classpath= */ ImmutableList.of(),
           processorOptions(),
           /* javacArguments= */ ImmutableList.of(),
-          /* kotlincArguments= */ ImmutableList.of(),
+          /* kotlincArguments= */ ImmutableList.of(
+              ),
           /* config= */ PROCESSING_ENV_CONFIG,
           invocation -> {
             onInvocation.accept(invocation);
@@ -230,7 +231,8 @@ public final class CompilerTests {
           processorOptions(),
           /* javacArguments= */ ImmutableList.of(),
           /* kotlincArguments= */ ImmutableList.of(
-              "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
+              "-P",
+              "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
           /* config= */ PROCESSING_ENV_CONFIG,
           /* javacProcessors= */ mergeProcessors(
               ImmutableList.of(
@@ -306,17 +308,19 @@ public final class CompilerTests {
       Map<String, String> processorOptions,
       TemporaryFolder tempFolder,
       Consumer<TestCompilationResult> onCompilationResult) {
-    TestCompilationResult result = TestKotlinCompilerKt.compile(
-        tempFolder.getRoot(),
-        new TestCompilationArguments(
-            sources,
-            /*classpath=*/ ImmutableList.of(compilerDepsJar()),
-            /*inheritClasspath=*/ false,
-            /*javacArguments=*/ ImmutableList.of(),
-            /*kotlincArguments=*/ ImmutableList.of(),
-            /*kaptProcessors=*/ ImmutableList.of(new ComponentProcessor()),
-            /*symbolProcessorProviders=*/ ImmutableList.of(),
-            /*processorOptions=*/ processorOptions));
+    TestCompilationResult result =
+        TestKotlinCompilerKt.compile(
+            tempFolder.getRoot(),
+            new TestCompilationArguments(
+                sources,
+                /* classpath= */ ImmutableList.of(compilerDepsJar()),
+                /* inheritClasspath= */ false,
+                /* javacArguments= */ ImmutableList.of(),
+                /* kotlincArguments= */ ImmutableList.of(
+                    ),
+                /* kaptProcessors= */ ImmutableList.of(new ComponentProcessor()),
+                /* symbolProcessorProviders= */ ImmutableList.of(),
+                /* processorOptions= */ processorOptions));
     onCompilationResult.accept(result);
   }
 
