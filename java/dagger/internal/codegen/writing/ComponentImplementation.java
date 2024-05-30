@@ -246,8 +246,12 @@ public final class ComponentImplementation {
   /**
    * How many statements per {@code initialize()} or {@code onProducerFutureCancelled()} method
    * before they get partitioned.
+   *
+   * <p>This value has been set based on empirical performance analysis. If this number is too
+   * large, some Android runtimes will not ahead-of-time compile the generated code. See
+   * b/316617683.
    */
-  private static final int STATEMENTS_PER_METHOD = 100;
+  private static final int STATEMENTS_PER_METHOD = 25;
 
   private final ShardImplementation componentShard;
   private final Supplier<ImmutableMap<Binding, ShardImplementation>> shardsByBinding;
