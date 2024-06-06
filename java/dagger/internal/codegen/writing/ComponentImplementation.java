@@ -59,6 +59,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -96,6 +97,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.lang.model.element.Modifier;
@@ -884,19 +886,14 @@ public final class ComponentImplementation {
       // Each component method may have been declared by several supertypes. We want to implement
       // only one method for each distinct signature.
       XType componentType = graph.componentTypeElement().getType();
-      Map<MethodSignature, ComponentMethodDescriptor> methodDescriptors = new LinkedHashMap<>();
+      Set<MethodSignature> signatures = Sets.newHashSet();
       for (ComponentMethodDescriptor method : graph.componentDescriptor().entryPointMethods()) {
-        MethodSignature signature =
-            MethodSignature.forComponentMethod(method, componentType, processingEnv);
-        if (!methodDescriptors.containsKey(signature)) {
-          methodDescriptors.put(signature, method);
-        }
-      }
-
-      for (ComponentMethodDescriptor method : methodDescriptors.values()) {
+        if (signatures.add(
+            MethodSignature.forComponentMethod(method, componentType, processingEnv))) {
           addMethod(
               COMPONENT_METHOD,
               componentRequestRepresentationsProvider.get().getComponentMethod(method));
+        }
       }
     }
 
