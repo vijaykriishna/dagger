@@ -1,0 +1,72 @@
+package test;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Preconditions;
+import dagger.producers.internal.CancellationListener;
+import javax.annotation.processing.Generated;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation"
+})
+final class DaggerMyComponent {
+  private DaggerMyComponent() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static MyComponent create() {
+    return new Builder().build();
+  }
+
+  static final class Builder {
+    private Builder() {
+    }
+
+    /**
+     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
+     */
+    @Deprecated
+    public Builder executorModule(ExecutorModule executorModule) {
+      Preconditions.checkNotNull(executorModule);
+      return this;
+    }
+
+    public MyComponent build() {
+      return new MyComponentImpl();
+    }
+  }
+
+  private static final class MyComponentImpl implements MyComponent, CancellationListener {
+    private final MyComponentImpl myComponentImpl = this;
+
+    private MyComponentImpl() {
+
+
+    }
+
+    @Override
+    public ListenableFuture<Bar> getBar() {
+      throw new UnsupportedOperationException("This entry point is pruned because it has been marked as unused, please update @OnlyUsedBy to reflect its usage.");
+    }
+
+    @Override
+    public void onProducerFutureCancelled(boolean mayInterruptIfRunning) {
+
+
+    }
+  }
+}
+

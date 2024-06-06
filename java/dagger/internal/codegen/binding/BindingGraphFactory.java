@@ -22,6 +22,7 @@ import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.DELEGATE;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
@@ -48,6 +49,7 @@ import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
+import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
@@ -212,14 +214,7 @@ public final class BindingGraphFactory implements ClearableCache {
 
     componentDescriptor.entryPointMethods().stream()
         .map(method -> method.dependencyRequest().get())
-        .forEach(
-            entryPoint -> {
-              if (entryPoint.kind().equals(MEMBERS_INJECTION)) {
-                requestResolver.resolveMembersInjection(entryPoint.key());
-              } else {
-                requestResolver.resolve(entryPoint.key());
-              }
-            });
+        .forEach(entryPoint -> resolveEntryPointsHelper(entryPoint, requestResolver));
 
     if (createFullBindingGraph) {
       // Resolve the keys for all bindings in all modules, stripping any multibinding contribution
@@ -247,6 +242,14 @@ public final class BindingGraphFactory implements ClearableCache {
     }
 
     return new LegacyBindingGraph(requestResolver, subgraphs.build());
+  }
+
+  private void resolveEntryPointsHelper(DependencyRequest entryPoint, Resolver requestResolver) {
+    if (entryPoint.kind().equals(MEMBERS_INJECTION)) {
+      requestResolver.resolveMembersInjection(entryPoint.key());
+    } else {
+      requestResolver.resolve(entryPoint.key());
+    }
   }
 
   /**
@@ -296,7 +299,7 @@ public final class BindingGraphFactory implements ClearableCache {
     private final ImmutableList<LegacyBindingGraph> resolvedSubgraphs;
     private final ComponentNode componentNode;
 
-    LegacyBindingGraph(Resolver resolver, ImmutableList<LegacyBindingGraph> resolvedSubgraphs) {
+        LegacyBindingGraph(Resolver resolver, ImmutableList<LegacyBindingGraph> resolvedSubgraphs) {
       this.resolver = resolver;
       this.resolvedSubgraphs = resolvedSubgraphs;
       this.componentNode =
@@ -316,6 +319,11 @@ public final class BindingGraphFactory implements ClearableCache {
     /** Returns the {@link ComponentDescriptor} associated with this binding graph. */
     ComponentDescriptor componentDescriptor() {
       return resolver.componentDescriptor;
+    }
+
+    ImmutableList<ComponentMethodDescriptor> entryPointMethods() {
+      return componentDescriptor().entryPointMethods().stream()
+          .collect(toImmutableList());
     }
 
     /**

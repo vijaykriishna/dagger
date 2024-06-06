@@ -77,7 +77,9 @@ final class BindingGraphConverter {
     }
 
     TopLevelBindingGraph topLevelBindingGraph =
-        TopLevelBindingGraph.create(ImmutableNetwork.copyOf(network), isFullBindingGraph);
+        TopLevelBindingGraph.create(
+            ImmutableNetwork.copyOf(network),
+            isFullBindingGraph);
     return BindingGraph.create(rootNode, topLevelBindingGraph);
   }
 
@@ -122,8 +124,7 @@ final class BindingGraphConverter {
 
       network.addNode(graph.componentNode());
 
-      for (ComponentMethodDescriptor entryPointMethod :
-          graph.componentDescriptor().entryPointMethods()) {
+      for (ComponentMethodDescriptor entryPointMethod : graph.entryPointMethods()) {
         addDependencyEdges(graph.componentNode(), entryPointMethod.dependencyRequest().get());
       }
 
