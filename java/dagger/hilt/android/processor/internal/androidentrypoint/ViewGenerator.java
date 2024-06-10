@@ -89,7 +89,6 @@ public final class ViewGenerator {
             XFiler.Mode.Isolating);
   }
 
-
   /**
    * Returns a pass-through constructor matching the base class's provided constructorElement. The
    * generated constructor simply calls super(), then inject().
@@ -99,7 +98,9 @@ public final class ViewGenerator {
    * <pre>
    *   Hilt_$CLASS(Context context, ...) {
    *     super(context, ...);
-   *     inject();
+   *     if (!isInEditMode()) {
+   *       inject();
+   *     }
    *   }
    * </pre>
    */
@@ -117,7 +118,9 @@ public final class ViewGenerator {
           AnnotationSpec.builder(AndroidClassNames.TARGET_API).addMember("value", "21").build());
     }
 
-    builder.addStatement("inject()");
+    builder.beginControlFlow("if(!isInEditMode())")
+        .addStatement("inject()")
+        .endControlFlow();
 
     return builder.build();
   }
