@@ -1,0 +1,33 @@
+# Copyright (C) 2023 The Dagger Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Description:
+#   Hilt Components for Jetpack Compose.
+
+load("//third_party/kotlin/build_extensions:rules.bzl", "kt_android_library")
+
+package(default_visibility = ["//:src"])
+
+kt_android_library(
+    name = "components",
+    srcs = [
+        "ComposeComponent.kt",
+        "ComposeRetainedComponent.kt",
+    ],
+    deps = [
+        "//java/dagger/hilt:define_component",
+        "//java/dagger/hilt/android/components",
+        "//java/dagger/hilt/android/compose/scopes",
+    ],
+)
