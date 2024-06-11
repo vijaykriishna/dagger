@@ -46,6 +46,7 @@ import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -80,6 +81,9 @@ import javax.inject.Inject;
  * Inject} constructors.
  */
 public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding> {
+  private static final ImmutableSet<BindingKind> VALID_BINDING_KINDS =
+      ImmutableSet.of(BindingKind.INJECTION, BindingKind.ASSISTED_INJECTION, BindingKind.PROVISION);
+
   private final CompilerOptions compilerOptions;
   private final SourceFiles sourceFiles;
 
@@ -105,10 +109,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
     // We don't want to write out resolved bindings -- we want to write out the generic version.
     checkArgument(!binding.unresolved().isPresent());
     checkArgument(binding.bindingElement().isPresent());
-
-    if (binding.kind() == BindingKind.DELEGATE) {
-      return ImmutableList.of();
-    }
+    checkArgument(VALID_BINDING_KINDS.contains(binding.kind()));
 
     return ImmutableList.of(factoryBuilder(binding));
   }
@@ -117,14 +118,9 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
     TypeSpec.Builder factoryBuilder =
         classBuilder(generatedClassNameForBinding(binding))
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(bindingTypeElementTypeVariableNames(binding));
-
-    if (binding.kind() == BindingKind.INJECTION
-        || binding.kind() == BindingKind.ASSISTED_INJECTION
-        || binding.kind() == BindingKind.PROVISION) {
-      factoryBuilder.addAnnotation(scopeMetadataAnnotation(binding));
-      factoryBuilder.addAnnotation(qualifierMetadataAnnotation(binding));
-    }
+            .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
+            .addAnnotation(scopeMetadataAnnotation(binding))
+            .addAnnotation(qualifierMetadataAnnotation(binding));
 
     factoryTypeName(binding).ifPresent(factoryBuilder::addSuperinterface);
     addConstructorAndFields(binding, factoryBuilder);
@@ -341,20 +337,17 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
 
     static FactoryCreationStrategy of(Binding binding) {
       switch (binding.kind()) {
-        case DELEGATE:
-          throw new AssertionError("Delegate bindings don't have a factory.");
         case PROVISION:
           return binding.dependencies().isEmpty() && !binding.requiresModuleInstance()
               ? SINGLETON_INSTANCE
               : CLASS_CONSTRUCTOR;
         case INJECTION:
-        case MULTIBOUND_SET:
-        case MULTIBOUND_MAP:
+        case ASSISTED_INJECTION:
           return binding.dependencies().isEmpty()
               ? SINGLETON_INSTANCE
               : CLASS_CONSTRUCTOR;
         default:
-          return CLASS_CONSTRUCTOR;
+          throw new AssertionError("Unexpected binding kind: " + binding.kind());
       }
     }
   }
