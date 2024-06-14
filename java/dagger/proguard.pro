@@ -1,3 +1,3 @@
--keepclasseswithmembers,includedescriptorclasses class * {
+-keepclassmembers,includedescriptorclasses class * {
    @dagger.internal.KeepFieldType <fields>;
 }
