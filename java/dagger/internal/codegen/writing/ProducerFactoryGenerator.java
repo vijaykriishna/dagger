@@ -314,25 +314,34 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
       methodBuilder.addAnnotation(AnnotationSpecs.suppressWarnings(UNCHECKED));
     }
 
-    CodeBlock moduleCodeBlock =
+    CodeBlock moduleCodeBlock;
+    if (factoryFields.moduleField.isPresent()) {
+      moduleCodeBlock = CodeBlock.of(factoryFields.moduleField.get().name);
+    } else if (binding.contributingModule().isPresent()
+        && binding.contributingModule().get().isKotlinObject()) {
+      moduleCodeBlock = CodeBlock.of(
+          "$T.INSTANCE", binding.bindingTypeElement().get().getClassName());
+    } else {
+      moduleCodeBlock = CodeBlock.of("$T", binding.bindingTypeElement().get().getClassName());
+    }
+
+    CodeBlock factoryMethodCall =
         CodeBlock.of(
             "$L.$L($L)",
-            factoryFields.moduleField.isPresent()
-                ? factoryFields.moduleField.get().name
-                : CodeBlock.of("$T", binding.bindingTypeElement().get().getClassName()),
+            moduleCodeBlock,
             getSimpleName(binding.bindingElement().get()),
             makeParametersCodeBlock(parameterCodeBlocks.build()));
 
     switch (binding.productionKind().get()) {
       case IMMEDIATE:
         methodBuilder.addStatement(
-            "return $T.<$T>immediateFuture($L)", FUTURES, contributedTypeName, moduleCodeBlock);
+            "return $T.<$T>immediateFuture($L)", FUTURES, contributedTypeName, factoryMethodCall);
         break;
       case FUTURE:
-        methodBuilder.addStatement("return $L", moduleCodeBlock);
+        methodBuilder.addStatement("return $L", factoryMethodCall);
         break;
       case SET_OF_FUTURE:
-        methodBuilder.addStatement("return $T.allAsSet($L)", PRODUCERS, moduleCodeBlock);
+        methodBuilder.addStatement("return $T.allAsSet($L)", PRODUCERS, factoryMethodCall);
         break;
     }
     return methodBuilder.build();
