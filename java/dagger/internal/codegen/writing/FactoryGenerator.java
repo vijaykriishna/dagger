@@ -26,13 +26,13 @@ import static dagger.internal.codegen.binding.SourceFiles.generateBindingFieldsF
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.binding.SourceFiles.parameterizedGeneratedTypeNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.javapoet.TypeNames.factoryOf;
-import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -47,7 +47,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -59,7 +58,6 @@ import com.squareup.javapoet.TypeSpec;
 import dagger.internal.Factory;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
-import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -71,7 +69,6 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -123,113 +120,124 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
             .addAnnotation(qualifierMetadataAnnotation(binding));
 
     factoryTypeName(binding).ifPresent(factoryBuilder::addSuperinterface);
-    addConstructorAndFields(binding, factoryBuilder);
-    factoryBuilder.addMethod(getMethod(binding));
-    addCreateMethod(binding, factoryBuilder);
-
-    factoryBuilder.addMethod(ProvisionMethod.create(binding, compilerOptions));
+    FactoryFields factoryFields = FactoryFields.create(binding);
+    // If the factory has no input fields we can use a static instance holder to create a
+    // singleton instance of the factory. Otherwise, we create a new instance via the constructor.
+    if (factoryFields.isEmpty()) {
+      factoryBuilder.addType(staticInstanceHolderType(binding));
+    } else {
+      factoryBuilder
+          .addFields(factoryFields.getAll())
+          .addMethod(constructorMethod(factoryFields));
+    }
     gwtIncompatibleAnnotation(binding).ifPresent(factoryBuilder::addAnnotation);
 
-    return factoryBuilder;
+    return factoryBuilder
+        .addMethod(getMethod(binding, factoryFields))
+        .addMethod(staticCreateMethod(binding, factoryFields))
+        .addMethod(staticProvisionMethod(binding));
   }
 
-  private void addConstructorAndFields(ProvisionBinding binding, TypeSpec.Builder factoryBuilder) {
-    if (FactoryCreationStrategy.of(binding) == FactoryCreationStrategy.SINGLETON_INSTANCE) {
-      return;
+  // private static final class InstanceHolder {
+  //   private static final FooModule_ProvidesFooFactory INSTANCE =
+  //       new FooModule_ProvidesFooFactory();
+  // }
+  private TypeSpec staticInstanceHolderType(ProvisionBinding binding) {
+    ClassName generatedClassName = generatedClassNameForBinding(binding);
+    FieldSpec.Builder instanceHolderFieldBuilder =
+        FieldSpec.builder(generatedClassName, "INSTANCE", PRIVATE, STATIC, FINAL)
+            .initializer("new $T()", generatedClassName);
+    if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
+      // If the factory has type parameters, ignore them in the field declaration & initializer
+      instanceHolderFieldBuilder.addAnnotation(suppressWarnings(RAWTYPES));
     }
+    return TypeSpec.classBuilder(instanceHolderClassName(binding))
+        .addModifiers(PRIVATE, STATIC, FINAL)
+        .addField(instanceHolderFieldBuilder.build())
+        .build();
+  }
+
+  private static ClassName instanceHolderClassName(ProvisionBinding binding) {
+    return generatedClassNameForBinding(binding).nestedClass("InstanceHolder");
+  }
+
+  // public FooModule_ProvidesFooFactory(
+  //     FooModule module,
+  //     Provider<Bar> barProvider,
+  //     Provider<Baz> bazProvider) {
+  //   this.module = module;
+  //   this.barProvider = barProvider;
+  //   this.bazProvider = bazProvider;
+  // }
+  private MethodSpec constructorMethod(FactoryFields factoryFields) {
     // TODO(bcorso): Make the constructor private?
     MethodSpec.Builder constructor = constructorBuilder().addModifiers(PUBLIC);
-    constructorParams(binding).forEach(
-        param -> {
-          constructor.addParameter(param).addStatement("this.$1N = $1N", param);
-          factoryBuilder.addField(
-              FieldSpec.builder(param.type, param.name, PRIVATE, FINAL).build());
-        });
-    factoryBuilder.addMethod(constructor.build());
+    factoryFields.getAll().forEach(
+        field ->
+            constructor
+                .addParameter(field.type, field.name)
+                .addStatement("this.$1N = $1N", field));
+    return constructor.build();
   }
 
-  private ImmutableList<ParameterSpec> constructorParams(ProvisionBinding binding) {
-    ImmutableList.Builder<ParameterSpec> params = ImmutableList.builder();
-    moduleParameter(binding).ifPresent(params::add);
-    frameworkFields(binding).values().forEach(field -> params.add(toParameter(field)));
-    return params.build();
-  }
-
-  private Optional<ParameterSpec> moduleParameter(ProvisionBinding binding) {
-    if (binding.requiresModuleInstance()) {
-      // TODO(bcorso, dpb): Should this use contributingModule()?
-      TypeName type = binding.bindingTypeElement().get().getType().getTypeName();
-      return Optional.of(ParameterSpec.builder(type, "module").build());
-    }
-    return Optional.empty();
-  }
-
-  private ImmutableMap<DependencyRequest, FieldSpec> frameworkFields(ProvisionBinding binding) {
-    UniqueNameSet uniqueFieldNames = new UniqueNameSet();
-    // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
-    moduleParameter(binding).ifPresent(module -> uniqueFieldNames.claim(module.name));
-    // We avoid Maps.transformValues here because it would implicitly depend on the order in which
-    // the transform function is evaluated on each entry in the map.
-    ImmutableMap.Builder<DependencyRequest, FieldSpec> builder = ImmutableMap.builder();
-    generateBindingFieldsForDependencies(binding).forEach(
-        (dependency, field) ->
-            builder.put(dependency,
-                FieldSpec.builder(
-                        field.type(), uniqueFieldNames.getUniqueName(field.name()), PRIVATE, FINAL)
-                    .build()));
-    return builder.build();
-  }
-
-  private void addCreateMethod(ProvisionBinding binding, TypeSpec.Builder factoryBuilder) {
-    // If constructing a factory for @Inject or @Provides bindings, we use a static create method
-    // so that generated components can avoid having to refer to the generic types
-    // of the factory.  (Otherwise they may have visibility problems referring to the types.)
+  // Example 1: no dependencies.
+  // public static FooModule_ProvidesFooFactory create() {
+  //   return InstanceHolder.INSTANCE;
+  // }
+  //
+  // Example 2: with dependencies.
+  // public static FooModule_ProvidesFooFactory create(
+  //     FooModule module,
+  //     Provider<Bar> barProvider,
+  //     Provider<Baz> bazProvider) {
+  //   return new FooModule_ProvidesFooFactory(module, barProvider, bazProvider);
+  // }
+  private MethodSpec staticCreateMethod(ProvisionBinding binding, FactoryFields factoryFields) {
+    // We use a static create method so that generated components can avoid having to refer to the
+    // generic types of the factory.  (Otherwise they may have visibility problems referring to the
+    // types.)
     MethodSpec.Builder createMethodBuilder =
         methodBuilder("create")
             .addModifiers(PUBLIC, STATIC)
             .returns(parameterizedGeneratedTypeNameForBinding(binding))
             .addTypeVariables(bindingTypeElementTypeVariableNames(binding));
 
-    switch (FactoryCreationStrategy.of(binding)) {
-      case SINGLETON_INSTANCE:
-        FieldSpec.Builder instanceFieldBuilder =
-            FieldSpec.builder(
-                    generatedClassNameForBinding(binding), "INSTANCE", PRIVATE, STATIC, FINAL)
-                .initializer("new $T()", generatedClassNameForBinding(binding));
-
-        if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
-          // If the factory has type parameters, ignore them in the field declaration & initializer
-          instanceFieldBuilder.addAnnotation(suppressWarnings(RAWTYPES));
-          createMethodBuilder.addAnnotation(suppressWarnings(UNCHECKED));
-        }
-
-        ClassName instanceHolderName =
-            generatedClassNameForBinding(binding).nestedClass("InstanceHolder");
-        createMethodBuilder.addStatement("return $T.INSTANCE", instanceHolderName);
-        factoryBuilder.addType(
-            TypeSpec.classBuilder(instanceHolderName)
-                .addModifiers(PRIVATE, STATIC, FINAL)
-                .addField(instanceFieldBuilder.build())
-                .build());
-        break;
-      case CLASS_CONSTRUCTOR:
-        List<ParameterSpec> params = constructorParams(binding);
-        createMethodBuilder.addParameters(params);
-        createMethodBuilder.addStatement(
-            "return new $T($L)",
-            parameterizedGeneratedTypeNameForBinding(binding),
-            makeParametersCodeBlock(Lists.transform(params, input -> CodeBlock.of("$N", input))));
-        break;
-      default:
-        throw new AssertionError();
+    if (factoryFields.isEmpty()) {
+      if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
+        createMethodBuilder.addAnnotation(suppressWarnings(UNCHECKED));
+      }
+      createMethodBuilder.addStatement("return $T.INSTANCE", instanceHolderClassName(binding));
+    } else {
+      ImmutableList<ParameterSpec> parameters =
+          factoryFields.getAll().stream()
+              .map(field -> ParameterSpec.builder(field.type, field.name).build())
+              .collect(toImmutableList());
+      createMethodBuilder
+          .addParameters(parameters)
+          .addStatement(
+              "return new $T($L)",
+              parameterizedGeneratedTypeNameForBinding(binding),
+              parameterNames(parameters));
     }
-    factoryBuilder.addMethod(createMethodBuilder.build());
+    return createMethodBuilder.build();
   }
 
-  private MethodSpec getMethod(ProvisionBinding binding) {
+  // Example 1: Provision binding.
+  // @Override
+  // public Foo get() {
+  //   return provideFoo(module, barProvider.get(), bazProvider.get());
+  // }
+  //
+  // Example 2: Injection binding with some inject field.
+  // @Override
+  // public Foo get() {
+  //   Foo instance = newInstance(barProvider.get(), bazProvider.get());
+  //   Foo_MembersInjector.injectSomeField(instance, someFieldProvider.get());
+  //   return instance;
+  // }
+  private MethodSpec getMethod(ProvisionBinding binding, FactoryFields factoryFields) {
     UniqueNameSet uniqueFieldNames = new UniqueNameSet();
-    ImmutableMap<DependencyRequest, FieldSpec> frameworkFields = frameworkFields(binding);
-    frameworkFields.values().forEach(field -> uniqueFieldNames.claim(field.name));
+    factoryFields.getAll().forEach(field -> uniqueFieldNames.claim(field.name));
     ImmutableMap<XExecutableParameterElement, ParameterSpec> assistedParameters =
         assistedParameters(binding).stream()
             .collect(
@@ -254,10 +262,10 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
             binding,
             request ->
                 sourceFiles.frameworkTypeUsageStatement(
-                    CodeBlock.of("$N", frameworkFields.get(request)), request.kind()),
+                    CodeBlock.of("$N", factoryFields.get(request)), request.kind()),
             param -> assistedParameters.get(param).name,
             generatedClassNameForBinding(binding),
-            moduleParameter(binding).map(module -> CodeBlock.of("$N", module)),
+            factoryFields.moduleField.map(module -> CodeBlock.of("$N", module)),
             compilerOptions);
 
     if (binding.kind().equals(PROVISION)) {
@@ -278,7 +286,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
                   generatedClassNameForBinding(binding),
                   instance,
                   binding.key().type().xprocessing(),
-                  sourceFiles.frameworkFieldUsages(binding.dependencies(), frameworkFields)::get))
+                  sourceFiles.frameworkFieldUsages(
+                      binding.dependencies(), factoryFields.frameworkFields)::get))
           .addStatement("return $L", instance);
 
     } else {
@@ -287,6 +296,19 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
           .addStatement("return $L", invokeNewInstance);
     }
     return getMethod.build();
+  }
+
+  // Example 1: Provision binding
+  // public static Foo provideFoo(FooModule module, Bar bar, Baz baz) {
+  //   return Preconditions.checkNotNullFromProvides(module.provideFoo(bar, baz));
+  // }
+  //
+  // Example 2: Injection binding
+  // public static Foo newInstance(Bar bar, Baz baz) {
+  //   return new Foo(bar, baz);
+  // }
+  private MethodSpec staticProvisionMethod(ProvisionBinding binding) {
+    return ProvisionMethod.create(binding, compilerOptions);
   }
 
   private AnnotationSpec scopeMetadataAnnotation(ProvisionBinding binding) {
@@ -324,31 +346,57 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
         : Optional.of(factoryOf(providedTypeName(binding)));
   }
 
-  private static ParameterSpec toParameter(FieldSpec field) {
-    return ParameterSpec.builder(field.type, field.name).build();
-  }
+  /** Represents the available fields in the generated factory class. */
+  private static final class FactoryFields {
+    static FactoryFields create(ProvisionBinding binding) {
+      UniqueNameSet nameSet = new UniqueNameSet();
+      // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
+      Optional<FieldSpec> moduleField =
+          binding.requiresModuleInstance()
+              ? Optional.of(
+                  createField(
+                      binding.bindingTypeElement().get().getType().getTypeName(),
+                      nameSet.getUniqueName("module")))
+              : Optional.empty();
 
-  /** The strategy for getting an instance of a factory for a {@link Binding}. */
-  private enum FactoryCreationStrategy {
-    /** The factory class is a single instance. */
-    SINGLETON_INSTANCE,
-    /** The factory must be created by calling the constructor. */
-    CLASS_CONSTRUCTOR;
+      ImmutableMap.Builder<DependencyRequest, FieldSpec> frameworkFields = ImmutableMap.builder();
+      generateBindingFieldsForDependencies(binding).forEach(
+          (dependency, field) ->
+              frameworkFields.put(
+                  dependency, createField(field.type(), nameSet.getUniqueName(field.name()))));
 
-    static FactoryCreationStrategy of(Binding binding) {
-      switch (binding.kind()) {
-        case PROVISION:
-          return binding.dependencies().isEmpty() && !binding.requiresModuleInstance()
-              ? SINGLETON_INSTANCE
-              : CLASS_CONSTRUCTOR;
-        case INJECTION:
-        case ASSISTED_INJECTION:
-          return binding.dependencies().isEmpty()
-              ? SINGLETON_INSTANCE
-              : CLASS_CONSTRUCTOR;
-        default:
-          throw new AssertionError("Unexpected binding kind: " + binding.kind());
-      }
+      return new FactoryFields(moduleField, frameworkFields.buildOrThrow());
+    }
+
+    private static FieldSpec createField(TypeName type, String name) {
+      return FieldSpec.builder(type, name, PRIVATE, FINAL).build();
+    }
+
+    private final Optional<FieldSpec> moduleField;
+    private final ImmutableMap<DependencyRequest, FieldSpec> frameworkFields;
+
+    private FactoryFields(
+        Optional<FieldSpec> moduleField,
+        ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+      this.moduleField = moduleField;
+      this.frameworkFields = frameworkFields;
+    }
+
+    FieldSpec get(DependencyRequest request) {
+      return frameworkFields.get(request);
+    }
+
+    ImmutableList<FieldSpec> getAll() {
+      return moduleField.isPresent()
+          ? ImmutableList.<FieldSpec>builder()
+              .add(moduleField.get())
+              .addAll(frameworkFields.values())
+              .build()
+          : frameworkFields.values().asList();
+    }
+
+    boolean isEmpty() {
+      return getAll().isEmpty();
     }
   }
 }

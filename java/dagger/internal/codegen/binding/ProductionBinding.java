@@ -93,13 +93,14 @@ public abstract class ProductionBinding extends ContributionBinding {
    * production bindings from {@code @Produces} methods will have an executor request, but
    * synthetic production bindings may not.
    */
-  abstract Optional<DependencyRequest> executorRequest();
+  public abstract Optional<DependencyRequest> executorRequest();
 
-  /** If this production requires a monitor, this will be the corresponding request.  All
+  /**
+   * If this production requires a monitor, this will be the corresponding request.  All
    * production bindings from {@code @Produces} methods will have a monitor request, but synthetic
    * production bindings may not.
    */
-  abstract Optional<DependencyRequest> monitorRequest();
+  public abstract Optional<DependencyRequest> monitorRequest();
 
   // Profiling determined that this method is called enough times that memoizing it had a measurable
   // performance improvement for large components.
