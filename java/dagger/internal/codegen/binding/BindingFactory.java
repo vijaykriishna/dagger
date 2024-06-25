@@ -23,7 +23,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static dagger.internal.codegen.binding.ComponentDescriptor.isComponentProductionMethod;
 import static dagger.internal.codegen.binding.MapKeys.getMapKey;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_FACTORY;
@@ -315,33 +314,28 @@ public final class BindingFactory {
         .build();
   }
 
-  /**
-   * Returns a {@link dagger.internal.codegen.model.BindingKind#COMPONENT_PROVISION} or {@link
-   * dagger.internal.codegen.model.BindingKind#COMPONENT_PRODUCTION} binding for a method on a
-   * component's dependency.
-   *
-   * @param componentDescriptor the component with the dependency, not the dependency that has the
-   *     method
-   */
-  public ContributionBinding componentDependencyMethodBinding(
-      ComponentDescriptor componentDescriptor, XMethodElement dependencyMethod) {
+  /** Returns a {@link BindingKind#COMPONENT_PROVISION} binding. */
+  public ContributionBinding componentDependencyProvisionMethodBinding(
+      XMethodElement dependencyMethod) {
     checkArgument(dependencyMethod.getParameters().isEmpty());
-    ContributionBinding.Builder<?, ?> builder;
-    if (componentDescriptor.isProduction() && isComponentProductionMethod(dependencyMethod)) {
-      builder =
-          ProductionBinding.builder()
-              .key(keyFactory.forProductionComponentMethod(dependencyMethod))
-              .kind(COMPONENT_PRODUCTION)
-              .thrownTypes(dependencyMethod.getThrownTypes());
-    } else {
-      builder =
-          ProvisionBinding.builder()
-              .key(keyFactory.forComponentMethod(dependencyMethod))
-              .nullability(Nullability.of(dependencyMethod))
-              .kind(COMPONENT_PROVISION)
-              .scope(injectionAnnotations.getScope(dependencyMethod));
-    }
-    return builder
+    return ProvisionBinding.builder()
+        .key(keyFactory.forComponentMethod(dependencyMethod))
+        .nullability(Nullability.of(dependencyMethod))
+        .kind(COMPONENT_PROVISION)
+        .scope(injectionAnnotations.getScope(dependencyMethod))
+        .contributionType(ContributionType.UNIQUE)
+        .bindingElement(dependencyMethod)
+        .build();
+  }
+
+  /** Returns a {@link BindingKind#COMPONENT_PRODUCTION} binding. */
+  public ContributionBinding componentDependencyProductionMethodBinding(
+      XMethodElement dependencyMethod) {
+    checkArgument(dependencyMethod.getParameters().isEmpty());
+    return ProductionBinding.builder()
+        .key(keyFactory.forProductionComponentMethod(dependencyMethod))
+        .kind(COMPONENT_PRODUCTION)
+        .thrownTypes(dependencyMethod.getThrownTypes())
         .contributionType(ContributionType.UNIQUE)
         .bindingElement(dependencyMethod)
         .build();

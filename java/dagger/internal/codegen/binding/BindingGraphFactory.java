@@ -21,32 +21,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
-import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.DELEGATE;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.OPTIONAL;
 import static dagger.internal.codegen.model.BindingKind.SUBCOMPONENT_CREATOR;
 import static dagger.internal.codegen.model.RequestKind.MEMBERS_INJECTION;
-import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static java.util.function.Predicate.isEqual;
 
-import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import dagger.Reusable;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ContributionType;
-import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.Keys;
-import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -58,7 +51,6 @@ import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.model.Scope;
-import dagger.internal.codegen.xprocessing.XTypeElements;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -76,29 +68,26 @@ import javax.inject.Singleton;
 @Singleton
 public final class BindingGraphFactory implements ClearableCache {
 
-  private final XProcessingEnv processingEnv;
   private final InjectBindingRegistry injectBindingRegistry;
   private final KeyFactory keyFactory;
   private final BindingFactory bindingFactory;
-  private final ModuleDescriptor.Factory moduleDescriptorFactory;
+  private final ComponentDeclarations.Factory componentDeclarationsFactory;
   private final BindingGraphConverter bindingGraphConverter;
   private final Map<Key, ImmutableSet<Key>> keysMatchingRequestCache = new HashMap<>();
   private final CompilerOptions compilerOptions;
 
   @Inject
   BindingGraphFactory(
-      XProcessingEnv processingEnv,
       InjectBindingRegistry injectBindingRegistry,
       KeyFactory keyFactory,
       BindingFactory bindingFactory,
-      ModuleDescriptor.Factory moduleDescriptorFactory,
+      ComponentDeclarations.Factory componentDeclarationsFactory,
       BindingGraphConverter bindingGraphConverter,
       CompilerOptions compilerOptions) {
-    this.processingEnv = processingEnv;
     this.injectBindingRegistry = injectBindingRegistry;
     this.keyFactory = keyFactory;
     this.bindingFactory = bindingFactory;
-    this.moduleDescriptorFactory = moduleDescriptorFactory;
+    this.componentDeclarationsFactory = componentDeclarationsFactory;
     this.bindingGraphConverter = bindingGraphConverter;
     this.compilerOptions = compilerOptions;
   }
@@ -120,95 +109,7 @@ public final class BindingGraphFactory implements ClearableCache {
       Optional<Resolver> parentResolver,
       ComponentDescriptor componentDescriptor,
       boolean createFullBindingGraph) {
-    ImmutableSet.Builder<ContributionBinding> explicitBindingsBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<DelegateDeclaration> delegatesBuilder = ImmutableSet.builder();
-    ImmutableSet.Builder<OptionalBindingDeclaration> optionalsBuilder = ImmutableSet.builder();
-
-    if (componentDescriptor.isRealComponent()) {
-      // binding for the component itself
-      explicitBindingsBuilder.add(
-          bindingFactory.componentBinding(componentDescriptor.typeElement()));
-    }
-
-    // Collect Component dependencies.
-    for (ComponentRequirement dependency : componentDescriptor.dependencies()) {
-      explicitBindingsBuilder.add(bindingFactory.componentDependencyBinding(dependency));
-
-      // Within a component dependency, we want to allow the same method to appear multiple
-      // times assuming it is the exact same method. We do this by tracking a set of bindings
-      // we've already added with the binding element removed since that is the only thing
-      // allowed to differ.
-      HashMultimap<String, ContributionBinding> dedupeBindings = HashMultimap.create();
-      XTypeElements.getAllMethods(dependency.typeElement()).stream()
-          // MembersInjection methods aren't "provided" explicitly, so ignore them.
-          .filter(ComponentDescriptor::isComponentContributionMethod)
-          .forEach(
-              method -> {
-                ContributionBinding binding =
-                    bindingFactory.componentDependencyMethodBinding(componentDescriptor, method);
-                if (dedupeBindings.put(
-                    getSimpleName(method),
-                    // Remove the binding element since we know that will be different, but
-                    // everything else we want to be the same to consider it a duplicate.
-                    binding.toBuilder().clearBindingElement().build())) {
-                  explicitBindingsBuilder.add(binding);
-                }
-              });
-    }
-
-    // Collect bindings on the creator.
-    componentDescriptor
-        .creatorDescriptor()
-        .ifPresent(
-            creatorDescriptor ->
-                creatorDescriptor.boundInstanceRequirements().stream()
-                    .map(
-                        requirement ->
-                            bindingFactory.boundInstanceBinding(
-                                requirement, creatorDescriptor.elementForRequirement(requirement)))
-                    .forEach(explicitBindingsBuilder::add));
-
-    componentDescriptor
-        .childComponentsDeclaredByBuilderEntryPoints()
-        .forEach(
-            (builderEntryPoint, childComponent) -> {
-              if (!componentDescriptor
-                  .childComponentsDeclaredByModules()
-                  .contains(childComponent)) {
-                explicitBindingsBuilder.add(
-                    bindingFactory.subcomponentCreatorBinding(
-                        builderEntryPoint.methodElement(), componentDescriptor.typeElement()));
-              }
-            });
-
-    ImmutableSet.Builder<MultibindingDeclaration> multibindingDeclarations = ImmutableSet.builder();
-    ImmutableSet.Builder<SubcomponentDeclaration> subcomponentDeclarations = ImmutableSet.builder();
-
-    // Collect transitive module bindings and multibinding declarations.
-    ImmutableSet<ModuleDescriptor> modules = modules(componentDescriptor, parentResolver);
-    for (ModuleDescriptor moduleDescriptor : modules) {
-      explicitBindingsBuilder.addAll(moduleDescriptor.bindings());
-      multibindingDeclarations.addAll(moduleDescriptor.multibindingDeclarations());
-      subcomponentDeclarations.addAll(moduleDescriptor.subcomponentDeclarations());
-      delegatesBuilder.addAll(moduleDescriptor.delegateDeclarations());
-      optionalsBuilder.addAll(moduleDescriptor.optionalDeclarations());
-    }
-
-    DaggerTypeElement component = DaggerTypeElement.from(componentDescriptor.typeElement());
-    ComponentPath componentPath =
-        parentResolver.isPresent()
-            ? parentResolver.get().componentPath.childPath(component)
-            : ComponentPath.create(ImmutableList.of(component));
-    final Resolver requestResolver =
-        new Resolver(
-            componentPath,
-            parentResolver,
-            componentDescriptor,
-            indexBindingDeclarationsByKey(explicitBindingsBuilder.build()),
-            indexBindingDeclarationsByKey(multibindingDeclarations.build()),
-            indexBindingDeclarationsByKey(subcomponentDeclarations.build()),
-            indexBindingDeclarationsByKey(delegatesBuilder.build()),
-            indexBindingDeclarationsByKey(optionalsBuilder.build()));
+    Resolver requestResolver = new Resolver(parentResolver, componentDescriptor);
 
     componentDescriptor.entryPointMethods().stream()
         .map(method -> method.dependencyRequest().get())
@@ -224,8 +125,11 @@ public final class BindingGraphFactory implements ClearableCache {
     if (createFullBindingGraph) {
       // Resolve the keys for all bindings in all modules, stripping any multibinding contribution
       // identifier so that the multibinding itself is resolved.
-      modules.stream()
-          .flatMap(module -> module.allBindingKeys().stream())
+      requestResolver.declarations.allDeclarations().stream()
+          // TODO(b/349155899): Consider resolving all declarations in full binding graph mode, not
+          //   just those from modules.
+          .filter(declaration -> declaration.contributingModule().isPresent())
+          .map(BindingDeclaration::key)
           .map(Key::withoutMultibindingContributionIdentifier)
           .forEach(requestResolver::resolve);
     }
@@ -247,42 +151,6 @@ public final class BindingGraphFactory implements ClearableCache {
     }
 
     return new LegacyBindingGraph(requestResolver, subgraphs.build());
-  }
-
-  /**
-   * Returns all the modules that should be installed in the component. For production components
-   * and production subcomponents that have a parent that is not a production component or
-   * subcomponent, also includes the production monitoring module for the component and the
-   * production executor module.
-   */
-  private ImmutableSet<ModuleDescriptor> modules(
-      ComponentDescriptor componentDescriptor, Optional<Resolver> parentResolver) {
-    return shouldIncludeImplicitProductionModules(componentDescriptor, parentResolver)
-        ? new ImmutableSet.Builder<ModuleDescriptor>()
-            .addAll(componentDescriptor.modules())
-            .add(
-                moduleDescriptorFactory.create(
-                    DaggerSuperficialValidation.requireTypeElement(
-                        processingEnv,
-                        generatedMonitoringModuleName(componentDescriptor.typeElement()))))
-            .add(
-                moduleDescriptorFactory.create(
-                    processingEnv.requireTypeElement(TypeNames.PRODUCTION_EXECTUTOR_MODULE)))
-            .build()
-        : componentDescriptor.modules();
-  }
-
-  private boolean shouldIncludeImplicitProductionModules(
-      ComponentDescriptor componentDescriptor, Optional<Resolver> parentResolver) {
-    return componentDescriptor.isProduction()
-        && componentDescriptor.isRealComponent()
-        && (parentResolver.isEmpty() || !parentResolver.get().componentDescriptor.isProduction());
-  }
-
-  /** Indexes {@code bindingDeclarations} by {@link BindingDeclaration#key()}. */
-  private static <T extends BindingDeclaration>
-      ImmutableSetMultimap<Key, T> indexBindingDeclarationsByKey(Iterable<T> declarations) {
-    return ImmutableSetMultimap.copyOf(Multimaps.index(declarations, BindingDeclaration::key));
   }
 
   @Override
@@ -356,14 +224,7 @@ public final class BindingGraphFactory implements ClearableCache {
     final ComponentPath componentPath;
     final Optional<Resolver> parentResolver;
     final ComponentDescriptor componentDescriptor;
-    final ImmutableSetMultimap<Key, ContributionBinding> explicitBindings;
-    final ImmutableSet<ContributionBinding> explicitBindingsSet;
-    final ImmutableSetMultimap<Key, ContributionBinding> explicitMultibindings;
-    final ImmutableSetMultimap<Key, MultibindingDeclaration> multibindingDeclarations;
-    final ImmutableSetMultimap<Key, SubcomponentDeclaration> subcomponentDeclarations;
-    final ImmutableSetMultimap<Key, DelegateDeclaration> delegateDeclarations;
-    final ImmutableSetMultimap<Key, OptionalBindingDeclaration> optionalBindingDeclarations;
-    final ImmutableSetMultimap<Key, DelegateDeclaration> delegateMultibindingDeclarations;
+    final ComponentDeclarations declarations;
     final Map<Key, ResolvedBindings> resolvedContributionBindings = new LinkedHashMap<>();
     final Map<Key, ResolvedBindings> resolvedMembersInjectionBindings = new LinkedHashMap<>();
     final Deque<Key> cycleStack = new ArrayDeque<>();
@@ -371,27 +232,18 @@ public final class BindingGraphFactory implements ClearableCache {
     final Map<Binding, Boolean> bindingDependsOnLocalBindingsCache = new HashMap<>();
     final Queue<ComponentDescriptor> subcomponentsToResolve = new ArrayDeque<>();
 
-    Resolver(
-        ComponentPath componentPath,
-        Optional<Resolver> parentResolver,
-        ComponentDescriptor componentDescriptor,
-        ImmutableSetMultimap<Key, ContributionBinding> explicitBindings,
-        ImmutableSetMultimap<Key, MultibindingDeclaration> multibindingDeclarations,
-        ImmutableSetMultimap<Key, SubcomponentDeclaration> subcomponentDeclarations,
-        ImmutableSetMultimap<Key, DelegateDeclaration> delegateDeclarations,
-        ImmutableSetMultimap<Key, OptionalBindingDeclaration> optionalBindingDeclarations) {
-      this.componentPath = componentPath;
+    Resolver(Optional<Resolver> parentResolver, ComponentDescriptor componentDescriptor) {
       this.parentResolver = parentResolver;
       this.componentDescriptor = checkNotNull(componentDescriptor);
-      this.explicitBindings = checkNotNull(explicitBindings);
-      this.explicitBindingsSet = ImmutableSet.copyOf(explicitBindings.values());
-      this.multibindingDeclarations = checkNotNull(multibindingDeclarations);
-      this.subcomponentDeclarations = checkNotNull(subcomponentDeclarations);
-      this.delegateDeclarations = checkNotNull(delegateDeclarations);
-      this.optionalBindingDeclarations = checkNotNull(optionalBindingDeclarations);
-      this.explicitMultibindings = multibindingContributionsByMultibindingKey(explicitBindingsSet);
-      this.delegateMultibindingDeclarations =
-          multibindingContributionsByMultibindingKey(delegateDeclarations.values());
+      DaggerTypeElement componentType = DaggerTypeElement.from(componentDescriptor.typeElement());
+      componentPath =
+          parentResolver.isPresent()
+              ? parentResolver.get().componentPath.childPath(componentType)
+              : ComponentPath.create(ImmutableList.of(componentType));
+      declarations =
+          componentDeclarationsFactory.create(
+              parentResolver.map(parent -> parent.componentDescriptor),
+              componentDescriptor);
       subcomponentsToResolve.addAll(
           componentDescriptor.childComponentsDeclaredByFactoryMethods().values());
       subcomponentsToResolve.addAll(
@@ -426,12 +278,12 @@ public final class BindingGraphFactory implements ClearableCache {
         bindings.addAll(resolver.getLocalExplicitBindings(requestKey));
 
         for (Key key : keysMatchingRequest) {
-          multibindingContributions.addAll(resolver.getLocalExplicitMultibindings(key));
-          multibindingDeclarations.addAll(resolver.multibindingDeclarations.get(key));
-          subcomponentDeclarations.addAll(resolver.subcomponentDeclarations.get(key));
+          multibindingContributions.addAll(resolver.getLocalMultibindingContributions(key));
+          multibindingDeclarations.addAll(resolver.declarations.multibindings(key));
+          subcomponentDeclarations.addAll(resolver.declarations.subcomponents(key));
           // The optional binding declarations are keyed by the unwrapped type.
           keyFactory.unwrapOptional(key)
-              .map(resolver.optionalBindingDeclarations::get)
+              .map(resolver.declarations::optionalBindings)
               .ifPresent(optionalBindingDeclarations::addAll);
         }
       }
@@ -711,9 +563,9 @@ public final class BindingGraphFactory implements ClearableCache {
     }
 
     private boolean containsExplicitBinding(ContributionBinding binding) {
-      return explicitBindingsSet.contains(binding)
+      return declarations.bindings(binding.key()).contains(binding)
           || resolverContainsDelegateDeclarationForBinding(binding)
-          || subcomponentDeclarations.containsKey(binding.key());
+          || !declarations.subcomponents(binding.key()).isEmpty();
     }
 
     /** Returns true if {@code binding} was installed in a module in this resolver's component. */
@@ -732,7 +584,7 @@ public final class BindingGraphFactory implements ClearableCache {
         bindingKey = keyFactory.unwrapMapValueType(bindingKey);
       }
 
-      return delegateDeclarations.get(bindingKey).stream()
+      return declarations.delegates(bindingKey).stream()
           .anyMatch(
               declaration ->
                   declaration.contributingModule().equals(binding.contributingModule())
@@ -755,15 +607,15 @@ public final class BindingGraphFactory implements ClearableCache {
      * resolver.
      */
     private ImmutableSet<ContributionBinding> getLocalExplicitBindings(Key key) {
-      return new ImmutableSet.Builder<ContributionBinding>()
-          .addAll(explicitBindings.get(key))
+      return ImmutableSet.<ContributionBinding>builder()
+          .addAll(declarations.bindings(key))
           // @Binds @IntoMap declarations have key Map<K, V>, unlike @Provides @IntoMap or @Produces
           // @IntoMap, which have Map<K, Provider/Producer<V>> keys. So unwrap the key's type's
           // value type if it's a Map<K, Provider/Producer<V>> before looking in
-          // delegateDeclarations. createDelegateBindings() will create bindings with the properly
+          // delegate declarations. createDelegateBindings() will create bindings with the properly
           // wrapped key type.
           .addAll(
-              createDelegateBindings(delegateDeclarations.get(keyFactory.unwrapMapValueType(key))))
+              createDelegateBindings(declarations.delegates(keyFactory.unwrapMapValueType(key))))
           .build();
     }
 
@@ -771,22 +623,19 @@ public final class BindingGraphFactory implements ClearableCache {
      * Returns the explicit multibinding contributions that contribute to the map or set requested
      * by {@code key} from this resolver.
      */
-    private ImmutableSet<ContributionBinding> getLocalExplicitMultibindings(Key key) {
-      ImmutableSet.Builder<ContributionBinding> multibindings = ImmutableSet.builder();
-      multibindings.addAll(explicitMultibindings.get(key));
-      if (!MapType.isMap(key)
-          || MapType.from(key).isRawType()
-          || MapType.from(key).valuesAreFrameworkType()) {
-        // @Binds @IntoMap declarations have key Map<K, V>, unlike @Provides @IntoMap or @Produces
-        // @IntoMap, which have Map<K, Provider/Producer<V>> keys. So unwrap the key's type's
-        // value type if it's a Map<K, Provider/Producer<V>> before looking in
-        // delegateMultibindingDeclarations. createDelegateBindings() will create bindings with the
-        // properly wrapped key type.
-        multibindings.addAll(
-            createDelegateBindings(
-                delegateMultibindingDeclarations.get(keyFactory.unwrapMapValueType(key))));
-      }
-      return multibindings.build();
+    private ImmutableSet<ContributionBinding> getLocalMultibindingContributions(Key key) {
+      return ImmutableSet.<ContributionBinding>builder()
+          .addAll(declarations.multibindingContributions(key))
+          // @Binds @IntoMap declarations have key Map<K, V>, unlike @Provides @IntoMap or @Produces
+          // @IntoMap, which have Map<K, Provider/Producer<V>> keys. So unwrap the key's type's
+          // value type if it's a Map<K, Provider/Producer<V>> before looking in
+          // delegate declarations. createDelegateBindings() will create bindings with the properly
+          // wrapped key type.
+          .addAll(
+              createDelegateBindings(
+                  declarations.delegateMultibindingContributions(
+                      keyFactory.unwrapMapValueType(key))))
+          .build();
     }
 
     /**
@@ -795,12 +644,12 @@ public final class BindingGraphFactory implements ClearableCache {
      */
     private ImmutableSet<OptionalBindingDeclaration> getOptionalBindingDeclarations(Key key) {
       Optional<Key> unwrapped = keyFactory.unwrapOptional(key);
-      if (!unwrapped.isPresent()) {
+      if (unwrapped.isEmpty()) {
         return ImmutableSet.of();
       }
       ImmutableSet.Builder<OptionalBindingDeclaration> declarations = ImmutableSet.builder();
       for (Resolver resolver : getResolverLineage()) {
-        declarations.addAll(resolver.optionalBindingDeclarations.get(unwrapped.get()));
+        declarations.addAll(resolver.declarations.optionalBindings(unwrapped.get()));
       }
       return declarations.build();
     }
@@ -1006,7 +855,7 @@ public final class BindingGraphFactory implements ClearableCache {
     private boolean hasLocalMultibindingContributions(Key requestKey) {
       return keysMatchingRequest(requestKey)
           .stream()
-          .anyMatch(key -> !getLocalExplicitMultibindings(key).isEmpty());
+          .anyMatch(key -> !getLocalMultibindingContributions(key).isEmpty());
     }
 
     /**
@@ -1032,21 +881,5 @@ public final class BindingGraphFactory implements ClearableCache {
         return !getOptionalBindingDeclarations(key).isEmpty();
       }
     }
-  }
-
-  /**
-   * A multimap of those {@code declarations} that are multibinding contribution declarations,
-   * indexed by the key of the set or map to which they contribute.
-   */
-  static <T extends BindingDeclaration>
-      ImmutableSetMultimap<Key, T> multibindingContributionsByMultibindingKey(
-          Iterable<T> declarations) {
-    ImmutableSetMultimap.Builder<Key, T> builder = ImmutableSetMultimap.builder();
-    for (T declaration : declarations) {
-      if (declaration.key().multibindingContributionIdentifier().isPresent()) {
-        builder.put(declaration.key().withoutMultibindingContributionIdentifier(), declaration);
-      }
-    }
-    return builder.build();
   }
 }
