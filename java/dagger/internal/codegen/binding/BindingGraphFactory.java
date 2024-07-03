@@ -40,7 +40,9 @@ import dagger.Reusable;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.Keys;
+import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
+import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
@@ -290,7 +292,13 @@ public final class BindingGraphFactory implements ClearableCache {
 
       // Add synthetic multibinding
       if (!multibindingContributions.isEmpty() || !multibindingDeclarations.isEmpty()) {
-        bindings.add(bindingFactory.syntheticMultibinding(requestKey, multibindingContributions));
+        if (MapType.isMap(requestKey)) {
+          bindings.add(bindingFactory.multiboundMap(requestKey, multibindingContributions));
+        } else if (SetType.isSet(requestKey)) {
+          bindings.add(bindingFactory.multiboundSet(requestKey, multibindingContributions));
+        } else {
+          throw new AssertionError("Unexpected type in multibinding key: " + requestKey);
+        }
       }
 
       // Add synthetic optional binding
@@ -304,7 +312,7 @@ public final class BindingGraphFactory implements ClearableCache {
 
       // Add subcomponent creator binding
       if (!subcomponentDeclarations.isEmpty()) {
-        ProvisionBinding binding =
+        ContributionBinding binding =
             bindingFactory.subcomponentCreatorBinding(
                 ImmutableSet.copyOf(subcomponentDeclarations));
         bindings.add(binding);
@@ -313,9 +321,7 @@ public final class BindingGraphFactory implements ClearableCache {
 
       // Add members injector binding
       if (isTypeOf(requestKey.type().xprocessing(), TypeNames.MEMBERS_INJECTOR)) {
-        injectBindingRegistry
-            .getOrFindMembersInjectorProvisionBinding(requestKey)
-            .ifPresent(bindings::add);
+        injectBindingRegistry.getOrFindMembersInjectorBinding(requestKey).ifPresent(bindings::add);
       }
 
       // Add Assisted Factory binding
@@ -330,7 +336,7 @@ public final class BindingGraphFactory implements ClearableCache {
       // If there are no bindings, add the implicit @Inject-constructed binding if there is one.
       if (bindings.isEmpty()) {
         injectBindingRegistry
-            .getOrFindProvisionBinding(requestKey)
+            .getOrFindInjectionBinding(requestKey)
             .filter(this::isCorrectlyScopedInSubcomponent)
             .ifPresent(bindings::add);
       }
@@ -351,7 +357,7 @@ public final class BindingGraphFactory implements ClearableCache {
      * be owned by a future ancestor (or, if never owned, will result in an incompatibly scoped
      * binding error at the root component).
      */
-    private boolean isCorrectlyScopedInSubcomponent(ProvisionBinding binding) {
+    private boolean isCorrectlyScopedInSubcomponent(ContributionBinding binding) {
       checkArgument(binding.kind() == INJECTION || binding.kind() == ASSISTED_INJECTION);
       if (!rootComponent().isSubcomponent()
           || !binding.scope().isPresent()
@@ -384,7 +390,7 @@ public final class BindingGraphFactory implements ClearableCache {
      * ComponentDescriptor subcomponent} to a queue in the owning component's resolver. The queue
      * will be used to detect which subcomponents need to be resolved.
      */
-    private void addSubcomponentToOwningResolver(ProvisionBinding subcomponentCreatorBinding) {
+    private void addSubcomponentToOwningResolver(ContributionBinding subcomponentCreatorBinding) {
       checkArgument(subcomponentCreatorBinding.kind().equals(SUBCOMPONENT_CREATOR));
       Resolver owningResolver = getOwningResolver(subcomponentCreatorBinding).get();
 

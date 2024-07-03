@@ -35,12 +35,12 @@ import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.SourceFileHjarGenerator;
 import dagger.internal.codegen.binding.BindingGraphFactory;
 import dagger.internal.codegen.binding.ComponentDescriptor;
+import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.binding.MonitoringModules;
 import dagger.internal.codegen.binding.ProductionBinding;
-import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.bindinggraphvalidation.BindingGraphValidationModule;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.componentgenerator.ComponentGeneratorModule;
@@ -74,7 +74,7 @@ final class DelegateComponentProcessor {
       new XProcessingEnvConfig.Builder().disableAnnotatedElementValidation(true).build();
 
   @Inject InjectBindingRegistry injectBindingRegistry;
-  @Inject SourceFileGenerator<ProvisionBinding> factoryGenerator;
+  @Inject SourceFileGenerator<ContributionBinding> factoryGenerator;
   @Inject SourceFileGenerator<MembersInjectionBinding> membersInjectorGenerator;
   @Inject ImmutableList<XProcessingStep> processingSteps;
   @Inject ValidationBindingGraphPlugins validationBindingGraphPlugins;
@@ -204,7 +204,7 @@ final class DelegateComponentProcessor {
   @Module
   interface SourceFileGeneratorsModule {
     @Provides
-    static SourceFileGenerator<ProvisionBinding> factoryGenerator(
+    static SourceFileGenerator<ContributionBinding> factoryGenerator(
         FactoryGenerator generator,
         CompilerOptions compilerOptions,
         XProcessingEnv processingEnv) {

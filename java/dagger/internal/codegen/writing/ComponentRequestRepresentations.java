@@ -47,8 +47,6 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.FrameworkTypeMapper;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
-import dagger.internal.codegen.binding.ProductionBinding;
-import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
@@ -279,9 +277,9 @@ public final class ComponentRequestRepresentations {
         return membersInjectionBindingRepresentationFactory.create(
             (MembersInjectionBinding) binding);
       case PROVISION:
-        return provisionBindingRepresentationFactory.create((ProvisionBinding) binding);
+        return provisionBindingRepresentationFactory.create((ContributionBinding) binding);
       case PRODUCTION:
-        return productionBindingRepresentationFactory.create((ProductionBinding) binding);
+        return productionBindingRepresentationFactory.create((ContributionBinding) binding);
     }
     throw new AssertionError();
   }

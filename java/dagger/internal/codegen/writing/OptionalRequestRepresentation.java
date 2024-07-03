@@ -30,20 +30,20 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.OptionalType.OptionalKind;
-import dagger.internal.codegen.binding.ProvisionBinding;
+import dagger.internal.codegen.binding.OptionalBinding;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
 
 /** A binding expression for optional bindings. */
 final class OptionalRequestRepresentation extends RequestRepresentation {
-  private final ProvisionBinding binding;
+  private final OptionalBinding binding;
   private final ComponentRequestRepresentations componentRequestRepresentations;
   private final XProcessingEnv processingEnv;
 
   @AssistedInject
   OptionalRequestRepresentation(
-      @Assisted ProvisionBinding binding,
+      @Assisted OptionalBinding binding,
       ComponentImplementation componentImplementation,
       ComponentRequestRepresentations componentRequestRepresentations,
       XProcessingEnv processingEnv) {
@@ -99,6 +99,6 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
 
   @AssistedFactory
   static interface Factory {
-    OptionalRequestRepresentation create(ProvisionBinding binding);
+    OptionalRequestRepresentation create(OptionalBinding binding);
   }
 }

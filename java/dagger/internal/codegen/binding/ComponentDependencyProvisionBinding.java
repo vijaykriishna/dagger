@@ -24,54 +24,28 @@ import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 
-/** A binding for a {@link BindingKind#PRODUCTION}. */
+/** A binding for a {@link BindingKind#COMPONENT_PROVISION}. */
 @CheckReturnValue
 @AutoValue
-public abstract class ProductionBinding extends ContributionBinding {
+public abstract class ComponentDependencyProvisionBinding extends ContributionBinding {
   @Override
   public BindingKind kind() {
-    return BindingKind.PRODUCTION;
+    return BindingKind.COMPONENT_PROVISION;
   }
 
   @Override
   public BindingType bindingType() {
-    return BindingType.PRODUCTION;
+    return BindingType.PROVISION;
   }
 
   @Override
-  @Memoized
   public ContributionType contributionType() {
-    return ContributionType.fromBindingElement(bindingElement().get());
+    return ContributionType.UNIQUE;
   }
 
   @Override
-  public Nullability nullability() {
-    return Nullability.NOT_NULLABLE;
-  }
-
-  /** Dependencies necessary to invoke the {@code @Produces} method. */
-  public abstract ImmutableSet<DependencyRequest> explicitDependencies();
-
-  @Override
-  @Memoized
   public ImmutableSet<DependencyRequest> dependencies() {
-    return ImmutableSet.<DependencyRequest>builder()
-        .add(executorRequest())
-        .add(monitorRequest())
-        .addAll(explicitDependencies())
-        .build();
-  }
-
-  public abstract DependencyRequest executorRequest();
-
-  public abstract DependencyRequest monitorRequest();
-
-  // Profiling determined that this method is called enough times that memoizing it had a measurable
-  // performance improvement for large components.
-  @Memoized
-  @Override
-  public boolean requiresModuleInstance() {
-    return super.requiresModuleInstance();
+    return ImmutableSet.of();
   }
 
   @Override
@@ -86,16 +60,13 @@ public abstract class ProductionBinding extends ContributionBinding {
   public abstract boolean equals(Object obj);
 
   static Builder builder() {
-    return new AutoValue_ProductionBinding.Builder();
+    return new AutoValue_ComponentDependencyProvisionBinding.Builder();
   }
 
-  /** A {@link ProductionBinding} builder. */
+  /** A {@link ComponentDependencyProvisionBinding} builder. */
   @AutoValue.Builder
-  abstract static class Builder extends ContributionBinding.Builder<ProductionBinding, Builder> {
-    abstract Builder executorRequest(DependencyRequest executorRequest);
-
-    abstract Builder monitorRequest(DependencyRequest monitorRequest);
-
-    abstract Builder explicitDependencies(Iterable<DependencyRequest> explicitDependencies);
+  abstract static class Builder
+      extends ContributionBinding.Builder<ComponentDependencyProvisionBinding, Builder> {
+    abstract Builder nullability(Nullability nullability);
   }
 }

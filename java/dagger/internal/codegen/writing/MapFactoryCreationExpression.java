@@ -32,6 +32,7 @@ import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
+import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import java.util.stream.Stream;
@@ -42,13 +43,13 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   private final XProcessingEnv processingEnv;
   private final ComponentImplementation componentImplementation;
   private final BindingGraph graph;
-  private final ContributionBinding binding;
+  private final MultiboundMapBinding binding;
   private final boolean useLazyClassKey;
   private final LazyClassKeyProviders lazyClassKeyProviders;
 
   @AssistedInject
   MapFactoryCreationExpression(
-      @Assisted ContributionBinding binding,
+      @Assisted MultiboundMapBinding binding,
       XProcessingEnv processingEnv,
       ComponentImplementation componentImplementation,
       ComponentRequestRepresentations componentRequestRepresentations,
@@ -107,7 +108,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
         : builder.add(".build()").build();
   }
 
-  private static ClassName lazyMapFactoryClassName(ContributionBinding binding) {
+  private static ClassName lazyMapFactoryClassName(MultiboundMapBinding binding) {
     MapType mapType = MapType.from(binding.key());
     switch (binding.bindingType()) {
       case PROVISION:
@@ -127,6 +128,6 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   @AssistedFactory
   static interface Factory {
-    MapFactoryCreationExpression create(ContributionBinding binding);
+    MapFactoryCreationExpression create(MultiboundMapBinding binding);
   }
 }

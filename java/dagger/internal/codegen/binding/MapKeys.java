@@ -46,7 +46,6 @@ import dagger.MapKey;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.MapKeyAccessibility;
 import dagger.internal.codegen.javapoet.TypeNames;
-import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.xprocessing.XElements;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -134,7 +133,7 @@ public final class MapKeys {
    */
   public static CodeBlock getMapKeyExpression(
       ContributionBinding binding, ClassName requestingClass, XProcessingEnv processingEnv) {
-    XAnnotation mapKeyAnnotation = binding.mapKey().get().xprocessing();
+    XAnnotation mapKeyAnnotation = binding.mapKey().get();
     return MapKeyAccessibility.isMapKeyAccessibleFrom(
             mapKeyAnnotation, requestingClass.packageName())
         ? directMapKeyExpression(mapKeyAnnotation, processingEnv)
@@ -188,7 +187,6 @@ public final class MapKeys {
       ContributionBinding binding, XProcessingEnv processingEnv) {
     return binding
         .mapKey()
-        .map(DaggerAnnotation::xprocessing)
         .filter(mapKey -> !isMapKeyPubliclyAccessible(mapKey))
         .map(
             mapKey ->
@@ -213,7 +211,6 @@ public final class MapKeys {
           && contributionBinding
               .mapKey()
               .get()
-              .xprocessing()
               .getClassName()
               .equals(TypeNames.LAZY_CLASS_KEY);
     }

@@ -42,8 +42,8 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingGraph;
+import dagger.internal.codegen.binding.ComponentDependencyProvisionBinding;
 import dagger.internal.codegen.binding.ComponentRequirement;
-import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
@@ -60,12 +60,12 @@ final class DependencyMethodProviderCreationExpression
   private final ComponentRequirementExpressions componentRequirementExpressions;
   private final CompilerOptions compilerOptions;
   private final BindingGraph graph;
-  private final ProvisionBinding binding;
+  private final ComponentDependencyProvisionBinding binding;
   private final XMethodElement provisionMethod;
 
   @AssistedInject
   DependencyMethodProviderCreationExpression(
-      @Assisted ProvisionBinding binding,
+      @Assisted ComponentDependencyProvisionBinding binding,
       ComponentImplementation componentImplementation,
       ComponentRequirementExpressions componentRequirementExpressions,
       CompilerOptions compilerOptions,
@@ -144,6 +144,6 @@ final class DependencyMethodProviderCreationExpression
 
   @AssistedFactory
   static interface Factory {
-    DependencyMethodProviderCreationExpression create(ProvisionBinding binding);
+    DependencyMethodProviderCreationExpression create(ComponentDependencyProvisionBinding binding);
   }
 }

@@ -18,18 +18,19 @@ package dagger.internal.codegen.binding;
 
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CheckReturnValue;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 
-/** A binding for a {@link BindingKind#PROVISION}. */
+/** A binding for a {@link BindingKind#BOUND_INSTANCE}. */
 @CheckReturnValue
 @AutoValue
-public abstract class ProvisionBinding extends ContributionBinding {
+public abstract class BoundInstanceBinding extends ContributionBinding {
   @Override
   public BindingKind kind() {
-    return BindingKind.PROVISION;
+    return BindingKind.BOUND_INSTANCE;
   }
 
   @Override
@@ -38,17 +39,13 @@ public abstract class ProvisionBinding extends ContributionBinding {
   }
 
   @Override
-  @Memoized
   public ContributionType contributionType() {
-    return ContributionType.fromBindingElement(bindingElement().get());
+    return ContributionType.UNIQUE;
   }
 
-  // Profiling determined that this method is called enough times that memoizing it had a measurable
-  // performance improvement for large components.
-  @Memoized
   @Override
-  public boolean requiresModuleInstance() {
-    return super.requiresModuleInstance();
+  public final ImmutableSet<DependencyRequest> dependencies() {
+    return ImmutableSet.of();
   }
 
   @Override
@@ -63,14 +60,13 @@ public abstract class ProvisionBinding extends ContributionBinding {
   public abstract boolean equals(Object obj);
 
   static Builder builder() {
-    return new AutoValue_ProvisionBinding.Builder();
+    return new AutoValue_BoundInstanceBinding.Builder();
   }
 
-  /** A {@link ProvisionBinding} builder. */
+  /** A {@link BoundInstanceBinding} builder. */
   @AutoValue.Builder
-  abstract static class Builder extends ContributionBinding.Builder<ProvisionBinding, Builder> {
+  abstract static class Builder
+      extends ContributionBinding.Builder<BoundInstanceBinding, Builder> {
     abstract Builder nullability(Nullability nullability);
-
-    abstract Builder dependencies(Iterable<DependencyRequest> dependencies);
   }
 }

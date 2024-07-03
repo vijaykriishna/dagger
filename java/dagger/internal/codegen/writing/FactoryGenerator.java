@@ -33,6 +33,7 @@ import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHE
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.javapoet.TypeNames.factoryOf;
+import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -55,9 +56,12 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import dagger.internal.Factory;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
+import dagger.internal.codegen.binding.AssistedInjectionBinding;
+import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.InjectionBinding;
+import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -73,11 +77,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 
-/**
- * Generates {@link Factory} implementations from {@link ProvisionBinding} instances for {@link
- * Inject} constructors.
- */
-public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding> {
+/** Generates factory implementation for injection, assisted injection, and provision bindings. */
+public final class FactoryGenerator extends SourceFileGenerator<ContributionBinding> {
   private static final ImmutableSet<BindingKind> VALID_BINDING_KINDS =
       ImmutableSet.of(BindingKind.INJECTION, BindingKind.ASSISTED_INJECTION, BindingKind.PROVISION);
 
@@ -96,13 +97,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
   }
 
   @Override
-  public XElement originatingElement(ProvisionBinding binding) {
+  public XElement originatingElement(ContributionBinding binding) {
     // we only create factories for bindings that have a binding element
     return binding.bindingElement().get();
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(ProvisionBinding binding) {
+  public ImmutableList<TypeSpec.Builder> topLevelTypes(ContributionBinding binding) {
     // We don't want to write out resolved bindings -- we want to write out the generic version.
     checkArgument(!binding.unresolved().isPresent());
     checkArgument(binding.bindingElement().isPresent());
@@ -111,7 +112,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
     return ImmutableList.of(factoryBuilder(binding));
   }
 
-  private TypeSpec.Builder factoryBuilder(ProvisionBinding binding) {
+  private TypeSpec.Builder factoryBuilder(ContributionBinding binding) {
     TypeSpec.Builder factoryBuilder =
         classBuilder(generatedClassNameForBinding(binding))
             .addModifiers(PUBLIC, FINAL)
@@ -142,7 +143,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
   //   private static final FooModule_ProvidesFooFactory INSTANCE =
   //       new FooModule_ProvidesFooFactory();
   // }
-  private TypeSpec staticInstanceHolderType(ProvisionBinding binding) {
+  private TypeSpec staticInstanceHolderType(ContributionBinding binding) {
     ClassName generatedClassName = generatedClassNameForBinding(binding);
     FieldSpec.Builder instanceHolderFieldBuilder =
         FieldSpec.builder(generatedClassName, "INSTANCE", PRIVATE, STATIC, FINAL)
@@ -157,7 +158,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
         .build();
   }
 
-  private static ClassName instanceHolderClassName(ProvisionBinding binding) {
+  private static ClassName instanceHolderClassName(ContributionBinding binding) {
     return generatedClassNameForBinding(binding).nestedClass("InstanceHolder");
   }
 
@@ -192,7 +193,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
   //     Provider<Baz> bazProvider) {
   //   return new FooModule_ProvidesFooFactory(module, barProvider, bazProvider);
   // }
-  private MethodSpec staticCreateMethod(ProvisionBinding binding, FactoryFields factoryFields) {
+  private MethodSpec staticCreateMethod(ContributionBinding binding, FactoryFields factoryFields) {
     // We use a static create method so that generated components can avoid having to refer to the
     // generic types of the factory.  (Otherwise they may have visibility problems referring to the
     // types.)
@@ -235,7 +236,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
   //   Foo_MembersInjector.injectSomeField(instance, someFieldProvider.get());
   //   return instance;
   // }
-  private MethodSpec getMethod(ProvisionBinding binding, FactoryFields factoryFields) {
+  private MethodSpec getMethod(ContributionBinding binding, FactoryFields factoryFields) {
     UniqueNameSet uniqueFieldNames = new UniqueNameSet();
     factoryFields.getAll().forEach(field -> uniqueFieldNames.claim(field.name));
     ImmutableMap<XExecutableParameterElement, ParameterSpec> assistedParameters =
@@ -275,14 +276,14 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
           .forEach(getMethod::addAnnotation);
       getMethod.returns(providedTypeName);
       getMethod.addStatement("return $L", invokeNewInstance);
-    } else if (!binding.injectionSites().isEmpty()) {
+    } else if (!injectionSites(binding).isEmpty()) {
       CodeBlock instance = CodeBlock.of("instance");
       getMethod
           .returns(providedTypeName)
           .addStatement("$T $L = $L", providedTypeName, instance, invokeNewInstance)
           .addCode(
               InjectionSiteMethod.invokeAll(
-                  binding.injectionSites(),
+                  injectionSites(binding),
                   generatedClassNameForBinding(binding),
                   instance,
                   binding.key().type().xprocessing(),
@@ -307,11 +308,11 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
   // public static Foo newInstance(Bar bar, Baz baz) {
   //   return new Foo(bar, baz);
   // }
-  private MethodSpec staticProvisionMethod(ProvisionBinding binding) {
+  private MethodSpec staticProvisionMethod(ContributionBinding binding) {
     return ProvisionMethod.create(binding, compilerOptions);
   }
 
-  private AnnotationSpec scopeMetadataAnnotation(ProvisionBinding binding) {
+  private AnnotationSpec scopeMetadataAnnotation(ContributionBinding binding) {
     AnnotationSpec.Builder builder = AnnotationSpec.builder(TypeNames.SCOPE_METADATA);
     binding.scope()
         .map(Scope::scopeAnnotation)
@@ -321,12 +322,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
     return builder.build();
   }
 
-  private AnnotationSpec qualifierMetadataAnnotation(ProvisionBinding binding) {
+  private AnnotationSpec qualifierMetadataAnnotation(ContributionBinding binding) {
     AnnotationSpec.Builder builder = AnnotationSpec.builder(TypeNames.QUALIFIER_METADATA);
-    // Collect all qualifiers on the binding itself or its dependencies
+    // Collect all qualifiers on the binding itself or its dependencies. For injection bindings, we
+    // don't include the injection sites, as that is handled by MembersInjectorFactory.
     Stream.concat(
             Stream.of(binding.key()),
-            binding.provisionDependencies().stream().map(DependencyRequest::key))
+            provisionDependencies(binding).stream().map(DependencyRequest::key))
         .map(Key::qualifier)
         .flatMap(presentValues())
         .map(DaggerAnnotation::className)
@@ -336,11 +338,37 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
     return builder.build();
   }
 
-  private static TypeName providedTypeName(ProvisionBinding binding) {
+  private ImmutableSet<DependencyRequest> provisionDependencies(ContributionBinding binding) {
+    switch (binding.kind()) {
+      case INJECTION:
+        return ((InjectionBinding) binding).constructorDependencies();
+      case ASSISTED_INJECTION:
+        return ((AssistedInjectionBinding) binding).constructorDependencies();
+      case PROVISION:
+        return ((ProvisionBinding) binding).dependencies();
+      default:
+        throw new AssertionError("Unexpected binding kind: " + binding.kind());
+    }
+  }
+
+  private ImmutableSet<InjectionSite> injectionSites(ContributionBinding binding) {
+    switch (binding.kind()) {
+      case INJECTION:
+        return ((InjectionBinding) binding).injectionSites();
+      case ASSISTED_INJECTION:
+        return ((AssistedInjectionBinding) binding).injectionSites();
+      case PROVISION:
+        return ImmutableSet.of();
+      default:
+        throw new AssertionError("Unexpected binding kind: " + binding.kind());
+    }
+  }
+
+  private static TypeName providedTypeName(ContributionBinding binding) {
     return binding.contributedType().getTypeName();
   }
 
-  private static Optional<TypeName> factoryTypeName(ProvisionBinding binding) {
+  private static Optional<TypeName> factoryTypeName(ContributionBinding binding) {
     return binding.kind() == BindingKind.ASSISTED_INJECTION
         ? Optional.empty()
         : Optional.of(factoryOf(providedTypeName(binding)));
@@ -348,7 +376,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ProvisionBinding
 
   /** Represents the available fields in the generated factory class. */
   private static final class FactoryFields {
-    static FactoryFields create(ProvisionBinding binding) {
+    static FactoryFields create(ContributionBinding binding) {
       UniqueNameSet nameSet = new UniqueNameSet();
       // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
       Optional<FieldSpec> moduleField =

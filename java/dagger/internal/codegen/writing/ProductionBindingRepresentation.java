@@ -24,8 +24,8 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingRequest;
+import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
-import dagger.internal.codegen.binding.ProductionBinding;
 import dagger.internal.codegen.model.RequestKind;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.Optional;
  * that binding.
  */
 final class ProductionBindingRepresentation implements BindingRepresentation {
-  private final ProductionBinding binding;
+  private final ContributionBinding binding;
   private final DerivedFromFrameworkInstanceRequestRepresentation.Factory
       derivedFromFrameworkInstanceRequestRepresentationFactory;
   private final RequestRepresentation producerNodeInstanceRequestRepresentation;
@@ -44,7 +44,7 @@ final class ProductionBindingRepresentation implements BindingRepresentation {
 
   @AssistedInject
   ProductionBindingRepresentation(
-      @Assisted ProductionBinding binding,
+      @Assisted ContributionBinding binding,
       ComponentImplementation componentImplementation,
       DerivedFromFrameworkInstanceRequestRepresentation.Factory
           derivedFromFrameworkInstanceRequestRepresentationFactory,
@@ -105,6 +105,6 @@ final class ProductionBindingRepresentation implements BindingRepresentation {
 
   @AssistedFactory
   static interface Factory {
-    ProductionBindingRepresentation create(ProductionBinding binding);
+    ProductionBindingRepresentation create(ContributionBinding binding);
   }
 }

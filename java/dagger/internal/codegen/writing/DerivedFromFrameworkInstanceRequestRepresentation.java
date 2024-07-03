@@ -28,6 +28,7 @@ import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.binding.BindsTypeChecker;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -119,7 +120,8 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
   private boolean requiresTypeCast(Expression expression, ClassName requestingClass) {
     return binding.kind().equals(BindingKind.DELEGATE)
         && requestKind.equals(RequestKind.INSTANCE)
-        && instanceRequiresCast(binding, expression, requestingClass, bindsTypeChecker);
+        && instanceRequiresCast(
+            (DelegateBinding) binding, expression, requestingClass, bindsTypeChecker);
   }
 
   @AssistedFactory

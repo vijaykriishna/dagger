@@ -18,37 +18,29 @@ package dagger.internal.codegen.binding;
 
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CheckReturnValue;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 
-/** A binding for a {@link BindingKind#PROVISION}. */
+/** A binding for a {@link BindingKind#MULTIBOUND_MAP}. */
 @CheckReturnValue
 @AutoValue
-public abstract class ProvisionBinding extends ContributionBinding {
+public abstract class MultiboundMapBinding extends ContributionBinding {
   @Override
   public BindingKind kind() {
-    return BindingKind.PROVISION;
+    return BindingKind.MULTIBOUND_MAP;
   }
 
   @Override
-  public BindingType bindingType() {
-    return BindingType.PROVISION;
-  }
-
-  @Override
-  @Memoized
   public ContributionType contributionType() {
-    return ContributionType.fromBindingElement(bindingElement().get());
+    return ContributionType.UNIQUE;
   }
 
-  // Profiling determined that this method is called enough times that memoizing it had a measurable
-  // performance improvement for large components.
-  @Memoized
   @Override
-  public boolean requiresModuleInstance() {
-    return super.requiresModuleInstance();
+  public Nullability nullability() {
+    return Nullability.NOT_NULLABLE;
   }
 
   @Override
@@ -63,14 +55,15 @@ public abstract class ProvisionBinding extends ContributionBinding {
   public abstract boolean equals(Object obj);
 
   static Builder builder() {
-    return new AutoValue_ProvisionBinding.Builder();
+    return new AutoValue_MultiboundMapBinding.Builder();
   }
 
-  /** A {@link ProvisionBinding} builder. */
+  /** A {@link MultiboundMapBinding} builder. */
   @AutoValue.Builder
-  abstract static class Builder extends ContributionBinding.Builder<ProvisionBinding, Builder> {
-    abstract Builder nullability(Nullability nullability);
+  abstract static class Builder
+      extends ContributionBinding.Builder<MultiboundMapBinding, Builder> {
+    abstract Builder dependencies(ImmutableSet<DependencyRequest> dependencies);
 
-    abstract Builder dependencies(Iterable<DependencyRequest> dependencies);
+    abstract Builder bindingType(BindingType bindingType);
   }
 }

@@ -35,10 +35,12 @@ import static dagger.internal.codegen.javapoet.TypeNames.FUTURES;
 import static dagger.internal.codegen.javapoet.TypeNames.PRODUCERS;
 import static dagger.internal.codegen.javapoet.TypeNames.PRODUCER_TOKEN;
 import static dagger.internal.codegen.javapoet.TypeNames.VOID_CLASS;
+import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
 import static dagger.internal.codegen.javapoet.TypeNames.listOf;
 import static dagger.internal.codegen.javapoet.TypeNames.listenableFutureOf;
 import static dagger.internal.codegen.javapoet.TypeNames.producedOf;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -48,6 +50,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
+import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
@@ -61,6 +64,8 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import dagger.internal.codegen.base.ContributionType;
+import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.ProductionBinding;
@@ -288,7 +293,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
             .addExceptions(
-                binding.thrownTypes().stream()
+                asMethod(binding.bindingElement().get()).getThrownTypes().stream()
                     .map(XType::getTypeName)
                     .collect(toImmutableList()))
             .addParameter(parameter);
@@ -323,7 +328,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             getSimpleName(binding.bindingElement().get()),
             makeParametersCodeBlock(parameterCodeBlocks.build()));
 
-    switch (binding.productionKind().get()) {
+    switch (ProductionKind.fromProducesMethod(asMethod(binding.bindingElement().get()))) {
       case IMMEDIATE:
         methodBuilder.addStatement(
             "return $T.<$T>immediateFuture($L)", FUTURES, contributedTypeName, moduleCodeBlock);
@@ -438,8 +443,8 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         Optional<FieldSpec> moduleField,
         ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
       this.moduleField = moduleField;
-      this.monitorField = frameworkFields.get(binding.monitorRequest().get());
-      this.executorField = frameworkFields.get(binding.executorRequest().get());
+      this.monitorField = frameworkFields.get(binding.monitorRequest());
+      this.executorField = frameworkFields.get(binding.executorRequest());
       this.frameworkFields = frameworkFields;
     }
 
@@ -461,5 +466,28 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   protected ImmutableSet<Suppression> warningSuppressions() {
     // TODO(beder): examine if we can remove this or prevent subtypes of Future from being produced
     return ImmutableSet.of(FUTURE_RETURN_VALUE_IGNORED);
+  }
+
+  /** What kind of object a {@code @Produces}-annotated method returns. */
+  private enum ProductionKind {
+    /** A value. */
+    IMMEDIATE,
+    /** A {@code ListenableFuture<T>}. */
+    FUTURE,
+    /** A {@code Set<ListenableFuture<T>>}. */
+    SET_OF_FUTURE;
+
+    /** Returns the kind of object a {@code @Produces}-annotated method returns. */
+    static ProductionKind fromProducesMethod(XMethodElement producesMethod) {
+      if (isFutureType(producesMethod.getReturnType())) {
+        return FUTURE;
+      } else if (ContributionType.fromBindingElement(producesMethod)
+              .equals(ContributionType.SET_VALUES)
+          && isFutureType(SetType.from(producesMethod.getReturnType()).elementType())) {
+        return SET_OF_FUTURE;
+      } else {
+        return IMMEDIATE;
+      }
+    }
   }
 }

@@ -23,25 +23,20 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
+import java.util.Optional;
 
-/** A binding for a {@link BindingKind#PRODUCTION}. */
+/** A binding for a {@link BindingKind#OPTIONAL}. */
 @CheckReturnValue
 @AutoValue
-public abstract class ProductionBinding extends ContributionBinding {
+public abstract class OptionalBinding extends ContributionBinding {
   @Override
   public BindingKind kind() {
-    return BindingKind.PRODUCTION;
+    return BindingKind.OPTIONAL;
   }
 
   @Override
-  public BindingType bindingType() {
-    return BindingType.PRODUCTION;
-  }
-
-  @Override
-  @Memoized
   public ContributionType contributionType() {
-    return ContributionType.fromBindingElement(bindingElement().get());
+    return ContributionType.UNIQUE;
   }
 
   @Override
@@ -49,29 +44,20 @@ public abstract class ProductionBinding extends ContributionBinding {
     return Nullability.NOT_NULLABLE;
   }
 
-  /** Dependencies necessary to invoke the {@code @Produces} method. */
-  public abstract ImmutableSet<DependencyRequest> explicitDependencies();
-
   @Override
   @Memoized
   public ImmutableSet<DependencyRequest> dependencies() {
-    return ImmutableSet.<DependencyRequest>builder()
-        .add(executorRequest())
-        .add(monitorRequest())
-        .addAll(explicitDependencies())
-        .build();
+    return delegateRequest().isPresent()
+        ? ImmutableSet.of(delegateRequest().get())
+        : ImmutableSet.of();
   }
 
-  public abstract DependencyRequest executorRequest();
+  /** Returns the delegate {@link DependencyRequest} if this represents a "present" optional. */
+  abstract Optional<DependencyRequest> delegateRequest();
 
-  public abstract DependencyRequest monitorRequest();
-
-  // Profiling determined that this method is called enough times that memoizing it had a measurable
-  // performance improvement for large components.
-  @Memoized
   @Override
   public boolean requiresModuleInstance() {
-    return super.requiresModuleInstance();
+    return false;
   }
 
   @Override
@@ -86,16 +72,14 @@ public abstract class ProductionBinding extends ContributionBinding {
   public abstract boolean equals(Object obj);
 
   static Builder builder() {
-    return new AutoValue_ProductionBinding.Builder();
+    return new AutoValue_OptionalBinding.Builder();
   }
 
-  /** A {@link ProductionBinding} builder. */
+  /** A {@link OptionalBinding} builder. */
   @AutoValue.Builder
-  abstract static class Builder extends ContributionBinding.Builder<ProductionBinding, Builder> {
-    abstract Builder executorRequest(DependencyRequest executorRequest);
+  abstract static class Builder extends ContributionBinding.Builder<OptionalBinding, Builder> {
+    abstract Builder delegateRequest(DependencyRequest delegateRequest);
 
-    abstract Builder monitorRequest(DependencyRequest monitorRequest);
-
-    abstract Builder explicitDependencies(Iterable<DependencyRequest> explicitDependencies);
+    abstract Builder bindingType(BindingType bindingType);
   }
 }

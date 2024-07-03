@@ -58,12 +58,12 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
+import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedFactoryMetadata;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedParameter;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.ValidationReport;
 import dagger.internal.codegen.xprocessing.XTypes;
@@ -109,8 +109,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     ValidationReport report = new AssistedFactoryValidator().validate(factory);
     report.printMessagesTo(messager);
     if (report.isClean()) {
-      ProvisionBinding binding = bindingFactory.assistedFactoryBinding(factory, Optional.empty());
-      new AssistedFactoryImplGenerator().generate(binding);
+      new AssistedFactoryImplGenerator()
+          .generate(bindingFactory.assistedFactoryBinding(factory, Optional.empty()));
     }
   }
 
@@ -225,13 +225,14 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
   }
 
   /** Generates an implementation of the {@link dagger.assisted.AssistedFactory}-annotated class. */
-  private final class AssistedFactoryImplGenerator extends SourceFileGenerator<ProvisionBinding> {
+  private final class AssistedFactoryImplGenerator
+      extends SourceFileGenerator<AssistedFactoryBinding> {
     AssistedFactoryImplGenerator() {
       super(filer, processingEnv);
     }
 
     @Override
-    public XElement originatingElement(ProvisionBinding binding) {
+    public XElement originatingElement(AssistedFactoryBinding binding) {
       return binding.bindingElement().get();
     }
 
@@ -268,7 +269,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     //   }
     // }
     @Override
-    public ImmutableList<TypeSpec.Builder> topLevelTypes(ProvisionBinding binding) {
+    public ImmutableList<TypeSpec.Builder> topLevelTypes(AssistedFactoryBinding binding) {
       XTypeElement factory = asTypeElement(binding.bindingElement().get());
 
       ClassName name = generatedClassNameForBinding(binding);
@@ -362,7 +363,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
       // e.g. an @AssistedInject Foo(...) {...} constructor will generate a Foo_Factory class.
       ClassName generatedFactoryClassName =
           generatedClassNameForBinding(
-              bindingFactory.injectionBinding(
+              bindingFactory.assistedInjectionBinding(
                   getOnlyElement(assistedInjectedConstructors(assistedInjectType.getTypeElement())),
                   Optional.empty()));
 

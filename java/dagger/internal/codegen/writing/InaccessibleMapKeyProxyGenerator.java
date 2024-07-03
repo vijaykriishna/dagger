@@ -32,7 +32,6 @@ import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.javapoet.TypeNames;
-import dagger.internal.codegen.model.DaggerAnnotation;
 import javax.inject.Inject;
 
 /**
@@ -72,7 +71,6 @@ public final class InaccessibleMapKeyProxyGenerator
               // Note: the generated field should not be initialized to avoid class loading.
               binding
                   .mapKey()
-                  .map(DaggerAnnotation::xprocessing)
                   .filter(
                       mapKey ->
                           mapKey.getTypeElement().getClassName().equals(TypeNames.LAZY_CLASS_KEY))

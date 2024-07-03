@@ -349,8 +349,7 @@ public final class InjectionAnnotations {
     return element.hasAnyAnnotation(TypeNames.INJECT, TypeNames.INJECT_JAVAX);
   }
 
-  /** Returns true if the given element is annotated with {@link Inject}. */
-  public static boolean hasInjectOrAssistedInjectAnnotation(XElement element) {
+  private static boolean hasInjectOrAssistedInjectAnnotation(XElement element) {
     return element.hasAnyAnnotation(
         TypeNames.INJECT, TypeNames.INJECT_JAVAX, TypeNames.ASSISTED_INJECT);
   }

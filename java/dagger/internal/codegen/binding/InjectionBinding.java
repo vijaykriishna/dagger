@@ -16,32 +16,35 @@
 
 package dagger.internal.codegen.binding;
 
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
+
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.errorprone.annotations.CheckReturnValue;
 import dagger.internal.codegen.base.ContributionType;
+import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 
-/** A binding for a {@link BindingKind#PRODUCTION}. */
+/** A binding for a {@link BindingKind#INJECTION}. */
 @CheckReturnValue
 @AutoValue
-public abstract class ProductionBinding extends ContributionBinding {
+public abstract class InjectionBinding extends ContributionBinding {
   @Override
   public BindingKind kind() {
-    return BindingKind.PRODUCTION;
+    return BindingKind.INJECTION;
   }
 
   @Override
   public BindingType bindingType() {
-    return BindingType.PRODUCTION;
+    return BindingType.PROVISION;
   }
 
   @Override
-  @Memoized
   public ContributionType contributionType() {
-    return ContributionType.fromBindingElement(bindingElement().get());
+    return ContributionType.UNIQUE;
   }
 
   @Override
@@ -49,29 +52,22 @@ public abstract class ProductionBinding extends ContributionBinding {
     return Nullability.NOT_NULLABLE;
   }
 
-  /** Dependencies necessary to invoke the {@code @Produces} method. */
-  public abstract ImmutableSet<DependencyRequest> explicitDependencies();
+  /** Dependencies necessary to invoke the {@code @Inject} annotated constructor. */
+  public abstract ImmutableSet<DependencyRequest> constructorDependencies();
+
+  /** {@link InjectionSite}s for all {@code @Inject} members. */
+  public abstract ImmutableSortedSet<InjectionSite> injectionSites();
 
   @Override
   @Memoized
   public ImmutableSet<DependencyRequest> dependencies() {
     return ImmutableSet.<DependencyRequest>builder()
-        .add(executorRequest())
-        .add(monitorRequest())
-        .addAll(explicitDependencies())
+        .addAll(constructorDependencies())
+        .addAll(
+            injectionSites().stream()
+                .flatMap(i -> i.dependencies().stream())
+                .collect(toImmutableSet()))
         .build();
-  }
-
-  public abstract DependencyRequest executorRequest();
-
-  public abstract DependencyRequest monitorRequest();
-
-  // Profiling determined that this method is called enough times that memoizing it had a measurable
-  // performance improvement for large components.
-  @Memoized
-  @Override
-  public boolean requiresModuleInstance() {
-    return super.requiresModuleInstance();
   }
 
   @Override
@@ -86,16 +82,14 @@ public abstract class ProductionBinding extends ContributionBinding {
   public abstract boolean equals(Object obj);
 
   static Builder builder() {
-    return new AutoValue_ProductionBinding.Builder();
+    return new AutoValue_InjectionBinding.Builder();
   }
 
-  /** A {@link ProductionBinding} builder. */
+  /** A {@link InjectionBinding} builder. */
   @AutoValue.Builder
-  abstract static class Builder extends ContributionBinding.Builder<ProductionBinding, Builder> {
-    abstract Builder executorRequest(DependencyRequest executorRequest);
+  abstract static class Builder extends ContributionBinding.Builder<InjectionBinding, Builder> {
+    abstract Builder constructorDependencies(Iterable<DependencyRequest> constructorDependencies);
 
-    abstract Builder monitorRequest(DependencyRequest monitorRequest);
-
-    abstract Builder explicitDependencies(Iterable<DependencyRequest> explicitDependencies);
+    abstract Builder injectionSites(ImmutableSortedSet<InjectionSite> injectionSites);
   }
 }
