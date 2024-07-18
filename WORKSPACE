@@ -57,6 +57,16 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_java/releases/download/5.3.5/rules_java-5.3.5.tar.gz",
 )
 
+#############################
+# Load Android Sdk
+#############################
+
+android_sdk_repository(
+    name = "androidsdk",
+    api_level = 32,
+    build_tools_version = "32.0.0",
+)
+
 ####################################################
 # Load Protobuf repository (needed by bazel-common)
 ####################################################
@@ -77,21 +87,6 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 
 rules_proto_toolchains()
-
-#############################
-# Load Bazel-Common repository
-#############################
-
-http_archive(
-    name = "google_bazel_common",
-    sha256 = "82a49fb27c01ad184db948747733159022f9464fc2e62da996fa700594d9ea42",
-    strip_prefix = "bazel-common-2a6b6406e12208e02b2060df0631fb30919080f3",
-    urls = ["https://github.com/google/bazel-common/archive/2a6b6406e12208e02b2060df0631fb30919080f3.zip"],
-)
-
-load("@google_bazel_common//:workspace_defs.bzl", "google_common_workspace_rules")
-
-google_common_workspace_rules()
 
 #############################
 # Load Protobuf dependencies
@@ -187,7 +182,19 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 ANDROID_LINT_VERSION = "30.1.0"
 
+ANT_VERSION = "1.9.6"
+
+ASM_VERSION = "9.6"
+
 AUTO_COMMON_VERSION = "1.2.1"
+
+BYTE_BUDDY_VERSION = "1.9.10"
+
+CHECKER_FRAMEWORK_VERSION = "2.5.3"
+
+ECLIPSE_SISU_VERSION = "0.3.0"
+
+ERROR_PRONE_VERSION = "2.14.0"
 
 # NOTE(bcorso): Even though we set the version here, our Guava version in
 #  processor code will use whatever version is built into JavaBuilder, which is
@@ -198,13 +205,9 @@ GRPC_VERSION = "1.2.0"
 
 INCAP_VERSION = "0.2"
 
-BYTE_BUDDY_VERSION = "1.9.10"
-
-CHECKER_FRAMEWORK_VERSION = "2.5.3"
-
-ERROR_PRONE_VERSION = "2.14.0"
-
 KSP_VERSION = KOTLIN_VERSION + "-1.0.19"
+
+MAVEN_VERSION = "3.3.3"
 
 maven_install(
     artifacts = [
@@ -264,6 +267,7 @@ maven_install(
         "io.grpc:grpc-protobuf:%s" % GRPC_VERSION,
         "jakarta.inject:jakarta.inject-api:2.0.1",
         "javax.annotation:javax.annotation-api:1.3.2",
+        "javax.enterprise:cdi-api:1.0",
         "javax.inject:javax.inject:1",
         "javax.inject:javax.inject-tck:1",
         "junit:junit:4.13",
@@ -271,9 +275,19 @@ maven_install(
         "net.bytebuddy:byte-buddy-agent:%s" % BYTE_BUDDY_VERSION,
         "net.ltgt.gradle.incap:incap:%s" % INCAP_VERSION,
         "net.ltgt.gradle.incap:incap-processor:%s" % INCAP_VERSION,
+        "org.apache.ant:ant:%s" % ANT_VERSION,
+        "org.apache.ant:ant-launcher:%s" % ANT_VERSION,
+        "org.apache.maven:maven-artifact:%s" % MAVEN_VERSION,
+        "org.apache.maven:maven-model:%s" % MAVEN_VERSION,
+        "org.apache.maven:maven-plugin-api:%s" % MAVEN_VERSION,
         "org.checkerframework:checker-compat-qual:%s" % CHECKER_FRAMEWORK_VERSION,
         "org.checkerframework:dataflow:%s" % CHECKER_FRAMEWORK_VERSION,
         "org.checkerframework:javacutil:%s" % CHECKER_FRAMEWORK_VERSION,
+        "org.codehaus.plexus:plexus-utils:3.0.20",
+        "org.codehaus.plexus:plexus-classworlds:2.5.2",
+        "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+        "org.eclipse.sisu:org.eclipse.sisu.plexus:%s" % ECLIPSE_SISU_VERSION,
+        "org.eclipse.sisu:org.eclipse.sisu.inject:%s" % ECLIPSE_SISU_VERSION,
         "org.hamcrest:hamcrest-core:1.3",
         "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlin:kotlin-compiler-embeddable:%s" % KOTLIN_VERSION,
@@ -282,7 +296,11 @@ maven_install(
         "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.6.2",
         "org.jspecify:jspecify:0.3.0",
         "org.mockito:mockito-core:2.28.2",
+        "org.pantsbuild:jarjar:1.7.2",
         "org.objenesis:objenesis:1.0",
+        "org.ow2.asm:asm:%s" % ASM_VERSION,
+        "org.ow2.asm:asm-tree:%s" % ASM_VERSION,
+        "org.ow2.asm:asm-commons:%s" % ASM_VERSION,
         "org.robolectric:robolectric:4.4",
         "org.robolectric:shadows-framework:4.4",  # For ActivityController
     ],

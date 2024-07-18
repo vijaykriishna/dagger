@@ -21,9 +21,9 @@ load(
 )
 load("//tools:dejetify.bzl", "dejetified_library")
 load(
-    "//tools:maven.bzl",
+    "//tools/maven:maven.bzl",
+    "dagger_pom_file",
     "gen_maven_artifact",
-    "pom_file",
 )
 
 package(default_visibility = ["//:src"])
@@ -95,7 +95,7 @@ android_library(
     ],
 )
 
-pom_file(
+dagger_pom_file(
     name = "legacy-pom",
     artifact_id = "dagger-android-support-legacy",
     artifact_name = "Dagger Android Legacy Support",
