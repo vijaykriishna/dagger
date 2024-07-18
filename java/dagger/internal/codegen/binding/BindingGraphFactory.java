@@ -278,19 +278,18 @@ public final class BindingGraphFactory implements ClearableCache {
       Set<SubcomponentDeclaration> subcomponentDeclarations = new LinkedHashSet<>();
 
       // Gather all bindings, multibindings, optional, and subcomponent declarations/contributions.
-      ImmutableSet<Key> multibindingKeysMatchingRequest =
-          multibindingKeysMatchingRequest(requestKey);
+      ImmutableSet<Key> keysMatchingRequest = keysMatchingRequest(requestKey);
       for (Resolver resolver : getResolverLineage()) {
         bindings.addAll(resolver.getLocalExplicitBindings(requestKey));
-        subcomponentDeclarations.addAll(resolver.declarations.subcomponents(requestKey));
-        // The optional binding declarations are keyed by the unwrapped type.
-        keyFactory.unwrapOptional(requestKey)
-            .map(resolver.declarations::optionalBindings)
-            .ifPresent(optionalBindingDeclarations::addAll);
 
-        for (Key key : multibindingKeysMatchingRequest) {
+        for (Key key : keysMatchingRequest) {
           multibindingContributions.addAll(resolver.getLocalMultibindingContributions(key));
           multibindingDeclarations.addAll(resolver.declarations.multibindings(key));
+          subcomponentDeclarations.addAll(resolver.declarations.subcomponents(key));
+          // The optional binding declarations are keyed by the unwrapped type.
+          keyFactory.unwrapOptional(key)
+              .map(resolver.declarations::optionalBindings)
+              .ifPresent(optionalBindingDeclarations::addAll);
         }
       }
 
@@ -426,12 +425,12 @@ public final class BindingGraphFactory implements ClearableCache {
      *       javac users)
      * </ul>
      */
-    private ImmutableSet<Key> multibindingKeysMatchingRequest(Key requestKey) {
+    private ImmutableSet<Key> keysMatchingRequest(Key requestKey) {
       return keysMatchingRequestCache.computeIfAbsent(
-          requestKey, this::multibindingKeysMatchingRequestUncached);
+          requestKey, this::keysMatchingRequestUncached);
     }
 
-    private ImmutableSet<Key> multibindingKeysMatchingRequestUncached(Key requestKey) {
+    private ImmutableSet<Key> keysMatchingRequestUncached(Key requestKey) {
       ImmutableSet.Builder<Key> keys = ImmutableSet.builder();
       keys.add(requestKey);
       keyFactory.unwrapSetKey(requestKey, TypeNames.PRODUCED).ifPresent(keys::add);
@@ -868,7 +867,7 @@ public final class BindingGraphFactory implements ClearableCache {
      * this component's modules that matches the key.
      */
     private boolean hasLocalMultibindingContributions(Key requestKey) {
-      return multibindingKeysMatchingRequest(requestKey)
+      return keysMatchingRequest(requestKey)
           .stream()
           .anyMatch(key -> !getLocalMultibindingContributions(key).isEmpty());
     }
