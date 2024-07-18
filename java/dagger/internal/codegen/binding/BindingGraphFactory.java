@@ -725,7 +725,7 @@ public final class BindingGraphFactory implements ClearableCache {
                 .anyMatch(binding -> binding.kind() == BindingKind.ASSISTED_INJECTION);
         if (!isAssistedInjectionBinding
                 && !requiresResolution(key)
-                && getLocalExplicitBindings(key).isEmpty()) {
+                && !hasLocalExplicitBindings(key)) {
           /* Cache the inherited parent component's bindings in case resolving at the parent found
            * bindings in some component between this one and the previously-resolved one. */
           resolvedContributionBindings.put(key, previouslyResolvedBindings);
@@ -867,9 +867,12 @@ public final class BindingGraphFactory implements ClearableCache {
      * this component's modules that matches the key.
      */
     private boolean hasLocalMultibindingContributions(Key requestKey) {
-      return keysMatchingRequest(requestKey)
-          .stream()
-          .anyMatch(key -> !getLocalMultibindingContributions(key).isEmpty());
+      return keysMatchingRequest(requestKey).stream()
+          .anyMatch(
+              multibindingKey ->
+                  !declarations.multibindingContributions(multibindingKey).isEmpty()
+                      || !declarations.delegateMultibindingContributions(
+                          keyFactory.unwrapMapValueType(multibindingKey)).isEmpty());
     }
 
     /**
@@ -886,14 +889,21 @@ public final class BindingGraphFactory implements ClearableCache {
       if (previouslyResolvedBindings.stream()
           .map(Binding::kind)
           .anyMatch(isEqual(OPTIONAL))) {
-        return !getLocalExplicitBindings(keyFactory.unwrapOptional(key).get())
-            .isEmpty();
+        return hasLocalExplicitBindings(keyFactory.unwrapOptional(key).get());
       } else {
         // If a parent contributes a @Provides Optional<Foo> binding and a child has a
         // @BindsOptionalOf Foo method, the two should conflict, even if there is no binding for
         // Foo on its own
         return !getOptionalBindingDeclarations(key).isEmpty();
       }
+    }
+
+    /**
+     * Returns {@code true} if there is at least one explicit binding that matches the given key.
+     */
+    private boolean hasLocalExplicitBindings(Key requestKey) {
+      return !declarations.bindings(requestKey).isEmpty()
+          || !declarations.delegates(keyFactory.unwrapMapValueType(requestKey)).isEmpty();
     }
   }
 }
