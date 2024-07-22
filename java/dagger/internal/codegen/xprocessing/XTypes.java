@@ -250,7 +250,11 @@ public final class XTypes {
       case JAVAC:
         return isDeclared(type)
             && type.getTypeArguments().isEmpty()
-            && !type.getTypeElement().getType().getTypeArguments().isEmpty();
+            // TODO(b/353979671): We previously called:
+            //     type.getTypeElement().getType().getTypeArguments().isEmpty()
+            // which is a bit more symmetric to the call above, but that resulted in b/353979671, so
+            // we've switched to checking `XTypeElement#getTypeParameters()` until the bug is fixed.
+            && !type.getTypeElement().getTypeParameters().isEmpty();
       case KSP:
         return isDeclared(type)
             // TODO(b/245619245): Due to the bug in XProcessing, the logic used for Javac won't work
