@@ -106,7 +106,15 @@ final class MembersInjectionMethods {
     // simple names Foo.Builder -> injectFooBuilder
     String methodName = shardImplementation.getUniqueMethodName("inject" + bindingTypeName);
     ParameterSpec parameter =
-        ParameterSpec.builder(membersInjectedType.getTypeName(), "instance").build();
+        ParameterSpec.builder(
+                membersInjectedType.getTypeName(),
+                // Technically this usage only needs to be unique within this method, but this will
+                // allocate
+                // a unique name within the shard. We could optimize this by cloning the
+                // UniqueNameSet or
+                // using NameAllocator which has a clone method in the future.
+                shardImplementation.getUniqueFieldName("instance"))
+            .build();
     MethodSpec.Builder methodBuilder =
         methodBuilder(methodName)
             .addModifiers(PRIVATE)
