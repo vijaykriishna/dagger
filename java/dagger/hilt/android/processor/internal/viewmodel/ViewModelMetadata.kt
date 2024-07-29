@@ -108,7 +108,8 @@ private constructor(val viewModelElement: XTypeElement, val assistedFactory: XTy
         val assistedFactoryMethodType = assistedFactoryMethod!!.asMemberOf(assistedFactoryType)
 
         ProcessorErrors.checkState(
-          assistedFactoryMethodType.returnType.asTypeName() == viewModelElement.asClassName(),
+          assistedFactoryMethodType.returnType.asTypeName()
+              .equalsIgnoreNullability(viewModelElement.asClassName()),
           assistedFactoryMethod,
           "Class %s must have a factory method that returns a %s. Found %s.",
           XElements.toStableString(assistedFactory),
