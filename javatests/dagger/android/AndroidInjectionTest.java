@@ -30,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
-import org.robolectric.util.FragmentTestUtil;
 
 @LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
@@ -133,7 +132,8 @@ public final class AndroidInjectionTest {
   @Test
   public void injectFragment_hasFragmentInjectorNotFound() {
     Fragment fragment = new Fragment();
-    FragmentTestUtil.startFragment(fragment);
+    Activity activity = Robolectric.setupActivity(Activity.class);
+    activity.getFragmentManager().beginTransaction().add(fragment, null).commit();
 
     try {
       AndroidInjection.inject(fragment);
@@ -167,7 +167,8 @@ public final class AndroidInjectionTest {
   @Config(application = ApplicationReturnsNull.class)
   public void fragmentInjector_returnsNull() {
     Fragment fragment = new Fragment();
-    FragmentTestUtil.startFragment(fragment);
+    Activity activity = Robolectric.setupActivity(Activity.class);
+    activity.getFragmentManager().beginTransaction().add(fragment, null).commit();
 
     try {
       AndroidInjection.inject(fragment);
