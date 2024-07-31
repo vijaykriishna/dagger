@@ -5,6 +5,7 @@ load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
     "DOCLINT_REFERENCES",
+    "JAVA_RELEASE_MIN",
     "POM_VERSION",
 )
 load("//tools/javadoc:javadoc.bzl", "javadoc_library")
@@ -21,7 +22,7 @@ ANNOTATIONS_SRCS = [
 java_library(
     name = "annotations",
     srcs = ANNOTATIONS_SRCS,
-    javacopts = DOCLINT_HTML_AND_SYNTAX,
+    javacopts = DOCLINT_HTML_AND_SYNTAX + JAVA_RELEASE_MIN,
     tags = ["maven_coordinates=com.google.dagger:dagger-grpc-server-annotations:" + POM_VERSION],
     deps = [
         "//third_party/java/jsr330_inject",
@@ -36,7 +37,7 @@ java_library(
         exclude = ANNOTATIONS_SRCS,
     ),
     exported_plugins = ["//java/dagger/grpc/server/processor:plugin"],
-    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES + JAVA_RELEASE_MIN,
     tags = ["maven_coordinates=com.google.dagger:dagger-grpc-server:" + POM_VERSION],
     exports = [":annotations"],
     deps = [

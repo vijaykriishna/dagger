@@ -16,13 +16,14 @@
 #   GWT-specific files for Dagger
 
 load("@rules_java//java:defs.bzl", "java_library")
-load("//:build_defs.bzl", "POM_VERSION")
+load("//:build_defs.bzl", "JAVA_RELEASE_MIN", "POM_VERSION")
 load("//tools/maven:maven.bzl", "dagger_pom_file")
 
 package(default_visibility = ["//:src"])
 
 java_library(
     name = "gwt",
+    javacopts = JAVA_RELEASE_MIN,
     resource_strip_prefix = "gwt/",
     resources = glob(["**/*.gwt.xml"]),
     tags = ["maven_coordinates=com.google.dagger:dagger-gwt:" + POM_VERSION],

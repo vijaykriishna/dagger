@@ -118,13 +118,13 @@ http_archive(
 # Load Robolectric repository
 #############################
 
-ROBOLECTRIC_VERSION = "4.4"
+ROBOLECTRIC_VERSION = "4.11.1"
 
 http_archive(
     name = "robolectric",
-    sha256 = "d4f2eb078a51f4e534ebf5e18b6cd4646d05eae9b362ac40b93831bdf46112c7",
+    sha256 = "1ea1cfe67848decf959316e80dd69af2bbaa359ae2195efe1366cbdf3e968356",
     strip_prefix = "robolectric-bazel-%s" % ROBOLECTRIC_VERSION,
-    urls = ["https://github.com/robolectric/robolectric-bazel/archive/%s.tar.gz" % ROBOLECTRIC_VERSION],
+    urls = ["https://github.com/robolectric/robolectric-bazel/releases/download/%s/robolectric-bazel-%s.tar.gz" % (ROBOLECTRIC_VERSION, ROBOLECTRIC_VERSION)],
 )
 
 load("@robolectric//bazel:robolectric.bzl", "robolectric_repositories")
@@ -135,14 +135,14 @@ robolectric_repositories()
 # Load Kotlin repository
 #############################
 
-RULES_KOTLIN_TAG = "v1.8"
+RULES_KOTLIN_TAG = "1.9.6"
 
-RULES_KOTLIN_SHA = "01293740a16e474669aba5b5a1fe3d368de5832442f164e4fbfc566815a8bc3a"
+RULES_KOTLIN_SHA = "3b772976fec7bdcda1d84b9d39b176589424c047eb2175bed09aac630e50af43"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
     sha256 = RULES_KOTLIN_SHA,
-    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/%s/rules_kotlin_release.tgz" % RULES_KOTLIN_TAG],
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz" % (RULES_KOTLIN_TAG, RULES_KOTLIN_TAG)],
 )
 
 load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "kotlinc_version")
@@ -159,9 +159,7 @@ kotlin_repositories(
     ),
 )
 
-load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
-
-kt_register_toolchains()
+register_toolchains("//:kotlin_toolchain")
 
 #############################
 # Load Maven dependencies
@@ -301,8 +299,8 @@ maven_install(
         "org.ow2.asm:asm:%s" % ASM_VERSION,
         "org.ow2.asm:asm-tree:%s" % ASM_VERSION,
         "org.ow2.asm:asm-commons:%s" % ASM_VERSION,
-        "org.robolectric:robolectric:4.4",
-        "org.robolectric:shadows-framework:4.4",  # For ActivityController
+        "org.robolectric:robolectric:%s" % ROBOLECTRIC_VERSION,
+        "org.robolectric:shadows-framework:%s" % ROBOLECTRIC_VERSION,  # For ActivityController
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

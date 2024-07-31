@@ -6,3 +6,27 @@ build --host_javacopt=-g
 # TODO(ronshapiro): explore how much work it would be to reenable this
 build --javacopt="-Xep:BetaApi:OFF"
 build --host_javacopt="-Xep:BetaApi:OFF"
+
+# Note: This flag is required to prevent actions from clashing with each other
+# when reading/writing tmp files. Without this flag we get errors like:
+#
+#  Error: Cannot use file /tmp/hsperfdata_runner/12 because it is locked by
+#         another process
+#
+# This flag will be enabled by default in Bazel 7.0.0, but for now we enable it
+# manually. For more details: https://github.com/bazelbuild/bazel/issues/3236.
+build --incompatible_sandbox_hermetic_tmp
+
+# Sets the JDK for compiling sources and executing tests.
+build --java_language_version=18
+build --tool_java_language_version=18
+build --java_runtime_version=remotejdk_18
+build --tool_java_runtime_version=remotejdk_18
+
+# Default source/target versions.
+build --javacopt="-source 8 -target 8"
+
+# Workaround for https://openjdk.java.net/jeps/411.
+# See https://github.com/bazelbuild/bazel/issues/14502#issuecomment-1018366245.
+build --jvmopt="-Djava.security.manager=allow"
+build --jvmopt="--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"

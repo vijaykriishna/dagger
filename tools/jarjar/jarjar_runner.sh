@@ -59,6 +59,12 @@ fi
 
 popd &>/dev/null
 
-"${JARJAR}" process "${RULES_FILE}" "${TMPDIR}/combined.jar" "${OUTFILE}"
+# If the RULES_FILE exists and is not empty then run jarjar.
+# Otherwise, we're done so just copy the combined jar to the output file.
+if [[ -f "${RULES_FILE}" && -s "${RULES_FILE}" ]]; then
+    "${JARJAR}" process "${RULES_FILE}" "${TMPDIR}/combined.jar" "${OUTFILE}"
+else
+    cp $TMPDIR/combined.jar $OUTFILE
+fi
 
 rm -rf "${TMPDIR}"
