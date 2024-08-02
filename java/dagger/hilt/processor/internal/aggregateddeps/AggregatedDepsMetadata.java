@@ -107,8 +107,11 @@ public abstract class AggregatedDepsMetadata {
   }
 
   private static AggregatedDepsMetadata create(XTypeElement element, XProcessingEnv env) {
+    checkState(
+        element.hasAnnotation(ClassNames.AGGREGATED_DEPS),
+        "Missing @AggregatedDeps annotation on %s",
+        element.getClassName().canonicalName());
     XAnnotation annotation = element.getAnnotation(ClassNames.AGGREGATED_DEPS);
-
     return new AutoValue_AggregatedDepsMetadata(
         element,
         getTestElement(annotation.getAnnotationValue("test"), env),
