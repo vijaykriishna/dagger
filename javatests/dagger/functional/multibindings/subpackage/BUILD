@@ -25,8 +25,17 @@ load("//:test_defs.bzl", "GenJavaLibrary")
 package(default_visibility = ["//:src"])
 
 GenJavaLibrary(
-    name = "subpackage",
-    srcs = glob(["*.java"]),
+    name = "ContributionsModule",
+    srcs = ["ContributionsModule.java"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+    ],
+)
+
+GenJavaLibrary(
+    name = "BindsInaccessibleMapKeyModule",
+    srcs = ["BindsInaccessibleMapKeyModule.java"],
     javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
     deps = [
         "//:dagger_with_compiler",

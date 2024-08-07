@@ -25,16 +25,93 @@ load("//:test_defs.bzl", "GenJavaTests")
 package(default_visibility = ["//:src"])
 
 GenJavaTests(
-    name = "multibindings",
-    srcs = glob(["*.java"]),
+    name = "MultibindingTest",
+    srcs = [
+        "BooleanKey.java",
+        "ByteKey.java",
+        "CharKey.java",
+        "MultibindingComponent.java",
+        "MultibindingDependency.java",
+        "MultibindingModule.java",
+        "MultibindingTest.java",
+        "MultibindsModule.java",
+        "NestedAnnotationContainer.java",
+        "NumberClassKey.java",
+        "ShortKey.java",
+        "UnwrappedAnnotationKey.java",
+        "WrappedAnnotationKey.java",
+    ],
     gen_library_deps = [
-        "//javatests/dagger/functional/multibindings/subpackage",
+        "//javatests/dagger/functional/multibindings/subpackage:ContributionsModule",
     ],
     javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
     deps = [
         "//:dagger_with_compiler",
         "//third_party/java/auto:value",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
+    name = "BindsInaccessibleMapKeyTest",
+    srcs = ["BindsInaccessibleMapKeyTest.java"],
+    gen_library_deps = [
+        "//javatests/dagger/functional/multibindings/subpackage:BindsInaccessibleMapKeyModule",
+    ],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
         "//third_party/java/guava/collect",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
+    name = "ClassKeyWithGenericsTest",
+    srcs = ["ClassKeyWithGenericsTest.java"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
+    name = "ComplexMapKeysInDifferentOrderTest",
+    srcs = ["ComplexMapKeysInDifferentOrderTest.java"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+        "//third_party/java/auto:value",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
+    name = "MapKeyWithDefaultTest",
+    srcs = ["MapKeyWithDefaultTest.java"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+        "//third_party/java/auto:value",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
+    name = "LazyMapsTest",
+    srcs = [
+        "LazyMaps.java",
+        "LazyMapsTest.java",
+    ],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
         "//third_party/java/junit",
         "//third_party/java/truth",
     ],

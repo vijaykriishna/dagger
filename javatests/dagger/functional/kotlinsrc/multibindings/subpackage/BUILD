@@ -25,8 +25,17 @@ load("//:test_defs.bzl", "GenKtLibrary")
 package(default_visibility = ["//:src"])
 
 GenKtLibrary(
-    name = "subpackage",
-    srcs = glob(["*.kt"]),
+    name = "ContributionsModule",
+    srcs = ["ContributionsModule.kt"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+    ],
+)
+
+GenKtLibrary(
+    name = "BindsInaccessibleMapKeyModule",
+    srcs = ["BindsInaccessibleMapKeyModule.kt"],
     javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
     deps = [
         "//:dagger_with_compiler",
