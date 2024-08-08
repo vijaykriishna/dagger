@@ -33,7 +33,6 @@ import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.SourceFileGenerationException;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.SourceFileHjarGenerator;
-import dagger.internal.codegen.binding.BindingGraphFactory;
 import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
@@ -183,10 +182,6 @@ final class DelegateComponentProcessor {
     @Binds
     @IntoSet
     ClearableCache monitoringModules(MonitoringModules cache);
-
-    @Binds
-    @IntoSet
-    ClearableCache bindingGraphFactory(BindingGraphFactory cache);
 
     @Binds
     @IntoSet

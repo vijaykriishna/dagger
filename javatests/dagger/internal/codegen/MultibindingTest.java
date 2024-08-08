@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen;
 
-import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import dagger.testing.compile.CompilerTests;
 import org.junit.Test;
@@ -351,16 +350,127 @@ public class MultibindingTest {
     CompilerTests.daggerCompiler(parent, parentModule, myInterface, usage)
         .compile(
             subject -> {
-              // TODO(b/284207175): Due to a bug in our KSP implementation, KSP and Javac behave
-              // differently. Rather than cause a breaking change by fixing this bug directly, we've
-              // decided to wait until b/284207175 is implemented.
-              if (CompilerTests.backend(subject) == XProcessingEnv.Backend.KSP) {
-                subject.hasErrorCount(0);
-              } else {
               subject.hasErrorCount(1);
               subject.hasErrorContaining("Map<String,? extends MyInterface> cannot be provided");
-              }
             });
+  }
+
+  // Regression test for b/352142595.
+  @Test
+  public void testMultibindingMapWithOutVarianceKotlinSource_succeeds() {
+    Source parent =
+        CompilerTests.kotlinSource(
+            "test.Parent.kt",
+            "package test",
+            "",
+            "import dagger.Component",
+            "",
+            "@Component(modules = [ParentModule::class])",
+            "interface Parent {",
+            "  fun usage(): Usage",
+            "}");
+    Source usage =
+        CompilerTests.kotlinSource(
+            "test.Usage.kt",
+            "package test",
+            "",
+            "import javax.inject.Inject",
+            "",
+            "class Usage @Inject constructor(",
+            "  map: Map<String, @JvmSuppressWildcards MyGenericInterface<out MyInterface>>",
+            ")");
+    Source parentModule =
+        CompilerTests.kotlinSource(
+            "test.ParentModule.kt",
+            "@file:Suppress(\"INLINE_FROM_HIGHER_PLATFORM\")", // Required to use TODO()
+            "package test",
+            "",
+            "import dagger.Module",
+            "import dagger.Provides",
+            "import dagger.multibindings.IntoMap",
+            "import dagger.multibindings.StringKey",
+            "",
+            "@Module",
+            "class ParentModule {",
+            "  @Provides",
+            "  @IntoMap",
+            "  @StringKey(\"key\")",
+            "  fun provideMyInterface(): MyGenericInterface<out MyInterface> = TODO()",
+            "}");
+    Source myGenericInterface =
+        CompilerTests.kotlinSource(
+            "test.MyGenericInterface.kt",
+            "package test",
+            "",
+            "interface MyGenericInterface<T>");
+    Source myInterface =
+        CompilerTests.kotlinSource(
+            "test.MyInterface.kt",
+            "package test",
+            "",
+            "interface MyInterface");
+
+    CompilerTests.daggerCompiler(parent, parentModule, myGenericInterface, myInterface, usage)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  // Regression test for b/352142595.
+  @Test
+  public void testMultibindingMapWithJvmWildcardsKotlinSource_succeeds() {
+    Source parent =
+        CompilerTests.kotlinSource(
+            "test.Parent.kt",
+            "package test",
+            "",
+            "import dagger.Component",
+            "",
+            "@Component(modules = [ParentModule::class])",
+            "interface Parent {",
+            "  fun usage(): Usage",
+            "}");
+    Source usage =
+        CompilerTests.kotlinSource(
+            "test.Usage.kt",
+            "package test",
+            "",
+            "import javax.inject.Inject",
+            "",
+            "class Usage @Inject constructor(",
+            "  map: Map<String,@JvmSuppressWildcards MyGenericInterface<@JvmWildcard MyInterface>>",
+            ")");
+    Source parentModule =
+        CompilerTests.kotlinSource(
+            "test.ParentModule.kt",
+            "@file:Suppress(\"INLINE_FROM_HIGHER_PLATFORM\")", // Required to use TODO()
+            "package test",
+            "",
+            "import dagger.Module",
+            "import dagger.Provides",
+            "import dagger.multibindings.IntoMap",
+            "import dagger.multibindings.StringKey",
+            "",
+            "@Module",
+            "class ParentModule {",
+            "  @Provides",
+            "  @IntoMap",
+            "  @StringKey(\"key\")",
+            "  fun provideMyInterface(): MyGenericInterface<@JvmWildcard MyInterface> = TODO()",
+            "}");
+    Source myGenericInterface =
+        CompilerTests.kotlinSource(
+            "test.MyGenericInterface.kt",
+            "package test",
+            "",
+            "interface MyGenericInterface<out T>");
+    Source myInterface =
+        CompilerTests.kotlinSource(
+            "test.MyInterface.kt",
+            "package test",
+            "",
+            "interface MyInterface");
+
+    CompilerTests.daggerCompiler(parent, parentModule, myGenericInterface, myInterface, usage)
+        .compile(subject -> subject.hasErrorCount(0));
   }
 
   // Regression test for b/352142595.

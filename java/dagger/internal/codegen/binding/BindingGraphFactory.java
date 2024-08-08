@@ -37,7 +37,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dagger.Reusable;
-import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
@@ -64,11 +63,9 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /** A factory for {@link BindingGraph} objects. */
-@Singleton
-public final class BindingGraphFactory implements ClearableCache {
+public final class BindingGraphFactory {
 
   private final InjectBindingRegistry injectBindingRegistry;
   private final KeyFactory keyFactory;
@@ -76,7 +73,6 @@ public final class BindingGraphFactory implements ClearableCache {
   private final BindingNode.Factory bindingNodeFactory;
   private final ComponentDeclarations.Factory componentDeclarationsFactory;
   private final BindingGraphConverter bindingGraphConverter;
-  private final Map<Key, ImmutableSet<Key>> keysMatchingRequestCache = new HashMap<>();
   private final CompilerOptions compilerOptions;
 
   @Inject
@@ -156,11 +152,6 @@ public final class BindingGraphFactory implements ClearableCache {
     }
 
     return new LegacyBindingGraph(requestResolver, subgraphs.build());
-  }
-
-  @Override
-  public void clearCache() {
-    keysMatchingRequestCache.clear();
   }
 
   /** Represents a fully resolved binding graph. */
@@ -278,20 +269,15 @@ public final class BindingGraphFactory implements ClearableCache {
       Set<SubcomponentDeclaration> subcomponentDeclarations = new LinkedHashSet<>();
 
       // Gather all bindings, multibindings, optional, and subcomponent declarations/contributions.
-      ImmutableSet<Key> multibindingKeysMatchingRequest =
-          multibindingKeysMatchingRequest(requestKey);
       for (Resolver resolver : getResolverLineage()) {
         bindings.addAll(resolver.getLocalExplicitBindings(requestKey));
+        multibindingContributions.addAll(resolver.getLocalMultibindingContributions(requestKey));
+        multibindingDeclarations.addAll(resolver.declarations.multibindings(requestKey));
         subcomponentDeclarations.addAll(resolver.declarations.subcomponents(requestKey));
         // The optional binding declarations are keyed by the unwrapped type.
         keyFactory.unwrapOptional(requestKey)
             .map(resolver.declarations::optionalBindings)
             .ifPresent(optionalBindingDeclarations::addAll);
-
-        for (Key key : multibindingKeysMatchingRequest) {
-          multibindingContributions.addAll(resolver.getLocalMultibindingContributions(key));
-          multibindingDeclarations.addAll(resolver.declarations.multibindings(key));
-        }
       }
 
       // Add synthetic multibinding
@@ -408,41 +394,6 @@ public final class BindingGraphFactory implements ClearableCache {
           subcomponentCreatorBinding.key().type().xprocessing().getTypeElement();
       owningResolver.subcomponentsToResolve.add(
           owningResolver.componentDescriptor.getChildComponentWithBuilderType(builderType));
-    }
-
-    /**
-     * Profiling has determined that computing the keys matching {@code requestKey} has measurable
-     * performance impact. It is called repeatedly (at least 3 times per key resolved per {@link
-     * BindingGraph}. {@code javac}'s name-checking performance seems suboptimal (converting byte
-     * strings to Strings repeatedly), and the matching keys creations relies on that. This also
-     * ensures that the resulting keys have their hash codes cached on successive calls to this
-     * method.
-     *
-     * <p>This caching may become obsolete if:
-     *
-     * <ul>
-     *   <li>We decide to intern all {@link Key} instances
-     *   <li>We fix javac's name-checking peformance (though we may want to keep this for older
-     *       javac users)
-     * </ul>
-     */
-    private ImmutableSet<Key> multibindingKeysMatchingRequest(Key requestKey) {
-      return keysMatchingRequestCache.computeIfAbsent(
-          requestKey, this::multibindingKeysMatchingRequestUncached);
-    }
-
-    private ImmutableSet<Key> multibindingKeysMatchingRequestUncached(Key requestKey) {
-      ImmutableSet.Builder<Key> keys = ImmutableSet.builder();
-      keys.add(requestKey);
-      keyFactory.unwrapSetKey(requestKey, TypeNames.PRODUCED).ifPresent(keys::add);
-      keyFactory
-          .rewrapMapKey(requestKey, TypeNames.PRODUCER, TypeNames.PROVIDER)
-          .ifPresent(keys::add);
-      keyFactory
-          .rewrapMapKey(requestKey, TypeNames.PROVIDER, TypeNames.PRODUCER)
-          .ifPresent(keys::add);
-      keys.addAll(keyFactory.implicitFrameworkMapKeys(requestKey));
-      return keys.build();
     }
 
     private ImmutableSet<ContributionBinding> createDelegateBindings(
@@ -641,15 +592,7 @@ public final class BindingGraphFactory implements ClearableCache {
     private ImmutableSet<ContributionBinding> getLocalMultibindingContributions(Key key) {
       return ImmutableSet.<ContributionBinding>builder()
           .addAll(declarations.multibindingContributions(key))
-          // @Binds @IntoMap declarations have key Map<K, V>, unlike @Provides @IntoMap or @Produces
-          // @IntoMap, which have Map<K, Provider/Producer<V>> keys. So unwrap the key's type's
-          // value type if it's a Map<K, Provider/Producer<V>> before looking in
-          // delegate declarations. createDelegateBindings() will create bindings with the properly
-          // wrapped key type.
-          .addAll(
-              createDelegateBindings(
-                  declarations.delegateMultibindingContributions(
-                      keyFactory.unwrapMapValueType(key))))
+          .addAll(createDelegateBindings(declarations.delegateMultibindingContributions(key)))
           .build();
     }
 
@@ -868,12 +811,8 @@ public final class BindingGraphFactory implements ClearableCache {
      * this component's modules that matches the key.
      */
     private boolean hasLocalMultibindingContributions(Key requestKey) {
-      return multibindingKeysMatchingRequest(requestKey).stream()
-          .anyMatch(
-              multibindingKey ->
-                  !declarations.multibindingContributions(multibindingKey).isEmpty()
-                      || !declarations.delegateMultibindingContributions(
-                          keyFactory.unwrapMapValueType(multibindingKey)).isEmpty());
+      return !declarations.multibindingContributions(requestKey).isEmpty()
+          || !declarations.delegateMultibindingContributions(requestKey).isEmpty();
     }
 
     /**

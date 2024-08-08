@@ -24,8 +24,6 @@ import static dagger.internal.codegen.base.ProducerAnnotations.productionQualifi
 import static dagger.internal.codegen.base.RequestKinds.extractKeyType;
 import static dagger.internal.codegen.binding.MapKeys.getMapKey;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
-import static dagger.internal.codegen.extension.Optionals.firstPresent;
 import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
@@ -37,7 +35,6 @@ import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
@@ -56,9 +53,7 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.multibindings.Multibinds;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 
 /** A factory for {@link Key}s. */
@@ -265,40 +260,6 @@ public final class KeyFactory {
 
   public Key forProductionComponentMonitor() {
     return forType(processingEnv.requireType(TypeNames.PRODUCTION_COMPONENT_MONITOR));
-  }
-
-  /**
-   * If {@code requestKey} is for a {@code Map<K, V>} or {@code Map<K, Produced<V>>}, returns keys
-   * for {@code Map<K, Provider<V>>} and {@code Map<K, Producer<V>>} (if Dagger-Producers is on the
-   * classpath).
-   */
-  ImmutableSet<Key> implicitFrameworkMapKeys(Key requestKey) {
-    return Stream.of(implicitMapProviderKeyFrom(requestKey), implicitMapProducerKeyFrom(requestKey))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(toImmutableSet());
-  }
-
-  /**
-   * Optionally extract a {@link Key} for the underlying provision binding(s) if such a valid key
-   * can be inferred from the given key. Specifically, if the key represents a {@link Map}{@code <K,
-   * V>} or {@code Map<K, Producer<V>>}, a key of {@code Map<K, Provider<V>>} will be returned.
-   */
-  Optional<Key> implicitMapProviderKeyFrom(Key possibleMapKey) {
-    return firstPresent(
-        rewrapMapKey(possibleMapKey, TypeNames.PRODUCED, TypeNames.PROVIDER),
-        wrapMapKey(possibleMapKey, TypeNames.PROVIDER));
-  }
-
-  /**
-   * Optionally extract a {@link Key} for the underlying production binding(s) if such a valid key
-   * can be inferred from the given key. Specifically, if the key represents a {@link Map}{@code <K,
-   * V>} or {@code Map<K, Produced<V>>}, a key of {@code Map<K, Producer<V>>} will be returned.
-   */
-  Optional<Key> implicitMapProducerKeyFrom(Key possibleMapKey) {
-    return firstPresent(
-        rewrapMapKey(possibleMapKey, TypeNames.PRODUCED, TypeNames.PRODUCER),
-        wrapMapKey(possibleMapKey, TypeNames.PRODUCER));
   }
 
   /**
