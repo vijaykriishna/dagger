@@ -335,22 +335,13 @@ public final class BindingGraphFactory {
           requestKey,
           bindings.stream()
               .map(
-                  binding -> {
-                    Optional<BindingNode> bindingNodeOwnedByAncestor =
-                        getBindingNodeOwnedByAncestor(requestKey, binding);
-                    // If a binding is owned by an ancestor we use the corresponding BindingNode
-                    // instance directly rather than creating a new instance to avoid accidentally
-                    // including additional multi/optional/subcomponent declarations that don't
-                    // exist in the ancestor's BindingNode instance.
-                    return bindingNodeOwnedByAncestor.isPresent()
-                          ? bindingNodeOwnedByAncestor.get()
-                          : bindingNodeFactory.forContributionBindings(
-                              componentPath,
-                              binding,
-                              multibindingDeclarations,
-                              optionalBindingDeclarations,
-                              subcomponentDeclarations);
-                  })
+                  binding ->
+                      bindingNodeFactory.forContributionBindings(
+                          getOwningComponentPath(requestKey, binding),
+                          binding,
+                          multibindingDeclarations,
+                          optionalBindingDeclarations,
+                          subcomponentDeclarations))
               .collect(toImmutableSet()));
     }
 
@@ -452,32 +443,38 @@ public final class BindingGraphFactory {
     }
 
     /**
-     * Returns a {@link BindingNode} for the given binding that is owned by an ancestor component,
-     * if one exists. Otherwise returns {@link Optional#empty()}.
+     * Returns the component that should contain the framework field for {@code binding}.
+     *
+     * <p>If {@code binding} is either not bound in an ancestor component or depends transitively on
+     * bindings in this component, returns this component.
+     *
+     * <p>Otherwise, resolves {@code request} in this component's parent in order to resolve any
+     * multibinding contributions in the parent, and returns the parent-resolved {@link
+     * ResolvedBindings#owningComponent(ContributionBinding)}.
      */
-    private Optional<BindingNode> getBindingNodeOwnedByAncestor(
-        Key requestKey, ContributionBinding binding) {
-      if (canBeResolvedInParent(requestKey, binding)) {
-        // Resolve in the parent to make sure we have the most recent multi/optional contributions.
-        parentResolver.get().resolve(requestKey);
-        if (!requiresResolution(binding)) {
-          return Optional.of(getPreviouslyResolvedBindings(requestKey).get().forBinding(binding));
-        }
+    private ComponentPath getOwningComponentPath(Key requestKey, ContributionBinding binding) {
+      if (isResolvedInParent(requestKey, binding) && !requiresResolution(binding)) {
+        ResolvedBindings parentResolvedBindings =
+            parentResolver.get().resolvedContributionBindings.get(requestKey);
+        return parentResolvedBindings.forBinding(binding).componentPath();
+      } else {
+        return componentPath;
       }
-      return Optional.empty();
     }
 
-    private boolean canBeResolvedInParent(Key requestKey, ContributionBinding binding) {
-      if (parentResolver.isEmpty()) {
+    /**
+     * Returns {@code true} if {@code binding} is owned by an ancestor. If so, {@linkplain #resolve
+     * resolves} the {@link Key} in this component's parent. Don't resolve directly in the owning
+     * component in case it depends on multibindings in any of its descendants.
+     */
+    private boolean isResolvedInParent(Key requestKey, ContributionBinding binding) {
+      Optional<Resolver> owningResolver = getOwningResolver(binding);
+      if (owningResolver.isPresent() && !owningResolver.get().equals(this)) {
+        parentResolver.get().resolve(requestKey);
+        return true;
+      } else {
         return false;
       }
-      Optional<Resolver> owningResolver = getOwningResolver(binding);
-      return (owningResolver.isPresent() && !owningResolver.get().equals(this))
-          || (!Keys.isComponentOrCreator(requestKey)
-              // TODO(b/305748522): Allow caching for assisted injection bindings.
-              && binding.kind() != BindingKind.ASSISTED_INJECTION
-              && getPreviouslyResolvedBindings(requestKey).isPresent()
-              && getPreviouslyResolvedBindings(requestKey).get().bindings().contains(binding));
     }
 
     private Optional<Resolver> getOwningResolver(ContributionBinding binding) {
@@ -650,6 +647,36 @@ public final class BindingGraphFactory {
         return;
       }
 
+      /*
+       * If the binding was previously resolved in an ancestor component, then we may be able to
+       * avoid resolving it here and just depend on the ancestor component resolution.
+       *
+       * 1. If it depends transitively on multibinding contributions or optional bindings with
+       *    bindings from this subcomponent, then we have to resolve it in this subcomponent so
+       *    that it sees the local bindings.
+       *
+       * 2. If there are any explicit bindings in this component, they may conflict with those in
+       *    the ancestor component, so resolve them here so that conflicts can be caught.
+       */
+      if (getPreviouslyResolvedBindings(key).isPresent() && !Keys.isComponentOrCreator(key)) {
+        /* Resolve in the parent in case there are multibinding contributions or conflicts in some
+         * component between this one and the previously-resolved one. */
+        parentResolver.get().resolve(key);
+        ResolvedBindings previouslyResolvedBindings = getPreviouslyResolvedBindings(key).get();
+        // TODO(b/305748522): Allow caching for assisted injection bindings.
+        boolean isAssistedInjectionBinding =
+            previouslyResolvedBindings.bindings().stream()
+                .anyMatch(binding -> binding.kind() == BindingKind.ASSISTED_INJECTION);
+        if (!isAssistedInjectionBinding
+                && !requiresResolution(key)
+                && !hasLocalExplicitBindings(key)) {
+          /* Cache the inherited parent component's bindings in case resolving at the parent found
+           * bindings in some component between this one and the previously-resolved one. */
+          resolvedContributionBindings.put(key, previouslyResolvedBindings);
+          return;
+        }
+      }
+
       cycleStack.push(key);
       try {
         ResolvedBindings bindings = lookUpBindings(key);
@@ -684,6 +711,10 @@ public final class BindingGraphFactory {
 
     private ResolvedBindings getResolvedMembersInjectionBindings(Key key) {
       return resolvedMembersInjectionBindings.get(key);
+    }
+
+    private boolean requiresResolution(Key key) {
+      return new LegacyRequiresResolutionChecker().requiresResolution(key);
     }
 
     private boolean requiresResolution(Binding binding) {
