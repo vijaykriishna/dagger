@@ -183,7 +183,7 @@ class IncrementalProcessorTest(private val incapMode: String) {
         testImplementation 'junit:junit:4.12'
         testImplementation 'androidx.test.ext:junit:1.1.3'
         testImplementation 'androidx.test:runner:1.4.0'
-        testImplementation 'org.robolectric:robolectric:4.4'
+        testImplementation 'org.robolectric:robolectric:4.11.1'
         testImplementation 'com.google.dagger:hilt-android-testing:LOCAL-SNAPSHOT'
         testAnnotationProcessor 'com.google.dagger:hilt-compiler:LOCAL-SNAPSHOT'
       }
