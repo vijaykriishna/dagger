@@ -149,29 +149,20 @@ public final class SourceFiles {
 
   /** Returns the generated factory or members injector name for a binding. */
   public static ClassName generatedClassNameForBinding(Binding binding) {
-    switch (binding.bindingType()) {
+    switch (binding.kind()) {
+      case ASSISTED_INJECTION:
+      case INJECTION:
       case PROVISION:
       case PRODUCTION:
-        ContributionBinding contribution = (ContributionBinding) binding;
-        switch (contribution.kind()) {
-          case ASSISTED_INJECTION:
-          case INJECTION:
-          case PROVISION:
-          case PRODUCTION:
-            return factoryNameForElement(asExecutable(binding.bindingElement().get()));
-
-          case ASSISTED_FACTORY:
-            return siblingClassName(asTypeElement(binding.bindingElement().get()), "_Impl");
-
-          default:
-            throw new AssertionError();
-        }
-
+        return factoryNameForElement(asExecutable(binding.bindingElement().get()));
+      case ASSISTED_FACTORY:
+        return siblingClassName(asTypeElement(binding.bindingElement().get()), "_Impl");
       case MEMBERS_INJECTION:
         return membersInjectorNameForType(
             ((MembersInjectionBinding) binding).membersInjectedType());
+      default:
+        throw new AssertionError();
     }
-    throw new AssertionError();
   }
 
   /**
