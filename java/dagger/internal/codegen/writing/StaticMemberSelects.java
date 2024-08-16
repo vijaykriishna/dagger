@@ -38,13 +38,14 @@ import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingType;
-import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.MultiboundMapBinding;
+import dagger.internal.codegen.binding.MultiboundSetBinding;
 import dagger.internal.codegen.javapoet.CodeBlocks;
 
 /** Helper class for static member select creation. */
 final class StaticMemberSelects {
   /** A {@link MemberSelect} for a factory of an empty map. */
-  static MemberSelect emptyMapFactory(Binding binding) {
+  static MemberSelect emptyMapFactory(MultiboundMapBinding binding) {
     BindingType bindingType = binding.bindingType();
     ImmutableList<XType> typeParameters =
         ImmutableList.copyOf(binding.key().type().xprocessing().getTypeArguments());
@@ -60,7 +61,7 @@ final class StaticMemberSelects {
    * dagger.internal.SetFactory#empty()}, {@link dagger.producers.internal.SetProducer#empty()}, or
    * {@link dagger.producers.internal.SetOfProducedProducer#empty()}, depending on the set bindings.
    */
-  static MemberSelect emptySetFactory(ContributionBinding binding) {
+  static MemberSelect emptySetFactory(MultiboundSetBinding binding) {
     return new ParameterizedStaticMethod(
         setFactoryClassName(binding),
         ImmutableList.of(SetType.from(binding.key()).elementType()),

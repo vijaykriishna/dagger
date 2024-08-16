@@ -20,7 +20,6 @@ import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Verify.verify;
 import static dagger.internal.codegen.javapoet.TypeNames.DOUBLE_CHECK;
 import static dagger.internal.codegen.javapoet.TypeNames.MAP_FACTORY;
@@ -36,8 +35,6 @@ import static dagger.internal.codegen.javapoet.TypeNames.SET_OF_PRODUCED_PRODUCE
 import static dagger.internal.codegen.javapoet.TypeNames.SET_PRODUCER;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
-import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
-import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_SET;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
@@ -234,21 +231,22 @@ public final class SourceFiles {
    *       {@code Set<Produced<T>>}.
    * </ul>
    */
-  public static ClassName setFactoryClassName(ContributionBinding binding) {
-    checkArgument(binding.kind().equals(MULTIBOUND_SET));
-    if (binding.bindingType().equals(BindingType.PROVISION)) {
-      return SET_FACTORY;
-    } else {
-      SetType setType = SetType.from(binding.key());
-      return setType.elementsAreTypeOf(TypeNames.PRODUCED)
-          ? SET_OF_PRODUCED_PRODUCER
-          : SET_PRODUCER;
+  public static ClassName setFactoryClassName(MultiboundSetBinding binding) {
+    switch (binding.bindingType()) {
+      case PROVISION:
+        return SET_FACTORY;
+      case PRODUCTION:
+        SetType setType = SetType.from(binding.key());
+        return setType.elementsAreTypeOf(TypeNames.PRODUCED)
+            ? SET_OF_PRODUCED_PRODUCER
+            : SET_PRODUCER;
+      default:
+        throw new IllegalArgumentException(binding.bindingType().toString());
     }
   }
 
   /** The {@link java.util.Map} factory class name appropriate for map bindings. */
-  public static ClassName mapFactoryClassName(ContributionBinding binding) {
-    checkState(binding.kind().equals(MULTIBOUND_MAP), binding.kind());
+  public static ClassName mapFactoryClassName(MultiboundMapBinding binding) {
     MapType mapType = MapType.from(binding.key());
     switch (binding.bindingType()) {
       case PROVISION:

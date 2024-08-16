@@ -26,6 +26,8 @@ import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
+import dagger.internal.codegen.binding.MultiboundMapBinding;
+import dagger.internal.codegen.binding.MultiboundSetBinding;
 import dagger.internal.codegen.model.RequestKind;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,10 +96,10 @@ final class ProductionBindingRepresentation implements BindingRepresentation {
   private Optional<MemberSelect> staticFactoryCreation() {
     if (binding.dependencies().isEmpty()) {
       if (binding.kind().equals(MULTIBOUND_MAP)) {
-        return Optional.of(StaticMemberSelects.emptyMapFactory(binding));
+        return Optional.of(StaticMemberSelects.emptyMapFactory((MultiboundMapBinding) binding));
       }
       if (binding.kind().equals(MULTIBOUND_SET)) {
-        return Optional.of(StaticMemberSelects.emptySetFactory(binding));
+        return Optional.of(StaticMemberSelects.emptySetFactory((MultiboundSetBinding) binding));
       }
     }
     return Optional.empty();

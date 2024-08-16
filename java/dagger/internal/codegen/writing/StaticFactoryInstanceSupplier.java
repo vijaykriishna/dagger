@@ -23,6 +23,8 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.MultiboundMapBinding;
+import dagger.internal.codegen.binding.MultiboundSetBinding;
 
 /** An object that returns static factory to satisfy framework instance request. */
 final class StaticFactoryInstanceSupplier implements FrameworkInstanceSupplier {
@@ -47,9 +49,9 @@ final class StaticFactoryInstanceSupplier implements FrameworkInstanceSupplier {
   private MemberSelect staticFactoryCreation(ContributionBinding binding) {
     switch (binding.kind()) {
       case MULTIBOUND_MAP:
-        return StaticMemberSelects.emptyMapFactory(binding);
+        return StaticMemberSelects.emptyMapFactory((MultiboundMapBinding) binding);
       case MULTIBOUND_SET:
-        return StaticMemberSelects.emptySetFactory(binding);
+        return StaticMemberSelects.emptySetFactory((MultiboundSetBinding) binding);
       case PROVISION:
       case INJECTION:
         return StaticMemberSelects.factoryCreateNoArgumentMethod(binding);
