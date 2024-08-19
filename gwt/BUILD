@@ -37,6 +37,7 @@ java_library(
     name = "manual_deps",
     tags = [
         "maven_coordinates=com.google.dagger:dagger:%s:jar:sources" % POM_VERSION,
+        "maven_coordinates=jakarta.inject:jakarta.inject-api:2.0.1:jar:sources",
         "maven_coordinates=javax.inject:javax.inject:1:jar:sources",
     ],
     visibility = ["//visibility:private"],
