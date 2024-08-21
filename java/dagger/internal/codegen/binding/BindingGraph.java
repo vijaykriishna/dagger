@@ -42,6 +42,7 @@ import com.google.common.collect.Sets;
 import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.Traverser;
 import dagger.internal.codegen.base.TarjanSCCs;
+import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.model.BindingGraph.ChildFactoryMethodEdge;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
@@ -74,7 +75,8 @@ public abstract class BindingGraph {
   public abstract static class TopLevelBindingGraph
       extends dagger.internal.codegen.model.BindingGraph {
     static TopLevelBindingGraph create(
-        ImmutableNetwork<Node, Edge> network, boolean isFullBindingGraph) {
+        ImmutableNetwork<Node, Edge> network,
+        boolean isFullBindingGraph) {
       TopLevelBindingGraph topLevelBindingGraph =
           new AutoValue_BindingGraph_TopLevelBindingGraph(network, isFullBindingGraph);
 
@@ -276,6 +278,12 @@ public abstract class BindingGraph {
   /** Returns the {@link ComponentDescriptor} for this graph */
   public final ComponentDescriptor componentDescriptor() {
     return ((ComponentNodeImpl) componentNode()).componentDescriptor();
+  }
+
+  /** Returns all entry point methods for this component. */
+  public final ImmutableSet<ComponentMethodDescriptor> entryPointMethods() {
+    return componentDescriptor().entryPointMethods().stream()
+        .collect(toImmutableSet());
   }
 
   /**

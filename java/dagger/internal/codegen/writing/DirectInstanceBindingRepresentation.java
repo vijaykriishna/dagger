@@ -105,7 +105,7 @@ final class DirectInstanceBindingRepresentation {
 
     BindingRequest request = bindingRequest(binding.key(), RequestKind.INSTANCE);
     Optional<ComponentMethodDescriptor> matchingComponentMethod =
-        graph.componentDescriptor().firstMatchingComponentMethod(request);
+        firstMatchingComponentMethod(request, graph);
 
     ShardImplementation shardImplementation = componentImplementation.shardImplementation(binding);
 
@@ -131,6 +131,16 @@ final class DirectInstanceBindingRepresentation {
     } else {
       return privateMethodRequestRepresentationFactory.create(request, binding, bindingExpression);
     }
+  }
+
+  private static Optional<ComponentMethodDescriptor> firstMatchingComponentMethod(
+      BindingRequest request, BindingGraph graph) {
+    for (ComponentMethodDescriptor method : graph.entryPointMethods()) {
+      if (bindingRequest(method.dependencyRequest().get()).equals(request)) {
+        return Optional.of(method);
+      }
+    }
+    return Optional.empty();
   }
 
   private static boolean requiresMethodEncapsulation(ContributionBinding binding) {

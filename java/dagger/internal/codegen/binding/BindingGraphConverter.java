@@ -71,7 +71,9 @@ final class BindingGraphConverter {
     }
 
     TopLevelBindingGraph topLevelBindingGraph =
-        TopLevelBindingGraph.create(ImmutableNetwork.copyOf(network), isFullBindingGraph);
+        TopLevelBindingGraph.create(
+            ImmutableNetwork.copyOf(network),
+            isFullBindingGraph);
     return BindingGraph.create(rootNode, topLevelBindingGraph);
   }
 
