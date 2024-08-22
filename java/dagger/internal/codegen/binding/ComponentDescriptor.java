@@ -276,6 +276,20 @@ public abstract class ComponentDescriptor {
         builderType.getQualifiedName());
   }
 
+  /** Returns the first component method associated with this binding request, if one exists. */
+  public Optional<ComponentMethodDescriptor> firstMatchingComponentMethod(BindingRequest request) {
+    return Optional.ofNullable(firstMatchingComponentMethods().get(request));
+  }
+
+  @Memoized
+  ImmutableMap<BindingRequest, ComponentMethodDescriptor> firstMatchingComponentMethods() {
+    Map<BindingRequest, ComponentMethodDescriptor> methods = new HashMap<>();
+    for (ComponentMethodDescriptor method : entryPointMethods()) {
+      methods.putIfAbsent(BindingRequest.bindingRequest(method.dependencyRequest().get()), method);
+    }
+    return ImmutableMap.copyOf(methods);
+  }
+
   /** The entry point methods on the component type. Each has a {@link DependencyRequest}. */
   public final ImmutableSet<ComponentMethodDescriptor> entryPointMethods() {
     return componentMethods().stream()

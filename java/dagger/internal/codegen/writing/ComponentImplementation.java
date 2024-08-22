@@ -59,6 +59,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -92,7 +93,6 @@ import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -443,7 +443,7 @@ public final class ComponentImplementation {
   /**
    * The implementation of a shard.
    *
-   * <p>The purpose of a shard is to allow a component implementation to be split into multiple
+   * <p>The purpose of a shard is to allow a component implemenation to be split into multiple
    * classes, where each class owns the creation logic for a set of keys. Sharding is useful for
    * large component implementations, where a single component implementation class can reach size
    * limitations, such as the constant pool size.
@@ -886,11 +886,10 @@ public final class ComponentImplementation {
       // Each component method may have been declared by several supertypes. We want to implement
       // only one method for each distinct signature.
       XType componentType = graph.componentTypeElement().getType();
-      Set<MethodSignature> methodDescriptors = new HashSet<>();
-      for (ComponentMethodDescriptor method : graph.entryPointMethods()) {
-        MethodSignature signature =
-            MethodSignature.forComponentMethod(method, componentType, processingEnv);
-        if (methodDescriptors.add(signature)) {
+      Set<MethodSignature> signatures = Sets.newHashSet();
+      for (ComponentMethodDescriptor method : graph.componentDescriptor().entryPointMethods()) {
+        if (signatures.add(
+            MethodSignature.forComponentMethod(method, componentType, processingEnv))) {
           addMethod(
               COMPONENT_METHOD,
               componentRequestRepresentationsProvider.get().getComponentMethod(method));
