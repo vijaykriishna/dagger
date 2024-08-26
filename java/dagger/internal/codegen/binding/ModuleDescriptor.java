@@ -80,7 +80,7 @@ public abstract class ModuleDescriptor {
   public abstract ModuleKind kind();
 
   /** Whether the module is implicitly included rather than directly referenced in annotation. */
-  public abstract Boolean isImplicitlyIncluded();
+  public abstract boolean isImplicitlyIncluded();
 
   /** Returns all of the bindings declared in this module. */
   @Memoized
