@@ -80,6 +80,17 @@ GenJavaTests(
 )
 
 GenJavaTests(
+    name = "LazyClassKeyWithGenericsTest",
+    srcs = ["LazyClassKeyWithGenericsTest.java"],
+    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    deps = [
+        "//:dagger_with_compiler",
+        "//third_party/java/junit",
+        "//third_party/java/truth",
+    ],
+)
+
+GenJavaTests(
     name = "ComplexMapKeysInDifferentOrderTest",
     srcs = ["ComplexMapKeysInDifferentOrderTest.java"],
     javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,

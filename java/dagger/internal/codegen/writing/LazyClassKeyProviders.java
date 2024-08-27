@@ -31,15 +31,15 @@ import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** Keeps track of all providers for DaggerMap keys. */
 public final class LazyClassKeyProviders {
   public static final String MAP_KEY_PROVIDER_NAME = "LazyClassKeyProvider";
   private final ClassName mapKeyProviderType;
-  private final Map<Key, FieldSpec> entries = new HashMap<>();
-  private final Map<Key, FieldSpec> keepClassNamesFields = new HashMap<>();
+  private final Map<Key, FieldSpec> entries = new LinkedHashMap<>();
+  private final Map<Key, FieldSpec> keepClassNamesFields = new LinkedHashMap<>();
   private final UniqueNameSet uniqueFieldNames = new UniqueNameSet();
   private final ShardImplementation shardImplementation;
   private boolean providerAdded = false;

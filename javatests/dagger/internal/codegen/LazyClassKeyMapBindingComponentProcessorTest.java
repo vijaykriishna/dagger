@@ -186,7 +186,11 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
             "}");
     CompilerTests.daggerCompiler(fooBar, fooBar2, mapKeyBindingsModule, componentFile)
         .withProcessingOptions(compilerMode.processorOptions())
-        .compile(subject -> subject.hasErrorCount(0));
+        .compile(
+            subject -> {
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/DaggerTestComponent"));
+            });
   }
 
   @Test
