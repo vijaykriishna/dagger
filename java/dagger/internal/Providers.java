@@ -18,11 +18,14 @@ package dagger.internal;
 
 import static dagger.internal.Preconditions.checkNotNull;
 
+import org.jspecify.annotations.Nullable;
+
 /** Helper class for utility functions dealing with Providers. */
 public final class Providers {
 
   /** Converts a javax provider to a Dagger internal provider. */
-  public static <T> Provider<T> asDaggerProvider(final javax.inject.Provider<T> provider) {
+  public static <T extends @Nullable Object> Provider<T> asDaggerProvider(
+      final javax.inject.Provider<T> provider) {
     checkNotNull(provider);
     return new Provider<T>() {
         @Override public T get() {

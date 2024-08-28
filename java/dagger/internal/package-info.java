@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Dagger Authors.
+ * Copyright (C) 2024 The Dagger Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
+@NullMarked
 package dagger.internal;
 
-import org.jspecify.annotations.Nullable;
-
-/**
- * Internal Provider interface to make support for {@code javax.inject.Provider} and {@code
- * jakarta.inject.Provider} easier. Do not use outside of Dagger implementation code.
- */
-public interface Provider<T extends @Nullable Object>
-    extends javax.inject.Provider<T>, jakarta.inject.Provider<T> {}
+import org.jspecify.annotations.NullMarked;

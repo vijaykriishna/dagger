@@ -19,6 +19,7 @@ package dagger.internal;
 import dagger.Provides;
 import javax.inject.Inject;
 import javax.inject.Scope;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@linkplain Scope unscoped} {@link Provider}. While a {@link Provider} <i>may</i> apply
@@ -31,5 +32,4 @@ import javax.inject.Scope;
  * bindings. For example, {@link Provides} methods may be implemented in ways that return the same
  * instance for each call.
  */
-public interface Factory<T> extends Provider<T> {
-}
+public interface Factory<T extends @Nullable Object> extends Provider<T> {}

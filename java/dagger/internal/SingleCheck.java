@@ -19,15 +19,17 @@ package dagger.internal;
 import static dagger.internal.Preconditions.checkNotNull;
 import static dagger.internal.Providers.asDaggerProvider;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A {@link Provider} implementation that memoizes the result of another {@link Provider} using
  * simple lazy initialization, not the double-checked lock pattern.
  */
-public final class SingleCheck<T> implements Provider<T> {
+public final class SingleCheck<T extends @Nullable Object> implements Provider<T> {
   private static final Object UNINITIALIZED = new Object();
 
-  private volatile Provider<T> provider;
-  private volatile Object instance = UNINITIALIZED;
+  private volatile @Nullable Provider<T> provider;
+  private volatile @Nullable Object instance = UNINITIALIZED;
 
   private SingleCheck(Provider<T> provider) {
     assert provider != null;
@@ -37,10 +39,10 @@ public final class SingleCheck<T> implements Provider<T> {
   @SuppressWarnings("unchecked") // cast only happens when result comes from the delegate provider
   @Override
   public T get() {
-    Object local = instance;
+    @Nullable Object local = instance;
     if (local == UNINITIALIZED) {
       // provider is volatile and might become null after the check, so retrieve the provider first
-      Provider<T> providerReference = provider;
+      @Nullable Provider<T> providerReference = provider;
       if (providerReference == null) {
         // The provider was null, so the instance must already be set
         local = instance;

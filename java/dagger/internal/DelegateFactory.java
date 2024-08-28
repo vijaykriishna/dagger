@@ -19,13 +19,16 @@ package dagger.internal;
 import static dagger.internal.Preconditions.checkNotNull;
 import static dagger.internal.Providers.asDaggerProvider;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A DelegateFactory that is used to stitch Provider/Lazy indirection based dependency cycles.
  *
  * @since 2.0.1
  */
 public final class DelegateFactory<T> implements Factory<T> {
-  private Provider<T> delegate;
+
+  private @Nullable Provider<T> delegate;
 
   @Override
   public T get() {

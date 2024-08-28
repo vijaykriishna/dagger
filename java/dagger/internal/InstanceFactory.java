@@ -19,6 +19,7 @@ package dagger.internal;
 import static dagger.internal.Preconditions.checkNotNull;
 
 import dagger.Lazy;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link Factory} implementation that returns a single instance for all invocations of {@link
@@ -29,24 +30,24 @@ import dagger.Lazy;
  * is redundant and unnecessary. However, using this with {@link DoubleCheck#provider} is valid and
  * may be desired for testing or contractual guarantees.
  */
-public final class InstanceFactory<T> implements Factory<T>, Lazy<T> {
+public final class InstanceFactory<T extends @Nullable Object> implements Factory<T>, Lazy<T> {
   public static <T> Factory<T> create(T instance) {
     return new InstanceFactory<T>(checkNotNull(instance, "instance cannot be null"));
   }
 
-  public static <T> Factory<T> createNullable(T instance) {
+  public static <T extends @Nullable Object> Factory<T> createNullable(T instance) {
     return instance == null
         ? InstanceFactory.<T>nullInstanceFactory()
         : new InstanceFactory<T>(instance);
   }
 
   @SuppressWarnings("unchecked") // bivariant implementation
-  private static <T> InstanceFactory<T> nullInstanceFactory() {
+  private static <T extends @Nullable Object> InstanceFactory<T> nullInstanceFactory() {
     return (InstanceFactory<T>) NULL_INSTANCE_FACTORY;
   }
 
-  private static final InstanceFactory<Object> NULL_INSTANCE_FACTORY =
-      new InstanceFactory<Object>(null);
+  private static final InstanceFactory<@Nullable Object> NULL_INSTANCE_FACTORY =
+      new InstanceFactory<@Nullable Object>(null);
 
   private final T instance;
 

@@ -33,6 +33,7 @@ java_library(
     tags = ["maven_coordinates=com.google.dagger:dagger:" + POM_VERSION],
     exports = ["//third_party/java/jsr330_inject"],
     deps = [
+        "//third_party/java/jspecify_annotations",
         "//third_party/java/jsr330_inject",
         "@maven//:jakarta_inject_jakarta_inject_api",
     ],
@@ -44,6 +45,7 @@ gen_maven_artifact(
     artifact_name = "Dagger",
     artifact_target = ":core",
     artifact_target_maven_deps = [
+        "org.jspecify:jspecify",
         "jakarta.inject:jakarta.inject-api",
         "javax.inject:javax.inject",
     ],

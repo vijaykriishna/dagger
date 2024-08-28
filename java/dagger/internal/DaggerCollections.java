@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Collection utility methods in service of Dagger internal classes. <em>Do not use</em> in client
@@ -47,14 +48,12 @@ public final class DaggerCollections {
     return new ArrayList<T>(size);
   }
 
-  /**
-   * Returns true if at least one pair of items in {@code list} are equals.
-   */
-  public static boolean hasDuplicates(List<?> list) {
+  /** Returns true if at least one pair of items in {@code list} are equals. */
+  public static <T extends @Nullable Object> boolean hasDuplicates(List<T> list) {
     if (list.size() < 2) {
       return false;
     }
-    Set<Object> asSet = new HashSet<Object>(list);
+    Set<T> asSet = new HashSet<T>(list);
     return list.size() != asSet.size();
   }
 

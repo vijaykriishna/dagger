@@ -16,6 +16,7 @@
 
 package dagger.internal;
 
+import org.jspecify.annotations.Nullable;
 
 /**
  * An adaptation of Guava's {@code com.google.common.base.Preconditions} that is specially tailored
@@ -29,7 +30,7 @@ public final class Preconditions {
    * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is null
    */
-  public static <T> T checkNotNull(T reference) {
+  public static <T> T checkNotNull(@Nullable T reference) {
     if (reference == null) {
       throw new NullPointerException();
     }
@@ -106,9 +107,10 @@ public final class Preconditions {
             "errorMessageTemplate has more than one format specifier");
       }
       String argString =
-          errorMessageArg instanceof Class
-              ? ((Class) errorMessageArg).getCanonicalName()
-              : String.valueOf(errorMessageArg);
+          String.valueOf(
+              errorMessageArg instanceof Class
+                  ? ((Class) errorMessageArg).getCanonicalName()
+                  : errorMessageArg);
       throw new NullPointerException(errorMessageTemplate.replace("%s", argString));
     }
     return reference;

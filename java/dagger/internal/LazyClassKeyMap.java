@@ -19,6 +19,8 @@ package dagger.internal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class keyed map that delegates to a string keyed map under the hood.
@@ -37,11 +39,11 @@ public final class LazyClassKeyMap<V> implements Map<Class<?>, V> {
   }
 
   @Override
-  public V get(Object key) {
+  public V get(@Nullable Object key) {
     if (!(key instanceof Class)) {
       throw new IllegalArgumentException("Key must be a class");
     }
-    return delegate.get(((Class<?>) key).getName());
+    return (@NonNull V) delegate.get(((Class<?>) key).getName());
   }
 
   @Override
@@ -64,7 +66,7 @@ public final class LazyClassKeyMap<V> implements Map<Class<?>, V> {
   }
 
   @Override
-  public boolean containsKey(Object key) {
+  public boolean containsKey(@Nullable Object key) {
     if (!(key instanceof Class)) {
       throw new IllegalArgumentException("Key must be a class");
     }
@@ -72,7 +74,7 @@ public final class LazyClassKeyMap<V> implements Map<Class<?>, V> {
   }
 
   @Override
-  public boolean containsValue(Object value) {
+  public boolean containsValue(@Nullable Object value) {
     return delegate.containsValue(value);
   }
 
@@ -92,7 +94,7 @@ public final class LazyClassKeyMap<V> implements Map<Class<?>, V> {
 
   // The dagger map binding should be a immutable map.
   @Override
-  public V remove(Object key) {
+  public V remove(@Nullable Object key) {
     throw new UnsupportedOperationException("Dagger map bindings are immutable");
   }
 
