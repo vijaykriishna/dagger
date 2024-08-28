@@ -25,6 +25,6 @@ kapt {
 }
 
 java {
-    // Make sure the generated source is compatible with Java 7.
-    sourceCompatibility = JavaVersion.VERSION_1_7
+    // Make sure the generated source is compatible with Java 8.
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }
