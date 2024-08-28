@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
 import static dagger.internal.codegen.extension.Optionals.emptiesLast;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.Comparator.comparing;
@@ -55,7 +54,7 @@ public abstract class BindingDeclaration {
               (BindingDeclaration declaration) -> declaration.bindingElement(),
               emptiesLast(
                   comparing((XElement element) -> getSimpleName(element))
-                      .thenComparing((XElement element) -> toJavac(element).asType().toString())));
+                      .thenComparing(XElements::toStableString)));
 
   /** The {@link Key} of this declaration. */
   public abstract Key key();
@@ -66,7 +65,7 @@ public abstract class BindingDeclaration {
    *
    * <p>For example, consider {@link BindingKind#MULTIBOUND_SET}. A component with many
    * {@code @IntoSet} bindings for the same key will have a synthetic binding that depends on all
-   * contributions, but with no identifiying binding element. A {@code @Multibinds} method will also
+   * contributions, but with no identifying binding element. A {@code @Multibinds} method will also
    * contribute a synthetic binding, but since multiple {@code @Multibinds} methods can coexist in
    * the same component (and contribute to one single binding), it has no binding element.
    */
