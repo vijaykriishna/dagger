@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import dagger.testing.golden.GoldenFileRule;
-import java.util.Collection;
 import javax.tools.JavaFileObject;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,14 +33,8 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class OptionalBindingRequestFulfillmentTest {
   @Parameters(name = "{0}")
-  public static Collection<Object[]> parameters() {
-    return ImmutableList.copyOf(
-        new Object[][] {
-            {CompilerMode.DEFAULT_MODE},
-            {CompilerMode.DEFAULT_JAVA7_MODE},
-            {CompilerMode.FAST_INIT_MODE},
-            {CompilerMode.FAST_INIT_JAVA7_MODE}
-        });
+  public static ImmutableList<Object[]> parameters() {
+    return CompilerMode.TEST_PARAMETERS;
   }
 
   @Rule public GoldenFileRule goldenFileRule = new GoldenFileRule();
