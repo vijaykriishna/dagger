@@ -69,9 +69,10 @@ final class BindingGraphConverter {
     if (!isFullBindingGraph) {
       unreachableNodes(network.asGraph(), rootNode).forEach(network::removeNode);
     }
-
     TopLevelBindingGraph topLevelBindingGraph =
-        TopLevelBindingGraph.create(ImmutableNetwork.copyOf(network), isFullBindingGraph);
+        TopLevelBindingGraph.create(
+            ImmutableNetwork.copyOf(network),
+            isFullBindingGraph);
     return BindingGraph.create(rootNode, topLevelBindingGraph);
   }
 

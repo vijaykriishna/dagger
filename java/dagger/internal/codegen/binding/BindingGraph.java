@@ -17,6 +17,7 @@
 package dagger.internal.codegen.binding;
 
 import static com.google.common.collect.Iterables.transform;
+import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 import static dagger.internal.codegen.extension.DaggerStreams.instancesOf;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
@@ -42,6 +43,7 @@ import com.google.common.collect.Sets;
 import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.Traverser;
 import dagger.internal.codegen.base.TarjanSCCs;
+import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.model.BindingGraph.ChildFactoryMethodEdge;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
@@ -52,6 +54,7 @@ import dagger.internal.codegen.model.DaggerTypeElement;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -74,7 +77,8 @@ public abstract class BindingGraph {
   public abstract static class TopLevelBindingGraph
       extends dagger.internal.codegen.model.BindingGraph {
     static TopLevelBindingGraph create(
-        ImmutableNetwork<Node, Edge> network, boolean isFullBindingGraph) {
+        ImmutableNetwork<Node, Edge> network,
+        boolean isFullBindingGraph) {
       TopLevelBindingGraph topLevelBindingGraph =
           new AutoValue_BindingGraph_TopLevelBindingGraph(network, isFullBindingGraph);
 
@@ -276,6 +280,29 @@ public abstract class BindingGraph {
   /** Returns the {@link ComponentDescriptor} for this graph */
   public final ComponentDescriptor componentDescriptor() {
     return ((ComponentNodeImpl) componentNode()).componentDescriptor();
+  }
+
+  /** Returns all entry point methods for this component. */
+  @Memoized
+  public ImmutableSet<ComponentMethodDescriptor> entryPointMethods() {
+    return componentDescriptor().entryPointMethods().stream()
+        .collect(toImmutableSet());
+  }
+
+  public Optional<ComponentMethodDescriptor> findFirstMatchingComponentMethod(
+      BindingRequest request) {
+    return Optional.ofNullable(firstMatchingComponentMethods().get(request));
+  }
+
+  @Memoized
+  ImmutableMap<BindingRequest, ComponentMethodDescriptor> firstMatchingComponentMethods() {
+    Map<BindingRequest, ComponentMethodDescriptor> componentMethodDescriptorsByRequest =
+        new HashMap<>();
+    for (ComponentMethodDescriptor method : entryPointMethods()) {
+      componentMethodDescriptorsByRequest.putIfAbsent(
+          bindingRequest(method.dependencyRequest().get()), method);
+    }
+    return ImmutableMap.copyOf(componentMethodDescriptorsByRequest);
   }
 
   /**

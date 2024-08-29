@@ -105,7 +105,7 @@ final class DirectInstanceBindingRepresentation {
 
     BindingRequest request = bindingRequest(binding.key(), RequestKind.INSTANCE);
     Optional<ComponentMethodDescriptor> matchingComponentMethod =
-        graph.componentDescriptor().firstMatchingComponentMethod(request);
+        graph.findFirstMatchingComponentMethod(request);
 
     ShardImplementation shardImplementation = componentImplementation.shardImplementation(binding);
 
