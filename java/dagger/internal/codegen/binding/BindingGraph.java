@@ -73,7 +73,7 @@ public abstract class BindingGraph {
   @AutoValue
   public abstract static class TopLevelBindingGraph
       extends dagger.internal.codegen.model.BindingGraph {
-    static TopLevelBindingGraph create(
+    private static TopLevelBindingGraph create(
         ImmutableNetwork<Node, Edge> network, boolean isFullBindingGraph) {
       TopLevelBindingGraph topLevelBindingGraph =
           new AutoValue_BindingGraph_TopLevelBindingGraph(network, isFullBindingGraph);
@@ -193,9 +193,10 @@ public abstract class BindingGraph {
     }
   }
 
-  static BindingGraph create(
-      ComponentNode componentNode, TopLevelBindingGraph topLevelBindingGraph) {
-    return create(Optional.empty(), componentNode, topLevelBindingGraph);
+  static BindingGraph create(ImmutableNetwork<Node, Edge> network, boolean isFullBindingGraph) {
+    TopLevelBindingGraph topLevelBindingGraph =
+        TopLevelBindingGraph.create(network, isFullBindingGraph);
+    return create(Optional.empty(), topLevelBindingGraph.rootComponentNode(), topLevelBindingGraph);
   }
 
   private static BindingGraph create(

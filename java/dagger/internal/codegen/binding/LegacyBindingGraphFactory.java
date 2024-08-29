@@ -18,9 +18,8 @@ package dagger.internal.codegen.binding;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.not;
 import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
+import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
@@ -34,17 +33,15 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static java.util.function.Predicate.isEqual;
 
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
+import dagger.Reusable;
+import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.SetType;
-import dagger.internal.codegen.base.TarjanSCCs;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
@@ -66,11 +63,20 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import javax.inject.Inject;
-import javax.tools.Diagnostic;
 
 /** A factory for {@link BindingGraph} objects. */
-public final class BindingGraphFactory {
-  private final LegacyBindingGraphFactory legacyBindingGraphFactory;
+public final class LegacyBindingGraphFactory {
+
+  static boolean useLegacyBindingGraphFactory(ComponentDescriptor componentDescriptor) {
+    return true;
+  }
+
+  static boolean useStrictMultibindings(
+      CompilerOptions compilerOptions, ContributionBinding binding) {
+    return compilerOptions.strictMultibindingValidation()
+        && binding.contributionType().equals(ContributionType.MAP);
+  }
+
   private final InjectBindingRegistry injectBindingRegistry;
   private final KeyFactory keyFactory;
   private final BindingFactory bindingFactory;
@@ -80,8 +86,7 @@ public final class BindingGraphFactory {
   private final CompilerOptions compilerOptions;
 
   @Inject
-  BindingGraphFactory(
-      LegacyBindingGraphFactory legacyBindingGraphFactory,
+  LegacyBindingGraphFactory(
       InjectBindingRegistry injectBindingRegistry,
       KeyFactory keyFactory,
       BindingFactory bindingFactory,
@@ -89,7 +94,6 @@ public final class BindingGraphFactory {
       ComponentDeclarations.Factory componentDeclarationsFactory,
       BindingGraphConverter bindingGraphConverter,
       CompilerOptions compilerOptions) {
-    this.legacyBindingGraphFactory = legacyBindingGraphFactory;
     this.injectBindingRegistry = injectBindingRegistry;
     this.keyFactory = keyFactory;
     this.bindingFactory = bindingFactory;
@@ -107,11 +111,9 @@ public final class BindingGraphFactory {
    */
   public BindingGraph create(
       ComponentDescriptor componentDescriptor, boolean createFullBindingGraph) {
-    return LegacyBindingGraphFactory.useLegacyBindingGraphFactory(componentDescriptor)
-        ? legacyBindingGraphFactory.create(componentDescriptor, createFullBindingGraph)
-        : bindingGraphConverter.convert(
-            createLegacyBindingGraph(Optional.empty(), componentDescriptor, createFullBindingGraph),
-            createFullBindingGraph);
+    return bindingGraphConverter.convert(
+        createLegacyBindingGraph(Optional.empty(), componentDescriptor, createFullBindingGraph),
+        createFullBindingGraph);
   }
 
   private LegacyBindingGraph createLegacyBindingGraph(
@@ -239,8 +241,8 @@ public final class BindingGraphFactory {
     final Map<Key, ResolvedBindings> resolvedContributionBindings = new LinkedHashMap<>();
     final Map<Key, ResolvedBindings> resolvedMembersInjectionBindings = new LinkedHashMap<>();
     final Deque<Key> cycleStack = new ArrayDeque<>();
-    final Map<Key, Boolean> keyDependsOnMissingBindingCache = new HashMap<>();
     final Map<Key, Boolean> keyDependsOnLocalBindingsCache = new HashMap<>();
+    final Map<Binding, Boolean> bindingDependsOnLocalBindingsCache = new HashMap<>();
     final Queue<ComponentDescriptor> subcomponentsToResolve = new ArrayDeque<>();
 
     Resolver(Optional<Resolver> parentResolver, ComponentDescriptor componentDescriptor) {
@@ -568,7 +570,7 @@ public final class BindingGraphFactory {
       // TODO(erichang): See if we can standardize the way map keys are used in these data
       // structures, either always wrapped or unwrapped to be consistent and less errorprone.
       Key bindingKey =
-          LegacyBindingGraphFactory.useStrictMultibindings(compilerOptions, binding)
+          useStrictMultibindings(compilerOptions, binding)
               ? keyFactory.unwrapMapValueType(binding.key())
               : binding.key();
 
@@ -640,14 +642,15 @@ public final class BindingGraphFactory {
      * MembersInjectionBinding}s are not inherited.
      */
     private Optional<ResolvedBindings> getPreviouslyResolvedBindings(Key key) {
-      if (parentResolver.isEmpty()) {
+      Optional<ResolvedBindings> result =
+          Optional.ofNullable(resolvedContributionBindings.get(key));
+      if (result.isPresent()) {
+        return result;
+      } else if (parentResolver.isPresent()) {
+        return parentResolver.get().getPreviouslyResolvedBindings(key);
+      } else {
         return Optional.empty();
       }
-      // Check the parent's resolvedContributionBindings directly before calling
-      // parentResolver.getPreviouslyResolvedBindings() otherwise the parent will skip itself.
-      return parentResolver.get().resolvedContributionBindings.containsKey(key)
-          ? Optional.of(parentResolver.get().resolvedContributionBindings.get(key))
-          : parentResolver.get().getPreviouslyResolvedBindings(key);
     }
 
     private void resolveMembersInjection(Key key) {
@@ -709,190 +712,81 @@ public final class BindingGraphFactory {
     }
 
     private final class RequiresResolutionChecker {
-      // Note: to keep things simpler, we only have a cache for "Key". For "Binding" we check the
-      // binding itself for local bindings, then we rely on the cache for checking all of its
-      // dependencies.
-      private boolean requiresResolution(Binding binding) {
-        // If we're not allowed to float then the binding cannot be re-resolved in this component.
-        if (isNotAllowedToFloat(binding)) {
+      private final Set<Object> cycleChecker = new HashSet<>();
+
+      /**
+       * Returns {@code true} if any of the bindings resolved for {@code key} are multibindings with
+       * contributions declared within this component's modules or optional bindings with present
+       * values declared within this component's modules, or if any of its unscoped dependencies
+       * depend on such bindings.
+       *
+       * <p>We don't care about scoped dependencies because they will never depend on bindings from
+       * subcomponents.
+       *
+       * @throws IllegalArgumentException if {@link #getPreviouslyResolvedBindings(Key)} is empty
+       */
+      private boolean requiresResolution(Key key) {
+        // Don't recur infinitely if there are valid cycles in the dependency graph.
+        // http://b/23032377
+        if (!cycleChecker.add(key)) {
           return false;
         }
-        return hasLocalBindings(binding)
-            || (shouldCheckDependencies(binding)
-                && binding.dependencies().stream()
-                    .map(DependencyRequest::key)
-                    .anyMatch(this::requiresResolution));
-      }
-
-      private boolean requiresResolution(Key key) {
-        // Try to re-resolving bindings that depend on missing bindings. The missing bindings
-        // will still end up being reported for cases where the binding is not allowed to float,
-        // but re-resolving allows cases that are allowed to float to be re-resolved which can
-        // prevent misleading dependency traces that include all floatable bindings.
-        // E.g. see MissingBindingSuggestionsTest#bindsMissingBinding_fails().
-        return dependsOnLocalBinding(key) || dependsOnMissingBinding(key);
-      }
-
-      private boolean isNotAllowedToFloat(Binding binding) {
-        // In general, @Provides/@Binds/@Production bindings are allowed to float to get access to
-        // multibinding contributions that are contributed in subcomponents. However, they aren't
-        // allowed to float to get access to missing bindings that are installed in subcomponents,
-        // so we prevent floating if these bindings depend on a missing binding.
-        return (binding.kind() != BindingKind.INJECTION
-                && binding.kind() != BindingKind.ASSISTED_INJECTION)
-            && dependsOnMissingBinding(binding.key());
-      }
-
-      private boolean dependsOnMissingBinding(Key key) {
-        if (!keyDependsOnMissingBindingCache.containsKey(key)) {
-          visitUncachedDependencies(key);
-        }
-        return checkNotNull(keyDependsOnMissingBindingCache.get(key));
-      }
-
-      private boolean dependsOnLocalBinding(Key key) {
-        if (!keyDependsOnLocalBindingsCache.containsKey(key)) {
-          visitUncachedDependencies(key);
-        }
-        return checkNotNull(keyDependsOnLocalBindingsCache.get(key));
-      }
-
-      private void visitUncachedDependencies(Key requestKey) {
-        // We use Tarjan's algorithm to visit the uncached dependencies of the requestKey grouped by
-        // strongly connected components (i.e. cycles) and iterated in reverse topological order.
-        for (ImmutableSet<Key> cycleKeys : stronglyConnectedComponents(requestKey)) {
-          // As a sanity check, verify that none of the keys in the cycle are cached yet.
-          checkState(cycleKeys.stream().noneMatch(keyDependsOnLocalBindingsCache::containsKey));
-
-          ImmutableSet<ResolvedBindings> cycleBindings =
-              cycleKeys.stream().map(this::previouslyResolvedBindings).collect(toImmutableSet());
-
-          checkState(cycleKeys.stream().noneMatch(keyDependsOnMissingBindingCache::containsKey));
-          boolean dependsOnMissingBinding =
-              cycleBindings.stream().anyMatch(ResolvedBindings::isEmpty)
-              || cycleBindings.stream()
-                  .map(ResolvedBindings::bindings)
-                  .flatMap(ImmutableCollection::stream)
-                  .filter(this::shouldCheckDependencies)
-                  .flatMap(binding -> binding.dependencies().stream())
-                  .map(DependencyRequest::key)
-                  .filter(not(cycleKeys::contains))
-                  .anyMatch(keyDependsOnMissingBindingCache::get);
-          // All keys in the cycle have the same cached value since they all depend on each other.
-          cycleKeys.forEach(
-              key -> keyDependsOnMissingBindingCache.put(key, dependsOnMissingBinding));
-
-          // Note that we purposely don't filter out scoped bindings below. In particular, there are
-          // currently 3 cases where hasLocalBinding will return true:
-          //
-          //   1) The binding is MULTIBOUND_SET/MULTIBOUND_MAP and depends on an explicit
-          //      multibinding contributions in the current component.
-          //   2) The binding is OPTIONAL and depends on an explicit binding contributed in the
-          //      current component.
-          //   3) The binding has a duplicate explicit binding contributed in this component.
-          //
-          // For case #1 and #2 it's not actually required to check for scope because those are
-          // synthetic bindings which are never scoped.
-          //
-          // For case #3 we actually want don't want to rule out a scoped binding, e.g. in the case
-          // where we have a floating @Inject Foo(Bar bar) binding with @Singleton Bar provided in
-          // the ParentComponent and a duplicate Bar provided in the ChildComponent we want to
-          // reprocess Foo so that we can report the duplicate Bar binding.
-          boolean dependsOnLocalBindings =
-              // First, check if any of the bindings themselves depends on local bindings.
-              cycleBindings.stream().anyMatch(Resolver.this::hasLocalBindings)
-              // Next, check if any of the dependencies (that aren't in the cycle itself) depend
-              // on local bindings. We should be guaranteed that all dependencies are cached since
-              // Tarjan's algorithm is traversed in reverse topological order.
-              || cycleBindings.stream()
-                  .map(ResolvedBindings::bindings)
-                  .flatMap(ImmutableCollection::stream)
-                  .filter(this::shouldCheckDependencies)
-                  .flatMap(binding -> binding.dependencies().stream())
-                  .map(DependencyRequest::key)
-                  .filter(not(cycleKeys::contains))
-                  .anyMatch(keyDependsOnLocalBindingsCache::get);
-
-          // All keys in the cycle have the same cached value since they all depend on each other.
-          cycleKeys.forEach(key -> keyDependsOnLocalBindingsCache.put(key, dependsOnLocalBindings));
-        }
+        return reentrantComputeIfAbsent(
+            keyDependsOnLocalBindingsCache, key, this::requiresResolutionUncached);
       }
 
       /**
-       * Returns a list of strongly connected components in reverse topological order, starting from
-       * the given {@code requestKey} and traversing its transitive dependencies.
+       * Returns {@code true} if {@code binding} is unscoped (or has {@link Reusable @Reusable}
+       * scope) and depends on multibindings with contributions declared within this component's
+       * modules, or if any of its unscoped or {@link Reusable @Reusable} scoped dependencies depend
+       * on such local multibindings.
        *
-       * <p>Note that the returned list may not include all transitive dependencies of the {@code
-       * requestKey} because we intentionally stop at dependencies that:
-       *
-       * <ul>
-       *   <li> Already have a cached value.
-       *   <li> Are scoped to an ancestor component (i.e. cannot depend on local bindings).
-       *   <li> Have a direct dependency on local bindings (i.e. no need to traverse further).
-       * </ul>
+       * <p>We don't care about non-reusable scoped dependencies because they will never depend on
+       * multibindings with contributions from subcomponents.
        */
-      private ImmutableList<ImmutableSet<Key>> stronglyConnectedComponents(Key requestKey) {
-        Set<Key> uncachedKeys = new LinkedHashSet<>();
-        SetMultimap<Key, Key> successorsFunction = LinkedHashMultimap.create();
-        Deque<Key> queue = new ArrayDeque<>();
-        queue.add(requestKey);
-        while (!queue.isEmpty()) {
-          Key key = queue.pop();
-          if (keyDependsOnLocalBindingsCache.containsKey(key) || !uncachedKeys.add(key)) {
-            continue;
-          }
-          previouslyResolvedBindings(key).bindings().stream()
-              .filter(this::shouldCheckDependencies)
-              .flatMap(binding -> binding.dependencies().stream())
-              .forEach(
-                  dependency -> {
-                    queue.push(dependency.key());
-                    successorsFunction.put(key, dependency.key());
-                  });
+      private boolean requiresResolution(Binding binding) {
+        if (!cycleChecker.add(binding)) {
+          return false;
         }
-        return TarjanSCCs.compute(
-            ImmutableSet.copyOf(uncachedKeys),
-            node -> successorsFunction.get(node).stream()
-                // We added successors eagerly in the while-loop above but they don't actually need
-                // to be visited unless they are contained within the set of uncachedKeys so filter.
-                .filter(uncachedKeys::contains)
-                .collect(toImmutableSet()));
+        return reentrantComputeIfAbsent(
+            bindingDependsOnLocalBindingsCache, binding, this::requiresResolutionUncached);
       }
 
-      private ResolvedBindings previouslyResolvedBindings(Key key) {
-        Optional<ResolvedBindings> previouslyResolvedBindings = getPreviouslyResolvedBindings(key);
+      private boolean requiresResolutionUncached(Key key) {
         checkArgument(
-            previouslyResolvedBindings.isPresent(),
+            getPreviouslyResolvedBindings(key).isPresent(),
             "no previously resolved bindings in %s for %s",
             Resolver.this,
             key);
-        return previouslyResolvedBindings.get();
+        ResolvedBindings previouslyResolvedBindings = getPreviouslyResolvedBindings(key).get();
+        if (hasLocalBindings(previouslyResolvedBindings)) {
+          return true;
+        }
+
+        for (Binding binding : previouslyResolvedBindings.bindings()) {
+          if (requiresResolution(binding)) {
+            return true;
+          }
+        }
+        return false;
       }
 
-      private boolean shouldCheckDependencies(Binding binding) {
-        // Note: we can skip dependencies for scoped bindings because while there could be
-        // duplicates underneath the scoped binding, those duplicates are technically unused so
-        // Dagger shouldn't validate them.
-        return !isScopedToComponent(binding)
+      private boolean requiresResolutionUncached(Binding binding) {
+        if ((!binding.scope().isPresent() || binding.scope().get().isReusable())
             // TODO(beder): Figure out what happens with production subcomponents.
-            && !binding.bindingType().equals(BindingType.PRODUCTION);
+            && !binding.bindingType().equals(BindingType.PRODUCTION)) {
+          for (DependencyRequest dependency : binding.dependencies()) {
+            if (requiresResolution(dependency.key())) {
+              return true;
+            }
+          }
+        }
+        return false;
       }
-
-      private boolean isScopedToComponent(Binding binding) {
-        return binding.scope().isPresent() && !binding.scope().get().isReusable();
-      }
-    }
-
-    private boolean hasLocalBindings(Binding binding) {
-      return hasLocalMultibindingContributions(binding.key())
-          || hasDuplicateExplicitBinding(binding)
-          || hasLocalOptionalBindingContribution(
-              binding.key(), ImmutableSet.of((ContributionBinding) binding));
     }
 
     private boolean hasLocalBindings(ResolvedBindings resolvedBindings) {
       return hasLocalMultibindingContributions(resolvedBindings.key())
-          || hasDuplicateExplicitBinding(resolvedBindings)
           || hasLocalOptionalBindingContribution(resolvedBindings);
     }
 
@@ -934,39 +828,6 @@ public final class BindingGraphFactory {
     private boolean hasLocalExplicitBindings(Key requestKey) {
       return !declarations.bindings(requestKey).isEmpty()
           || !declarations.delegates(keyFactory.unwrapMapValueType(requestKey)).isEmpty();
-    }
-
-    /** Returns {@code true} if this resolver has a duplicate explicit binding to resolve. */
-    private boolean hasDuplicateExplicitBinding(ResolvedBindings previouslyResolvedBindings) {
-      return hasDuplicateExplicitBinding(
-          previouslyResolvedBindings.key(), previouslyResolvedBindings.bindings());
-    }
-
-    /** Returns {@code true} if this resolver has a duplicate explicit binding to resolve. */
-    private boolean hasDuplicateExplicitBinding(Binding binding) {
-      return hasDuplicateExplicitBinding(binding.key(), ImmutableSet.of(binding));
-    }
-
-    /** Returns {@code true} if this resolver has a duplicate explicit binding to resolve. */
-    private boolean hasDuplicateExplicitBinding(
-          Key key, ImmutableSet<? extends Binding> previouslyResolvedBindings) {
-      // By default, we don't actually report an error when an explicit binding tries to override
-      // an injection binding (b/312202845). For now, ignore injection bindings unless we actually
-      // will report an error, otherwise we'd end up silently overriding the binding rather than
-      // reporting a duplicate.
-      // TODO(b/312202845): This can be removed once b/312202845 is fixed.
-      if (!compilerOptions.explicitBindingConflictsWithInjectValidationType()
-          .diagnosticKind()
-          .equals(Optional.of(Diagnostic.Kind.ERROR))) {
-        previouslyResolvedBindings =
-            previouslyResolvedBindings.stream()
-                .filter(binding -> !binding.kind().equals(BindingKind.INJECTION))
-                .collect(toImmutableSet());
-      }
-
-      // If the previously resolved bindings aren't empty and they don't contain all of the local
-      // explicit bindings then the current component must contain a duplicate explicit binding.
-      return !previouslyResolvedBindings.isEmpty() && hasLocalExplicitBindings(key);
     }
   }
 }

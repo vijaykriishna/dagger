@@ -29,8 +29,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import dagger.internal.codegen.binding.BindingGraph.TopLevelBindingGraph;
-import dagger.internal.codegen.binding.BindingGraphFactory.LegacyBindingGraph;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
@@ -70,9 +68,39 @@ final class BindingGraphConverter {
       unreachableNodes(network.asGraph(), rootNode).forEach(network::removeNode);
     }
 
-    TopLevelBindingGraph topLevelBindingGraph =
-        TopLevelBindingGraph.create(ImmutableNetwork.copyOf(network), isFullBindingGraph);
-    return BindingGraph.create(rootNode, topLevelBindingGraph);
+    return BindingGraph.create(ImmutableNetwork.copyOf(network), isFullBindingGraph);
+  }
+
+  /** Represents a fully resolved binding graph. */
+  interface LegacyBindingGraph {
+    /** Returns the {@link ComponentNode} associated with this binding graph. */
+    ComponentNode componentNode();
+
+    /** Returns the {@link ComponentPath} associated with this binding graph. */
+    ComponentPath componentPath();
+
+    /** Returns the {@link ComponentDescriptor} associated with this binding graph. */
+    ComponentDescriptor componentDescriptor();
+
+    /**
+     * Returns the {@link ResolvedBindings} in this graph or a parent graph that matches the given
+     * request.
+     *
+     * <p>An exception is thrown if there are no resolved bindings found for the request; however,
+     * this should never happen since all dependencies should have been resolved at this point.
+     */
+    ResolvedBindings resolvedBindings(BindingRequest request);
+
+    /**
+     * Returns all {@link ResolvedBindings} for the given request.
+     *
+     * <p>Note that this only returns the bindings resolved in this component. Bindings resolved in
+     * parent components are not included.
+     */
+    Iterable<ResolvedBindings> resolvedBindings();
+
+    /** Returns the resolved subgraphs. */
+    ImmutableList<? extends LegacyBindingGraph> subgraphs();
   }
 
   private static final class Converter {
