@@ -485,7 +485,7 @@ public final class BindingGraphFactory {
     private Optional<Resolver> getOwningResolver(ContributionBinding binding) {
       // TODO(ronshapiro): extract the different pieces of this method into their own methods
       if ((binding.scope().isPresent() && binding.scope().get().isProductionScope())
-          || binding.bindingType().equals(BindingType.PRODUCTION)) {
+          || binding.kind().equals(BindingKind.PRODUCTION)) {
         for (Resolver requestResolver : getResolverLineage()) {
           // Resolve @Inject @ProductionScope bindings at the highest production component.
           if (binding.kind().equals(INJECTION)
@@ -758,7 +758,7 @@ public final class BindingGraphFactory {
       private boolean requiresResolutionUncached(Binding binding) {
         if ((!binding.scope().isPresent() || binding.scope().get().isReusable())
             // TODO(beder): Figure out what happens with production subcomponents.
-            && !binding.bindingType().equals(BindingType.PRODUCTION)) {
+            && !binding.kind().equals(BindingKind.PRODUCTION)) {
           for (DependencyRequest dependency : binding.dependencies()) {
             if (requiresResolution(dependency.key())) {
               return true;
