@@ -15,11 +15,6 @@
 -->
 <module>
   <inherits name="javax.inject.Inject" />
-
-  <source path=""/>
-</module>
-<module>
   <inherits name="jakarta.inject.Inject" />
-
   <source path=""/>
 </module>
