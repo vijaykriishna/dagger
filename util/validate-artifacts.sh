@@ -17,7 +17,7 @@ _validate_jar() {
   # Validate the package prefixes of the files in the jar.
   if [[ $artifact_id == "dagger-gwt" ]]; then
      python $(dirname $0)/validate-jar-entry-prefixes.py \
-        $artifact_jar "dagger/,META-INF/,javax/inject/,jakarta/inject/"
+        $artifact_jar "dagger/,META-INF/,javax/inject/Inject.gwt.xml,jakarta/inject/Inject.gwt.xml,org/jspecify/Jspecify.gwt.xml"
   elif [[ $artifact_id == "hilt-android" ]]; then
      python $(dirname $0)/validate-jar-entry-prefixes.py \
         $artifact_jar "dagger/,META-INF/,hilt_aggregated_deps/"

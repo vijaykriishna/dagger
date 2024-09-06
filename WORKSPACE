@@ -292,7 +292,7 @@ maven_install(
         "org.jetbrains.kotlin:kotlin-daemon-embeddable:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlin:kotlin-stdlib:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.6.2",
-        "org.jspecify:jspecify:0.3.0",
+        "org.jspecify:jspecify:1.0.0",
         "org.mockito:mockito-core:2.28.2",
         "org.pantsbuild:jarjar:1.7.2",
         "org.objenesis:objenesis:1.0",
