@@ -22,18 +22,19 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asVariable;
 
-import androidx.room.compiler.processing.XAnnotation;
+import androidx.room.compiler.processing.XAnnotated;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XNullability;
 import androidx.room.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.xprocessing.XAnnotations;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 /**
- * Contains information about the nullability of an element.
+ * Contains information about the nullability of an element or type.
  *
  * <p>Note that an element can be nullable if either:
  *
@@ -46,27 +47,50 @@ import java.util.stream.Stream;
 public abstract class Nullability {
   /** A constant that can represent any non-null element. */
   public static final Nullability NOT_NULLABLE =
-      new AutoValue_Nullability(false, ImmutableSet.of());
+      new AutoValue_Nullability(ImmutableSet.of(), ImmutableSet.of(), false);
 
   public static Nullability of(XElement element) {
+    ImmutableSet<ClassName> nonTypeUseNullableAnnotations = getNullableAnnotations(element);
+    Optional<XType> type = getType(element);
+    ImmutableSet<ClassName> typeUseNullableAnnotations =
+        // TODO: b/136507005 - Enable once javac is fixed. For now, type-use annotations are empty.
+        ImmutableSet.of();
+    boolean isKotlinTypeNullable =
+        // Note: Technically, it isn't possible for Java sources to have nullable types like in
+        // Kotlin sources, but for some reason KSP treats certain types as nullable if they have a
+        // specific @Nullable (TYPE_USE target) annotation. Thus, to avoid inconsistencies with
+        // KAPT, just ignore type nullability for elements in java sources.
+        !element.getClosestMemberContainer().isFromJava()
+            && type.isPresent()
+            && type.get().getNullability() == XNullability.NULLABLE;
     return new AutoValue_Nullability(
-        /* isKotlinTypeNullable= */ isKotlinTypeNullable(element),
-        /* nullableAnnotations= */ getNullableAnnotations(element));
+        nonTypeUseNullableAnnotations,
+        // Filter type use annotations that are also found on the element as non-type use
+        // annotations. This prevents them from being applied twice in some scenarios and just
+        // defaults to using them in the way before Dagger supported type use annotations.
+        Sets.difference(typeUseNullableAnnotations, nonTypeUseNullableAnnotations).immutableCopy(),
+        isKotlinTypeNullable);
   }
 
-  private static ImmutableSet<ClassName> getNullableAnnotations(XElement element) {
-    return getNullableAnnotations(element.getAllAnnotations().stream(), ImmutableSet.of());
-  }
-
-  private static ImmutableSet<ClassName> getNullableAnnotations(
-      Stream<XAnnotation> annotations,
-      ImmutableSet<ClassName> filterSet) {
-    return annotations
+  private static ImmutableSet<ClassName> getNullableAnnotations(XAnnotated annotated) {
+    return annotated.getAllAnnotations().stream()
         .map(XAnnotations::getClassName)
         .filter(annotation -> annotation.simpleName().contentEquals("Nullable"))
-        .filter(annotation -> !filterSet.contains(annotation))
         .collect(toImmutableSet());
   }
+
+  private static Optional<XType> getType(XElement element) {
+    if (isMethod(element)) {
+      return Optional.of(asMethod(element).getReturnType());
+    } else if (isVariableElement(element)) {
+      return Optional.of(asVariable(element).getType());
+    }
+    return Optional.empty();
+  }
+
+  public abstract ImmutableSet<ClassName> nonTypeUseNullableAnnotations();
+
+  public abstract ImmutableSet<ClassName> typeUseNullableAnnotations();
 
   /**
    * Returns {@code true} if the element's type is a Kotlin nullable type, e.g. {@code Foo?}.
@@ -74,29 +98,13 @@ public abstract class Nullability {
    * <p>Note that this method ignores any {@code @Nullable} type annotations and only looks for
    * explicit {@code ?} usages on kotlin types.
    */
-  private static boolean isKotlinTypeNullable(XElement element) {
-    if (element.getClosestMemberContainer().isFromJava()) {
-      // Note: Technically, it isn't possible for Java sources to have nullable types like in Kotlin
-      // sources, but for some reason KSP treats certain types as nullable if they have a
-      // specific @Nullable (TYPE_USE target) annotation. Thus, to avoid inconsistencies with KAPT,
-      // just return false if this element is from a java source.
-      return false;
-    } else if (isMethod(element)) {
-      return isKotlinTypeNullable(asMethod(element).getReturnType());
-    } else if (isVariableElement(element)) {
-      return isKotlinTypeNullable(asVariable(element).getType());
-    } else {
-      return false;
-    }
-  }
-
-  private static boolean isKotlinTypeNullable(XType type) {
-    return type.getNullability() == XNullability.NULLABLE;
-  }
-
   public abstract boolean isKotlinTypeNullable();
 
-  public abstract ImmutableSet<ClassName> nullableAnnotations();
+  public ImmutableSet<ClassName> nullableAnnotations() {
+    return ImmutableSet.<ClassName>builder()
+        .addAll(nonTypeUseNullableAnnotations())
+        .addAll(typeUseNullableAnnotations()).build();
+  }
 
   public final boolean isNullable() {
     return isKotlinTypeNullable() || !nullableAnnotations().isEmpty();

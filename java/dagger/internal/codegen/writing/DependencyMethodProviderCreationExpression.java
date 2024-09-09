@@ -24,6 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.TypeNames.daggerProviderOf;
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.COMPONENT_PROVISION_FACTORY;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
@@ -34,6 +35,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.processing.XMethodElement;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -100,12 +102,16 @@ final class DependencyMethodProviderCreationExpression
         methodBuilder("get")
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
-            .returns(keyType)
+            .returns(
+                keyType.annotated(
+                    binding.nullability().typeUseNullableAnnotations().stream()
+                        .map(annotation -> AnnotationSpec.builder(annotation).build())
+                        .collect(toImmutableList())))
             .addStatement("return $L", invocation);
 
     binding
         .nullability()
-        .nullableAnnotations()
+        .nonTypeUseNullableAnnotations()
         .forEach(getMethod::addAnnotation);
 
     // We need to use the componentShard here since the generated type is static and shards are

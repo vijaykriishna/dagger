@@ -406,10 +406,15 @@ final class InjectionMethods {
     } else {
       Nullability nullability = Nullability.of(method);
       nullability
-          .nullableAnnotations()
+          .nonTypeUseNullableAnnotations()
           .forEach(builder::addAnnotation);
       return builder
-          .returns(method.getReturnType().getTypeName())
+          .returns(
+              method.getReturnType().getTypeName()
+                  .annotated(
+                      nullability.typeUseNullableAnnotations().stream()
+                          .map(annotation -> AnnotationSpec.builder(annotation).build())
+                          .collect(toImmutableList())))
           .addStatement("return $L", invocation)
           .build();
     }
