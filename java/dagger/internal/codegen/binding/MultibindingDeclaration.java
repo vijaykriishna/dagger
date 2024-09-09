@@ -42,7 +42,7 @@ import javax.inject.Inject;
  * method annotated with {@link Multibinds @Multibinds}.
  */
 @AutoValue
-public abstract class MultibindingDeclaration extends BindingDeclaration
+public abstract class MultibindingDeclaration extends Declaration
     implements HasContributionType {
 
   /**

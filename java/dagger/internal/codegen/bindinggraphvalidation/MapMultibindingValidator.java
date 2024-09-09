@@ -32,10 +32,10 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.MapType;
-import dagger.internal.codegen.binding.BindingDeclaration;
-import dagger.internal.codegen.binding.BindingDeclarationFormatter;
 import dagger.internal.codegen.binding.BindingNode;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.Declaration;
+import dagger.internal.codegen.binding.DeclarationFormatter;
 import dagger.internal.codegen.binding.KeyFactory;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Binding;
@@ -53,13 +53,13 @@ import javax.inject.Inject;
  */
 final class MapMultibindingValidator extends ValidationBindingGraphPlugin {
 
-  private final BindingDeclarationFormatter bindingDeclarationFormatter;
+  private final DeclarationFormatter declarationFormatter;
   private final KeyFactory keyFactory;
 
   @Inject
   MapMultibindingValidator(
-      BindingDeclarationFormatter bindingDeclarationFormatter, KeyFactory keyFactory) {
-    this.bindingDeclarationFormatter = bindingDeclarationFormatter;
+      DeclarationFormatter declarationFormatter, KeyFactory keyFactory) {
+    this.declarationFormatter = declarationFormatter;
     this.keyFactory = keyFactory;
   }
 
@@ -187,7 +187,7 @@ final class MapMultibindingValidator extends ValidationBindingGraphPlugin {
         .forEach(
             (annotationType, contributions) -> {
               message.append('\n').append(INDENT).append(annotationType).append(':');
-              bindingDeclarationFormatter.formatIndentedList(message, contributions, 2);
+              declarationFormatter.formatIndentedList(message, contributions, 2);
             });
     return message.toString();
   }
@@ -197,9 +197,9 @@ final class MapMultibindingValidator extends ValidationBindingGraphPlugin {
     StringBuilder message =
         new StringBuilder("The same map key is bound more than once for ").append(mapBindingKey);
 
-    bindingDeclarationFormatter.formatIndentedList(
+    declarationFormatter.formatIndentedList(
         message,
-        ImmutableList.sortedCopyOf(BindingDeclaration.COMPARATOR, contributionsForOneMapKey),
+        ImmutableList.sortedCopyOf(Declaration.COMPARATOR, contributionsForOneMapKey),
         1);
     return message.toString();
   }

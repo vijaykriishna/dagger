@@ -37,7 +37,7 @@ import javax.inject.Inject;
 
 /** The declaration for a delegate binding established by a {@link Binds} method. */
 @AutoValue
-public abstract class DelegateDeclaration extends BindingDeclaration
+public abstract class DelegateDeclaration extends Declaration
     implements HasContributionType {
   abstract DependencyRequest delegateRequest();
 

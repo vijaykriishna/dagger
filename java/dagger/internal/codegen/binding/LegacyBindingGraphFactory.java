@@ -140,7 +140,7 @@ public final class LegacyBindingGraphFactory {
           // TODO(b/349155899): Consider resolving all declarations in full binding graph mode, not
           //   just those from modules.
           .filter(declaration -> declaration.contributingModule().isPresent())
-          .map(BindingDeclaration::key)
+          .map(Declaration::key)
           .map(Key::withoutMultibindingContributionIdentifier)
           .forEach(requestResolver::resolve);
     }

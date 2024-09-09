@@ -30,7 +30,7 @@ import javax.inject.Inject;
 
 /** A {@link BindsOptionalOf} declaration. */
 @AutoValue
-abstract class OptionalBindingDeclaration extends BindingDeclaration {
+abstract class OptionalBindingDeclaration extends Declaration {
 
   /**
    * {@inheritDoc}

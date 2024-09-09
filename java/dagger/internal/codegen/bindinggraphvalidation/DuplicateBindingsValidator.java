@@ -38,9 +38,9 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import dagger.internal.codegen.base.Formatter;
-import dagger.internal.codegen.binding.BindingDeclaration;
-import dagger.internal.codegen.binding.BindingDeclarationFormatter;
 import dagger.internal.codegen.binding.BindingNode;
+import dagger.internal.codegen.binding.Declaration;
+import dagger.internal.codegen.binding.DeclarationFormatter;
 import dagger.internal.codegen.binding.MultibindingDeclaration;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.Binding;
@@ -70,13 +70,13 @@ final class DuplicateBindingsValidator extends ValidationBindingGraphPlugin {
   private static final Comparator<Binding> BY_LENGTH_OF_COMPONENT_PATH =
       comparing(binding -> binding.componentPath().components().size());
 
-  private final BindingDeclarationFormatter bindingDeclarationFormatter;
+  private final DeclarationFormatter declarationFormatter;
   private final CompilerOptions compilerOptions;
 
   @Inject
   DuplicateBindingsValidator(
-      BindingDeclarationFormatter bindingDeclarationFormatter, CompilerOptions compilerOptions) {
-    this.bindingDeclarationFormatter = bindingDeclarationFormatter;
+      DeclarationFormatter declarationFormatter, CompilerOptions compilerOptions) {
+    this.declarationFormatter = declarationFormatter;
     this.compilerOptions = compilerOptions;
   }
 
@@ -219,7 +219,7 @@ final class DuplicateBindingsValidator extends ValidationBindingGraphPlugin {
     return String.format(
         "\n%s%s [%s]",
         Formatter.INDENT,
-        bindingDeclarationFormatter.format(((BindingNode) binding).delegate()),
+        declarationFormatter.format(((BindingNode) binding).delegate()),
         binding.componentPath());
   }
 
@@ -244,7 +244,7 @@ final class DuplicateBindingsValidator extends ValidationBindingGraphPlugin {
           .append(multibindingTypeString(oneMultibinding))
           .append(" bindings and declarations:");
       formatDeclarations(message, 2, declarations(graph, multibindings));
-      ImmutableSet<BindingDeclaration> uniqueBindingDeclarations =
+      ImmutableSet<Declaration> uniqueBindingDeclarations =
           duplicateBindings.stream()
               .filter(binding -> !binding.kind().isMultibinding())
               .flatMap(binding -> declarations(graph, binding).stream())
@@ -267,25 +267,25 @@ final class DuplicateBindingsValidator extends ValidationBindingGraphPlugin {
   private void formatDeclarations(
       StringBuilder builder,
       int indentLevel,
-      Iterable<? extends BindingDeclaration> bindingDeclarations) {
-    bindingDeclarationFormatter.formatIndentedList(
+      Iterable<? extends Declaration> bindingDeclarations) {
+    declarationFormatter.formatIndentedList(
         builder, ImmutableList.copyOf(bindingDeclarations), indentLevel);
   }
 
-  private ImmutableSet<BindingDeclaration> declarations(
+  private ImmutableSet<Declaration> declarations(
       BindingGraph graph, ImmutableCollection<Binding> bindings) {
     return bindings.stream()
         .flatMap(binding -> declarations(graph, binding).stream())
         .distinct()
-        .sorted(BindingDeclaration.COMPARATOR)
+        .sorted(Declaration.COMPARATOR)
         .collect(toImmutableSet());
   }
 
-  private ImmutableSet<BindingDeclaration> declarations(BindingGraph graph, Binding binding) {
-    ImmutableSet.Builder<BindingDeclaration> declarations = ImmutableSet.builder();
+  private ImmutableSet<Declaration> declarations(BindingGraph graph, Binding binding) {
+    ImmutableSet.Builder<Declaration> declarations = ImmutableSet.builder();
     BindingNode bindingNode = (BindingNode) binding;
     bindingNode.associatedDeclarations().forEach(declarations::add);
-    if (bindingDeclarationFormatter.canFormat(bindingNode.delegate())) {
+    if (declarationFormatter.canFormat(bindingNode.delegate())) {
       declarations.add(bindingNode.delegate());
     } else {
       graph.requestedBindings(binding).stream()

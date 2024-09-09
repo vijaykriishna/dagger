@@ -16,73 +16,41 @@
 
 package dagger.internal.codegen.binding;
 
-import static dagger.internal.codegen.extension.Optionals.emptiesLast;
-import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
-import static java.util.Comparator.comparing;
-
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XTypeElement;
+import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.model.BindingKind;
-import dagger.internal.codegen.model.Key;
-import dagger.internal.codegen.xprocessing.XElements;
-import java.util.Comparator;
+import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.model.Scope;
 import java.util.Optional;
 
 /** An object that declares or specifies a binding. */
-public abstract class BindingDeclaration {
-  /**
-   * A comparator that compares binding declarations with elements.
-   *
-   * <p>Compares, in order:
-   *
-   * <ol>
-   *   <li>Contributing module or enclosing type name
-   *   <li>Binding element's simple name
-   *   <li>Binding element's type
-   * </ol>
-   *
-   * Any binding declarations without elements are last.
-   */
-  public static final Comparator<BindingDeclaration> COMPARATOR =
-      comparing(
-              (BindingDeclaration declaration) ->
-                  declaration.contributingModule().isPresent()
-                      ? declaration.contributingModule()
-                      : declaration.bindingTypeElement(),
-              emptiesLast(comparing(XTypeElement::getQualifiedName)))
-          .thenComparing(
-              (BindingDeclaration declaration) -> declaration.bindingElement(),
-              emptiesLast(
-                  comparing((XElement element) -> getSimpleName(element))
-                      .thenComparing(XElements::toStableString)));
-
-  /** The {@link Key} of this declaration. */
-  public abstract Key key();
+public abstract class BindingDeclaration extends Declaration {
 
   /**
-   * The {@link XElement} that declares this binding. Absent for {@linkplain BindingKind binding
-   * kinds} that are not always declared by exactly one element.
-   *
-   * <p>For example, consider {@link BindingKind#MULTIBOUND_SET}. A component with many
-   * {@code @IntoSet} bindings for the same key will have a synthetic binding that depends on all
-   * contributions, but with no identifying binding element. A {@code @Multibinds} method will also
-   * contribute a synthetic binding, but since multiple {@code @Multibinds} methods can coexist in
-   * the same component (and contribute to one single binding), it has no binding element.
+   * Returns {@code true} if using this binding requires an instance of the {@link
+   * #contributingModule()}.
    */
-  public abstract Optional<XElement> bindingElement();
+  public abstract boolean requiresModuleInstance();
 
   /**
-   * The type enclosing the {@link #bindingElement()}, or {@link Optional#empty()} if {@link
-   * #bindingElement()} is empty.
+   * Returns {@code true} if this binding may provide {@code null} instead of an instance of {@link
+   * #key()}. Nullable bindings cannot be requested from {@linkplain DependencyRequest#isNullable()
+   * non-nullable dependency requests}.
    */
-  public final Optional<XTypeElement> bindingTypeElement() {
-    return bindingElement().map(XElements::closestEnclosingTypeElement);
-  }
+  public abstract boolean isNullable();
+
+  /** The kind of binding this instance represents. */
+  public abstract BindingKind kind();
+
+  /** The set of {@link DependencyRequest dependencies} required to satisfy this binding. */
+  public abstract ImmutableSet<DependencyRequest> dependencies();
 
   /**
-   * The installed module class that contributed the {@link #bindingElement()}. May be a subclass of
-   * the class that contains {@link #bindingElement()}. Absent if {@link #bindingElement()} is
-   * empty.
+   * If this binding's key's type parameters are different from those of the {@link
+   * #bindingTypeElement()}, this is the binding for the {@link #bindingTypeElement()}'s unresolved
+   * type.
    */
-  public abstract Optional<XTypeElement> contributingModule();
+  public abstract Optional<? extends Binding> unresolved();
+
+  /** Returns the optional scope used on the binding. */
+  public abstract Optional<Scope> scope();
 }

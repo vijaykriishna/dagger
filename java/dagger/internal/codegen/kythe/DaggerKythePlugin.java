@@ -37,10 +37,10 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import dagger.Component;
 import dagger.internal.codegen.binding.Binding;
-import dagger.internal.codegen.binding.BindingDeclaration;
 import dagger.internal.codegen.binding.BindingGraphFactory;
 import dagger.internal.codegen.binding.BindingNode;
 import dagger.internal.codegen.binding.ComponentDescriptor;
+import dagger.internal.codegen.binding.Declaration;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.javac.JavacPluginModule;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -99,7 +99,7 @@ public class DaggerKythePlugin extends Plugin.Scanner<Void, Void> {
 
   /**
    * Add {@code /inject/satisfiedby} edges from {@code dependency}'s {@link
-   * DependencyRequest#requestElement()} to any {@link BindingDeclaration#bindingElement() binding
+   * DependencyRequest#requestElement()} to any {@link Declaration#bindingElement() binding
    * elements} that satisfy the request.
    *
    * <p>This collapses requests for synthetic bindings so that a request for a multibound key
@@ -122,18 +122,18 @@ public class DaggerKythePlugin extends Plugin.Scanner<Void, Void> {
         }
       }
     }
-    for (BindingDeclaration bindingDeclaration :
+    for (Declaration declaration :
         Iterables.concat(
             bindingNode.multibindingDeclarations(),
             bindingNode.optionalBindingDeclarations())) {
-      addDependencyEdge(dependency, bindingDeclaration);
+      addDependencyEdge(dependency, declaration);
     }
   }
 
   private void addDependencyEdge(
-      DependencyRequest dependency, BindingDeclaration bindingDeclaration) {
+      DependencyRequest dependency, Declaration declaration) {
     XElement requestElement = dependency.requestElement().get().xprocessing();
-    XElement bindingElement = bindingDeclaration.bindingElement().get();
+    XElement bindingElement = declaration.bindingElement().get();
     Optional<VName> requestElementNode = jvmNode(requestElement, "request element");
     Optional<VName> bindingElementNode = jvmNode(bindingElement, "binding element");
     emitEdge(requestElementNode, "/inject/satisfiedby", bindingElementNode);

@@ -84,8 +84,8 @@ public abstract class ModuleDescriptor {
 
   /** Returns all of the bindings declared in this module. */
   @Memoized
-  public ImmutableSet<BindingDeclaration> allBindingDeclarations() {
-    return ImmutableSet.<BindingDeclaration>builder()
+  public ImmutableSet<Declaration> allBindingDeclarations() {
+    return ImmutableSet.<Declaration>builder()
         .addAll(bindings())
         .addAll(delegateDeclarations())
         .addAll(multibindingDeclarations())
@@ -96,7 +96,7 @@ public abstract class ModuleDescriptor {
 
   /** Returns the keys of all bindings declared by this module. */
   ImmutableSet<Key> allBindingKeys() {
-    return allBindingDeclarations().stream().map(BindingDeclaration::key).collect(toImmutableSet());
+    return allBindingDeclarations().stream().map(Declaration::key).collect(toImmutableSet());
   }
 
   /** A {@link ModuleDescriptor} factory. */

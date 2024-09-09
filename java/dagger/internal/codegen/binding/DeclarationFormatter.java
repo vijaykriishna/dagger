@@ -32,27 +32,27 @@ import dagger.internal.codegen.xprocessing.XTypes;
 import javax.inject.Inject;
 
 /**
- * Formats a {@link BindingDeclaration} into a {@link String} suitable for use in error messages.
+ * Formats a {@link Declaration} into a {@link String} suitable for use in error messages.
  */
-public final class BindingDeclarationFormatter extends Formatter<BindingDeclaration> {
+public final class DeclarationFormatter extends Formatter<Declaration> {
   private final MethodSignatureFormatter methodSignatureFormatter;
 
   @Inject
-  BindingDeclarationFormatter(MethodSignatureFormatter methodSignatureFormatter) {
+  DeclarationFormatter(MethodSignatureFormatter methodSignatureFormatter) {
     this.methodSignatureFormatter = methodSignatureFormatter;
   }
 
   /**
    * Returns {@code true} for declarations that this formatter can format. Specifically bindings
-   * from subcomponent declarations or those with {@linkplain BindingDeclaration#bindingElement()
+   * from subcomponent declarations or those with {@linkplain Declaration#bindingElement()
    * binding elements} that are methods, constructors, or types.
    */
-  public boolean canFormat(BindingDeclaration bindingDeclaration) {
-    if (bindingDeclaration instanceof SubcomponentDeclaration) {
+  public boolean canFormat(Declaration declaration) {
+    if (declaration instanceof SubcomponentDeclaration) {
       return true;
     }
-    if (bindingDeclaration.bindingElement().isPresent()) {
-      XElement bindingElement = bindingDeclaration.bindingElement().get();
+    if (declaration.bindingElement().isPresent()) {
+      XElement bindingElement = declaration.bindingElement().get();
       return isMethodParameter(bindingElement)
           || isTypeElement(bindingElement)
           || isExecutable(bindingElement);
@@ -62,13 +62,13 @@ public final class BindingDeclarationFormatter extends Formatter<BindingDeclarat
   }
 
   @Override
-  public String format(BindingDeclaration bindingDeclaration) {
-    if (bindingDeclaration instanceof SubcomponentDeclaration) {
-      return formatSubcomponentDeclaration((SubcomponentDeclaration) bindingDeclaration);
+  public String format(Declaration declaration) {
+    if (declaration instanceof SubcomponentDeclaration) {
+      return formatSubcomponentDeclaration((SubcomponentDeclaration) declaration);
     }
 
-    if (bindingDeclaration.bindingElement().isPresent()) {
-      XElement bindingElement = bindingDeclaration.bindingElement().get();
+    if (declaration.bindingElement().isPresent()) {
+      XElement bindingElement = declaration.bindingElement().get();
       if (isMethodParameter(bindingElement)) {
         return elementToString(bindingElement);
       } else if (isTypeElement(bindingElement)) {
@@ -77,14 +77,14 @@ public final class BindingDeclarationFormatter extends Formatter<BindingDeclarat
       } else if (isExecutable(bindingElement)) {
         return methodSignatureFormatter.format(
             asExecutable(bindingElement),
-            bindingDeclaration.contributingModule().map(XTypeElement::getType));
+            declaration.contributingModule().map(XTypeElement::getType));
       }
       throw new IllegalArgumentException("Formatting unsupported for element: " + bindingElement);
     }
 
     return String.format(
         "Dagger-generated binding for %s",
-        stripCommonTypePrefixes(bindingDeclaration.key().toString()));
+        stripCommonTypePrefixes(declaration.key().toString()));
   }
 
   private String formatSubcomponentDeclaration(SubcomponentDeclaration subcomponentDeclaration) {

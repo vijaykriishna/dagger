@@ -157,8 +157,8 @@ final class ComponentDeclarations {
     return subcomponents.get(key);
   }
 
-  ImmutableSet<BindingDeclaration> allDeclarations() {
-    return ImmutableSet.<BindingDeclaration>builder()
+  ImmutableSet<Declaration> allDeclarations() {
+    return ImmutableSet.<Declaration>builder()
         .addAll(bindings.values())
         .addAll(delegates.values())
         .addAll(multibindings.values())
@@ -242,14 +242,14 @@ final class ComponentDeclarations {
           && (parentDescriptor.isEmpty() || !parentDescriptor.get().isProduction());
     }
 
-    /** Indexes {@code bindingDeclarations} by {@link BindingDeclaration#key()}. */
-    private static <T extends BindingDeclaration>
+    /** Indexes {@code bindingDeclarations} by {@link Declaration#key()}. */
+    private static <T extends Declaration>
         ImmutableSetMultimap<Key, T> indexDeclarationsByKey(Iterable<T> declarations) {
-      return ImmutableSetMultimap.copyOf(Multimaps.index(declarations, BindingDeclaration::key));
+      return ImmutableSetMultimap.copyOf(Multimaps.index(declarations, Declaration::key));
     }
 
     /** Indexes {@code bindingDeclarations} by the unwrapped multibinding key. */
-    private <T extends BindingDeclaration> ImmutableSetMultimap<TypeNameKey, T>
+    private <T extends Declaration> ImmutableSetMultimap<TypeNameKey, T>
         indexDeclarationsByUnwrappedMultibindingKey(Iterable<T> declarations) {
       return ImmutableSetMultimap.copyOf(
           Multimaps.index(
@@ -259,7 +259,7 @@ final class ComponentDeclarations {
                       declaration.key().withoutMultibindingContributionIdentifier())));
     }
 
-    private static <T extends BindingDeclaration> ImmutableSet<T> multibindingContributions(
+    private static <T extends Declaration> ImmutableSet<T> multibindingContributions(
         ImmutableSet<T> declarations) {
       return declarations.stream()
           .filter(declaration -> declaration.key().multibindingContributionIdentifier().isPresent())

@@ -36,7 +36,7 @@ import javax.inject.Inject;
  * dagger.Module#subcomponents()}.
  */
 @AutoValue
-public abstract class SubcomponentDeclaration extends BindingDeclaration {
+public abstract class SubcomponentDeclaration extends Declaration {
   /**
    * Key for the {@link dagger.Subcomponent.Builder} or {@link
    * dagger.producers.ProductionSubcomponent.Builder} of {@link #subcomponentType()}.

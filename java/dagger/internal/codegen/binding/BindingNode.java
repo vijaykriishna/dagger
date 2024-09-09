@@ -33,14 +33,14 @@ import javax.inject.Inject;
 
 /**
  * An implementation of {@link dagger.internal.codegen.model.Binding} that also exposes {@link
- * BindingDeclaration}s associated with the binding.
+ * Declaration}s associated with the binding.
  */
 // TODO(dpb): Consider a supertype of dagger.internal.codegen.model.Binding that
 // dagger.internal.codegen.binding.Binding
 // could also implement.
 @AutoValue
 public abstract class BindingNode implements dagger.internal.codegen.model.Binding {
-  private BindingDeclarationFormatter bindingDeclarationFormatter;
+  private DeclarationFormatter declarationFormatter;
 
   public abstract Binding delegate();
 
@@ -60,7 +60,7 @@ public abstract class BindingNode implements dagger.internal.codegen.model.Bindi
    *   <li>{@linkplain Multibinds multibinding} declarations
    * </ul>
    */
-  public final Iterable<BindingDeclaration> associatedDeclarations() {
+  public final Iterable<Declaration> associatedDeclarations() {
     return Iterables.concat(
         multibindingDeclarations(), optionalBindingDeclarations(), subcomponentDeclarations());
   }
@@ -112,15 +112,15 @@ public abstract class BindingNode implements dagger.internal.codegen.model.Bindi
 
   @Override
   public final String toString() {
-    return bindingDeclarationFormatter.format(delegate());
+    return declarationFormatter.format(delegate());
   }
 
   static final class Factory {
-    private final BindingDeclarationFormatter bindingDeclarationFormatter;
+    private final DeclarationFormatter declarationFormatter;
 
     @Inject
-    Factory(BindingDeclarationFormatter bindingDeclarationFormatter) {
-      this.bindingDeclarationFormatter = bindingDeclarationFormatter;
+    Factory(DeclarationFormatter declarationFormatter) {
+      this.declarationFormatter = declarationFormatter;
     }
 
     public BindingNode forContributionBindings(
@@ -155,7 +155,7 @@ public abstract class BindingNode implements dagger.internal.codegen.model.Bindi
               multibindingDeclarations,
               optionalBindingDeclarations,
               subcomponentDeclarations);
-      node.bindingDeclarationFormatter = bindingDeclarationFormatter;
+      node.declarationFormatter = declarationFormatter;
       return node;
     }
   }

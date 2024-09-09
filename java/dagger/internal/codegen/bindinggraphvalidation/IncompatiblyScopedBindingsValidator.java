@@ -128,7 +128,7 @@ final class IncompatiblyScopedBindingsValidator extends ValidationBindingGraphPl
     for (Binding binding : bindings) {
       message.append('\n').append(INDENT);
 
-      // TODO(dpb): Use BindingDeclarationFormatter.
+      // TODO(dpb): Use DeclarationFormatter.
       // But that doesn't print scopes for @Inject-constructed types.
       switch (binding.kind()) {
         case DELEGATE:
