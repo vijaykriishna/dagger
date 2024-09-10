@@ -219,6 +219,7 @@ public final class BindingFactory {
         .explicitDependencies(
             dependencyRequestFactory.forRequiredResolvedVariables(
                 method.getParameters(), methodType.getParameterTypes()))
+        .scope(injectionAnnotations.getScope(method))
         .unresolved(
             methodType.isSameType(method.getExecutableType())
                 ? Optional.empty()
@@ -402,10 +403,7 @@ public final class BindingFactory {
             bindingType == BindingType.PRODUCTION
                 ? keyFactory.forDelegateBinding(delegateDeclaration, TypeNames.PRODUCER)
                 : keyFactory.forDelegateBinding(delegateDeclaration, TypeNames.PROVIDER))
-        .scope(
-            bindingType == BindingType.PRODUCTION
-                ? Optional.empty()
-                : injectionAnnotations.getScope(delegateDeclaration.bindingElement().get()))
+        .scope(injectionAnnotations.getScope(delegateDeclaration.bindingElement().get()))
         .build();
   }
 

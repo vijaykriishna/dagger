@@ -42,8 +42,9 @@ public interface BindingGraphValidationModule {
       MissingBindingValidator validation7,
       NullableBindingValidator validation8,
       ProvisionDependencyOnProducerBindingValidator validation9,
-      SetMultibindingValidator validation10,
-      SubcomponentFactoryMethodValidator validation11) {
+      InvalidProductionBindingScopeValidator validation10,
+      SetMultibindingValidator validation11,
+      SubcomponentFactoryMethodValidator validation12) {
     ImmutableSet<ValidationBindingGraphPlugin> plugins =
         ImmutableSet.of(
             validation1,
@@ -56,7 +57,8 @@ public interface BindingGraphValidationModule {
             validation8,
             validation9,
             validation10,
-            validation11);
+            validation11,
+            validation12);
     if (compilerOptions.experimentalDaggerErrorMessages()) {
       return ImmutableSet.of(factory.create(plugins));
     } else {
