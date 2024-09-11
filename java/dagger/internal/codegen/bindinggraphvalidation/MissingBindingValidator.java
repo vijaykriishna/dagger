@@ -18,7 +18,6 @@ package dagger.internal.codegen.bindinggraphvalidation;
 
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.google.common.base.Verify.verify;
-import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.base.Formatter.INDENT;
@@ -40,14 +39,11 @@ import com.google.common.collect.Lists;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.WildcardTypeName;
 import dagger.internal.codegen.binding.ComponentNodeImpl;
-import dagger.internal.codegen.binding.DependencyRequestFormatter;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
-import dagger.internal.codegen.model.BindingGraph.Edge;
 import dagger.internal.codegen.model.BindingGraph.MissingBinding;
-import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DiagnosticReporter;
 import dagger.internal.codegen.model.Key;
@@ -65,16 +61,13 @@ import javax.inject.Inject;
 final class MissingBindingValidator extends ValidationBindingGraphPlugin {
 
   private final InjectBindingRegistry injectBindingRegistry;
-  private final DependencyRequestFormatter dependencyRequestFormatter;
   private final DiagnosticMessageGenerator.Factory diagnosticMessageGeneratorFactory;
 
   @Inject
   MissingBindingValidator(
       InjectBindingRegistry injectBindingRegistry,
-      DependencyRequestFormatter dependencyRequestFormatter,
       DiagnosticMessageGenerator.Factory diagnosticMessageGeneratorFactory) {
     this.injectBindingRegistry = injectBindingRegistry;
-    this.dependencyRequestFormatter = dependencyRequestFormatter;
     this.diagnosticMessageGeneratorFactory = diagnosticMessageGeneratorFactory;
   }
 
@@ -114,7 +107,7 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
         ERROR,
         graph.componentNode(missingBinding.componentPath()).get(),
         missingBindingErrorMessage(missingBinding, graph)
-            + missingBindingDependencyTraceMessage(missingBinding, graph)
+            + diagnosticMessageGeneratorFactory.create(graph).getMessage(missingBinding)
             + alternativeBindingsMessage(missingBinding, graph)
             + similarBindingsMessage(missingBinding, graph));
   }
@@ -177,36 +170,7 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
       errorMessage.append(
           " This type supports members injection but cannot be implicitly provided.");
     }
-    return errorMessage.toString();
-  }
-
-  private String missingBindingDependencyTraceMessage(
-      MissingBinding missingBinding, BindingGraph graph) {
-    ImmutableSet<DependencyEdge> entryPoints =
-        graph.entryPointEdgesDependingOnBinding(missingBinding);
-    DiagnosticMessageGenerator generator = diagnosticMessageGeneratorFactory.create(graph);
-    ImmutableList<DependencyEdge> dependencyTrace =
-        generator.dependencyTrace(missingBinding, entryPoints);
-    StringBuilder message =
-        new StringBuilder(dependencyTrace.size() * 100 /* a guess heuristic */).append("\n");
-    for (DependencyEdge edge : dependencyTrace) {
-      String line = dependencyRequestFormatter.format(edge.dependencyRequest());
-      if (line.isEmpty()) {
-        continue;
-      }
-      // We don't have to check for cases where component names collide since
-      //  1. We always show the full classname of the component, and
-      //  2. We always show the full component path at the end of the dependency trace (below).
-      String componentName = String.format("[%s] ", getComponentFromDependencyEdge(edge, graph));
-      message.append("\n").append(line.replace(DOUBLE_INDENT, DOUBLE_INDENT + componentName));
-    }
-    if (!dependencyTrace.isEmpty()) {
-      generator.appendComponentPathUnlessAtRoot(message, source(getLast(dependencyTrace), graph));
-    }
-    message.append(
-        generator.getRequestsNotInTrace(
-            dependencyTrace, generator.requests(missingBinding), entryPoints));
-    return message.toString();
+    return errorMessage.append("\n").toString();
   }
 
   private String alternativeBindingsMessage(
@@ -286,14 +250,6 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
         .getOrFindMembersInjectionBinding(key)
         .map(binding -> !binding.injectionSites().isEmpty())
         .orElse(false);
-  }
-
-  private static String getComponentFromDependencyEdge(DependencyEdge edge, BindingGraph graph) {
-    return source(edge, graph).componentPath().currentComponent().className().canonicalName();
-  }
-
-  private static Node source(Edge edge, BindingGraph graph) {
-    return graph.network().incidentNodes(edge).source();
   }
 
   /**

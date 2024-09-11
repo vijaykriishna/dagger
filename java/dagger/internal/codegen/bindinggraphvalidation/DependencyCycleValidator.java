@@ -50,7 +50,6 @@ import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.BindingKind;
-import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.DiagnosticReporter;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.validation.ValidationBindingGraphPlugin;
@@ -179,20 +178,26 @@ final class DependencyCycleValidator extends ValidationBindingGraphPlugin {
   }
 
   private String errorMessage(Cycle<Node> cycle, BindingGraph graph) {
-    StringBuilder message = new StringBuilder("Found a dependency cycle:");
-    ImmutableList<DependencyRequest> cycleRequests =
+    return "Found a dependency cycle:"
+        + "\n"
+        + dependencyRequestFormatter.formatEdges(cycleEdges(cycle, graph), graph)
+        + "\n"
+        + Formatter.INDENT
+        + "...";
+  }
+
+  private ImmutableList<DependencyEdge> cycleEdges(Cycle<Node> cycle, BindingGraph graph) {
+    ImmutableList<DependencyEdge> cycleEdges =
         cycle.endpointPairs().stream()
             // TODO(dpb): Would be nice to take the dependency graph here.
             .map(endpointPair -> nonCycleBreakingEdge(endpointPair, graph))
-            .map(DependencyEdge::dependencyRequest)
             .collect(toImmutableList())
             .reverse();
-    dependencyRequestFormatter.formatIndentedList(message, cycleRequests, 0);
-    message.append("\n")
-        .append(dependencyRequestFormatter.format(cycleRequests.get(0)))
-        .append("\n")
-        .append(Formatter.INDENT).append("...");
-    return message.toString();
+    // Add the first edge to the end of the list to complete the cycle.
+    return ImmutableList.<DependencyEdge>builder()
+        .addAll(cycleEdges)
+        .add(cycleEdges.get(0))
+        .build();
   }
 
   /**

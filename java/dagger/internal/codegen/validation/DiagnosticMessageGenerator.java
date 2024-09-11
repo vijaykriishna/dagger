@@ -165,9 +165,9 @@ public final class DiagnosticMessageGenerator {
       ImmutableSet<DependencyEdge> requests,
       ImmutableSet<DependencyEdge> entryPoints) {
     StringBuilder message = new StringBuilder(dependencyTrace.size() * 100 /* a guess heuristic */);
-    dependencyTrace.forEach(
-        edge -> dependencyRequestFormatter.appendFormatLine(message, edge.dependencyRequest()));
+    message.append("\n");
     if (!dependencyTrace.isEmpty()) {
+      message.append(dependencyRequestFormatter.formatEdges(dependencyTrace, graph));
       appendComponentPathUnlessAtRoot(message, source(getLast(dependencyTrace)));
     }
     message.append(getRequestsNotInTrace(dependencyTrace, requests, entryPoints));
@@ -257,7 +257,7 @@ public final class DiagnosticMessageGenerator {
   // TODO(ronshapiro): Adding a DependencyPath type to dagger.internal.codegen.model could be
   // useful, i.e.
   // bindingGraph.shortestPathFromEntryPoint(DependencyEdge, MaybeBindingNode)
-  public ImmutableList<DependencyEdge> dependencyTrace(
+  private ImmutableList<DependencyEdge> dependencyTrace(
       MaybeBinding binding, ImmutableSet<DependencyEdge> entryPoints) {
     // Module binding graphs may have bindings unreachable from any entry points. If there are
     // no entry points for this DiagnosticInfo, don't try to print a dependency trace.

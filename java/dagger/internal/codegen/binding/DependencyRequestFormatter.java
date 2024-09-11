@@ -21,11 +21,16 @@ import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static androidx.room.compiler.processing.XElementKt.isVariableElement;
 import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.base.RequestKinds.requestType;
+import static java.util.stream.Collectors.joining;
 
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import androidx.room.compiler.processing.XTypeElement;
+import com.google.common.collect.ImmutableCollection;
 import dagger.internal.codegen.base.Formatter;
+import dagger.internal.codegen.model.BindingGraph;
+import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
+import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.XTypes;
@@ -58,12 +63,33 @@ public final class DependencyRequestFormatter extends Formatter<DependencyReques
     this.processingEnv = processingEnv;
   }
 
+  public String formatEdges(ImmutableCollection<DependencyEdge> edges, BindingGraph graph) {
+    return edges.stream()
+        .map(edge -> formatEdge(edge, graph))
+        .filter(line -> !line.isEmpty())
+        .collect(joining("\n"));
+  }
+
+  public String formatEdge(DependencyEdge edge, BindingGraph graph) {
+    Node sourceNode = graph.network().incidentNodes(edge).source();
+    XTypeElement sourceComponent = sourceNode.componentPath().currentComponent().xprocessing();
+    return format(Optional.of(sourceComponent), edge.dependencyRequest());
+  }
+
   @Override
   public String format(DependencyRequest request) {
+    return format(Optional.empty(), request);
+  }
+
+  private  String format(Optional<XTypeElement> optionalComponent, DependencyRequest request) {
     if (!request.requestElement().isPresent()) {
       return "";
     }
     XElement requestElement = request.requestElement().get().xprocessing();
+    String componentReference =
+        optionalComponent
+            .map(component -> String.format("[%s] ", component.getQualifiedName()))
+            .orElse("");
     if (isMethod(requestElement)) {
       return INDENT
           + request.key()
@@ -71,6 +97,7 @@ public final class DependencyRequestFormatter extends Formatter<DependencyReques
           + componentMethodRequestVerb(request)
           + " at\n"
           + DOUBLE_INDENT
+          + componentReference
           + elementToString(requestElement);
     } else if (isVariableElement(requestElement)) {
       return INDENT
@@ -79,6 +106,7 @@ public final class DependencyRequestFormatter extends Formatter<DependencyReques
               requestType(request.kind(), request.key().type().xprocessing(), processingEnv))
           + " is injected at\n"
           + DOUBLE_INDENT
+          + componentReference
           + elementToString(requestElement);
     } else if (isTypeElement(requestElement)) {
       return ""; // types by themselves provide no useful information.
@@ -87,21 +115,7 @@ public final class DependencyRequestFormatter extends Formatter<DependencyReques
     }
   }
 
-  /**
-   * Appends a newline and the formatted dependency request unless {@link
-   * #format(DependencyRequest)} returns the empty string.
-   */
-  @CanIgnoreReturnValue
-  public StringBuilder appendFormatLine(
-      StringBuilder builder, DependencyRequest dependencyRequest) {
-    String formatted = format(dependencyRequest);
-    if (!formatted.isEmpty()) {
-      builder.append('\n').append(formatted);
-    }
-    return builder;
-  }
-
-  private String formatQualifier(Optional<DaggerAnnotation> maybeQualifier) {
+  private static String formatQualifier(Optional<DaggerAnnotation> maybeQualifier) {
     return maybeQualifier.map(qualifier -> qualifier + " ").orElse("");
   }
 
@@ -109,7 +123,7 @@ public final class DependencyRequestFormatter extends Formatter<DependencyReques
    * Returns the verb for a component method dependency request. Returns "produced", "provided", or
    * "injected", depending on the kind of request.
    */
-  private String componentMethodRequestVerb(DependencyRequest request) {
+  private static String componentMethodRequestVerb(DependencyRequest request) {
     switch (request.kind()) {
       case FUTURE:
       case PRODUCER:
