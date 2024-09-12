@@ -276,7 +276,6 @@ public class BindsMethodValidationTest {
             });
   }
 
-
   @Test
   public void bindsMissingTypeInReturnTypeHierarchy() {
     Source module =
@@ -339,6 +338,56 @@ public class BindsMethodValidationTest {
                           + "\n      => type (DECLARED supertype): test.Parent<java.lang.String>"
                           + "\n      => type (ERROR supertype): %1$s",
                       isJavac ? "MissingType" : "error.NonExistentClass"));
+            });
+  }
+
+  @Test
+  public void bindsNullableToNonNullable_fails() {
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Binds;",
+            "import dagger.Module;",
+            "import javax.annotation.Nullable;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Binds Object bind(@Nullable String str);",
+            "}");
+
+    CompilerTests.daggerCompiler(module)
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "@Binds methods' nullability must match the nullability of its parameter");
+            });
+  }
+
+  @Test
+  public void bindsNonNullableToNullable_fails() {
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Binds;",
+            "import dagger.Module;",
+            "import javax.annotation.Nullable;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Binds @Nullable Object bind(String str);",
+            "}");
+
+    CompilerTests.daggerCompiler(module)
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "@Binds methods' nullability must match the nullability of its parameter");
             });
   }
 

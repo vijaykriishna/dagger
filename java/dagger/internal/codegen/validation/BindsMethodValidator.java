@@ -32,6 +32,7 @@ import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.BindsTypeChecker;
 import dagger.internal.codegen.binding.InjectionAnnotations;
+import dagger.internal.codegen.binding.Nullability;
 import dagger.internal.codegen.javapoet.TypeNames;
 import javax.inject.Inject;
 
@@ -45,7 +46,6 @@ final class BindsMethodValidator extends BindingMethodValidator {
       BindsTypeChecker bindsTypeChecker,
       DaggerSuperficialValidation superficialValidation,
       XProcessingEnv processingEnv,
-
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
@@ -109,6 +109,12 @@ final class BindsMethodValidator extends BindingMethodValidator {
         // right-hand-side might not be assignable to the left-hand-side, but still compatible with
         // Set.addAll(Collection<? extends E>)
         report.addError("@Binds methods' parameter type must be assignable to the return type");
+      }
+
+      Nullability parameterNullability = Nullability.of(parameter);
+      Nullability methodNullability = Nullability.of(method);
+      if (parameterNullability.isNullable() != methodNullability.isNullable()) {
+        report.addError("@Binds methods' nullability must match the nullability of its parameter");
       }
     }
 

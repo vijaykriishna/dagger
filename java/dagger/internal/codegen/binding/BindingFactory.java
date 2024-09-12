@@ -396,8 +396,7 @@ public final class BindingFactory {
         .bindingElement(delegateDeclaration.bindingElement().get())
         .contributingModule(delegateDeclaration.contributingModule().get())
         .delegateRequest(delegateDeclaration.delegateRequest())
-        .nullability(
-            actualBinding.map(ContributionBinding::nullability).orElse(Nullability.NOT_NULLABLE))
+        .nullability(Nullability.of(delegateDeclaration.bindingElement().get()))
         .bindingType(bindingType)
         .key(
             bindingType == BindingType.PRODUCTION
