@@ -23,8 +23,6 @@ import static dagger.internal.codegen.model.BindingKind.SUBCOMPONENT_CREATOR;
 
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.MutableNetwork;
@@ -38,7 +36,6 @@ import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.ComponentPath;
 import dagger.internal.codegen.model.DaggerTypeElement;
 import dagger.internal.codegen.model.DependencyRequest;
-import dagger.internal.codegen.model.Key;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -46,10 +43,9 @@ import java.util.Set;
 import javax.inject.Inject;
 
 /** Converts {@link BindingGraph}s to {@link dagger.internal.codegen.model.BindingGraph}s. */
-final class BindingGraphConverter {
-
+final class LegacyBindingGraphConverter {
   @Inject
-  BindingGraphConverter() {}
+  LegacyBindingGraphConverter() {}
 
   /**
    * Creates the external {@link dagger.internal.codegen.model.BindingGraph} representing the given
@@ -271,19 +267,5 @@ final class BindingGraphConverter {
           componentPath().childPath(DaggerTypeElement.from(subcomponent.typeElement())),
           subcomponent);
     }
-  }
-
-  @AutoValue
-  abstract static class MissingBindingImpl extends MissingBinding {
-    static MissingBinding create(ComponentPath component, Key key) {
-      return new AutoValue_BindingGraphConverter_MissingBindingImpl(component, key);
-    }
-
-    @Memoized
-    @Override
-    public abstract int hashCode();
-
-    @Override
-    public abstract boolean equals(Object o);
   }
 }

@@ -82,7 +82,7 @@ public final class LegacyBindingGraphFactory {
   private final BindingFactory bindingFactory;
   private final BindingNode.Factory bindingNodeFactory;
   private final ComponentDeclarations.Factory componentDeclarationsFactory;
-  private final BindingGraphConverter bindingGraphConverter;
+  private final LegacyBindingGraphConverter legacyBindingGraphConverter;
   private final CompilerOptions compilerOptions;
 
   @Inject
@@ -92,14 +92,14 @@ public final class LegacyBindingGraphFactory {
       BindingFactory bindingFactory,
       BindingNode.Factory bindingNodeFactory,
       ComponentDeclarations.Factory componentDeclarationsFactory,
-      BindingGraphConverter bindingGraphConverter,
+      LegacyBindingGraphConverter legacyBindingGraphConverter,
       CompilerOptions compilerOptions) {
     this.injectBindingRegistry = injectBindingRegistry;
     this.keyFactory = keyFactory;
     this.bindingFactory = bindingFactory;
     this.bindingNodeFactory = bindingNodeFactory;
     this.componentDeclarationsFactory = componentDeclarationsFactory;
-    this.bindingGraphConverter = bindingGraphConverter;
+    this.legacyBindingGraphConverter = legacyBindingGraphConverter;
     this.compilerOptions = compilerOptions;
   }
 
@@ -111,7 +111,7 @@ public final class LegacyBindingGraphFactory {
    */
   public BindingGraph create(
       ComponentDescriptor componentDescriptor, boolean createFullBindingGraph) {
-    return bindingGraphConverter.convert(
+    return legacyBindingGraphConverter.convert(
         createLegacyBindingGraph(Optional.empty(), componentDescriptor, createFullBindingGraph),
         createFullBindingGraph);
   }
@@ -166,7 +166,7 @@ public final class LegacyBindingGraphFactory {
 
   /** Represents a fully resolved binding graph. */
   private static final class LegacyBindingGraph
-      implements BindingGraphConverter.LegacyBindingGraph {
+      implements LegacyBindingGraphConverter.LegacyBindingGraph {
     private final Resolver resolver;
     private final ImmutableList<LegacyBindingGraph> resolvedSubgraphs;
     private final ComponentNode componentNode;

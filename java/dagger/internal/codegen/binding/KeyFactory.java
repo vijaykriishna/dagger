@@ -77,6 +77,20 @@ public final class KeyFactory {
         processingEnv.requireTypeElement(TypeNames.MAP), keyType.boxed(), valueType.boxed());
   }
 
+  /**
+   * If {@code key}'s type is {@code Optional<T>} for some {@code T}, returns a key with the same
+   * qualifier whose type is {@linkplain RequestKinds#extractKeyType(RequestKind, XType)}
+   * extracted} from {@code T}.
+   */
+  Key optionalOf(Key key) {
+    return key.withType(DaggerType.from(optionalOf(key.type().xprocessing())));
+  }
+
+  private XType optionalOf(XType type) {
+    return processingEnv.getDeclaredType(
+        processingEnv.requireTypeElement(TypeNames.JDK_OPTIONAL), type.boxed());
+  }
+
   /** Returns {@code Map<KeyType, FrameworkType<ValueType>>}. */
   private XType mapOfFrameworkType(XType keyType, ClassName frameworkClassName, XType valueType) {
     return mapOf(

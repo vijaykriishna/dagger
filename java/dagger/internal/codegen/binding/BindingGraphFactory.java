@@ -22,6 +22,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.not;
 import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
+import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
+import static dagger.internal.codegen.extension.DaggerGraphs.unreachableNodes;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.DELEGATE;
@@ -40,6 +42,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.graph.ImmutableNetwork;
+import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.NetworkBuilder;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
@@ -48,12 +54,14 @@ import dagger.internal.codegen.base.TarjanSCCs;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
+import dagger.internal.codegen.model.BindingGraph.Edge;
+import dagger.internal.codegen.model.BindingGraph.MissingBinding;
+import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.ComponentPath;
 import dagger.internal.codegen.model.DaggerTypeElement;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
-import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.model.Scope;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -76,7 +84,6 @@ public final class BindingGraphFactory {
   private final BindingFactory bindingFactory;
   private final BindingNode.Factory bindingNodeFactory;
   private final ComponentDeclarations.Factory componentDeclarationsFactory;
-  private final BindingGraphConverter bindingGraphConverter;
   private final CompilerOptions compilerOptions;
 
   @Inject
@@ -87,7 +94,6 @@ public final class BindingGraphFactory {
       BindingFactory bindingFactory,
       BindingNode.Factory bindingNodeFactory,
       ComponentDeclarations.Factory componentDeclarationsFactory,
-      BindingGraphConverter bindingGraphConverter,
       CompilerOptions compilerOptions) {
     this.legacyBindingGraphFactory = legacyBindingGraphFactory;
     this.injectBindingRegistry = injectBindingRegistry;
@@ -95,7 +101,6 @@ public final class BindingGraphFactory {
     this.bindingFactory = bindingFactory;
     this.bindingNodeFactory = bindingNodeFactory;
     this.componentDeclarationsFactory = componentDeclarationsFactory;
-    this.bindingGraphConverter = bindingGraphConverter;
     this.compilerOptions = compilerOptions;
   }
 
@@ -109,133 +114,31 @@ public final class BindingGraphFactory {
       ComponentDescriptor componentDescriptor, boolean createFullBindingGraph) {
     return LegacyBindingGraphFactory.useLegacyBindingGraphFactory(componentDescriptor)
         ? legacyBindingGraphFactory.create(componentDescriptor, createFullBindingGraph)
-        : bindingGraphConverter.convert(
-            createLegacyBindingGraph(Optional.empty(), componentDescriptor, createFullBindingGraph),
-            createFullBindingGraph);
+        : createBindingGraph(componentDescriptor, createFullBindingGraph);
   }
 
-  private LegacyBindingGraph createLegacyBindingGraph(
-      Optional<Resolver> parentResolver,
-      ComponentDescriptor componentDescriptor,
-      boolean createFullBindingGraph) {
-    Resolver requestResolver = new Resolver(parentResolver, componentDescriptor);
+  private BindingGraph createBindingGraph(
+      ComponentDescriptor componentDescriptor, boolean createFullBindingGraph) {
+    Resolver resolver = new Resolver(componentDescriptor);
+    resolver.resolve(createFullBindingGraph);
 
-    componentDescriptor.entryPointMethods().stream()
-        .map(method -> method.dependencyRequest().get())
-        .forEach(
-            entryPoint -> {
-              if (entryPoint.kind().equals(MEMBERS_INJECTION)) {
-                requestResolver.resolveMembersInjection(entryPoint.key());
-              } else {
-                requestResolver.resolve(entryPoint.key());
-              }
-            });
-
-    if (createFullBindingGraph) {
-      // Resolve the keys for all bindings in all modules, stripping any multibinding contribution
-      // identifier so that the multibinding itself is resolved.
-      requestResolver.declarations.allDeclarations().stream()
-          // TODO(b/349155899): Consider resolving all declarations in full binding graph mode, not
-          //   just those from modules.
-          .filter(declaration -> declaration.contributingModule().isPresent())
-          .map(Declaration::key)
-          .map(Key::withoutMultibindingContributionIdentifier)
-          .forEach(requestResolver::resolve);
+    MutableNetwork<Node, Edge> network = resolver.network;
+    if (!createFullBindingGraph) {
+      unreachableNodes(network.asGraph(), resolver.componentNode).forEach(network::removeNode);
     }
 
-    // Resolve all bindings for subcomponents, creating subgraphs for all subcomponents that have
-    // been detected during binding resolution. If a binding for a subcomponent is never resolved,
-    // no BindingGraph will be created for it and no implementation will be generated. This is
-    // done in a queue since resolving one subcomponent might resolve a key for a subcomponent
-    // from a parent graph. This is done until no more new subcomponents are resolved.
-    Set<ComponentDescriptor> resolvedSubcomponents = new HashSet<>();
-    ImmutableList.Builder<LegacyBindingGraph> subgraphs = ImmutableList.builder();
-    for (ComponentDescriptor subcomponent :
-        Iterables.consumingIterable(requestResolver.subcomponentsToResolve)) {
-      if (resolvedSubcomponents.add(subcomponent)) {
-        subgraphs.add(
-            createLegacyBindingGraph(
-                Optional.of(requestResolver), subcomponent, createFullBindingGraph));
-      }
-    }
-
-    return new LegacyBindingGraph(requestResolver, subgraphs.build());
-  }
-
-  /** Represents a fully resolved binding graph. */
-  private static final class LegacyBindingGraph
-      implements BindingGraphConverter.LegacyBindingGraph {
-    private final Resolver resolver;
-    private final ImmutableList<LegacyBindingGraph> resolvedSubgraphs;
-    private final ComponentNode componentNode;
-
-    LegacyBindingGraph(Resolver resolver, ImmutableList<LegacyBindingGraph> resolvedSubgraphs) {
-      this.resolver = resolver;
-      this.resolvedSubgraphs = resolvedSubgraphs;
-      this.componentNode =
-          ComponentNodeImpl.create(resolver.componentPath, resolver.componentDescriptor);
-    }
-
-    /** Returns the {@link ComponentNode} associated with this binding graph. */
-    @Override
-    public ComponentNode componentNode() {
-      return componentNode;
-    }
-
-    /** Returns the {@link ComponentPath} associated with this binding graph. */
-    @Override
-    public ComponentPath componentPath() {
-      return resolver.componentPath;
-    }
-
-    /** Returns the {@link ComponentDescriptor} associated with this binding graph. */
-    @Override
-    public ComponentDescriptor componentDescriptor() {
-      return resolver.componentDescriptor;
-    }
-
-    /**
-     * Returns the {@link ResolvedBindings} in this graph or a parent graph that matches the given
-     * request.
-     *
-     * <p>An exception is thrown if there are no resolved bindings found for the request; however,
-     * this should never happen since all dependencies should have been resolved at this point.
-     */
-    @Override
-    public ResolvedBindings resolvedBindings(BindingRequest request) {
-      return request.isRequestKind(RequestKind.MEMBERS_INJECTION)
-          ? resolver.getResolvedMembersInjectionBindings(request.key())
-          : resolver.getResolvedContributionBindings(request.key());
-    }
-
-    /**
-     * Returns all {@link ResolvedBindings} for the given request.
-     *
-     * <p>Note that this only returns the bindings resolved in this component. Bindings resolved in
-     * parent components are not included.
-     */
-    @Override
-    public Iterable<ResolvedBindings> resolvedBindings() {
-      // Don't return an immutable collection - this is only ever used for looping over all bindings
-      // in the graph. Copying is wasteful, especially if is a hashing collection, since the values
-      // should all, by definition, be distinct.
-      return Iterables.concat(
-          resolver.resolvedMembersInjectionBindings.values(),
-          resolver.resolvedContributionBindings.values());
-    }
-
-    /** Returns the resolved subgraphs. */
-    @Override
-    public ImmutableList<LegacyBindingGraph> subgraphs() {
-      return resolvedSubgraphs;
-    }
+    return BindingGraph.create(
+        ImmutableNetwork.copyOf(network),
+        createFullBindingGraph);
   }
 
   private final class Resolver {
     final ComponentPath componentPath;
     final Optional<Resolver> parentResolver;
+    final ComponentNode componentNode;
     final ComponentDescriptor componentDescriptor;
     final ComponentDeclarations declarations;
+    final MutableNetwork<Node, Edge> network;
     final Map<Key, ResolvedBindings> resolvedContributionBindings = new LinkedHashMap<>();
     final Map<Key, ResolvedBindings> resolvedMembersInjectionBindings = new LinkedHashMap<>();
     final Deque<Key> cycleStack = new ArrayDeque<>();
@@ -243,7 +146,15 @@ public final class BindingGraphFactory {
     final Map<Key, Boolean> keyDependsOnLocalBindingsCache = new HashMap<>();
     final Queue<ComponentDescriptor> subcomponentsToResolve = new ArrayDeque<>();
 
-    Resolver(Optional<Resolver> parentResolver, ComponentDescriptor componentDescriptor) {
+    Resolver(ComponentDescriptor componentDescriptor) {
+      this(Optional.empty(), componentDescriptor);
+    }
+
+    Resolver(Resolver parentResolver, ComponentDescriptor componentDescriptor) {
+      this(Optional.of(parentResolver), componentDescriptor);
+    }
+
+    private Resolver(Optional<Resolver> parentResolver, ComponentDescriptor componentDescriptor) {
       this.parentResolver = parentResolver;
       this.componentDescriptor = checkNotNull(componentDescriptor);
       DaggerTypeElement componentType = DaggerTypeElement.from(componentDescriptor.typeElement());
@@ -251,6 +162,11 @@ public final class BindingGraphFactory {
           parentResolver.isPresent()
               ? parentResolver.get().componentPath.childPath(componentType)
               : ComponentPath.create(ImmutableList.of(componentType));
+      this.componentNode = ComponentNodeImpl.create(componentPath, componentDescriptor);
+      this.network =
+          parentResolver.isPresent()
+              ? parentResolver.get().network
+              : NetworkBuilder.directed().allowsParallelEdges(true).allowsSelfLoops(true).build();
       declarations =
           componentDeclarationsFactory.create(
               parentResolver.map(parent -> parent.componentDescriptor),
@@ -259,6 +175,53 @@ public final class BindingGraphFactory {
           componentDescriptor.childComponentsDeclaredByFactoryMethods().values());
       subcomponentsToResolve.addAll(
           componentDescriptor.childComponentsDeclaredByBuilderEntryPoints().values());
+    }
+
+    void resolve(boolean createFullBindingGraph) {
+      addNode(componentNode);
+
+      componentDescriptor.entryPointMethods().stream()
+          .map(method -> method.dependencyRequest().get())
+          .forEach(
+              entryPoint -> {
+                ResolvedBindings resolvedBindings =
+                    entryPoint.kind().equals(MEMBERS_INJECTION)
+                        ? resolveMembersInjectionKey(entryPoint.key())
+                        : resolveContributionKey(entryPoint.key());
+                addDependencyEdges(componentNode, resolvedBindings, entryPoint);
+              });
+
+      if (createFullBindingGraph) {
+        // Resolve the keys for all bindings in all modules, stripping any multibinding contribution
+        // identifier so that the multibinding itself is resolved.
+        declarations.allDeclarations().stream()
+            // TODO(b/349155899): Consider resolving all declarations in full binding graph mode,
+            // not just those from modules.
+            .filter(declaration -> declaration.contributingModule().isPresent())
+            // @BindsOptionalOf bindings are keyed by the unwrapped type so wrap it in Optional to
+            // resolve the optional type instead.
+            .map(
+                declaration ->
+                    declaration instanceof OptionalBindingDeclaration
+                        ? keyFactory.optionalOf(declaration.key())
+                        : declaration.key())
+            .map(Key::withoutMultibindingContributionIdentifier)
+            .forEach(this::resolveContributionKey);
+      }
+
+      // Resolve all bindings for subcomponents, creating subgraphs for all subcomponents that have
+      // been detected during binding resolution. If a binding for a subcomponent is never resolved,
+      // no BindingGraph will be created for it and no implementation will be generated. This is
+      // done in a queue since resolving one subcomponent might resolve a key for a subcomponent
+      // from a parent graph. This is done until no more new subcomponents are resolved.
+      Set<ComponentDescriptor> resolvedSubcomponents = new HashSet<>();
+      for (ComponentDescriptor subcomponent : Iterables.consumingIterable(subcomponentsToResolve)) {
+        if (resolvedSubcomponents.add(subcomponent)) {
+          Resolver subcomponentResolver = new Resolver(this, subcomponent);
+          addChildFactoryMethodEdge(subcomponentResolver);
+          subcomponentResolver.resolve(createFullBindingGraph);
+        }
+      }
     }
 
     /**
@@ -474,7 +437,7 @@ public final class BindingGraphFactory {
         Key requestKey, ContributionBinding binding) {
       if (canBeResolvedInParent(requestKey, binding)) {
         // Resolve in the parent to make sure we have the most recent multi/optional contributions.
-        parentResolver.get().resolve(requestKey);
+        parentResolver.get().resolveContributionKey(requestKey);
         if (!requiresResolution(binding)) {
           return Optional.of(getPreviouslyResolvedBindings(requestKey).get().forBinding(binding));
         }
@@ -650,58 +613,115 @@ public final class BindingGraphFactory {
           : parentResolver.get().getPreviouslyResolvedBindings(key);
     }
 
-    private void resolveMembersInjection(Key key) {
+    private ResolvedBindings resolveMembersInjectionKey(Key key) {
+      if (resolvedMembersInjectionBindings.containsKey(key)) {
+        return resolvedMembersInjectionBindings.get(key);
+      }
       ResolvedBindings bindings = lookUpMembersInjectionBinding(key);
+      addNodes(bindings);
       resolveDependencies(bindings);
       resolvedMembersInjectionBindings.put(key, bindings);
+      return bindings;
     }
 
-    void resolve(Key key) {
-      // If we find a cycle, stop resolving. The original request will add it with all of the
-      // other resolved deps.
-      if (cycleStack.contains(key)) {
-        return;
-      }
-
-      // If the binding was previously resolved in this (sub)component, don't resolve it again.
+    @CanIgnoreReturnValue
+    private ResolvedBindings resolveContributionKey(Key key) {
       if (resolvedContributionBindings.containsKey(key)) {
-        return;
+        return resolvedContributionBindings.get(key);
       }
-
-      cycleStack.push(key);
-      try {
-        ResolvedBindings bindings = lookUpBindings(key);
-        resolvedContributionBindings.put(key, bindings);
-        resolveDependencies(bindings);
-      } finally {
-        cycleStack.pop();
-      }
+      ResolvedBindings bindings = lookUpBindings(key);
+      resolvedContributionBindings.put(key, bindings);
+      addNodes(bindings);
+      resolveDependencies(bindings);
+      return bindings;
     }
 
-    /**
-     * {@link #resolve(Key) Resolves} each of the dependencies of the bindings owned by this
-     * component.
-     */
+     /** Resolves each of the dependencies of the bindings owned by this component. */
     private void resolveDependencies(ResolvedBindings resolvedBindings) {
       for (BindingNode binding : resolvedBindings.bindingNodesOwnedBy(componentPath)) {
-        for (DependencyRequest dependency : binding.dependencies()) {
-          resolve(dependency.key());
+        for (DependencyRequest request : binding.dependencies()) {
+          ResolvedBindings dependencies = resolveContributionKey(request.key());
+          addDependencyEdges(binding, dependencies, request);
         }
       }
     }
 
-    private ResolvedBindings getResolvedContributionBindings(Key key) {
-      if (resolvedContributionBindings.containsKey(key)) {
-        return resolvedContributionBindings.get(key);
+    private void addNodes(ResolvedBindings resolvedBindings) {
+      if (resolvedBindings.isEmpty()) {
+        addNode(missingBinding(resolvedBindings.key()));
+        return;
       }
-      if (parentResolver.isPresent()) {
-        return parentResolver.get().getResolvedContributionBindings(key);
-      }
-      throw new AssertionError("No resolved bindings for key: " + key);
+      resolvedBindings.bindingNodesOwnedBy(componentPath).forEach(this::addNode);
     }
 
-    private ResolvedBindings getResolvedMembersInjectionBindings(Key key) {
-      return resolvedMembersInjectionBindings.get(key);
+    private void addNode(Node node) {
+      network.addNode(node);
+      // Subcomponent creator bindings have an implicit edge to the subcomponent they create.
+      if (node instanceof BindingNode && ((BindingNode) node).kind() == SUBCOMPONENT_CREATOR) {
+        addSubcomponentEdge((BindingNode) node);
+      }
+    }
+
+    private void addDependencyEdges(
+        Node parent, ResolvedBindings dependencies, DependencyRequest request) {
+      if (dependencies.isEmpty()) {
+        addDependencyEdge(parent, missingBinding(request.key()), request);
+      } else {
+        dependencies.bindingNodes()
+            .forEach(dependency -> addDependencyEdge(parent, dependency, request));
+      }
+    }
+
+    private void addDependencyEdge(Node source, Node target, DependencyRequest request) {
+      boolean isEntryPoint = source instanceof ComponentNode;
+      addEdge(source, target, new DependencyEdgeImpl(request, isEntryPoint));
+    }
+
+    private void addSubcomponentEdge(BindingNode binding) {
+      checkState(binding.kind() == SUBCOMPONENT_CREATOR);
+      Resolver owningResolver =
+          getResolverLineage().reverse().stream()
+                .filter(resolver -> resolver.componentPath.equals(binding.componentPath()))
+                .collect(onlyElement());
+      ComponentDescriptor subcomponent =
+          owningResolver.componentDescriptor.getChildComponentWithBuilderType(
+              binding.key().type().xprocessing().getTypeElement());
+      ComponentNode subcomponentNode =
+          ComponentNodeImpl.create(
+              owningResolver.componentPath.childPath(
+                  DaggerTypeElement.from(subcomponent.typeElement())),
+              subcomponent);
+      addEdge(
+          binding,
+          subcomponentNode,
+          new SubcomponentCreatorBindingEdgeImpl(binding.subcomponentDeclarations()));
+    }
+
+    private void addChildFactoryMethodEdge(Resolver subcomponentResolver) {
+      componentDescriptor
+          .getFactoryMethodForChildComponent(subcomponentResolver.componentDescriptor)
+          .ifPresent(
+              childFactoryMethod
+                  -> addEdge(
+                      componentNode,
+                      subcomponentResolver.componentNode,
+                      new ChildFactoryMethodEdgeImpl(childFactoryMethod.methodElement())));
+    }
+
+    private void addEdge(Node source, Node target, Edge edge) {
+      network.addNode(source);
+      network.addNode(target);
+      network.addEdge(source, target, edge);
+    }
+
+    private MissingBinding missingBinding(Key key) {
+      // Put all missing binding nodes in the root component. This simplifies the binding graph
+      // and produces better error messages for users since all dependents point to the same node.
+      return MissingBindingImpl.create(rootResolver().componentPath, key);
+    }
+
+    private Resolver rootResolver() {
+      return parentResolver.isPresent() ? parentResolver.get().rootResolver() : this;
     }
 
     private boolean requiresResolution(Binding binding) {
