@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
+import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.DELEGATE;
@@ -32,6 +33,8 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static java.util.function.Predicate.isEqual;
 
 import androidx.room.compiler.processing.XTypeElement;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -163,8 +166,7 @@ public final class LegacyBindingGraphFactory {
   }
 
   /** Represents a fully resolved binding graph. */
-  private static final class LegacyBindingGraph
-      implements LegacyBindingGraphConverter.LegacyBindingGraph {
+  static final class LegacyBindingGraph {
     private final Resolver resolver;
     private final ImmutableList<LegacyBindingGraph> resolvedSubgraphs;
     private final ComponentNode componentNode;
@@ -177,45 +179,40 @@ public final class LegacyBindingGraphFactory {
     }
 
     /** Returns the {@link ComponentNode} associated with this binding graph. */
-    @Override
     public ComponentNode componentNode() {
       return componentNode;
     }
 
     /** Returns the {@link ComponentPath} associated with this binding graph. */
-    @Override
     public ComponentPath componentPath() {
       return resolver.componentPath;
     }
 
     /** Returns the {@link ComponentDescriptor} associated with this binding graph. */
-    @Override
     public ComponentDescriptor componentDescriptor() {
       return resolver.componentDescriptor;
     }
 
     /**
-     * Returns the {@link ResolvedBindings} in this graph or a parent graph that matches the given
-     * request.
+     * Returns the {@link LegacyResolvedBindings} in this graph or a parent graph that matches the
+     * given request.
      *
      * <p>An exception is thrown if there are no resolved bindings found for the request; however,
      * this should never happen since all dependencies should have been resolved at this point.
      */
-    @Override
-    public ResolvedBindings resolvedBindings(BindingRequest request) {
+    public LegacyResolvedBindings resolvedBindings(BindingRequest request) {
       return request.isRequestKind(RequestKind.MEMBERS_INJECTION)
           ? resolver.getResolvedMembersInjectionBindings(request.key())
           : resolver.getResolvedContributionBindings(request.key());
     }
 
     /**
-     * Returns all {@link ResolvedBindings} for the given request.
+     * Returns all {@link LegacyResolvedBindings} for the given request.
      *
      * <p>Note that this only returns the bindings resolved in this component. Bindings resolved in
      * parent components are not included.
      */
-    @Override
-    public Iterable<ResolvedBindings> resolvedBindings() {
+    public Iterable<LegacyResolvedBindings> resolvedBindings() {
       // Don't return an immutable collection - this is only ever used for looping over all bindings
       // in the graph. Copying is wasteful, especially if is a hashing collection, since the values
       // should all, by definition, be distinct.
@@ -225,9 +222,79 @@ public final class LegacyBindingGraphFactory {
     }
 
     /** Returns the resolved subgraphs. */
-    @Override
     public ImmutableList<LegacyBindingGraph> subgraphs() {
       return resolvedSubgraphs;
+    }
+  }
+
+  /**
+   * The collection of bindings that have been resolved for a key. For valid graphs, contains
+   * exactly one binding.
+   *
+   * <p>Separate {@link LegacyResolvedBindings} instances should be used if a {@link
+   * MembersInjectionBinding} and a {@link ProvisionBinding} for the same key exist in the same
+   * component. (This will only happen if a type has an {@code @Inject} constructor and members, the
+   * component has a members injection method, and the type is also requested normally.)
+   */
+  @AutoValue
+  abstract static class LegacyResolvedBindings {
+    /**
+     * Creates a {@link LegacyResolvedBindings} appropriate for when there are no bindings for a
+     * key.
+     */
+    static LegacyResolvedBindings create(Key key) {
+      return create(key, ImmutableSet.of());
+    }
+
+    /** Creates a {@link LegacyResolvedBindings} for a single binding. */
+    static LegacyResolvedBindings create(Key key, BindingNode bindingNode) {
+      return create(key, ImmutableSet.of(bindingNode));
+    }
+
+    /** Creates a {@link LegacyResolvedBindings} for multiple bindings. */
+    static LegacyResolvedBindings create(Key key, ImmutableSet<BindingNode> bindingNodes) {
+      return new AutoValue_LegacyBindingGraphFactory_LegacyResolvedBindings(key, bindingNodes);
+    }
+
+    /** The binding key for which the {@link #bindings()} have been resolved. */
+    abstract Key key();
+
+    /** All binding nodes for {@link #key()}, regardless of which component owns them. */
+    abstract ImmutableSet<BindingNode> bindingNodes();
+
+    // Computing the hash code is an expensive operation.
+    @Memoized
+    @Override
+    public abstract int hashCode();
+
+    // Suppresses ErrorProne warning that hashCode was overridden w/o equals
+    @Override
+    public abstract boolean equals(Object other);
+
+    /** All bindings for {@link #key()}, regardless of which component owns them. */
+    final ImmutableSet<Binding> bindings() {
+      return bindingNodes().stream()
+          .map(BindingNode::delegate)
+          .collect(toImmutableSet());
+    }
+
+    /** Returns {@code true} if there are no {@link #bindings()}. */
+    final boolean isEmpty() {
+      return bindingNodes().isEmpty();
+    }
+
+    /** All bindings for {@link #key()} that are owned by a component. */
+    ImmutableSet<BindingNode> bindingNodesOwnedBy(ComponentPath componentPath) {
+      return bindingNodes().stream()
+          .filter(bindingNode -> bindingNode.componentPath().equals(componentPath))
+          .collect(toImmutableSet());
+    }
+
+    /** Returns the binding node representing the given binding, or throws ISE if none exist. */
+    final BindingNode forBinding(Binding binding) {
+      return bindingNodes().stream()
+          .filter(bindingNode -> bindingNode.delegate().equals(binding))
+          .collect(onlyElement());
     }
   }
 
@@ -236,8 +303,8 @@ public final class LegacyBindingGraphFactory {
     final Optional<Resolver> parentResolver;
     final ComponentDescriptor componentDescriptor;
     final ComponentDeclarations declarations;
-    final Map<Key, ResolvedBindings> resolvedContributionBindings = new LinkedHashMap<>();
-    final Map<Key, ResolvedBindings> resolvedMembersInjectionBindings = new LinkedHashMap<>();
+    final Map<Key, LegacyResolvedBindings> resolvedContributionBindings = new LinkedHashMap<>();
+    final Map<Key, LegacyResolvedBindings> resolvedMembersInjectionBindings = new LinkedHashMap<>();
     final Deque<Key> cycleStack = new ArrayDeque<>();
     final Map<Key, Boolean> keyDependsOnLocalBindingsCache = new HashMap<>();
     final Map<Binding, Boolean> bindingDependsOnLocalBindingsCache = new HashMap<>();
@@ -276,7 +343,7 @@ public final class LegacyBindingGraphFactory {
      *       there are no explicit bindings or synthetic bindings.
      * </ul>
      */
-    ResolvedBindings lookUpBindings(Key requestKey) {
+    LegacyResolvedBindings lookUpBindings(Key requestKey) {
       Set<ContributionBinding> bindings = new LinkedHashSet<>();
       Set<ContributionBinding> multibindingContributions = new LinkedHashSet<>();
       Set<MultibindingDeclaration> multibindingDeclarations = new LinkedHashSet<>();
@@ -348,7 +415,7 @@ public final class LegacyBindingGraphFactory {
             .ifPresent(bindings::add);
       }
 
-      return ResolvedBindings.create(
+      return LegacyResolvedBindings.create(
           requestKey,
           bindings.stream()
               .map(
@@ -396,15 +463,15 @@ public final class LegacyBindingGraphFactory {
     }
 
     /** Returns the resolved members injection bindings for the given {@link Key}. */
-    ResolvedBindings lookUpMembersInjectionBinding(Key requestKey) {
+    LegacyResolvedBindings lookUpMembersInjectionBinding(Key requestKey) {
       // no explicit deps for members injection, so just look it up
       Optional<MembersInjectionBinding> binding =
           injectBindingRegistry.getOrFindMembersInjectionBinding(requestKey);
       return binding.isPresent()
-          ? ResolvedBindings.create(
+          ? LegacyResolvedBindings.create(
               requestKey,
               bindingNodeFactory.forMembersInjectionBinding(componentPath, binding.get()))
-          : ResolvedBindings.create(requestKey);
+          : LegacyResolvedBindings.create(requestKey);
     }
 
     /**
@@ -442,7 +509,7 @@ public final class LegacyBindingGraphFactory {
         return bindingFactory.unresolvedDelegateBinding(delegateDeclaration);
       }
 
-      ResolvedBindings resolvedDelegate;
+      LegacyResolvedBindings resolvedDelegate;
       try {
         cycleStack.push(delegateKey);
         resolvedDelegate = lookUpBindings(delegateKey);
@@ -521,7 +588,7 @@ public final class LegacyBindingGraphFactory {
       if (binding.scope().isPresent() && binding.scope().get().isReusable()) {
         for (Resolver requestResolver : getResolverLineage().reverse()) {
           // If a @Reusable binding was resolved in an ancestor, use that component.
-          ResolvedBindings resolvedBindings =
+          LegacyResolvedBindings resolvedBindings =
               requestResolver.resolvedContributionBindings.get(binding.key());
           if (resolvedBindings != null && resolvedBindings.bindings().contains(binding)) {
             return Optional.of(requestResolver);
@@ -637,12 +704,12 @@ public final class LegacyBindingGraphFactory {
     }
 
     /**
-     * Returns the {@link ResolvedBindings} for {@code key} that was resolved in this resolver or an
-     * ancestor resolver. Only checks for {@link ContributionBinding}s as {@link
+     * Returns the {@link LegacyResolvedBindings} for {@code key} that was resolved in this resolver
+     * or an ancestor resolver. Only checks for {@link ContributionBinding}s as {@link
      * MembersInjectionBinding}s are not inherited.
      */
-    private Optional<ResolvedBindings> getPreviouslyResolvedBindings(Key key) {
-      Optional<ResolvedBindings> result =
+    private Optional<LegacyResolvedBindings> getPreviouslyResolvedBindings(Key key) {
+      Optional<LegacyResolvedBindings> result =
           Optional.ofNullable(resolvedContributionBindings.get(key));
       if (result.isPresent()) {
         return result;
@@ -654,7 +721,7 @@ public final class LegacyBindingGraphFactory {
     }
 
     private void resolveMembersInjection(Key key) {
-      ResolvedBindings bindings = lookUpMembersInjectionBinding(key);
+      LegacyResolvedBindings bindings = lookUpMembersInjectionBinding(key);
       resolveDependencies(bindings);
       resolvedMembersInjectionBindings.put(key, bindings);
     }
@@ -673,7 +740,7 @@ public final class LegacyBindingGraphFactory {
 
       cycleStack.push(key);
       try {
-        ResolvedBindings bindings = lookUpBindings(key);
+        LegacyResolvedBindings bindings = lookUpBindings(key);
         resolvedContributionBindings.put(key, bindings);
         resolveDependencies(bindings);
       } finally {
@@ -685,7 +752,7 @@ public final class LegacyBindingGraphFactory {
      * {@link #resolve(Key) Resolves} each of the dependencies of the bindings owned by this
      * component.
      */
-    private void resolveDependencies(ResolvedBindings resolvedBindings) {
+    private void resolveDependencies(LegacyResolvedBindings resolvedBindings) {
       for (BindingNode binding : resolvedBindings.bindingNodesOwnedBy(componentPath)) {
         for (DependencyRequest dependency : binding.dependencies()) {
           resolve(dependency.key());
@@ -693,7 +760,7 @@ public final class LegacyBindingGraphFactory {
       }
     }
 
-    private ResolvedBindings getResolvedContributionBindings(Key key) {
+    private LegacyResolvedBindings getResolvedContributionBindings(Key key) {
       if (resolvedContributionBindings.containsKey(key)) {
         return resolvedContributionBindings.get(key);
       }
@@ -703,7 +770,7 @@ public final class LegacyBindingGraphFactory {
       throw new AssertionError("No resolved bindings for key: " + key);
     }
 
-    private ResolvedBindings getResolvedMembersInjectionBindings(Key key) {
+    private LegacyResolvedBindings getResolvedMembersInjectionBindings(Key key) {
       return resolvedMembersInjectionBindings.get(key);
     }
 
@@ -758,7 +825,8 @@ public final class LegacyBindingGraphFactory {
             "no previously resolved bindings in %s for %s",
             Resolver.this,
             key);
-        ResolvedBindings previouslyResolvedBindings = getPreviouslyResolvedBindings(key).get();
+        LegacyResolvedBindings previouslyResolvedBindings =
+            getPreviouslyResolvedBindings(key).get();
         if (hasLocalBindings(previouslyResolvedBindings)) {
           return true;
         }
@@ -785,7 +853,7 @@ public final class LegacyBindingGraphFactory {
       }
     }
 
-    private boolean hasLocalBindings(ResolvedBindings resolvedBindings) {
+    private boolean hasLocalBindings(LegacyResolvedBindings resolvedBindings) {
       return hasLocalMultibindingContributions(resolvedBindings.key())
           || hasLocalOptionalBindingContribution(resolvedBindings);
     }
@@ -803,7 +871,7 @@ public final class LegacyBindingGraphFactory {
      * Returns {@code true} if there is a contribution in this component for an {@code
      * Optional<Foo>} key that has not been contributed in a parent.
      */
-    private boolean hasLocalOptionalBindingContribution(ResolvedBindings resolvedBindings) {
+    private boolean hasLocalOptionalBindingContribution(LegacyResolvedBindings resolvedBindings) {
       return hasLocalOptionalBindingContribution(
           resolvedBindings.key(), resolvedBindings.bindings());
     }

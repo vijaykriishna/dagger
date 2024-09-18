@@ -28,6 +28,8 @@ import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
+import dagger.internal.codegen.binding.LegacyBindingGraphFactory.LegacyBindingGraph;
+import dagger.internal.codegen.binding.LegacyBindingGraphFactory.LegacyResolvedBindings;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.Edge;
@@ -67,38 +69,6 @@ final class LegacyBindingGraphConverter {
     return BindingGraph.create(
         ImmutableNetwork.copyOf(network),
         isFullBindingGraph);
-  }
-
-  /** Represents a fully resolved binding graph. */
-  interface LegacyBindingGraph {
-    /** Returns the {@link ComponentNode} associated with this binding graph. */
-    ComponentNode componentNode();
-
-    /** Returns the {@link ComponentPath} associated with this binding graph. */
-    ComponentPath componentPath();
-
-    /** Returns the {@link ComponentDescriptor} associated with this binding graph. */
-    ComponentDescriptor componentDescriptor();
-
-    /**
-     * Returns the {@link ResolvedBindings} in this graph or a parent graph that matches the given
-     * request.
-     *
-     * <p>An exception is thrown if there are no resolved bindings found for the request; however,
-     * this should never happen since all dependencies should have been resolved at this point.
-     */
-    ResolvedBindings resolvedBindings(BindingRequest request);
-
-    /**
-     * Returns all {@link ResolvedBindings} for the given request.
-     *
-     * <p>Note that this only returns the bindings resolved in this component. Bindings resolved in
-     * parent components are not included.
-     */
-    Iterable<ResolvedBindings> resolvedBindings();
-
-    /** Returns the resolved subgraphs. */
-    ImmutableList<? extends LegacyBindingGraph> subgraphs();
   }
 
   private static final class Converter {
@@ -144,7 +114,7 @@ final class LegacyBindingGraphConverter {
         addDependencyEdges(graph.componentNode(), entryPointMethod.dependencyRequest().get());
       }
 
-      for (ResolvedBindings resolvedBindings : graph.resolvedBindings()) {
+      for (LegacyResolvedBindings resolvedBindings : graph.resolvedBindings()) {
         for (BindingNode binding : resolvedBindings.bindingNodes()) {
           if (bindings.add(binding)) {
             network.addNode(binding);
@@ -206,7 +176,7 @@ final class LegacyBindingGraphConverter {
      * binding(s) that satisfy a dependency request.
      */
     private void addDependencyEdges(Node source, DependencyRequest dependencyRequest) {
-      ResolvedBindings dependencies = resolvedDependencies(source, dependencyRequest);
+      LegacyResolvedBindings dependencies = resolvedDependencies(source, dependencyRequest);
       if (dependencies.isEmpty()) {
         addDependencyEdge(source, dependencyRequest, missingBindingNode(dependencies));
       } else {
@@ -244,13 +214,13 @@ final class LegacyBindingGraphConverter {
       return false;
     }
 
-    private ResolvedBindings resolvedDependencies(
+    private LegacyResolvedBindings resolvedDependencies(
         Node source, DependencyRequest dependencyRequest) {
       return graphForAncestor(source.componentPath().currentComponent().xprocessing())
           .resolvedBindings(bindingRequest(dependencyRequest));
     }
 
-    private MissingBinding missingBindingNode(ResolvedBindings dependencies) {
+    private MissingBinding missingBindingNode(LegacyResolvedBindings dependencies) {
       // Put all missing binding nodes in the root component. This simplifies the binding graph
       // and produces better error messages for users since all dependents point to the same node.
       return MissingBindingImpl.create(
