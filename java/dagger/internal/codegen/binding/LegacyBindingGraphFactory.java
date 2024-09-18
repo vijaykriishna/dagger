@@ -18,7 +18,6 @@ package dagger.internal.codegen.binding;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
@@ -40,7 +39,6 @@ import dagger.Reusable;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
-import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -310,11 +308,13 @@ public final class LegacyBindingGraphFactory {
 
       // Add synthetic optional binding
       if (!optionalBindingDeclarations.isEmpty()) {
+        ImmutableSet<Binding> optionalContributions =
+            lookUpBindings(keyFactory.unwrapOptional(requestKey).get()).bindings();
         bindings.add(
-            bindingFactory.syntheticOptionalBinding(
-                requestKey,
-                getRequestKind(OptionalType.from(requestKey).valueType()),
-                lookUpBindings(keyFactory.unwrapOptional(requestKey).get()).bindings()));
+            optionalContributions.isEmpty()
+                ? bindingFactory.syntheticAbsentOptionalDeclaration(requestKey)
+                : bindingFactory.syntheticPresentOptionalDeclaration(
+                    requestKey, optionalContributions));
       }
 
       // Add subcomponent creator binding

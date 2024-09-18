@@ -206,15 +206,14 @@ public final class DependencyRequestFactory {
    * Returns a synthetic request for the present value of an optional binding generated from a
    * {@link dagger.BindsOptionalOf} declaration.
    */
-  DependencyRequest forSyntheticPresentOptionalBinding(Key requestKey, RequestKind kind) {
+  DependencyRequest forSyntheticPresentOptionalBinding(Key requestKey) {
     Optional<Key> key = keyFactory.unwrapOptional(requestKey);
     checkArgument(key.isPresent(), "not a request for optional: %s", requestKey);
+    RequestKind kind = getRequestKind(OptionalType.from(requestKey).valueType());
     return DependencyRequest.builder()
         .kind(kind)
         .key(key.get())
-        .isNullable(
-            requestKindImplicitlyAllowsNull(
-                getRequestKind(OptionalType.from(requestKey).valueType())))
+        .isNullable(requestKindImplicitlyAllowsNull(kind))
         .build();
   }
 

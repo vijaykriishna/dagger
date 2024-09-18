@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
+import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.asVariable;
@@ -42,6 +43,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dagger.Module;
 import dagger.internal.codegen.base.MapType;
+import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
@@ -429,27 +431,26 @@ public final class BindingFactory {
    * @param underlyingKeyBindings the possibly empty set of bindings that exist in the component for
    *     the underlying (non-optional) key
    */
-  OptionalBinding syntheticOptionalBinding(
-      Key key,
-      RequestKind requestKind,
-      ImmutableCollection<? extends Binding> underlyingKeyBindings) {
-    if (underlyingKeyBindings.isEmpty()) {
-      return OptionalBinding.builder()
-          .bindingType(BindingType.PROVISION)
-          .key(key)
-          .build();
-    }
+  /** Returns an {@link BindingKind#OPTIONAL} present binding for {@code key}. */
+  OptionalBinding syntheticPresentOptionalDeclaration(
+      Key key, ImmutableCollection<Binding> optionalContributions) {
+    checkArgument(!optionalContributions.isEmpty());
+    RequestKind requestKind = getRequestKind(OptionalType.from(key).valueType());
     boolean isProduction =
-        underlyingKeyBindings.stream()
+        optionalContributions.stream()
                 .anyMatch(binding -> binding.bindingType() == BindingType.PRODUCTION)
             || requestKind.equals(RequestKind.PRODUCER) // handles producerFromProvider cases
             || requestKind.equals(RequestKind.PRODUCED); // handles producerFromProvider cases
     return OptionalBinding.builder()
         .bindingType(isProduction ? BindingType.PRODUCTION : BindingType.PROVISION)
         .key(key)
-        .delegateRequest(
-            dependencyRequestFactory.forSyntheticPresentOptionalBinding(key, requestKind))
+        .delegateRequest(dependencyRequestFactory.forSyntheticPresentOptionalBinding(key))
         .build();
+  }
+
+  /** Returns an {@link BindingKind#OPTIONAL} absent binding for {@code key}. */
+  OptionalBinding syntheticAbsentOptionalDeclaration(Key key) {
+    return OptionalBinding.builder().key(key).bindingType(BindingType.PROVISION).build();
   }
 
   /** Returns a {@link BindingKind#MEMBERS_INJECTOR} binding. */

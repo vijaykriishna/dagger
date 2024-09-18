@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.not;
-import static dagger.internal.codegen.base.RequestKinds.getRequestKind;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static dagger.internal.codegen.extension.DaggerGraphs.unreachableNodes;
@@ -48,7 +47,6 @@ import com.google.common.graph.NetworkBuilder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
-import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.base.TarjanSCCs;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -271,11 +269,13 @@ public final class BindingGraphFactory {
 
       // Add synthetic optional binding
       if (!optionalBindingDeclarations.isEmpty()) {
+        ImmutableSet<Binding> optionalContributions =
+            lookUpBindings(keyFactory.unwrapOptional(requestKey).get()).bindings();
         bindings.add(
-            bindingFactory.syntheticOptionalBinding(
-                requestKey,
-                getRequestKind(OptionalType.from(requestKey).valueType()),
-                lookUpBindings(keyFactory.unwrapOptional(requestKey).get()).bindings()));
+            optionalContributions.isEmpty()
+                ? bindingFactory.syntheticAbsentOptionalDeclaration(requestKey)
+                : bindingFactory.syntheticPresentOptionalDeclaration(
+                    requestKey, optionalContributions));
       }
 
       // Add subcomponent creator binding
