@@ -1336,4 +1336,26 @@ public class MembersInjectionTest {
               subject.generatedSource(goldenFileRule.goldenSource("test/DaggerMyComponent"));
             });
   }
+
+  @Test
+  public void kotlinNullableFieldInjection() {
+    Source file =
+        CompilerTests.kotlinSource(
+            "MyClass.kt",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class MyClass @Inject constructor() {",
+            "  @JvmField @Inject var nullableString: String? = null",
+            "  @JvmField @Inject var nullableObject: Any? = null",
+            "}");
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/MyClass_MembersInjector"));
+            });
+  }
 }
