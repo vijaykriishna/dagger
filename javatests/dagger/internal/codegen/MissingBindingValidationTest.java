@@ -32,6 +32,10 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class MissingBindingValidationTest {
+  private static final String JVM_SUPPRESS_WILDCARDS_MESSAGE =
+      "(For Kotlin sources, you may need to use '@JvmSuppressWildcards' or '@JvmWildcard' if you "
+          + "need to explicitly control the wildcards at a particular usage site.)";
+
   @Parameters(name = "{0}")
   public static ImmutableList<Object[]> parameters() {
     return CompilerMode.TEST_PARAMETERS;
@@ -1097,7 +1101,9 @@ public class MissingBindingValidationTest {
                       "        [Child1] Child1.getObject() [Parent → Child1]",
                       "",
                       "Note: Object is provided in the following other components:",
-                      "    [Child2] Child2Module.provideObject()"));
+                      "    [Child2] Child2Module.provideObject()",
+                      "",
+                      "======================"));
             });
   }
 
@@ -1218,7 +1224,9 @@ public class MissingBindingValidationTest {
                           + "[Parent → Child1 → RepeatedSub]",
                       "",
                       "Note: Object is provided in the following other components:",
-                      "    [Child2] Child2Module.provideObject(…)"));
+                      "    [Child2] Child2Module.provideObject(…)",
+                      "",
+                      "======================"));
             });
   }
 
@@ -1349,7 +1357,9 @@ public class MissingBindingValidationTest {
                       "        [Sub] Sub.getObject() [Parent → Child1 → Sub]",
                       "",
                       "Note: Object is provided in the following other components:",
-                      "    [Child2] Child2Module.provideObject(…)"));
+                      "    [Child2] Child2Module.provideObject(…)",
+                      "",
+                      "======================"));
             });
   }
 
@@ -1449,7 +1459,16 @@ public class MissingBindingValidationTest {
                           "",
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
-                          "        [MyComponent] Dagger-generated binding for Set<Bar>"))
+                          "        [MyComponent] Dagger-generated binding for Set<Bar>",
+                          // TODO(b/360278200): Remove multibinding contributions from this list.
+                          "    Set<Bar> TestModule#provideBars is provided at:",
+                          "        [MyComponent] TestModule.provideBars()",
+                          // TODO(b/360278200): Remove this as it's already listed above.
+                          "    Set<? extends Bar> is provided at:",
+                          "        [Child] ChildModule.provideBar()",
+                          JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                          "",
+                          "======================"))
                   .onSource(component)
                   .onLineContaining("interface MyComponent");
             });
@@ -1519,7 +1538,13 @@ public class MissingBindingValidationTest {
                           "",
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
-                          "        [MyComponent] Dagger-generated binding for Set<Bar>"))
+                          "        [MyComponent] Dagger-generated binding for Set<Bar>",
+                          // TODO(b/360278200): Remove multibinding contributions from this list.
+                          "    Set<Bar> TestModule#provideBars is provided at:",
+                          "        [MyComponent] TestModule.provideBars()",
+                          JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                          "",
+                          "======================"))
                   .onSource(component)
                   .onLineContaining("interface MyComponent");
             });
@@ -1592,7 +1617,13 @@ public class MissingBindingValidationTest {
                           "",
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
-                          "        [MyComponent] Dagger-generated binding for Set<Bar>"))
+                          "        [MyComponent] Dagger-generated binding for Set<Bar>",
+                          // TODO(b/360278200): Remove multibinding contributions from this list.
+                          "    Set<Bar> TestModule#provideBars is provided at:",
+                          "        [MyComponent] TestModule.provideBars()",
+                          JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                          "",
+                          "======================"))
                   .onSource(component)
                   .onLineContaining("interface MyComponent");
             });
@@ -1654,7 +1685,10 @@ public class MissingBindingValidationTest {
                           "",
                           "Note: A similar binding is provided in the following other components:",
                           "    List<? extends Bar> is provided at:",
-                          "        [MyComponent] TestModule.provideBars()"))
+                          "        [MyComponent] TestModule.provideBars()",
+                          JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                          "",
+                          "======================"))
                   .onSource(component)
                   .onLineContaining("interface MyComponent");
             });
@@ -1729,7 +1763,10 @@ public class MissingBindingValidationTest {
                           "",
                           "Note: A similar binding is provided in the following other components:",
                           "    Bar<Baz,Baz,Set<Baz>> is provided at:",
-                          "        [MyComponent] TestModule.provideBar()"))
+                          "        [MyComponent] TestModule.provideBar()",
+                          JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                          "",
+                          "======================"))
                   .onSource(component)
                   .onLineContaining("interface MyComponent");
             });
@@ -1865,7 +1902,10 @@ public class MissingBindingValidationTest {
                       "",
                       "Note: A similar binding is provided in the following other components:",
                       "    Bar is provided at:",
-                      "        [MyComponent] TestModule.provideBar()"));
+                      "        [MyComponent] TestModule.provideBar()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                      "",
+                      "======================"));
             });
   }
 
