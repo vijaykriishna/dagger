@@ -53,8 +53,7 @@ public abstract class Nullability {
     ImmutableSet<ClassName> nonTypeUseNullableAnnotations = getNullableAnnotations(element);
     Optional<XType> type = getType(element);
     ImmutableSet<ClassName> typeUseNullableAnnotations =
-        // TODO: b/136507005 - Enable once javac is fixed. For now, type-use annotations are empty.
-        ImmutableSet.of();
+    ImmutableSet.of();
     boolean isKotlinTypeNullable =
         // Note: Technically, it isn't possible for Java sources to have nullable types like in
         // Kotlin sources, but for some reason KSP treats certain types as nullable if they have a

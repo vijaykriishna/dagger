@@ -32,9 +32,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ModuleFactoryGeneratorTest {
 
-  private static final Source NULLABLE =
-        CompilerTests.javaSource(
-          "test.Nullable", "package test;", "public @interface Nullable {}");
+  private static final Source NON_TYPE_USE_NULLABLE =
+      CompilerTests.javaSource(
+          "test.Nullable", // force one-string-per-line format
+          "package test;",
+          "",
+          "public @interface Nullable {}");
 
   @Rule public GoldenFileRule goldenFileRule = new GoldenFileRule();
 
@@ -277,7 +280,8 @@ public class ModuleFactoryGeneratorTest {
             });
   }
 
-  @Test public void nullableProvides() {
+  @Test
+  public void nonTypeUseNullableProvides() {
     Source moduleFile =
         CompilerTests.javaSource(
             "test.TestModule",
@@ -290,7 +294,7 @@ public class ModuleFactoryGeneratorTest {
             "final class TestModule {",
             "  @Provides @Nullable String provideString() { return null; }",
             "}");
-    CompilerTests.daggerCompiler(moduleFile, NULLABLE)
+    CompilerTests.daggerCompiler(moduleFile, NON_TYPE_USE_NULLABLE)
         .compile(
             subject -> {
               subject.hasErrorCount(0);
@@ -299,7 +303,8 @@ public class ModuleFactoryGeneratorTest {
             });
   }
 
-  @Test public void multipleProvidesMethods() {
+  @Test
+  public void multipleProvidesMethods() {
     Source classXFile =
         CompilerTests.javaSource("test.X",
         "package test;",
@@ -344,7 +349,8 @@ public class ModuleFactoryGeneratorTest {
             });
   }
 
-  @Test public void providesSetElement() {
+  @Test
+  public void providesSetElement() {
     Source moduleFile =
         CompilerTests.javaSource(
             "test.TestModule",

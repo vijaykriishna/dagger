@@ -29,8 +29,7 @@ public final class TestModule_ProvideStringFactory implements Factory<String> {
   }
 
   @Override
-  @Nullable
-  public String get() {
+  public @Nullable String get() {
     return provideString(module);
   }
 
@@ -38,9 +37,7 @@ public final class TestModule_ProvideStringFactory implements Factory<String> {
     return new TestModule_ProvideStringFactory(module);
   }
 
-  @Nullable
-  public static String provideString(TestModule instance) {
+  public static @Nullable String provideString(TestModule instance) {
     return instance.provideString();
   }
 }
-
