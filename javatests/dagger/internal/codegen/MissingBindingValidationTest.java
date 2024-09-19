@@ -2029,7 +2029,6 @@ public class MissingBindingValidationTest {
     CompilerTests.daggerCompiler(
             parent, child, grandchild, parentModule, childModule, grandchildModule, foo, bar, qux)
         .withProcessingOptions(compilerMode.processorOptions())
-        // TODO(b/367426609): This should fail once this bug is fixed
         .compile(subject -> subject.hasErrorCount(0));
   }
 
