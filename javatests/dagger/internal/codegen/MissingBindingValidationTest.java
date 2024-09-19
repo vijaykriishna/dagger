@@ -1923,4 +1923,219 @@ public class MissingBindingValidationTest {
                   .doesNotContain("bindings with similar types exists in the graph");
             });
   }
+
+  // Regression test for b/367426609
+  @Test
+  public void failsWithMissingBindingInGrandchild() {
+    Source parent =
+        CompilerTests.javaSource(
+            "test.Parent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "",
+            "@Component(modules = ParentModule.class)",
+            "interface Parent {",
+            "  Child child();",
+            "}");
+    Source child =
+        CompilerTests.javaSource(
+            "test.Child",
+            "package test;",
+            "",
+            "import dagger.Subcomponent;",
+            "",
+            "@Subcomponent(modules = ChildModule.class)",
+            "interface Child {",
+            "  Grandchild grandchild();",
+            "}");
+    Source grandchild =
+        CompilerTests.javaSource(
+            "test.Grandchild",
+            "package test;",
+            "",
+            "import dagger.Subcomponent;",
+            "",
+            "@Subcomponent(modules=GrandchildModule.class)",
+            "interface Grandchild {",
+            // Note: it's important that Qux is first to reproduce the error in b/367426609.
+            "  Qux getQux();",
+            "  Foo getFoo();",
+            "}");
+    Source parentModule =
+        CompilerTests.javaSource(
+            "test.ParentModule",
+            "package test;",
+            "",
+            "import dagger.BindsOptionalOf;",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.Optional;",
+            "",
+            "@Module",
+            "interface ParentModule {",
+            "  @BindsOptionalOf",
+            "  String optionalString();",
+            "",
+            // depend on an @BindsOptionalOf to force re-resolution in subcomponents.
+            "  @Provides",
+            "  static Foo provideFoo(Optional<String> str, Qux qux) { return null; }",
+            "}");
+    Source childModule =
+        CompilerTests.javaSource(
+            "test.ChildModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "interface ChildModule {",
+            "  @Provides",
+            "  static Qux provideQux() { return null; }",
+            "}");
+    Source grandchildModule =
+        CompilerTests.javaSource(
+            "test.GrandchildModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "interface GrandchildModule {",
+            "  @Provides",
+            "  static String provideString() { return null; }",
+            "}");
+    Source foo =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Foo",
+            "package test;",
+            "",
+            "interface Foo {}");
+    Source bar =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    Source qux =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Qux",
+            "package test;",
+            "",
+            "interface Qux {}");
+
+    CompilerTests.daggerCompiler(
+            parent, child, grandchild, parentModule, childModule, grandchildModule, foo, bar, qux)
+        .withProcessingOptions(compilerMode.processorOptions())
+        // TODO(b/367426609): This should fail once this bug is fixed
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  // Regression test for b/367426609
+  @Test
+  public void failsWithMissingBindingInGrandchild_dependencyTracePresent() {
+    Source parent =
+        CompilerTests.javaSource(
+            "test.Parent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "",
+            "@Component(modules = ParentModule.class)",
+            "interface Parent {",
+            "  Child child();",
+            "}");
+    Source child =
+        CompilerTests.javaSource(
+            "test.Child",
+            "package test;",
+            "",
+            "import dagger.Subcomponent;",
+            "",
+            "@Subcomponent(modules = ChildModule.class)",
+            "interface Child {",
+            "  Grandchild grandchild();",
+            "}");
+    Source grandchild =
+        CompilerTests.javaSource(
+            "test.Grandchild",
+            "package test;",
+            "",
+            "import dagger.Subcomponent;",
+            "",
+            "@Subcomponent(modules=GrandchildModule.class)",
+            "interface Grandchild {",
+            "  Foo getFoo();",
+            "}");
+    Source parentModule =
+        CompilerTests.javaSource(
+            "test.ParentModule",
+            "package test;",
+            "",
+            "import dagger.BindsOptionalOf;",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.Optional;",
+            "",
+            "@Module",
+            "interface ParentModule {",
+            "  @BindsOptionalOf",
+            "  String optionalString();",
+            "",
+            // depend on an @BindsOptionalOf to force re-resolution in subcomponents.
+            "  @Provides",
+            "  static Foo provideFoo(Optional<String> str, Qux qux) { return null; }",
+            "}");
+    Source childModule =
+        CompilerTests.javaSource(
+            "test.ChildModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "interface ChildModule {",
+            "  @Provides",
+            "  static Qux provideQux() { return null; }",
+            "}");
+    Source grandchildModule =
+        CompilerTests.javaSource(
+            "test.GrandchildModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "interface GrandchildModule {",
+            "  @Provides",
+            "  static String provideString() { return null; }",
+            "}");
+    Source foo =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Foo",
+            "package test;",
+            "",
+            "interface Foo {}");
+    Source bar =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    Source qux =
+        CompilerTests.javaSource( // force one-string-per-line format
+            "test.Qux",
+            "package test;",
+            "",
+            "interface Qux {}");
+
+    CompilerTests.daggerCompiler(
+            parent, child, grandchild, parentModule, childModule, grandchildModule, foo, bar, qux)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(subject -> subject.hasErrorCount(0));
+  }
 }
