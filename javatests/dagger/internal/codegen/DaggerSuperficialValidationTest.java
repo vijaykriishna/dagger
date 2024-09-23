@@ -197,7 +197,7 @@ public class DaggerSuperficialValidationTest {
             "class TestClass<T : MissingType>"),
         (processingEnv, superficialValidation) -> {
           if (isKAPT(processingEnv)) {
-            // TODO(b/268536260): Figure out why XProcessing Testing infra fails when using KAPT.
+            // The KAPT java stub doesn't reference the MissingType symbol (b/268536260#comment2).
             return;
           }
           XTypeElement testClassElement = processingEnv.findTypeElement("test.TestClass");
@@ -402,7 +402,7 @@ public class DaggerSuperficialValidationTest {
             "class TestClass<T> where T: Number, T: Missing"),
         (processingEnv, superficialValidation) -> {
           if (isKAPT(processingEnv)) {
-            // TODO(b/268536260): Figure out why XProcessing Testing infra fails when using KAPT.
+            // The KAPT java stub doesn't reference the MissingType symbol (b/268536260#comment2).
             return;
           }
           XTypeElement testClassElement = processingEnv.findTypeElement("test.TestClass");
@@ -454,13 +454,6 @@ public class DaggerSuperficialValidationTest {
             "}"),
         (processingEnv, superficialValidation) -> {
           XTypeElement testClassElement = processingEnv.findTypeElement("test.Outer.TestClass");
-          if (processingEnv.getBackend() == XProcessingEnv.Backend.KSP
-              && sourceKind == SourceKind.KOTLIN) {
-            // TODO(b/269364338): When using kotlin source with KSP the MissingType annotation value
-            // appears to be missing so validating this element does not cause the expected failure.
-            superficialValidation.validateElement(testClassElement);
-            return;
-          }
           ValidationException exception =
               assertThrows(
                   ValidationException.KnownErrorType.class,
@@ -512,10 +505,8 @@ public class DaggerSuperficialValidationTest {
             "  )",
             "}"),
         (processingEnv, superficialValidation) -> {
-          if (sourceKind == SourceKind.KOTLIN) {
-            // TODO(b/268536260): Figure out why XProcessing Testing infra fails when using KAPT.
-            // TODO(b/269364338): When using kotlin source the MissingType annotation value appears
-            // to be missing so validating this element does not cause the expected failure.
+          if (isKAPT(processingEnv)) {
+            // The KAPT java stub doesn't reference the MissingType symbol (b/268536260#comment2).
             return;
           }
           XTypeElement testClassElement = processingEnv.findTypeElement("test.Outer.TestClass");
