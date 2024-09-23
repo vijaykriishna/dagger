@@ -19,6 +19,7 @@ package dagger.internal.codegen;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatMethodInUnannotatedClass;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatModuleMethod;
 
+import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -304,7 +305,79 @@ public class ModuleFactoryGeneratorTest {
   }
 
   @Test
-  public void multipleProvidesMethods() {
+  public void kotlinNullableProvides() {
+    Source moduleFile =
+        CompilerTests.kotlinSource(
+            "TestModule.kt",
+            "package test",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "class TestModule {",
+            "  @Provides fun provideString(): String? { return null; }",
+            "}");
+    CompilerTests.daggerCompiler(moduleFile)
+        .compile(
+            subject -> {
+              subject.hasErrorCount(0);
+              boolean isJavac = CompilerTests.backend(subject) == XProcessingEnv.Backend.JAVAC;
+              subject.generatedSource(
+                  CompilerTests.javaSource(
+                      "test.TestModule_ProvideStringFactory",
+                      "package test;",
+                      "",
+                      "import dagger.internal.DaggerGenerated;",
+                      "import dagger.internal.Factory;",
+                      "import dagger.internal.QualifierMetadata;",
+                      "import dagger.internal.ScopeMetadata;",
+                      "import javax.annotation.processing.Generated;",
+                      isJavac ? "import org.jetbrains.annotations.Nullable;\n" : "",
+                      "@ScopeMetadata",
+                      "@QualifierMetadata",
+                      "@DaggerGenerated",
+                      "@Generated(",
+                      "    value = \"dagger.internal.codegen.ComponentProcessor\",",
+                      "    comments = \"https://dagger.dev\"",
+                      ")",
+                      "@SuppressWarnings({",
+                      "    \"unchecked\",",
+                      "    \"rawtypes\",",
+                      "    \"KotlinInternal\",",
+                      "    \"KotlinInternalInJava\",",
+                      "    \"cast\",",
+                      "    \"deprecation\"",
+                      "})",
+                      "public final class TestModule_ProvideStringFactory implements"
+                          + " Factory<String> {",
+                      "  private final TestModule module;",
+                      "",
+                      "  public TestModule_ProvideStringFactory(TestModule module) {",
+                      "    this.module = module;",
+                      "  }",
+                      "",
+                      // TODO(b/368129744): KSP should output the @Nullable annotation after this
+                      // bug is fixed.
+                      isJavac ? "  @Override\n  @Nullable" : "  @Override",
+                      "  public String get() {",
+                      "    return provideString(module);",
+                      "  }",
+                      "",
+                      "  public static TestModule_ProvideStringFactory create(TestModule module) {",
+                      "    return new TestModule_ProvideStringFactory(module);",
+                      "  }",
+                      // TODO(b/368129744): KSP should output the @Nullable annotation after this
+                      // bug is fixed.
+                      isJavac ? "\n  @Nullable" : "",
+                      "  public static String provideString(TestModule instance) {",
+                      "    return instance.provideString();",
+                      "  }",
+                      "}"));
+            });
+  }
+
+  @Test public void multipleProvidesMethods() {
     Source classXFile =
         CompilerTests.javaSource("test.X",
         "package test;",
