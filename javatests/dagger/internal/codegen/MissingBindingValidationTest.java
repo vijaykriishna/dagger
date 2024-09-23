@@ -1460,12 +1460,6 @@ public class MissingBindingValidationTest {
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
                           "        [MyComponent] Dagger-generated binding for Set<Bar>",
-                          // TODO(b/360278200): Remove multibinding contributions from this list.
-                          "    Set<Bar> TestModule#provideBars is provided at:",
-                          "        [MyComponent] TestModule.provideBars()",
-                          // TODO(b/360278200): Remove this as it's already listed above.
-                          "    Set<? extends Bar> is provided at:",
-                          "        [Child] ChildModule.provideBar()",
                           JVM_SUPPRESS_WILDCARDS_MESSAGE,
                           "",
                           "======================"))
@@ -1539,9 +1533,6 @@ public class MissingBindingValidationTest {
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
                           "        [MyComponent] Dagger-generated binding for Set<Bar>",
-                          // TODO(b/360278200): Remove multibinding contributions from this list.
-                          "    Set<Bar> TestModule#provideBars is provided at:",
-                          "        [MyComponent] TestModule.provideBars()",
                           JVM_SUPPRESS_WILDCARDS_MESSAGE,
                           "",
                           "======================"))
@@ -1618,9 +1609,6 @@ public class MissingBindingValidationTest {
                           "Note: A similar binding is provided in the following other components:",
                           "    Set<Bar> is provided at:",
                           "        [MyComponent] Dagger-generated binding for Set<Bar>",
-                          // TODO(b/360278200): Remove multibinding contributions from this list.
-                          "    Set<Bar> TestModule#provideBars is provided at:",
-                          "        [MyComponent] TestModule.provideBars()",
                           JVM_SUPPRESS_WILDCARDS_MESSAGE,
                           "",
                           "======================"))
