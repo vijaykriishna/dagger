@@ -124,8 +124,17 @@ public class DaggerSuperficialValidationTest {
               assertThrows(
                   ValidationException.KnownErrorType.class,
                   () -> superficialValidation.validateElement(testClassElement));
-          // TODO(b/248552462): Javac and KSP should match once this bug is fixed.
-          boolean isJavac = processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC;
+          final String errorType;
+          if (processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC) {
+            // JDK 24 improves error type information.
+            errorType =
+                Runtime.version().feature() >= 24
+                    ? isKAPT(processingEnv) ? "MissingType" : "MissingType<?>"
+                    : "<any>";
+          } else {
+            // TODO(b/248552462): Javac and KSP should match once this bug is fixed.
+            errorType = "error.NonExistentClass";
+          }
           assertThat(exception)
               .hasMessageThat()
               .contains(
@@ -135,7 +144,7 @@ public class DaggerSuperficialValidationTest {
                           "  => element (CLASS): test.TestClass",
                           "  => element (METHOD): blah()",
                           "  => type (ERROR return type): %1$s"),
-                      isJavac ? "<any>" : "error.NonExistentClass"));
+                      errorType));
         });
   }
 
@@ -165,8 +174,14 @@ public class DaggerSuperficialValidationTest {
               assertThrows(
                   ValidationException.KnownErrorType.class,
                   () -> superficialValidation.validateElement(testClassElement));
-          // TODO(b/248552462): Javac and KSP should match once this bug is fixed.
-          boolean isJavac = processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC;
+          final String errorType;
+          if (processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC) {
+            // JDK 24 improves error type information.
+            errorType = Runtime.version().feature() >= 24 ? "MissingType<?>" : "<any>";
+          } else {
+            // TODO(b/248552462): Javac and KSP should match once this bug is fixed.
+            errorType = "error.NonExistentClass";
+          }
           assertThat(exception)
               .hasMessageThat()
               .contains(
@@ -178,7 +193,7 @@ public class DaggerSuperficialValidationTest {
                           "  => type (DECLARED return type): "
                               + "java.util.Map<java.util.Set<?>,%1$s>",
                           "  => type (ERROR type argument): %1$s"),
-                      isJavac ? "<any>" : "error.NonExistentClass"));
+                      errorType));
         });
   }
 
