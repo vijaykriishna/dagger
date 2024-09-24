@@ -472,15 +472,29 @@ final class InjectionMethods {
                           ? asMethodParameter(parameter).getJvmName()
                           : getSimpleName(parameter));
               boolean useObject = !isRawTypePubliclyAccessible(parameter.getType());
-              return copyParameter(methodBuilder, parameter.getType(), name, useObject);
+              return copyParameter(
+                  methodBuilder, parameter.getType(), name, useObject, Nullability.of(parameter));
             })
         .collect(toParametersCodeBlock());
   }
 
   private static CodeBlock copyParameter(
-      MethodSpec.Builder methodBuilder, XType type, String name, boolean useObject) {
+      MethodSpec.Builder methodBuilder,
+      XType type,
+      String name,
+      boolean useObject,
+      Nullability nullability) {
     TypeName typeName = useObject ? TypeName.OBJECT : type.getTypeName();
-    methodBuilder.addParameter(ParameterSpec.builder(typeName, name).build());
+    nullability.typeUseNullableAnnotations().stream()
+        .map(it -> AnnotationSpec.builder(it).build())
+        .forEach(typeName::annotated);
+    methodBuilder.addParameter(
+        ParameterSpec.builder(typeName, name)
+            .addAnnotations(
+                nullability.nonTypeUseNullableAnnotations().stream()
+                    .map(it -> AnnotationSpec.builder(it).build())
+                    .collect(toImmutableList()))
+            .build());
     return useObject ? CodeBlock.of("($T) $L", type.getTypeName(), name) : CodeBlock.of("$L", name);
   }
 
@@ -490,7 +504,12 @@ final class InjectionMethods {
       XType type,
       boolean useObject) {
     CodeBlock instance =
-        copyParameter(methodBuilder, type, parameterNameSet.getUniqueName("instance"), useObject);
+        copyParameter(
+            methodBuilder,
+            type,
+            parameterNameSet.getUniqueName("instance"),
+            useObject,
+            Nullability.NOT_NULLABLE);
     // If we had to cast the instance add an extra parenthesis incase we're calling a method on it.
     return useObject ? CodeBlock.of("($L)", instance) : instance;
   }

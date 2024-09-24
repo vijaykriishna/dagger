@@ -6,6 +6,7 @@ import dagger.internal.InjectedFieldSignature;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
+import org.jetbrains.annotations.Nullable;
 
 @QualifierMetadata
 @DaggerGenerated
@@ -44,12 +45,12 @@ public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
   }
 
   @InjectedFieldSignature("test.MyClass.nullableString")
-  public static void injectNullableString(MyClass instance, String nullableString) {
+  public static void injectNullableString(MyClass instance, @Nullable String nullableString) {
     instance.nullableString = nullableString;
   }
 
   @InjectedFieldSignature("test.MyClass.nullableObject")
-  public static void injectNullableObject(MyClass instance, Object nullableObject) {
+  public static void injectNullableObject(MyClass instance, @Nullable Object nullableObject) {
     instance.nullableObject = nullableObject;
   }
 }

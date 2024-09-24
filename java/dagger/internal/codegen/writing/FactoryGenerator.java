@@ -274,11 +274,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
           .nullability()
           .nonTypeUseNullableAnnotations()
           .forEach(getMethod::addAnnotation);
-      getMethod.returns(
-          providedTypeName.annotated(binding.nullability().typeUseNullableAnnotations().stream()
-              .map(annotation -> AnnotationSpec.builder(annotation).build())
-              .collect(toImmutableList())));
-      getMethod.addStatement("return $L", invokeNewInstance);
+      getMethod.addStatement("return $L", invokeNewInstance).returns(providedTypeName);
     } else if (!injectionSites(binding).isEmpty()) {
       CodeBlock instance = CodeBlock.of("instance");
       getMethod
@@ -368,7 +364,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   private static TypeName providedTypeName(ContributionBinding binding) {
-    return binding.contributedType().getTypeName();
+    return binding
+        .contributedType()
+        .getTypeName()
+        .annotated(
+            binding.nullability().typeUseNullableAnnotations().stream()
+                .map(annotation -> AnnotationSpec.builder(annotation).build())
+                .collect(toImmutableList()));
   }
 
   private static Optional<TypeName> factoryTypeName(ContributionBinding binding) {

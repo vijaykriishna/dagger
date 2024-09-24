@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen;
 
+import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -1355,7 +1356,20 @@ public class MembersInjectionTest {
         .compile(
             subject -> {
               subject.hasErrorCount(0);
-              subject.generatedSource(goldenFileRule.goldenSource("test/MyClass_MembersInjector"));
+              Source expectedSource = goldenFileRule.goldenSource("test/MyClass_MembersInjector");
+              subject.generatedSource(
+                  CompilerTests.backend(subject) == XProcessingEnv.Backend.KSP
+                      ? stripJetbrainsNullable(expectedSource)
+                      : expectedSource);
             });
+  }
+
+  private Source stripJetbrainsNullable(Source source) {
+    return CompilerTests.javaSource(
+        ((Source.JavaSource) source).getQName(),
+        source
+            .getContents()
+            .replace("@Nullable ", "")
+            .replace("import org.jetbrains.annotations.Nullable;\n", ""));
   }
 }

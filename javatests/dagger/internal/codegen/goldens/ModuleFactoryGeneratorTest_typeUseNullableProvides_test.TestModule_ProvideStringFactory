@@ -21,7 +21,7 @@ import javax.annotation.processing.Generated;
     "cast",
     "deprecation"
 })
-public final class TestModule_ProvideStringFactory implements Factory<String> {
+public final class TestModule_ProvideStringFactory implements Factory<@Nullable String> {
   private final TestModule module;
 
   public TestModule_ProvideStringFactory(TestModule module) {
