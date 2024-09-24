@@ -15,7 +15,7 @@
 # Description:
 #   Import for including XProcessing in Dagger.
 
-load("@rules_java//java:defs.bzl", "java_import")
+load("@rules_java//java:defs.bzl", "java_import", "java_library")
 
 package(default_visibility = ["//:src"])
 
