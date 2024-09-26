@@ -23,6 +23,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.Nullability;
 
 /** A binding for a {@link BindingKind#PRODUCTION}. */
 @CheckReturnValue

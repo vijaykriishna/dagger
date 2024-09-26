@@ -27,6 +27,7 @@ import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.Nullability;
 
 /** A binding for a {@link BindingKind#ASSISTED_INJECTION}. */
 @CheckReturnValue

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dagger.internal.codegen.binding;
+package dagger.internal.codegen.xprocessing;
 
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static androidx.room.compiler.processing.XElementKt.isVariableElement;
@@ -30,7 +30,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.xprocessing.XAnnotations;
 import java.util.Optional;
 
 /**

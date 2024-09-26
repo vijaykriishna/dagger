@@ -25,6 +25,7 @@ import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.Nullability;
 
 /** A binding for a {@link BindingKind#ASSISTED_FACTORY}. */
 @CheckReturnValue

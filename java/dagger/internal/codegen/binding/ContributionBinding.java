@@ -35,6 +35,7 @@ import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
+import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Optional;
 

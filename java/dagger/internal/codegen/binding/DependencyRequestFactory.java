@@ -45,6 +45,7 @@ import dagger.internal.codegen.model.DaggerElement;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.Nullability;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
