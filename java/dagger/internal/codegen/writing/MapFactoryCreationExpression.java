@@ -19,7 +19,6 @@ package dagger.internal.codegen.writing;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.binding.SourceFiles.mapFactoryClassName;
-import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.ClassName;
@@ -35,7 +34,6 @@ import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
-import java.util.stream.Stream;
 
 /** A factory creation expression for a multibound map. */
 final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpression {
@@ -71,15 +69,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     TypeName valueTypeName = TypeName.OBJECT;
     if (!useRawType()) {
       MapType mapType = MapType.from(binding.key());
-      // TODO(ronshapiro): either inline this into mapFactoryClassName, or add a
-      // mapType.unwrappedValueType() method that doesn't require a framework type
-      valueTypeName =
-          Stream.of(TypeNames.PROVIDER, TypeNames.PRODUCER, TypeNames.PRODUCED)
-              .filter(mapType::valuesAreTypeOf)
-              .map(mapType::unwrappedValueType)
-              .collect(toOptional())
-              .orElseGet(mapType::valueType)
-              .getTypeName();
+      valueTypeName = mapType.unwrappedFrameworkValueType().getTypeName();
       builder.add(
           "<$T, $T>",
           useLazyClassKey ? TypeNames.STRING : mapType.keyType().getTypeName(),

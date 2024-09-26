@@ -27,7 +27,6 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
-import static java.util.Arrays.asList;
 
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XMethodElement;
@@ -39,7 +38,6 @@ import com.squareup.javapoet.ClassName;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.internal.codegen.base.ContributionType;
-import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.RequestKinds;
@@ -286,82 +284,44 @@ public final class KeyFactory {
   public Key unwrapMapValueType(Key key) {
     if (MapType.isMap(key)) {
       MapType mapType = MapType.from(key);
-      if (!mapType.isRawType()) {
-        for (ClassName frameworkClass :
-            asList(TypeNames.PROVIDER, TypeNames.PRODUCER, TypeNames.PRODUCED)) {
-          if (mapType.valuesAreTypeOf(frameworkClass)) {
-            return key.withType(
-                DaggerType.from(
-                    mapOf(mapType.keyType(), mapType.unwrappedValueType(frameworkClass))));
-          }
-        }
+      if (!mapType.isRawType() && mapType.valuesAreFrameworkType()) {
+        return key.withType(
+            DaggerType.from(mapOf(mapType.keyType(), mapType.unwrappedFrameworkValueType())));
       }
     }
     return key;
   }
 
-  /** Converts a {@link Key} of type {@code Map<K, V>} to {@code Map<K, Provider<V>>}. */
-  private Key wrapMapValue(Key key, ClassName newWrappingClassName) {
-    checkArgument(FrameworkTypes.isFrameworkType(processingEnv.requireType(newWrappingClassName)));
-    return wrapMapKey(key, newWrappingClassName).get();
-  }
-
   /**
-   * If {@code key}'s type is {@code Map<K, CurrentWrappingClass<Bar>>}, returns a key with type
-   * {@code Map<K, NewWrappingClass<Bar>>} with the same qualifier. Otherwise returns {@link
-   * Optional#empty()}.
+   * Returns a key with the type {@code Map<K, FrameworkType<V>>} if the given key has a type of
+   * {@code Map<K, V>}. Otherwise, returns the unaltered key.
    *
-   * <p>Returns {@link Optional#empty()} if {@code newWrappingClass} is not in the classpath.
-   *
-   * @throws IllegalArgumentException if {@code newWrappingClass} is the same as {@code
-   *     currentWrappingClass}
+   * @throws IllegalArgumentException if the {@code frameworkClassName} is not a valid framework
+   * type for multibinding maps.
+   * @throws IllegalStateException if the {@code key} is already wrapped in a (different) framework
+   * type.
    */
-  public Optional<Key> rewrapMapKey(
-      Key possibleMapKey, ClassName currentWrappingClassName, ClassName newWrappingClassName) {
-    checkArgument(!currentWrappingClassName.equals(newWrappingClassName));
-    if (MapType.isMap(possibleMapKey)) {
-      MapType mapType = MapType.from(possibleMapKey);
-      if (!mapType.isRawType() && mapType.valuesAreTypeOf(currentWrappingClassName)) {
-        XTypeElement wrappingElement = processingEnv.findTypeElement(newWrappingClassName);
-        if (wrappingElement == null) {
+  private Key wrapMapValue(Key key, ClassName frameworkClassName) {
+    checkArgument(
+        MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
+            .map(RequestKinds::frameworkClassName)
+            .anyMatch(frameworkClassName::equals));
+    if (MapType.isMap(key)) {
+      MapType mapType = MapType.from(key);
+      if (!mapType.isRawType() && !mapType.valuesAreTypeOf(frameworkClassName)) {
+        checkState(!mapType.valuesAreFrameworkType());
+        XTypeElement frameworkTypeElement = processingEnv.findTypeElement(frameworkClassName);
+        if (frameworkTypeElement == null) {
           // This target might not be compiled with Producers, so wrappingClass might not have an
           // associated element.
-          return Optional.empty();
+          return key;
         }
         XType wrappedValueType =
-            processingEnv.getDeclaredType(
-                wrappingElement, mapType.unwrappedValueType(currentWrappingClassName));
-        return Optional.of(
-            possibleMapKey.withType(DaggerType.from(mapOf(mapType.keyType(), wrappedValueType))));
+            processingEnv.getDeclaredType(frameworkTypeElement, mapType.valueType());
+        return key.withType(DaggerType.from(mapOf(mapType.keyType(), wrappedValueType)));
       }
     }
-    return Optional.empty();
-  }
-
-  /**
-   * If {@code key}'s type is {@code Map<K, Foo>} and {@code Foo} is not {@code WrappingClass
-   * <Bar>}, returns a key with type {@code Map<K, WrappingClass<Foo>>} with the same qualifier.
-   * Otherwise returns {@link Optional#empty()}.
-   *
-   * <p>Returns {@link Optional#empty()} if {@code WrappingClass} is not in the classpath.
-   */
-  private Optional<Key> wrapMapKey(Key possibleMapKey, ClassName wrappingClassName) {
-    if (MapType.isMap(possibleMapKey)) {
-      MapType mapType = MapType.from(possibleMapKey);
-      if (!mapType.isRawType() && !mapType.valuesAreTypeOf(wrappingClassName)) {
-        XTypeElement wrappingElement = processingEnv.findTypeElement(wrappingClassName);
-        if (wrappingElement == null) {
-          // This target might not be compiled with Producers, so wrappingClass might not have an
-          // associated element.
-          return Optional.empty();
-        }
-        XType wrappedValueType =
-            processingEnv.getDeclaredType(wrappingElement, mapType.valueType());
-        return Optional.of(
-            possibleMapKey.withType(DaggerType.from(mapOf(mapType.keyType(), wrappedValueType))));
-      }
-    }
-    return Optional.empty();
+    return key;
   }
 
   /**
