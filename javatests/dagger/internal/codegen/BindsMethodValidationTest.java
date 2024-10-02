@@ -16,9 +16,11 @@
 
 package dagger.internal.codegen;
 
+import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatMethodInUnannotatedClass;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatModuleMethod;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.junit.Assert.assertThrows;
 
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
@@ -389,6 +391,65 @@ public class BindsMethodValidationTest {
               subject.hasErrorContaining(
                   "@Binds methods' nullability must match the nullability of its parameter");
             });
+  }
+
+  // This is a regression test for b/370367984.
+  @Test
+  public void bindsMapKVAndRequestMapKProviderV_failsWithMissingBindingError() {
+    Source component =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "import dagger.Component;",
+            "import javax.inject.Provider;",
+            "import java.util.Map;",
+            "",
+            "@Component(modules = {TestModule.class})",
+            "interface TestComponent {",
+            "  Map<K, Provider<V>> getMap();",
+            "}");
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestModule",
+            "package test;",
+            "import dagger.Binds;",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.Map;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Binds Map<K, V> bind(@TestQualifier Map<K, V> impl);",
+            "",
+            "  @Provides",
+            "  @TestQualifier",
+            "  static Map<K, V> provideMap() {",
+            "    return (Map<K, V>) null;",
+            "  }",
+            "}");
+    Source qualifier =
+        CompilerTests.javaSource(
+            "test.TestQualifier",
+            "package test;",
+            "import javax.inject.Qualifier;",
+            "",
+            "@Qualifier @interface TestQualifier {}");
+    Source k = CompilerTests.javaSource("test.K", "package test;", "interface K {}");
+    Source v = CompilerTests.javaSource("test.V", "package test;", "interface V {}");
+    // TODO(b/370367984): Once this bug is fixed, no exception should be thrown.
+    RuntimeException expectedException =
+        assertThrows(
+            RuntimeException.class,
+            () -> CompilerTests.daggerCompiler(component, module, qualifier, k, v)
+                .compile(subject -> {}));
+    assertThat(expectedException)
+        .hasMessageThat()
+        .contains(
+            "no expression found for BindingRequest{"
+                + "key=java.util.Map<test.K,javax.inject.Provider<test.V>>, "
+                + "requestKind=INSTANCE, "
+                + "frameworkType=Optional.empty"
+                + "}");
   }
 
   private DaggerModuleMethodSubject assertThatMethod(String method) {
