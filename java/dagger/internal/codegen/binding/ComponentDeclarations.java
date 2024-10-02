@@ -79,7 +79,12 @@ final class ComponentDeclarations {
   ImmutableSet<DelegateDeclaration> delegates(Key key) {
     // @Binds @IntoMap declarations have key Map<K, V> but may be requested as
     // Map<K, Provider/Producer<V>> keys, so unwrap the multibinding map contribution key first.
-    return delegates.get(keyFactory.unwrapMapValueType(key));
+    return delegates.get(
+        key.multibindingContributionIdentifier().isPresent()
+            // TODO(bcorso): Consider using TypeNameKey here instead of Key, to avoid losing
+            // variance information when unwrapping KSP types (see TypeNameKey's javadoc).
+            ? keyFactory.unwrapMapValueType(key)
+            : key);
   }
 
   /**

@@ -16,11 +16,9 @@
 
 package dagger.internal.codegen;
 
-import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatMethodInUnannotatedClass;
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatModuleMethod;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static org.junit.Assert.assertThrows;
 
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
@@ -436,20 +434,12 @@ public class BindsMethodValidationTest {
             "@Qualifier @interface TestQualifier {}");
     Source k = CompilerTests.javaSource("test.K", "package test;", "interface K {}");
     Source v = CompilerTests.javaSource("test.V", "package test;", "interface V {}");
-    // TODO(b/370367984): Once this bug is fixed, no exception should be thrown.
-    RuntimeException expectedException =
-        assertThrows(
-            RuntimeException.class,
-            () -> CompilerTests.daggerCompiler(component, module, qualifier, k, v)
-                .compile(subject -> {}));
-    assertThat(expectedException)
-        .hasMessageThat()
-        .contains(
-            "no expression found for BindingRequest{"
-                + "key=java.util.Map<test.K,javax.inject.Provider<test.V>>, "
-                + "requestKind=INSTANCE, "
-                + "frameworkType=Optional.empty"
-                + "}");
+    CompilerTests.daggerCompiler(component, module, qualifier, k, v)
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining("Map<test.K,Provider<test.V>> cannot be provided");
+            });
   }
 
   private DaggerModuleMethodSubject assertThatMethod(String method) {
