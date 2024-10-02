@@ -523,17 +523,10 @@ public final class BindingGraphFactory {
       if (!binding.kind().equals(DELEGATE)) {
         return false;
       }
-
-      // Map multibinding key values are wrapped with a framework type. This needs to be undone
-      // to look it up in the delegate declarations map.
-      // TODO(erichang): See if we can standardize the way map keys are used in these data
-      // structures, either always wrapped or unwrapped to be consistent and less errorprone.
-      Key bindingKey =
-          LegacyBindingGraphFactory.useStrictMultibindings(compilerOptions, binding)
-              ? keyFactory.unwrapMapValueType(binding.key())
-              : binding.key();
-
-      return declarations.delegates(bindingKey).stream()
+      if (LegacyBindingGraphFactory.hasStrictMultibindingsExemption(compilerOptions, binding)) {
+        return false;
+      }
+      return declarations.delegates(binding.key()).stream()
           .anyMatch(
               declaration ->
                   declaration.contributingModule().equals(binding.contributingModule())
@@ -558,13 +551,7 @@ public final class BindingGraphFactory {
     private ImmutableSet<ContributionBinding> getLocalExplicitBindings(Key key) {
       return ImmutableSet.<ContributionBinding>builder()
           .addAll(declarations.bindings(key))
-          // @Binds @IntoMap declarations have key Map<K, V>, unlike @Provides @IntoMap or @Produces
-          // @IntoMap, which have Map<K, Provider/Producer<V>> keys. So unwrap the key's type's
-          // value type if it's a Map<K, Provider/Producer<V>> before looking in
-          // delegate declarations. createDelegateBindings() will create bindings with the properly
-          // wrapped key type.
-          .addAll(
-              createDelegateBindings(declarations.delegates(keyFactory.unwrapMapValueType(key))))
+          .addAll(createDelegateBindings(declarations.delegates(key)))
           .build();
     }
 
@@ -906,7 +893,7 @@ public final class BindingGraphFactory {
      */
     private boolean hasLocalExplicitBindings(Key requestKey) {
       return !declarations.bindings(requestKey).isEmpty()
-          || !declarations.delegates(keyFactory.unwrapMapValueType(requestKey)).isEmpty();
+          || !declarations.delegates(requestKey).isEmpty();
     }
 
     /** Returns {@code true} if this resolver has a duplicate explicit binding to resolve. */

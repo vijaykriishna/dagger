@@ -43,6 +43,7 @@ final class ComponentDeclarations {
   private static final ImmutableSet<TypeName> SET_FRAMEWORK_TYPENAMES =
       ImmutableSet.of(TypeNames.PRODUCED);
 
+  private final KeyFactory keyFactory;
   private final ImmutableSetMultimap<Key, ContributionBinding> bindings;
   private final ImmutableSetMultimap<Key, DelegateDeclaration> delegates;
   private final ImmutableSetMultimap<Key, OptionalBindingDeclaration> optionalBindings;
@@ -53,6 +54,7 @@ final class ComponentDeclarations {
       delegateMultibindingContributions;
 
   private ComponentDeclarations(
+      KeyFactory keyFactory,
       ImmutableSetMultimap<Key, ContributionBinding> bindings,
       ImmutableSetMultimap<Key, DelegateDeclaration> delegates,
       ImmutableSetMultimap<Key, OptionalBindingDeclaration> optionalBindings,
@@ -60,6 +62,7 @@ final class ComponentDeclarations {
       ImmutableSetMultimap<TypeNameKey, MultibindingDeclaration> multibindings,
       ImmutableSetMultimap<TypeNameKey, ContributionBinding> multibindingContributions,
       ImmutableSetMultimap<TypeNameKey, DelegateDeclaration> delegateMultibindingContributions) {
+    this.keyFactory = keyFactory;
     this.bindings = bindings;
     this.delegates = delegates;
     this.optionalBindings = optionalBindings;
@@ -74,7 +77,9 @@ final class ComponentDeclarations {
   }
 
   ImmutableSet<DelegateDeclaration> delegates(Key key) {
-    return delegates.get(key);
+    // @Binds @IntoMap declarations have key Map<K, V> but may be requested as
+    // Map<K, Provider/Producer<V>> keys, so unwrap the multibinding map contribution key first.
+    return delegates.get(keyFactory.unwrapMapValueType(key));
   }
 
   /**
@@ -169,13 +174,16 @@ final class ComponentDeclarations {
 
   static final class Factory {
     private final XProcessingEnv processingEnv;
+    private final KeyFactory keyFactory;
     private final ModuleDescriptor.Factory moduleDescriptorFactory;
 
     @Inject
     Factory(
         XProcessingEnv processingEnv,
+        KeyFactory keyFactory,
         ModuleDescriptor.Factory moduleDescriptorFactory) {
       this.processingEnv = processingEnv;
+      this.keyFactory = keyFactory;
       this.moduleDescriptorFactory = moduleDescriptorFactory;
     }
 
@@ -204,6 +212,7 @@ final class ComponentDeclarations {
       }
 
       return new ComponentDeclarations(
+          keyFactory,
           indexDeclarationsByKey(bindings.build()),
           indexDeclarationsByKey(delegates.build()),
           indexDeclarationsByKey(optionalBindings.build()),
