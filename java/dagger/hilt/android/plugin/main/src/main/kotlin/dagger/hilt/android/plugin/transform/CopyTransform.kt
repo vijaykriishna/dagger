@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dagger.hilt.android.plugin.util
+package dagger.hilt.android.plugin.transform
 
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction

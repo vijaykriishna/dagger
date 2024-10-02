@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package dagger.hilt.android.plugin.util
+package dagger.hilt.android.plugin.transform
 
 import dagger.hilt.android.plugin.root.AggregatedAnnotation
+import dagger.hilt.android.plugin.util.forEachZipEntry
+import dagger.hilt.android.plugin.util.isClassFile
+import dagger.hilt.android.plugin.util.isJarFile
+import dagger.hilt.android.plugin.util.walkInPlatformIndependentOrder
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipEntry

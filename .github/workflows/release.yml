@@ -10,7 +10,7 @@ on:
 env:
   USE_JAVA_DISTRIBUTION: 'zulu'
   USE_JAVA_VERSION: '11'
-  # This is required by AGP 8.3+.
+  # This is required by Gradle 8.0+.
   USE_JAVA_VERSION_FOR_PLUGIN: '17'
   DAGGER_RELEASE_VERSION: "${{ github.event.inputs.dagger_release_version }}"
   # The default Maven 3.9.0 has a regression so we manually install 3.8.7.
@@ -70,11 +70,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - agp: '7.0.0'
-            jdk: '11'
-          - agp: '7.1.2'
-            jdk: '11'
-          - agp: '8.1.0'
+          - agp: '8.1.1'
             jdk: '17'
     steps:
       - uses: actions/checkout@v3

@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package dagger.hilt.android.plugin
+package dagger.hilt.android.plugin.transform
 
 import com.android.build.api.instrumentation.AsmClassVisitorFactory
 import com.android.build.api.instrumentation.ClassContext
 import com.android.build.api.instrumentation.ClassData
 import com.android.build.api.instrumentation.InstrumentationParameters
-import java.io.File
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Internal
-import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
