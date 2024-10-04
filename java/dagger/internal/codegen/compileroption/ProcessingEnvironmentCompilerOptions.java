@@ -62,7 +62,6 @@ import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import dagger.internal.codegen.javapoet.TypeNames;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -94,11 +93,6 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
     this.messager = messager;
     this.options = options;
     checkValid();
-  }
-
-  @Override
-  public boolean usesProducers() {
-    return processingEnv.findTypeElement(TypeNames.PRODUCES) != null;
   }
 
   @Override

@@ -32,11 +32,6 @@ final class JavacPluginCompilerOptions extends CompilerOptions {
   JavacPluginCompilerOptions() {}
 
   @Override
-  public boolean usesProducers() {
-    return true;
-  }
-
-  @Override
   public boolean fastInit(XTypeElement element) {
     return false;
   }
