@@ -42,6 +42,7 @@ import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.base.SetType;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DaggerExecutableElement;
@@ -57,11 +58,16 @@ import javax.inject.Inject;
 /** A factory for {@link Key}s. */
 public final class KeyFactory {
   private final XProcessingEnv processingEnv;
+  private final CompilerOptions compilerOptions;
   private final InjectionAnnotations injectionAnnotations;
 
   @Inject
-  KeyFactory(XProcessingEnv processingEnv, InjectionAnnotations injectionAnnotations) {
+  KeyFactory(
+      XProcessingEnv processingEnv,
+      CompilerOptions compilerOptions,
+      InjectionAnnotations injectionAnnotations) {
     this.processingEnv = processingEnv;
+    this.compilerOptions = compilerOptions;
     this.injectionAnnotations = injectionAnnotations;
   }
 
@@ -91,6 +97,10 @@ public final class KeyFactory {
 
   /** Returns {@code Map<KeyType, FrameworkType<ValueType>>}. */
   private XType mapOfFrameworkType(XType keyType, ClassName frameworkClassName, XType valueType) {
+    checkArgument(
+        MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
+            .map(RequestKinds::frameworkClassName)
+            .anyMatch(frameworkClassName::equals));
     return mapOf(
         keyType,
         processingEnv.getDeclaredType(
@@ -120,10 +130,12 @@ public final class KeyFactory {
   }
 
   public Key forProvidesMethod(XMethodElement method, XTypeElement contributingModule) {
+    checkArgument(method.hasAnnotation(TypeNames.PROVIDES));
     return forBindingMethod(method, contributingModule, Optional.of(TypeNames.PROVIDER));
   }
 
   public Key forProducesMethod(XMethodElement method, XTypeElement contributingModule) {
+    checkArgument(method.hasAnnotation(TypeNames.PRODUCES));
     return forBindingMethod(method, contributingModule, Optional.of(TypeNames.PRODUCER));
   }
 
@@ -212,7 +224,8 @@ public final class KeyFactory {
             method.getAllAnnotations().stream()
                 .map(XAnnotations::toString)
                 .collect(toImmutableList()));
-        return frameworkClassName.isPresent()
+        return (frameworkClassName.isPresent()
+                && compilerOptions.useFrameworkTypeInMapMultibindingContributionKey())
             ? mapOfFrameworkType(mapKeyType.get(), frameworkClassName.get(), returnType)
             : mapOf(mapKeyType.get(), returnType);
       case SET_VALUES:
@@ -226,12 +239,14 @@ public final class KeyFactory {
   /**
    * Returns the key for a binding associated with a {@link DelegateDeclaration}.
    *
-   * <p>If {@code delegateDeclaration} is {@code @IntoMap}, transforms the {@code Map<K, V>} key
-   * from {@link DelegateDeclaration#key()} to {@code Map<K, FrameworkType<V>>}. If {@code
-   * delegateDeclaration} is not a map contribution, its key is returned.
+   * <p>If {@code delegateDeclaration} is a multibinding map contribution and
+   * {@link CompilerOptions#useFrameworkTypeInMapMultibindingContributionKey()} is enabled, then
+   * transforms the {@code Map<K, V>} key into {@code Map<K, FrameworkType<V>>}, otherwise returns
+   * the unaltered key.
    */
   Key forDelegateBinding(DelegateDeclaration delegateDeclaration, ClassName frameworkType) {
     return delegateDeclaration.contributionType().equals(ContributionType.MAP)
+            && compilerOptions.useFrameworkTypeInMapMultibindingContributionKey()
         ? wrapMapValue(delegateDeclaration.key(), frameworkType)
         : delegateDeclaration.key();
   }

@@ -122,6 +122,11 @@ final class JavacPluginCompilerOptions extends CompilerOptions {
   }
 
   @Override
+  public boolean useFrameworkTypeInMapMultibindingContributionKey() {
+    return false;
+  }
+
+  @Override
   public boolean strictMultibindingValidation() {
     return false;
   }

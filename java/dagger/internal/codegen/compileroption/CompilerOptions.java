@@ -129,6 +129,15 @@ public abstract class CompilerOptions {
    */
   public abstract boolean generatedClassExtendsComponent();
 
+  /**
+   * Returns {@code true} if the key for map multibinding contributions contain a framework type.
+   *
+   * <p>This option is for migration purposes only, and will be removed in a future release.
+   *
+   * <p>The default value is {@code false}.
+   */
+  public abstract boolean useFrameworkTypeInMapMultibindingContributionKey();
+
   /** Returns the number of bindings allowed per shard. */
   public int keysPerComponentShard(XTypeElement component) {
     return 3500;

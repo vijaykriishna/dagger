@@ -88,7 +88,7 @@ public class MapMultibindingValidationTest {
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(
-                      "The same map key is bound more than once for Map<String,Provider<Object>>")
+                      "The same map key is bound more than once for Map<String,Object>")
                   .onSource(module)
                   .onLineContaining("class MapModule");
               subject.hasErrorContaining("provideObjectForAKey()");
@@ -285,7 +285,7 @@ public class MapMultibindingValidationTest {
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(
-                      "Map<String,Provider<Object>> uses more than one @MapKey annotation type")
+                      "Map<String,Object> uses more than one @MapKey annotation type")
                   .onSource(module)
                   .onLineContaining("class MapModule");
               subject.hasErrorContaining("provideObjectForAKey()");

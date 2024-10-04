@@ -27,7 +27,6 @@ load(
 _NON_FUNCTIONAL_BUILD_VARIANTS = {None: []}
 _FUNCTIONAL_BUILD_VARIANTS = {
     None: [],  # The default build variant (no javacopts).
-    "ExtendsComponent": ["-Adagger.generatedClassExtendsComponent=enabled"],
     "Shards": ["-Adagger.keysPerComponentShard=2"],
     "FastInit": ["-Adagger.fastInit=enabled"],
     "FastInit_Shards": ["-Adagger.fastInit=enabled", "-Adagger.keysPerComponentShard=2"],

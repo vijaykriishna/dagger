@@ -35,6 +35,7 @@ import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompil
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.PLUGINS_VISIT_FULL_BINDING_GRAPHS;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_MULTIBINDING_VALIDATION;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_SUPERFICIAL_VALIDATION;
+import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.VALIDATE_TRANSITIVE_COMPONENT_DEPENDENCIES;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WARN_IF_INJECTION_FACTORY_NOT_GENERATED_UPSTREAM;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WRITE_PRODUCER_NAME_IN_TOKEN;
@@ -187,6 +188,11 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
   @Override
   public boolean experimentalDaggerErrorMessages() {
     return isEnabled(EXPERIMENTAL_DAGGER_ERROR_MESSAGES);
+  }
+
+  @Override
+  public boolean useFrameworkTypeInMapMultibindingContributionKey() {
+    return isEnabled(USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY);
   }
 
   @Override
@@ -344,6 +350,8 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
     STRICT_SUPERFICIAL_VALIDATION(ENABLED),
 
     GENERATED_CLASS_EXTENDS_COMPONENT,
+
+    USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY,
 
     IGNORE_PROVISION_KEY_WILDCARDS(ENABLED),
 

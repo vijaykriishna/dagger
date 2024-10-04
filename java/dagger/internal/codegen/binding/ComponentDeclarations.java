@@ -79,6 +79,8 @@ final class ComponentDeclarations {
   ImmutableSet<DelegateDeclaration> delegates(Key key) {
     // @Binds @IntoMap declarations have key Map<K, V> but may be requested as
     // Map<K, Provider/Producer<V>> keys, so unwrap the multibinding map contribution key first.
+    // TODO(b/366277730): This can be simplified to "delegates.get(key)" once the flag for
+    // "useFrameworkTypeInMapMultibindingContributionKey" is removed.
     return delegates.get(
         key.multibindingContributionIdentifier().isPresent()
             // TODO(bcorso): Consider using TypeNameKey here instead of Key, to avoid losing
