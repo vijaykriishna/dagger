@@ -54,15 +54,6 @@ public abstract class CompilerOptions {
    */
   public abstract boolean includeStacktraceWithDeferredErrorMessages();
 
-  /**
-   * If {@code true}, Dagger will generate factories and components even if some members-injected
-   * types have {@code private} or {@code static} {@code @Inject}-annotated members.
-   *
-   * <p>This should only ever be enabled by the TCK tests. Disabling this validation could lead to
-   * generating code that does not compile.
-   */
-  public abstract boolean ignorePrivateAndStaticInjectionForComponent();
-
   public abstract ValidationType scopeCycleValidationType();
 
   /**

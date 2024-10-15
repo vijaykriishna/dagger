@@ -29,7 +29,6 @@ import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompil
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.FLOATING_BINDS_METHODS;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.FORMAT_GENERATED_SOURCE;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.GENERATED_CLASS_EXTENDS_COMPONENT;
-import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.IGNORE_PRIVATE_AND_STATIC_INJECTION_FOR_COMPONENT;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.IGNORE_PROVISION_KEY_WILDCARDS;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.INCLUDE_STACKTRACE_WITH_DEFERRED_ERROR_MESSAGES;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.PLUGINS_VISIT_FULL_BINDING_GRAPHS;
@@ -137,11 +136,6 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
   @Override
   public boolean includeStacktraceWithDeferredErrorMessages() {
     return isEnabled(INCLUDE_STACKTRACE_WITH_DEFERRED_ERROR_MESSAGES);
-  }
-
-  @Override
-  public boolean ignorePrivateAndStaticInjectionForComponent() {
-    return isEnabled(IGNORE_PRIVATE_AND_STATIC_INJECTION_FOR_COMPONENT);
   }
 
   @Override
@@ -324,8 +318,6 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
     WARN_IF_INJECTION_FACTORY_NOT_GENERATED_UPSTREAM,
 
     INCLUDE_STACKTRACE_WITH_DEFERRED_ERROR_MESSAGES,
-
-    IGNORE_PRIVATE_AND_STATIC_INJECTION_FOR_COMPONENT,
 
     EXPERIMENTAL_AHEAD_OF_TIME_SUBCOMPONENTS,
 

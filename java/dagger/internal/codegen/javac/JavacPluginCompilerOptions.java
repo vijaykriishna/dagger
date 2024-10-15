@@ -67,11 +67,6 @@ final class JavacPluginCompilerOptions extends CompilerOptions {
   }
 
   @Override
-  public boolean ignorePrivateAndStaticInjectionForComponent() {
-    return false;
-  }
-
-  @Override
   public ValidationType scopeCycleValidationType() {
     return NONE;
   }
