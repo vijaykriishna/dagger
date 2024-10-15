@@ -90,11 +90,11 @@ final class DaggerTestComponent {
     public javax.inject.Provider<Map<MapKeys.ComplexKey, Integer>> complexKeyProvider() {
       return mapOfComplexKeyAndIntegerProvider;
     }
+  }
 
-    @IdentifierNameString
-    private static final class LazyClassKeyProvider {
-      static String mapkeys_MapKeys_Inaccessible = "mapkeys.MapKeys$Inaccessible";
-    }
+  @IdentifierNameString
+  private static final class LazyClassKeyProvider {
+    static String mapkeys_MapKeys_Inaccessible = "mapkeys.MapKeys$Inaccessible";
   }
 }
 

@@ -54,19 +54,19 @@ final class DaggerTestComponent {
     public Map<Class<?>, Integer> classKey() {
       return LazyClassKeyMap.<Integer>of(ImmutableMap.<String, Integer>of(LazyClassKeyProvider.test_Foo_Bar, MapKeyBindingsModule.classKey(), LazyClassKeyProvider.test_Foo_Bar3, MapKeyBindingsModule.classKey2()));
     }
+  }
 
-    @IdentifierNameString
-    private static final class LazyClassKeyProvider {
-      static String test_Foo_Bar = "test.Foo_Bar";
+  @IdentifierNameString
+  private static final class LazyClassKeyProvider {
+    static String test_Foo_Bar = "test.Foo_Bar";
 
-      static String test_Foo_Bar3 = "test.Foo$Bar";
+    static String test_Foo_Bar3 = "test.Foo$Bar";
 
-      @KeepFieldType
-      Foo_Bar test_Foo_Bar2;
+    @KeepFieldType
+    Foo_Bar test_Foo_Bar2;
 
-      @KeepFieldType
-      Foo.Bar test_Foo_Bar4;
-    }
+    @KeepFieldType
+    Foo.Bar test_Foo_Bar4;
   }
 }
 

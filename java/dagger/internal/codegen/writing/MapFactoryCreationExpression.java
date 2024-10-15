@@ -48,6 +48,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   @AssistedInject
   MapFactoryCreationExpression(
       @Assisted MultiboundMapBinding binding,
+      LazyClassKeyProviders lazyClassKeyProviders,
       XProcessingEnv processingEnv,
       ComponentImplementation componentImplementation,
       ComponentRequestRepresentations componentRequestRepresentations,
@@ -58,8 +59,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     this.componentImplementation = componentImplementation;
     this.graph = graph;
     this.useLazyClassKey = MapKeys.useLazyClassKey(binding, graph);
-    this.lazyClassKeyProviders =
-        componentImplementation.shardImplementation(binding).getLazyClassKeyProviders();
+    this.lazyClassKeyProviders = lazyClassKeyProviders;
   }
 
   @Override

@@ -61,6 +61,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
   @AssistedInject
   MapRequestRepresentation(
       @Assisted MultiboundMapBinding binding,
+      LazyClassKeyProviders lazyClassKeyProviders,
       XProcessingEnv processingEnv,
       BindingGraph graph,
       ComponentImplementation componentImplementation,
@@ -73,8 +74,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
     this.dependencies =
         Maps.toMap(binding.dependencies(), dep -> graph.contributionBinding(dep.key()));
     this.useLazyClassKey = MapKeys.useLazyClassKey(binding, graph);
-    this.lazyClassKeyProviders =
-        componentImplementation.shardImplementation(binding).getLazyClassKeyProviders();
+    this.lazyClassKeyProviders = lazyClassKeyProviders;
   }
 
   @Override
