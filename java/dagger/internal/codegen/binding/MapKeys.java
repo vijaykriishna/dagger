@@ -52,6 +52,8 @@ import java.util.Optional;
 
 /** Methods for extracting {@link MapKey} annotations and key code blocks from binding elements. */
 public final class MapKeys {
+  public static final String LAZY_CLASS_KEY_NAME_FIELD = "lazyClassKeyName";
+  public static final String KEEP_FIELD_TYPE_FIELD = "keepFieldType";
 
   /**
    * If {@code bindingElement} is annotated with a {@link MapKey} annotation, returns it.
@@ -215,6 +217,10 @@ public final class MapKeys {
               .equals(TypeNames.LAZY_CLASS_KEY);
     }
     return false;
+  }
+
+  public static ClassName lazyClassKeyProxyClassName(XMethodElement methodElement) {
+    return elementBasedClassName(methodElement, "_LazyMapKey");
   }
 
   private MapKeys() {}
