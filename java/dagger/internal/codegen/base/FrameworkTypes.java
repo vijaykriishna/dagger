@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.base;
 
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.processing.XType;
@@ -41,6 +42,14 @@ public final class FrameworkTypes {
   private static final ImmutableSet<ClassName> ALL_FRAMEWORK_TYPES =
       ImmutableSet.<ClassName>builder().addAll(PROVISION_TYPES).addAll(PRODUCTION_TYPES).build();
 
+  private static final ImmutableSet<ClassName> SET_VALUE_FRAMEWORK_TYPES =
+      ImmutableSet.of(TypeNames.PRODUCED);
+
+  public static final ImmutableSet<ClassName> MAP_VALUE_FRAMEWORK_TYPES =
+      MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
+          .map(RequestKinds::frameworkClassName)
+          .collect(toImmutableSet());
+
   /** Returns true if the type represents a producer-related framework type. */
   public static boolean isProducerType(XType type) {
     return typeIsOneOf(PRODUCTION_TYPES, type);
@@ -49,6 +58,14 @@ public final class FrameworkTypes {
   /** Returns true if the type represents a framework type. */
   public static boolean isFrameworkType(XType type) {
     return typeIsOneOf(ALL_FRAMEWORK_TYPES, type);
+  }
+
+  public static boolean isSetValueFrameworkType(XType type) {
+    return typeIsOneOf(SET_VALUE_FRAMEWORK_TYPES, type);
+  }
+
+  public static boolean isMapValueFrameworkType(XType type) {
+    return typeIsOneOf(MAP_VALUE_FRAMEWORK_TYPES, type);
   }
 
   private static boolean typeIsOneOf(Set<ClassName> classNames, XType type) {
