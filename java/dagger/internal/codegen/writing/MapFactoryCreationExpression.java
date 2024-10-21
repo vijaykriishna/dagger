@@ -17,7 +17,6 @@
 package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.binding.SourceFiles.mapFactoryClassName;
 
@@ -44,10 +43,12 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   private final BindingGraph graph;
   private final MultiboundMapBinding binding;
   private final boolean useLazyClassKey;
+  private final LazyClassKeyProviders lazyClassKeyProviders;
 
   @AssistedInject
   MapFactoryCreationExpression(
       @Assisted MultiboundMapBinding binding,
+      LazyClassKeyProviders lazyClassKeyProviders,
       XProcessingEnv processingEnv,
       ComponentImplementation componentImplementation,
       ComponentRequestRepresentations componentRequestRepresentations,
@@ -58,6 +59,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     this.componentImplementation = componentImplementation;
     this.graph = graph;
     this.useLazyClassKey = MapKeys.useLazyClassKey(binding, graph);
+    this.lazyClassKeyProviders = lazyClassKeyProviders;
   }
 
   @Override
@@ -81,7 +83,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
       builder.add(
           ".put($L, $L)",
           useLazyClassKey
-              ? getLazyClassMapKeyExpression(graph.contributionBinding(dependency.key()))
+              ? lazyClassKeyProviders.getMapKeyExpression(dependency.key())
               : getMapKeyExpression(
                   contributionBinding, componentImplementation.name(), processingEnv),
           multibindingDependencyExpression(dependency));

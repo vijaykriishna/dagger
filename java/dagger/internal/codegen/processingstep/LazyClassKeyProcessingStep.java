@@ -16,12 +16,10 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Joiner;
@@ -31,7 +29,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.javapoet.TypeNames;
-import dagger.internal.codegen.writing.LazyMapKeyProxyGenerator;
 import dagger.internal.codegen.xprocessing.XElements;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -47,12 +44,9 @@ import javax.inject.Inject;
 final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XElement> {
   private static final String PROGUARD_KEEP_RULE = "-keep,allowobfuscation,allowshrinking class ";
   private final SetMultimap<ClassName, ClassName> processedElements = LinkedHashMultimap.create();
-  private final LazyMapKeyProxyGenerator lazyMapKeyProxyGenerator;
 
   @Inject
-  LazyClassKeyProcessingStep(LazyMapKeyProxyGenerator lazyMapKeyProxyGenerator) {
-    this.lazyMapKeyProxyGenerator = lazyMapKeyProxyGenerator;
-  }
+  LazyClassKeyProcessingStep() {}
 
   @Override
   public ImmutableSet<ClassName> annotationClassNames() {
@@ -67,28 +61,8 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
             .getAsType("value")
             .getTypeElement()
             .getClassName();
-    // No need to fail, since we want to support customized usage of class key annotations.
-    // https://github.com/google/dagger/pull/2831
-    if (!isMapBinding(element) || !isModuleOrProducerModule(element.getEnclosingElement())) {
-      return;
-    }
     XTypeElement moduleElement = XElements.asTypeElement(element.getEnclosingElement());
     processedElements.put(moduleElement.getClassName(), lazyClassKey);
-    XMethodElement method = XElements.asMethod(element);
-    lazyMapKeyProxyGenerator.generate(method);
-  }
-
-  private static boolean isMapBinding(XElement element) {
-    return element.hasAnnotation(TypeNames.INTO_MAP)
-        && (element.hasAnnotation(TypeNames.BINDS)
-            || element.hasAnnotation(TypeNames.PROVIDES)
-            || element.hasAnnotation(TypeNames.PRODUCES));
-  }
-
-  private static boolean isModuleOrProducerModule(XElement element) {
-    return isTypeElement(element)
-        && (element.hasAnnotation(TypeNames.MODULE)
-            || element.hasAnnotation(TypeNames.PRODUCER_MODULE));
   }
 
   @Override

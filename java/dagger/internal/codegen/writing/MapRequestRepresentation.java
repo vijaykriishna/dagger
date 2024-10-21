@@ -19,7 +19,6 @@ package dagger.internal.codegen.writing;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
-import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
@@ -57,10 +56,12 @@ final class MapRequestRepresentation extends RequestRepresentation {
   private final ImmutableMap<DependencyRequest, ContributionBinding> dependencies;
   private final ComponentRequestRepresentations componentRequestRepresentations;
   private final boolean useLazyClassKey;
+  private final LazyClassKeyProviders lazyClassKeyProviders;
 
   @AssistedInject
   MapRequestRepresentation(
       @Assisted MultiboundMapBinding binding,
+      LazyClassKeyProviders lazyClassKeyProviders,
       XProcessingEnv processingEnv,
       BindingGraph graph,
       ComponentImplementation componentImplementation,
@@ -73,6 +74,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
     this.dependencies =
         Maps.toMap(binding.dependencies(), dep -> graph.contributionBinding(dep.key()));
     this.useLazyClassKey = MapKeys.useLazyClassKey(binding, graph);
+    this.lazyClassKeyProviders = lazyClassKeyProviders;
   }
 
   @Override
@@ -151,7 +153,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
     return CodeBlock.of(
         "$L, $L",
         useLazyClassKey
-            ? getLazyClassMapKeyExpression(dependencies.get(dependency))
+            ? lazyClassKeyProviders.getMapKeyExpression(dependency.key())
             : getMapKeyExpression(dependencies.get(dependency), requestingClass, processingEnv),
         componentRequestRepresentations
             .getDependencyExpression(bindingRequest(dependency), requestingClass)
