@@ -219,6 +219,12 @@ public final class MapKeys {
     return false;
   }
 
+  public static CodeBlock getLazyClassMapKeyExpression(ContributionBinding contributionBinding) {
+    ClassName proxyClassName =
+        lazyClassKeyProxyClassName(XElements.asMethod(contributionBinding.bindingElement().get()));
+    return CodeBlock.of("$T.$N", proxyClassName, LAZY_CLASS_KEY_NAME_FIELD);
+  }
+
   public static ClassName lazyClassKeyProxyClassName(XMethodElement methodElement) {
     return elementBasedClassName(methodElement, "_LazyMapKey");
   }
