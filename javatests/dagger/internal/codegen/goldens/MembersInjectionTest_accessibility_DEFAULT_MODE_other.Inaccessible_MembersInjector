@@ -19,7 +19,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class Inaccessible_MembersInjector implements MembersInjector<Inaccessible> {
   private final Provider<Foo> fooProvider;

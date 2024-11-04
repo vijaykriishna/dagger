@@ -24,7 +24,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class MyModule_ProvideStringFactory implements Factory<String> {
   private final Provider<Integer> iProvider;

@@ -20,7 +20,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class AllInjections_Factory implements Factory<AllInjections> {
   private final Provider<String> sProvider;

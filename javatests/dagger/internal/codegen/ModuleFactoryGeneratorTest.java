@@ -347,7 +347,8 @@ public class ModuleFactoryGeneratorTest {
                       "    \"KotlinInternal\",",
                       "    \"KotlinInternalInJava\",",
                       "    \"cast\",",
-                      "    \"deprecation\"",
+                      "    \"deprecation\",",
+                      "    \"nullness:initialization.field.uninitialized\"",
                       "})",
                       "public final class TestModule_ProvideStringFactory implements"
                           + " Factory<String> {",

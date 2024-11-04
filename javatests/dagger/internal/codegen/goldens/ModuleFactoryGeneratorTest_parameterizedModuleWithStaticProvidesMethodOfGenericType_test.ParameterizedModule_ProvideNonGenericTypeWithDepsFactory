@@ -21,7 +21,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class ParameterizedModule_ProvideNonGenericTypeWithDepsFactory implements Factory<String> {
   private final Provider<Object> oProvider;

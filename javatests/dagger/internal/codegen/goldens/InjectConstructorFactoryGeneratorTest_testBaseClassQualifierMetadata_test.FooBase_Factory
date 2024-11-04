@@ -20,7 +20,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class FooBase_Factory implements Factory<FooBase> {
   private final Provider<Integer> iProvider;

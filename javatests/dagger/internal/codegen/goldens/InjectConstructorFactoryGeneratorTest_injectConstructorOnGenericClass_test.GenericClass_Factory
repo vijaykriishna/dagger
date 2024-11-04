@@ -20,7 +20,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class GenericClass_Factory<T> implements Factory<GenericClass<T>> {
   private final Provider<T> tProvider;

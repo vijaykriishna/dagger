@@ -20,7 +20,8 @@ import org.jetbrains.annotations.Nullable;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
   private final Provider<String> nullableStringProvider;

@@ -18,7 +18,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class A_MembersInjector implements MembersInjector<A> {
   private final Provider<String> valueBProvider;

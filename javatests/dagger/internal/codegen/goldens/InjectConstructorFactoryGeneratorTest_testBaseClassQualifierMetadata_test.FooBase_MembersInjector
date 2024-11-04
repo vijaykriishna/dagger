@@ -22,7 +22,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class FooBase_MembersInjector implements MembersInjector<FooBase> {
   private final Provider<String> injectFieldProvider;
