@@ -120,7 +120,7 @@ final class ActivityRetainedComponentManager
 
   @Override
   public ActivityRetainedComponent generatedComponent() {
-    // TODO(wanyingd): don't need the component lock since the component is stored in ViewModel
+    // TODO(bcorso): don't need the component lock since the component is stored in ViewModel
     // which does its own locking
     if (component == null) {
       synchronized (componentLock) {

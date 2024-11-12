@@ -36,7 +36,7 @@ filegroup(
 kt_jvm_library(
     name = "model",
     srcs = [":model-srcs"],
-    # TODO(wanyingd): Add javacopts explicitly once kt_jvm_library supports them.
+    # TODO(bcorso): Add javacopts explicitly once kt_jvm_library supports them.
     deps = [
         "//java/dagger:core",
         "//java/dagger/internal/codegen/extension",
