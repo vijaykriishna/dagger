@@ -38,6 +38,7 @@ import com.squareup.javapoet.ClassName;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.internal.codegen.base.ContributionType;
+import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.RequestKinds;
@@ -97,10 +98,7 @@ public final class KeyFactory {
 
   /** Returns {@code Map<KeyType, FrameworkType<ValueType>>}. */
   private XType mapOfFrameworkType(XType keyType, ClassName frameworkClassName, XType valueType) {
-    checkArgument(
-        MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
-            .map(RequestKinds::frameworkClassName)
-            .anyMatch(frameworkClassName::equals));
+    checkArgument(FrameworkTypes.MAP_VALUE_FRAMEWORK_TYPES.contains(frameworkClassName));
     return mapOf(
         keyType,
         processingEnv.getDeclaredType(
@@ -317,10 +315,7 @@ public final class KeyFactory {
    * type.
    */
   private Key wrapMapValue(Key key, ClassName frameworkClassName) {
-    checkArgument(
-        MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
-            .map(RequestKinds::frameworkClassName)
-            .anyMatch(frameworkClassName::equals));
+    checkArgument(FrameworkTypes.MAP_VALUE_FRAMEWORK_TYPES.contains(frameworkClassName));
     if (MapType.isMap(key)) {
       MapType mapType = MapType.from(key);
       if (!mapType.isRawType() && !mapType.valuesAreTypeOf(frameworkClassName)) {

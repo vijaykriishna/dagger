@@ -35,8 +35,10 @@ import dagger.internal.codegen.xprocessing.XTypes;
 @AutoValue
 public abstract class MapType {
   // TODO(b/28555349): support PROVIDER_OF_LAZY here too
+  // TODO(b/376124787): We could consolidate this with a similar list in FrameworkTypes
+  // if we had a better way to go from RequestKind to framework ClassName or vice versa
   /** The valid framework request kinds allowed on a multibinding map value. */
-  public static final ImmutableSet<RequestKind> VALID_FRAMEWORK_REQUEST_KINDS =
+  private static final ImmutableSet<RequestKind> VALID_FRAMEWORK_REQUEST_KINDS =
       ImmutableSet.of(RequestKind.PROVIDER, RequestKind.PRODUCER, RequestKind.PRODUCED);
 
   private XType type;
@@ -107,12 +109,19 @@ public abstract class MapType {
    */
   public RequestKind valueRequestKind() {
     checkArgument(!isRawType());
-    for (RequestKind frameworkRequestKind : VALID_FRAMEWORK_REQUEST_KINDS) {
-      if (valuesAreTypeOf(RequestKinds.frameworkClassName(frameworkRequestKind))) {
-        return frameworkRequestKind;
-      }
+    RequestKind requestKind = RequestKinds.getRequestKind(valueType());
+    if (VALID_FRAMEWORK_REQUEST_KINDS.contains(requestKind)) {
+      return requestKind;
+    } else if (requestKind == RequestKind.PROVIDER_OF_LAZY) {
+      // This is kind of a weird case. We don't support Map<K, Lazy<V>>, so we also don't support
+      // Map<K, Provider<Lazy<V>>> directly. However, if the user bound that themselves, we don't
+      // want that to get confused as a normal instance request, so return PROVIDER here.
+      return RequestKind.PROVIDER;
+    } else {
+      // Not all RequestKinds are supported, so if there's a map value that matches an unsupported
+      // RequestKind, just treat it like it is a normal instance request.
+      return RequestKind.INSTANCE;
     }
-    return RequestKind.INSTANCE;
   }
 
   /** {@code true} if {@code type} is a {@link java.util.Map} type. */
