@@ -42,6 +42,10 @@ final class LoginCommand extends SingleArgCommand {
     if (account.isPresent()) {
       // Ignore "login <foo>" commands if we already have an account
       return Result.handled();
+    } else {
+      Account account = database.getAccount(username);
+      UserCommandsRouter userCommands = userCommandsRouterFactory.create(account);
+      return Result.enterNestedCommandSet(userCommands.router());
     }
   }
 }
@@ -52,11 +56,11 @@ In order to tell Dagger how to supply this `Optional<Account>`, let's add a
 
 ```java
 @Module
-interface LoginCommandModule {
+abstract class LoginCommandModule {
   ...
 
   @BindsOptionalOf
-  Account optionalAccount();
+  abstract Account optionalAccount();
 }
 ```
 
