@@ -72,12 +72,6 @@ public class ModuleFactoryGeneratorTest {
   }
 
   @Test
-  public void providesMethodReturnsJakartaProvider() {
-    assertThatModuleMethod("@Provides jakarta.inject.Provider<String> provideProvider() {}")
-        .hasError("@Provides methods must not return framework types");
-  }
-
-  @Test
   public void providesMethodReturnsLazy() {
     assertThatModuleMethod("@Provides Lazy<String> provideLazy() {}")
         .hasError("@Provides methods must not return framework types");

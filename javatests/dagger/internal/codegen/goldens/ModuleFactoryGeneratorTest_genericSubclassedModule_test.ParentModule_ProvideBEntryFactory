@@ -3,11 +3,10 @@ package test;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
-import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -38,11 +37,6 @@ public final class ParentModule_ProvideBEntryFactory<A extends CharSequence, B, 
   @Override
   public B get() {
     return provideBEntry(module, bProvider.get());
-  }
-
-  public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideBEntryFactory<A, B, C> create(
-      ParentModule<A, B, C> module, javax.inject.Provider<B> bProvider) {
-    return new ParentModule_ProvideBEntryFactory<A, B, C>(module, Providers.asDaggerProvider(bProvider));
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideBEntryFactory<A, B, C> create(

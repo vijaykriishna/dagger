@@ -3,10 +3,9 @@ package test;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
-import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @QualifierMetadata({
     "test.FieldQualifier",
@@ -40,11 +39,6 @@ public final class SomeBinding_MembersInjector implements MembersInjector<SomeBi
   public static MembersInjector<SomeBinding> create(Provider<String> injectFieldProvider,
       Provider<Float> fProvider) {
     return new SomeBinding_MembersInjector(injectFieldProvider, fProvider);
-  }
-
-  public static MembersInjector<SomeBinding> create(
-      javax.inject.Provider<String> injectFieldProvider, javax.inject.Provider<Float> fProvider) {
-    return new SomeBinding_MembersInjector(Providers.asDaggerProvider(injectFieldProvider), Providers.asDaggerProvider(fProvider));
   }
 
   @Override

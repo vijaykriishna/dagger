@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.base;
 
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.processing.XType;
@@ -31,11 +32,7 @@ import java.util.Set;
 public final class FrameworkTypes {
   // TODO(erichang): Add the Jakarta Provider here
   private static final ImmutableSet<ClassName> PROVISION_TYPES =
-      ImmutableSet.of(
-          TypeNames.PROVIDER,
-          TypeNames.JAKARTA_PROVIDER,
-          TypeNames.LAZY,
-          TypeNames.MEMBERS_INJECTOR);
+      ImmutableSet.of(TypeNames.PROVIDER, TypeNames.LAZY, TypeNames.MEMBERS_INJECTOR);
 
   // NOTE(beder): ListenableFuture is not considered a producer framework type because it is not
   // defined by the framework, so we can't treat it specially in ordinary Dagger.
@@ -45,15 +42,13 @@ public final class FrameworkTypes {
   private static final ImmutableSet<ClassName> ALL_FRAMEWORK_TYPES =
       ImmutableSet.<ClassName>builder().addAll(PROVISION_TYPES).addAll(PRODUCTION_TYPES).build();
 
-  public static final ImmutableSet<ClassName> SET_VALUE_FRAMEWORK_TYPES =
+  private static final ImmutableSet<ClassName> SET_VALUE_FRAMEWORK_TYPES =
       ImmutableSet.of(TypeNames.PRODUCED);
 
   public static final ImmutableSet<ClassName> MAP_VALUE_FRAMEWORK_TYPES =
-      ImmutableSet.of(
-          TypeNames.PRODUCED,
-          TypeNames.PRODUCER,
-          TypeNames.PROVIDER,
-          TypeNames.JAKARTA_PROVIDER);
+      MapType.VALID_FRAMEWORK_REQUEST_KINDS.stream()
+          .map(RequestKinds::frameworkClassName)
+          .collect(toImmutableSet());
 
   /** Returns true if the type represents a producer-related framework type. */
   public static boolean isProducerType(XType type) {

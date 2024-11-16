@@ -3,10 +3,9 @@ package test;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
-import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 import org.jetbrains.annotations.Nullable;
 
 @QualifierMetadata
@@ -40,12 +39,6 @@ public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
     return new MyClass_MembersInjector(nullableStringProvider, nullableObjectProvider);
   }
 
-  public static MembersInjector<MyClass> create(
-      javax.inject.Provider<String> nullableStringProvider,
-      javax.inject.Provider<Object> nullableObjectProvider) {
-    return new MyClass_MembersInjector(Providers.asDaggerProvider(nullableStringProvider), Providers.asDaggerProvider(nullableObjectProvider));
-  }
-
   @Override
   public void injectMembers(MyClass instance) {
     injectNullableString(instance, nullableStringProvider.get());
@@ -62,4 +55,3 @@ public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
     instance.nullableObject = nullableObject;
   }
 }
-
