@@ -40,6 +40,7 @@ compiler_test(
         "@maven//:androidx_test_ext_junit",
         "@maven//:androidx_test_core",
     ],
+    tags = ["manual"],  # TODO(b/380279766): Re-enable once the bug is fixed.
     deps = [
         "//java/dagger/hilt/android/testing/compile",
         "//java/dagger/internal/codegen/xprocessing:xprocessing-testing",
