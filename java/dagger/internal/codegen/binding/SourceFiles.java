@@ -36,6 +36,7 @@ import static dagger.internal.codegen.javapoet.TypeNames.SET_PRODUCER;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
+import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
@@ -43,6 +44,7 @@ import static javax.lang.model.SourceVersion.isName;
 
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XFieldElement;
+import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -58,6 +60,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
+import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
@@ -144,6 +147,23 @@ public final class SourceFiles {
         dep -> frameworkTypeUsageStatement(CodeBlock.of("$N", fields.get(dep)), dep.kind()));
   }
 
+  public static String generatedProxyMethodName(ContributionBinding binding) {
+    switch (binding.kind()) {
+      case INJECTION:
+      case ASSISTED_INJECTION:
+        return "newInstance";
+      case PROVISION:
+        XMethodElement method = asMethod(binding.bindingElement().get());
+        String simpleName = getSimpleName(method);
+        // If the simple name is already defined in the factory, prepend "proxy" to the name.
+        return simpleName.contentEquals("get") || simpleName.contentEquals("create")
+            ? "proxy" + LOWER_CAMEL.to(UPPER_CAMEL, simpleName)
+            : simpleName;
+      default:
+        throw new AssertionError("Unexpected binding kind: " + binding);
+    }
+  }
+
   /** Returns the generated factory or members injector name for a binding. */
   public static ClassName generatedClassNameForBinding(Binding binding) {
     switch (binding.kind()) {
@@ -204,6 +224,29 @@ public final class SourceFiles {
 
   public static String memberInjectedFieldSignatureForVariable(XFieldElement field) {
     return field.getEnclosingElement().getClassName().canonicalName() + "." + getSimpleName(field);
+  }
+
+  /*
+   * TODO(ronshapiro): this isn't perfect, as collisions could still exist. Some examples:
+   *
+   *  - @Inject void members() {} will generate a method that conflicts with the instance
+   *    method `injectMembers(T)`
+   *  - Adding the index could conflict with another member:
+   *      @Inject void a(Object o) {}
+   *      @Inject void a(String s) {}
+   *      @Inject void a1(String s) {}
+   *
+   *    Here, Method a(String) will add the suffix "1", which will conflict with the method
+   *    generated for a1(String)
+   *  - Members named "members" or "methods" could also conflict with the {@code static} injection
+   *    method.
+   */
+  public static String membersInjectorMethodName(InjectionSite injectionSite) {
+    int index = injectionSite.indexAmongAtInjectMembersWithSameSimpleName();
+    String indexString = index == 0 ? "" : String.valueOf(index + 1);
+    return "inject"
+        + LOWER_CAMEL.to(UPPER_CAMEL, getSimpleName(injectionSite.element()))
+        + indexString;
   }
 
   public static String classFileName(ClassName className) {

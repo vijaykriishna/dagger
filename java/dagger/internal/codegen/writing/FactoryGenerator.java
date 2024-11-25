@@ -24,6 +24,7 @@ import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assis
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
 import static dagger.internal.codegen.binding.SourceFiles.generateBindingFieldsForDependencies;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
+import static dagger.internal.codegen.binding.SourceFiles.generatedProxyMethodName;
 import static dagger.internal.codegen.binding.SourceFiles.parameterizedGeneratedTypeNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
@@ -36,15 +37,26 @@ import static dagger.internal.codegen.javapoet.TypeNames.factoryOf;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
+import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
+import static dagger.internal.codegen.xprocessing.XElements.asMethod;
+import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
+import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
+import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XFiler;
+import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room.compiler.processing.XType;
+import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -56,6 +68,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
@@ -73,6 +86,7 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
+import dagger.internal.codegen.xprocessing.Nullability;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -136,7 +150,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     return factoryBuilder
         .addMethod(getMethod(binding, factoryFields))
         .addMethod(staticCreateMethod(binding, factoryFields))
-        .addMethod(staticProvisionMethod(binding));
+        .addMethod(staticProxyMethod(binding));
   }
 
   // private static final class InstanceHolder {
@@ -298,17 +312,101 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     return getMethod.build();
   }
 
-  // Example 1: Provision binding
-  // public static Foo provideFoo(FooModule module, Bar bar, Baz baz) {
-  //   return Preconditions.checkNotNullFromProvides(module.provideFoo(bar, baz));
-  // }
+  private MethodSpec staticProxyMethod(ContributionBinding binding) {
+    switch (binding.kind()) {
+      case INJECTION:
+      case ASSISTED_INJECTION:
+        return staticProxyMethodForInjection(binding);
+      case PROVISION:
+        return staticProxyMethodForProvision((ProvisionBinding) binding);
+      default:
+        throw new AssertionError("Unexpected binding kind: " + binding);
+    }
+  }
+
+  // Example:
   //
-  // Example 2: Injection binding
   // public static Foo newInstance(Bar bar, Baz baz) {
   //   return new Foo(bar, baz);
   // }
-  private MethodSpec staticProvisionMethod(ContributionBinding binding) {
-    return ProvisionMethod.create(binding, compilerOptions);
+  private static MethodSpec staticProxyMethodForInjection(ContributionBinding binding) {
+    XConstructorElement constructor = asConstructor(binding.bindingElement().get());
+    XTypeElement enclosingType = constructor.getEnclosingElement();
+    MethodSpec.Builder builder =
+        methodBuilder(generatedProxyMethodName(binding))
+            .addModifiers(PUBLIC, STATIC)
+            .varargs(constructor.isVarArgs())
+            .returns(enclosingType.getType().getTypeName())
+            .addTypeVariables(typeVariableNames(enclosingType))
+            .addExceptions(getThrownTypes(constructor));
+    CodeBlock arguments = copyParameters(builder, new UniqueNameSet(), constructor.getParameters());
+    return builder
+        .addStatement("return new $T($L)", enclosingType.getType().getTypeName(), arguments)
+        .build();
+  }
+
+  // Example:
+  //
+  // public static Foo provideFoo(FooModule module, Bar bar, Baz baz) {
+  //   return Preconditions.checkNotNullFromProvides(module.provideFoo(bar, baz));
+  // }
+  private MethodSpec staticProxyMethodForProvision(ProvisionBinding binding) {
+    XMethodElement method = asMethod(binding.bindingElement().get());
+    MethodSpec.Builder builder =
+        methodBuilder(generatedProxyMethodName(binding))
+            .addModifiers(PUBLIC, STATIC)
+            .varargs(method.isVarArgs())
+            .addExceptions(getThrownTypes(method));
+
+    XTypeElement enclosingType = asTypeElement(method.getEnclosingElement());
+    UniqueNameSet parameterNameSet = new UniqueNameSet();
+    CodeBlock module;
+    if (method.isStatic() || enclosingType.isCompanionObject()) {
+      module = CodeBlock.of("$T", enclosingType.getClassName());
+    } else if (enclosingType.isKotlinObject()) {
+      // Call through the singleton instance.
+      // See: https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#static-methods
+      module = CodeBlock.of("$T.INSTANCE", enclosingType.getClassName());
+    } else {
+      builder.addTypeVariables(typeVariableNames(enclosingType));
+      module = copyInstance(builder, parameterNameSet, enclosingType.getType());
+    }
+    CodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    CodeBlock invocation = CodeBlock.of("$L.$L($L)", module, method.getJvmName(), arguments);
+
+    Nullability nullability = Nullability.of(method);
+    nullability
+        .nonTypeUseNullableAnnotations()
+        .forEach(builder::addAnnotation);
+    return builder
+        .returns(
+            method.getReturnType().getTypeName()
+                .annotated(
+                    nullability.typeUseNullableAnnotations().stream()
+                        .map(annotation -> AnnotationSpec.builder(annotation).build())
+                        .collect(toImmutableList())))
+        .addStatement("return $L", maybeWrapInCheckForNull(binding, invocation))
+        .build();
+  }
+
+  private CodeBlock maybeWrapInCheckForNull(ProvisionBinding binding, CodeBlock codeBlock) {
+    return binding.shouldCheckForNull(compilerOptions)
+        ? CodeBlock.of("$T.checkNotNullFromProvides($L)", Preconditions.class, codeBlock)
+        : codeBlock;
+  }
+
+  private static CodeBlock copyInstance(
+      MethodSpec.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
+    return copyParameter(
+        methodBuilder,
+        type,
+        parameterNameSet.getUniqueName("instance"),
+        /* useObject= */ false,
+        Nullability.NOT_NULLABLE);
+  }
+
+  private static ImmutableList<TypeName> getThrownTypes(XExecutableElement executable) {
+    return executable.getThrownTypes().stream().map(XType::getTypeName).collect(toImmutableList());
   }
 
   private AnnotationSpec scopeMetadataAnnotation(ContributionBinding binding) {

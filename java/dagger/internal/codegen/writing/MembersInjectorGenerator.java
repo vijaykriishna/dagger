@@ -17,11 +17,14 @@
 package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
 import static dagger.internal.codegen.binding.SourceFiles.generateBindingFieldsForDependencies;
+import static dagger.internal.codegen.binding.SourceFiles.memberInjectedFieldSignatureForVariable;
+import static dagger.internal.codegen.binding.SourceFiles.membersInjectorMethodName;
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
 import static dagger.internal.codegen.binding.SourceFiles.parameterizedGeneratedTypeNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
@@ -32,17 +35,30 @@ import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.javapoet.TypeNames.membersInjectorOf;
 import static dagger.internal.codegen.javapoet.TypeNames.rawTypeName;
+import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
+import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.XElements.asField;
+import static dagger.internal.codegen.xprocessing.XElements.asMethod;
+import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
+import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
+import androidx.room.compiler.processing.XExecutableElement;
+import androidx.room.compiler.processing.XFieldElement;
 import androidx.room.compiler.processing.XFiler;
+import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
+import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.AnnotationSpec;
@@ -58,12 +74,16 @@ import dagger.MembersInjector;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
+import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
+import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XAnnotations;
+import java.util.Optional;
 import javax.inject.Inject;
 
 /**
@@ -112,12 +132,93 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                 binding.injectionSites().stream()
                     .filter(
                         site -> site.enclosingTypeElement().equals(binding.membersInjectedType()))
-                    .map(InjectionSiteMethod::create)
+                    .map(MembersInjectorGenerator::membersInjectionMethod)
                     .collect(toImmutableList()));
 
     gwtIncompatibleAnnotation(binding).ifPresent(injectorTypeBuilder::addAnnotation);
 
     return ImmutableList.of(injectorTypeBuilder);
+  }
+
+  private static MethodSpec membersInjectionMethod(InjectionSite injectionSite) {
+    String methodName = membersInjectorMethodName(injectionSite);
+    switch (injectionSite.kind()) {
+      case METHOD:
+        return methodInjectionMethod(asMethod(injectionSite.element()), methodName);
+      case FIELD:
+        Optional<XAnnotation> qualifier =
+            // methods for fields have a single dependency request
+            getOnlyElement(injectionSite.dependencies())
+                .key()
+                .qualifier()
+                .map(DaggerAnnotation::xprocessing);
+        return fieldInjectionMethod(asField(injectionSite.element()), methodName, qualifier);
+    }
+    throw new AssertionError(injectionSite);
+  }
+
+  // Example:
+  //
+  // public static void injectMethod(Instance instance, Foo foo, Bar bar) {
+  //   instance.injectMethod(foo, bar);
+  // }
+  private static MethodSpec methodInjectionMethod(XMethodElement method, String methodName) {
+    XTypeElement enclosingType = asTypeElement(method.getEnclosingElement());
+    MethodSpec.Builder builder =
+        methodBuilder(methodName)
+            .addModifiers(PUBLIC, STATIC)
+            .varargs(method.isVarArgs())
+            .addTypeVariables(typeVariableNames(enclosingType))
+            .addExceptions(getThrownTypes(method));
+
+    UniqueNameSet parameterNameSet = new UniqueNameSet();
+    CodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
+    CodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    return builder.addStatement("$L.$L($L)", instance, method.getJvmName(), arguments).build();
+  }
+
+  // Example:
+  //
+  // public static void injectFoo(Instance instance, Foo foo) {
+  //   instance.foo = foo;
+  // }
+  private static MethodSpec fieldInjectionMethod(
+      XFieldElement field, String methodName, Optional<XAnnotation> qualifier) {
+    XTypeElement enclosingType = asTypeElement(field.getEnclosingElement());
+
+    MethodSpec.Builder builder =
+        methodBuilder(methodName)
+            .addModifiers(PUBLIC, STATIC)
+            .addAnnotation(
+                AnnotationSpec.builder(TypeNames.INJECTED_FIELD_SIGNATURE)
+                    .addMember("value", "$S", memberInjectedFieldSignatureForVariable(field))
+                    .build())
+            .addTypeVariables(typeVariableNames(enclosingType));
+
+    qualifier.map(XAnnotations::getAnnotationSpec).ifPresent(builder::addAnnotation);
+
+    UniqueNameSet parameterNameSet = new UniqueNameSet();
+    CodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
+    CodeBlock argument = copyParameters(builder, parameterNameSet, ImmutableList.of(field));
+    return builder.addStatement("$L.$L = $L", instance, getSimpleName(field), argument).build();
+  }
+
+  private static ImmutableList<TypeName> getThrownTypes(XExecutableElement executable) {
+    return executable.getThrownTypes().stream().map(XType::getTypeName).collect(toImmutableList());
+  }
+
+  private static CodeBlock copyInstance(
+      MethodSpec.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
+    boolean useObject = !isRawTypePubliclyAccessible(type);
+    CodeBlock instance =
+        copyParameter(
+            methodBuilder,
+            type,
+            parameterNameSet.getUniqueName("instance"),
+            useObject,
+            Nullability.NOT_NULLABLE);
+    // If we had to cast the instance add an extra parenthesis incase we're calling a method on it.
+    return useObject ? CodeBlock.of("($L)", instance) : instance;
   }
 
   // MyClass(
