@@ -107,10 +107,9 @@ public final class SourceFiles {
             frameworkClassName = TypeNames.PROVIDER;
           }
           return FrameworkField.create(
-              ParameterizedTypeName.get(
-                  frameworkClassName,
-                  dependency.key().type().xprocessing().getTypeName()),
-              DependencyVariableNamer.name(dependency));
+              DependencyVariableNamer.name(dependency),
+              frameworkClassName,
+              dependency.key().type().xprocessing());
         });
   }
 
