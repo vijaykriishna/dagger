@@ -34,7 +34,7 @@ compiler_test(
         "//java/dagger/hilt/android/components",
         "@androidsdk//:platforms/android-32/android.jar",
     ],
-    tags = ["manual"],  # TODO(b/380279766): Re-enable once the bug is fixed.
+    tags = ["notap"],  # TODO(b/380279766): Re-enable once the bug is fixed.
     deps = [
         "//java/dagger/hilt/android/testing/compile",
         "//java/dagger/internal/codegen/xprocessing:xprocessing-testing",
