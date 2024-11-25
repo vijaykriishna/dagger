@@ -241,6 +241,7 @@ def _GenTestsWithVariants(
 
             for test_file in test_files:
                 test_name = test_file.rsplit(".", 1)[0]
+
                 _GenTestWithVariant(
                     library_rule_type = library_rule_type,
                     test_rule_type = test_rule_type,

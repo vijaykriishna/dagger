@@ -27,7 +27,6 @@ compiler_test(
         "//java/dagger/hilt/android:hilt_android_app",
         "@androidsdk//:platforms/android-32/android.jar",
     ],
-    tags = ["notap"],  # TODO(b/380279766): Re-enable once the bug is fixed.
     deps = [
         "//java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/collect",
