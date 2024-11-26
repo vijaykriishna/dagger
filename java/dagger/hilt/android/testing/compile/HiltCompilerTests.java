@@ -44,6 +44,8 @@ import dagger.hilt.processor.internal.aliasof.AliasOfProcessor;
 import dagger.hilt.processor.internal.aliasof.KspAliasOfProcessor;
 import dagger.hilt.processor.internal.definecomponent.DefineComponentProcessor;
 import dagger.hilt.processor.internal.definecomponent.KspDefineComponentProcessor;
+import dagger.hilt.processor.internal.earlyentrypoint.EarlyEntryPointProcessor;
+import dagger.hilt.processor.internal.earlyentrypoint.KspEarlyEntryPointProcessor;
 import dagger.hilt.processor.internal.generatesrootinput.GeneratesRootInputProcessor;
 import dagger.hilt.processor.internal.generatesrootinput.KspGeneratesRootInputProcessor;
 import dagger.hilt.processor.internal.originatingelement.KspOriginatingElementProcessor;
@@ -52,6 +54,8 @@ import dagger.hilt.processor.internal.root.ComponentTreeDepsProcessor;
 import dagger.hilt.processor.internal.root.KspComponentTreeDepsProcessor;
 import dagger.hilt.processor.internal.root.KspRootProcessor;
 import dagger.hilt.processor.internal.root.RootProcessor;
+import dagger.hilt.processor.internal.uninstallmodules.KspUninstallModulesProcessor;
+import dagger.hilt.processor.internal.uninstallmodules.UninstallModulesProcessor;
 import dagger.internal.codegen.ComponentProcessor;
 import dagger.internal.codegen.KspComponentProcessor;
 import dagger.testing.compile.CompilerTests;
@@ -178,8 +182,8 @@ public final class HiltCompilerTests {
         new ComponentTreeDepsProcessor(),
         new CustomTestApplicationProcessor(),
         new DefineComponentProcessor(),
-        new dagger.hilt.processor.internal.earlyentrypoint.EarlyEntryPointProcessor(),
-        new dagger.hilt.processor.internal.uninstallmodules.UninstallModulesProcessor(),
+        new EarlyEntryPointProcessor(),
+        new UninstallModulesProcessor(),
         new GeneratesRootInputProcessor(),
         new OriginatingElementProcessor(),
         new RootProcessor());
@@ -195,8 +199,8 @@ public final class HiltCompilerTests {
         new KspComponentTreeDepsProcessor.Provider(),
         new KspCustomTestApplicationProcessor.Provider(),
         new KspDefineComponentProcessor.Provider(),
-        new dagger.hilt.processor.internal.earlyentrypoint.KspEarlyEntryPointProcessor.Provider(),
-        new dagger.hilt.processor.internal.uninstallmodules.KspUninstallModulesProcessor.Provider(),
+        new KspEarlyEntryPointProcessor.Provider(),
+        new KspUninstallModulesProcessor.Provider(),
         new KspGeneratesRootInputProcessor.Provider(),
         new KspOriginatingElementProcessor.Provider(),
         new KspRootProcessor.Provider());
