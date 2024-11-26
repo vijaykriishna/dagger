@@ -207,7 +207,9 @@ def _GenTestsWithVariants(
 
     build_variants = _FUNCTIONAL_BUILD_VARIANTS if functional else _NON_FUNCTIONAL_BUILD_VARIANTS
     for (variant_name, variant_javacopts) in build_variants.items():
+        merged_javacopts = javacopts + variant_javacopts
         for is_ksp in (True, False):
+            merged_plugins = plugins
             if variant_name:
                 suffix = "_" + variant_name
                 tags = [variant_name]
@@ -232,8 +234,8 @@ def _GenTestsWithVariants(
                     srcs = supporting_files,
                     tags = tags,
                     deps = deps + variant_deps,
-                    plugins = plugins,
-                    javacopts = javacopts + variant_javacopts,
+                    plugins = merged_plugins,
+                    javacopts = merged_javacopts,
                     functional = functional,
                     require_jdk7_syntax = require_jdk7_syntax,
                 )
@@ -249,8 +251,8 @@ def _GenTestsWithVariants(
                     srcs = [test_file],
                     tags = tags,
                     deps = test_deps + variant_deps,
-                    plugins = plugins,
-                    javacopts = javacopts + variant_javacopts,
+                    plugins = merged_plugins,
+                    javacopts = merged_javacopts,
                     shard_count = shard_count,
                     jvm_flags = jvm_flags,
                     functional = functional,
