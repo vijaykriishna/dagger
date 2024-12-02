@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -54,6 +55,15 @@ final class MembersInjectionRequestRepresentation extends RequestRepresentation 
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     XMethodElement methodElement = componentMethod.methodElement();
     XExecutableParameterElement parameter = getOnlyElement(methodElement.getParameters());
+    if (binding.injectionSites().isEmpty()) {
+      // If there are no injection sites either do nothing (if the return type is void) or return
+      // the input instance as-is.
+      return Expression.create(
+          methodElement.getReturnType(),
+          isVoid(methodElement.getReturnType())
+              ? CodeBlock.of("")
+              : CodeBlock.of("$L", parameter.getJvmName()));
+    }
     return membersInjectionMethods.getInjectExpression(
         binding.key(), CodeBlock.of("$L", parameter.getJvmName()), component.name());
   }

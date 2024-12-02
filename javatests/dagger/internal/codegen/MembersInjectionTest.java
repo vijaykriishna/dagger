@@ -1364,6 +1364,38 @@ public class MembersInjectionTest {
             });
   }
 
+  @Test
+  public void testMembersInjectionBindingWithNoInjectionSites() throws Exception {
+    Source component =
+        CompilerTests.javaSource(
+            "test.MyComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "",
+            "@Component",
+            "public interface MyComponent {",
+            "  void inject(Foo foo);",
+            "",
+            "  Foo injectAndReturn(Foo foo);",
+            "}");
+
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "class Foo {}");
+
+    CompilerTests.daggerCompiler(component, foo)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/DaggerMyComponent"));
+            });
+  }
+
   private Source stripJetbrainsNullable(Source source) {
     return CompilerTests.javaSource(
         ((Source.JavaSource) source).getQName(),
