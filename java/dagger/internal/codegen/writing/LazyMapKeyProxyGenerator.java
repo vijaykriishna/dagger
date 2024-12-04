@@ -20,73 +20,49 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.MapKeys.KEEP_FIELD_TYPE_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.LAZY_CLASS_KEY_NAME_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.lazyClassKeyProxyClassName;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.CAST;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.DEPRECATION;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.KOTLIN_INTERNAL;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import dagger.internal.DaggerGenerated;
-import dagger.internal.codegen.javapoet.AnnotationSpecs;
-import dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression;
+import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.javapoet.TypeNames;
-import java.util.Optional;
 import javax.inject.Inject;
 
 /**
  * Generate a class containing fields that works with proguard rules to support @LazyClassKey
  * usages.
  */
-public final class LazyMapKeyProxyGenerator {
-  private static final String GENERATED_COMMENTS = "https://dagger.dev";
-  private final XProcessingEnv processingEnv;
-  private final XFiler filer;
+public final class LazyMapKeyProxyGenerator extends SourceFileGenerator<XMethodElement> {
 
   @Inject
-  LazyMapKeyProxyGenerator(XProcessingEnv processingEnv, XFiler filer) {
-    this.processingEnv = processingEnv;
-    this.filer = filer;
+  LazyMapKeyProxyGenerator(XFiler filer, XProcessingEnv processingEnv) {
+    super(filer, processingEnv);
   }
 
-  public void generate(XMethodElement element) {
-    ClassName lazyClassKeyProxyClassName = lazyClassKeyProxyClassName(element);
-    TypeSpec.Builder typeSpecBuilder =
-        classBuilder(lazyClassKeyProxyClassName)
-            .addModifiers(PUBLIC, FINAL)
-            .addAnnotation(TypeNames.IDENTIFIER_NAME_STRING)
-            .addAnnotation(DaggerGenerated.class)
-            .addFields(lazyClassKeyFields(element));
-    Optional<AnnotationSpec> generatedAnnotation =
-        Optional.ofNullable(processingEnv.findGeneratedAnnotation())
-            .map(
-                annotation ->
-                    AnnotationSpec.builder(annotation.getClassName())
-                        .addMember("value", "$S", "dagger.internal.codegen.LazyClassKeyProcessor")
-                        .addMember("comments", "$S", GENERATED_COMMENTS)
-                        .build());
-    generatedAnnotation.ifPresent(typeSpecBuilder::addAnnotation);
-    typeSpecBuilder.addAnnotation(
-        AnnotationSpecs.suppressWarnings(
-            ImmutableSet.<Suppression>builder()
-                .add(UNCHECKED, RAWTYPES, KOTLIN_INTERNAL, CAST, DEPRECATION)
-                .build()));
+  @Override
+  public XElement originatingElement(XMethodElement input) {
+    return input;
+  }
 
-    filer.write(
-        JavaFile.builder(lazyClassKeyProxyClassName.packageName(), typeSpecBuilder.build()).build(),
-        XFiler.Mode.Isolating);
+  @Override
+  public ImmutableList<TypeSpec.Builder> topLevelTypes(XMethodElement input) {
+    return ImmutableList.of(lazyClassKeyProxyTypeSpec(input).toBuilder());
+  }
+
+  private TypeSpec lazyClassKeyProxyTypeSpec(XMethodElement element) {
+    return classBuilder(lazyClassKeyProxyClassName(element))
+        .addModifiers(PUBLIC, FINAL)
+        .addAnnotation(TypeNames.IDENTIFIER_NAME_STRING)
+        .addFields(lazyClassKeyFields(element))
+        .build();
   }
 
   private static ImmutableList<FieldSpec> lazyClassKeyFields(XMethodElement element) {
