@@ -25,6 +25,7 @@ GenJavaTests(
     srcs = glob(["*.java"]),
     functional = False,
     javacopts = DOCLINT_HTML_AND_SYNTAX,
+    shard_count = 3,
     deps = [
         "//java/dagger/internal/codegen/bindinggraphvalidation",
         "//java/dagger/internal/codegen/xprocessing",

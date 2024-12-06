@@ -68,6 +68,14 @@ public final class CompilerTests {
       ImmutableMap.of(
           "dagger.experimentalDaggerErrorMessages", "enabled");
 
+  private static final ImmutableList<String> DEFAULT_JAVAC_OPTIONS = ImmutableList.of();
+
+  private static final ImmutableList<String> DEFAULT_KOTLINC_OPTIONS =
+      ImmutableList.of(
+          "-api-version=1.9",
+          "-language-version=1.9",
+          "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true");
+
   /** Returns the {@link XProcessingEnv.Backend} for the given {@link CompilationResultSubject}. */
   public static XProcessingEnv.Backend backend(CompilationResultSubject subject) {
     // TODO(bcorso): Create a more official API for this in XProcessing testing.
@@ -136,9 +144,8 @@ public final class CompilerTests {
           sources(),
           /* classpath= */ ImmutableList.of(),
           processorOptions(),
-          /* javacArguments= */ ImmutableList.of(),
-          /* kotlincArguments= */ ImmutableList.of(
-              ),
+          /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
+          /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
           /* config= */ PROCESSING_ENV_CONFIG,
           invocation -> {
             onInvocation.accept(invocation);
@@ -229,10 +236,8 @@ public final class CompilerTests {
           sources().asList(),
           /* classpath= */ ImmutableList.of(),
           processorOptions(),
-          /* javacArguments= */ ImmutableList.of(),
-          /* kotlincArguments= */ ImmutableList.of(
-              "-P",
-              "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
+          /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
+          /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
           /* config= */ PROCESSING_ENV_CONFIG,
           /* javacProcessors= */ mergeProcessors(
               ImmutableList.of(
@@ -315,9 +320,8 @@ public final class CompilerTests {
                 sources,
                 /* classpath= */ ImmutableList.of(compilerDepsJar()),
                 /* inheritClasspath= */ false,
-                /* javacArguments= */ ImmutableList.of(),
-                /* kotlincArguments= */ ImmutableList.of(
-                    ),
+                /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
+                /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
                 /* kaptProcessors= */ ImmutableList.of(new ComponentProcessor()),
                 /* symbolProcessorProviders= */ ImmutableList.of(),
                 /* processorOptions= */ processorOptions));

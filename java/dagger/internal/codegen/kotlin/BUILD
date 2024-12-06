@@ -15,13 +15,16 @@
 # Description:
 #   Sources related to Kotlin metadata.
 
-load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
 
 package(default_visibility = ["//:src"])
 
-java_library(
+compat_kt_jvm_library(
     name = "kotlin",
-    srcs = glob(["*.java"]),
+    srcs = glob([
+        "*.java",
+        "*.kt",
+    ]),
     plugins = ["//java/dagger/internal/codegen/bootstrap"],
     tags = ["maven:merged"],
     deps = [

@@ -147,14 +147,17 @@ http_archive(
 
 load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "kotlinc_version")
 
-KOTLIN_VERSION = "1.9.24"
+# TODO: update to Kotlin 2 once rules_kotlin support it.
+#   See https://github.com/bazelbuild/rules_kotlin/issues/1176
+KOTLINC_VERSION = "1.9.24"
 
 # Get from https://github.com/JetBrains/kotlin/releases/
 KOTLINC_RELEASE_SHA = "eb7b68e01029fa67bc8d060ee54c12018f2c60ddc438cf21db14517229aa693b"
 
 kotlin_repositories(
     compiler_release = kotlinc_version(
-        release = KOTLIN_VERSION,
+        release = KOTLINC_VERSION,
+        # Get from https://github.com/JetBrains/kotlin/releases/
         sha256 = KOTLINC_RELEASE_SHA,
     ),
 )
@@ -203,7 +206,9 @@ GRPC_VERSION = "1.2.0"
 
 INCAP_VERSION = "0.2"
 
-KSP_VERSION = KOTLIN_VERSION + "-1.0.20"
+KOTLIN_VERSION = "2.0.21"
+
+KSP_VERSION = KOTLIN_VERSION + "-1.0.28"
 
 MAVEN_VERSION = "3.3.3"
 
@@ -245,6 +250,8 @@ maven_install(
         "com.google.code.findbugs:jsr305:3.0.1",
         "com.google.devtools.ksp:symbol-processing:%s" % KSP_VERSION,
         "com.google.devtools.ksp:symbol-processing-api:%s" % KSP_VERSION,
+        "com.google.devtools.ksp:symbol-processing-common-deps:%s" % KSP_VERSION,
+        "com.google.devtools.ksp:symbol-processing-aa-embeddable:%s" % KSP_VERSION,
         "com.google.errorprone:error_prone_annotation:%s" % ERROR_PRONE_VERSION,
         "com.google.errorprone:error_prone_annotations:%s" % ERROR_PRONE_VERSION,
         "com.google.errorprone:error_prone_check_api:%s" % ERROR_PRONE_VERSION,
@@ -290,8 +297,8 @@ maven_install(
         "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlin:kotlin-compiler-embeddable:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlin:kotlin-daemon-embeddable:%s" % KOTLIN_VERSION,
+        "org.jetbrains.kotlin:kotlin-metadata-jvm:%s" % KOTLIN_VERSION,
         "org.jetbrains.kotlin:kotlin-stdlib:%s" % KOTLIN_VERSION,
-        "org.jetbrains.kotlin:kotlin-metadata-jvm:2.0.0-Beta5",
         "org.jspecify:jspecify:1.0.0",
         "org.mockito:mockito-core:2.28.2",
         "org.pantsbuild:jarjar:1.7.2",

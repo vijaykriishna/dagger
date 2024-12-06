@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Macros for building with Bazel.
-"""
+# Description:
+#    Macros for building with Bazel.
 
 load("//third_party/kotlin/build_extensions:rules.bzl", "kt_android_library")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
 def compat_kt_android_library(name, **kwargs):
     bazel_kt_android_library(name, kwargs)
+
+def compat_kt_jvm_library(name, **kwargs):
+    bazel_kt_jvm_library(name, kwargs)
 
 def bazel_kt_android_library(name, kwargs):
     """A macro that wraps Bazel's kt_android_library.
@@ -62,4 +66,25 @@ def bazel_kt_android_library(name, kwargs):
     native.alias(
         name = "lib{}-src.jar".format(name),
         actual = ":{}_internal_kt-sources.jar".format(name),
+    )
+
+def bazel_kt_jvm_library(name, kwargs):
+    """A macro that wraps Bazel's kt_jvm_library.
+
+    This macro wraps Bazel's kt_jvm_library to output the jars files
+    in the expected locations (https://github.com/bazelbuild/rules_kotlin/issues/324).
+
+    Args:
+      name: the name of the library.
+      kwargs: Additional arguments of the library.
+    """
+
+    kt_jvm_library(
+        name = name,
+        **kwargs
+    )
+
+    native.alias(
+        name = "lib{}-src.jar".format(name),
+        actual = ":{}-sources.jar".format(name),
     )

@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.javapoet.TypeNames;
-import dagger.internal.codegen.kotlin.KotlinMetadata.FunctionMetadata;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -86,7 +85,12 @@ public final class KotlinMetadataUtil {
   public ImmutableMap<String, String> getAllMethodNamesBySignature(XTypeElement element) {
     checkState(
         hasMetadata(element), "Can not call getAllMethodNamesBySignature for non-Kotlin class");
-    return metadataFactory.create(element).classMetadata().functionsBySignature().values().stream()
-        .collect(toImmutableMap(FunctionMetadata::signature, FunctionMetadata::name));
+    return metadataFactory.create(element)
+        .classMetadata()
+        .getFunctionsBySignature().values().stream()
+        .collect(
+            toImmutableMap(
+                FunctionMetadata::getSignature,
+                FunctionMetadata::getName)); // SUPPRESS_GET_NAME_CHECK
   }
 }

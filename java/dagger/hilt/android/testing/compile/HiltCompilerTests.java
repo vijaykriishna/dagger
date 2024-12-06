@@ -70,6 +70,14 @@ import org.junit.rules.TemporaryFolder;
 
 /** {@link Compiler} instances for testing Android Hilt. */
 public final class HiltCompilerTests {
+  private static final ImmutableList<String> DEFAULT_JAVAC_OPTIONS = ImmutableList.of();
+
+  private static final ImmutableList<String> DEFAULT_KOTLINC_OPTIONS =
+      ImmutableList.of(
+          "-api-version=1.9",
+          "-language-version=1.9",
+          "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true");
+
   /** Returns the {@link XProcessingEnv.Backend} for the given {@link CompilationResultSubject}. */
   public static XProcessingEnv.Backend backend(CompilationResultSubject subject) {
     return CompilerTests.backend(subject);
@@ -161,9 +169,8 @@ public final class HiltCompilerTests {
                 sources,
                 /* classpath= */ ImmutableList.of(CompilerTests.compilerDepsJar()),
                 /* inheritClasspath= */ false,
-                /* javacArguments= */ ImmutableList.of(),
-                /* kotlincArguments= */ ImmutableList.of(
-                    ),
+                /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
+                /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
                 /* kaptProcessors= */ ImmutableList.<Processor>builder()
                     .addAll(defaultProcessors())
                     .addAll(additionalProcessors)
@@ -275,10 +282,12 @@ public final class HiltCompilerTests {
           sources().asList(),
           /* classpath= */ ImmutableList.of(CompilerTests.compilerDepsJar()),
           /* options= */ processorOptions(),
-          /* javacArguments= */ javacArguments().asList(),
-          /* kotlincArguments= */ ImmutableList.of(
-              "-P",
-              "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
+          /* javacArguments= */
+          ImmutableList.<String>builder()
+              .addAll(DEFAULT_JAVAC_OPTIONS)
+              .addAll(javacArguments())
+              .build(),
+          /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
           /* config= */ HiltProcessingEnvConfigs.CONFIGS,
           /* javacProcessors= */ ImmutableList.<Processor>builder()
               .addAll(mergeProcessors(defaultProcessors(), additionalJavacProcessors()))
