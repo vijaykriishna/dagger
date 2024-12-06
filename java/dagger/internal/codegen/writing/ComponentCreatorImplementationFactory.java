@@ -320,7 +320,7 @@ final class ComponentCreatorImplementationFactory {
               "$T.checkBuilderRequirement($N, $T.class)",
               Preconditions.class,
               field,
-              TypeNames.rawTypeName(field.type));
+              TypeNames.rawTypeName(field.type.withoutAnnotations()));
           break;
         case ALLOW:
           break;
