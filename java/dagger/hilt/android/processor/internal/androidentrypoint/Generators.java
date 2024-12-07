@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
+import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.base.Preconditions;
@@ -130,14 +131,30 @@ final class Generators {
     return Optional.empty();
   }
 
+  /** Returns a TypeName for the given type, including any @Nullable annotations on it. */
+  private static TypeName withAnyNullnessAnnotation(XType type) {
+    for (XAnnotation annotation : type.getAllAnnotations()) {
+      if (annotation.getClassName().simpleName().contentEquals("Nullable")) {
+        return type.getTypeName().annotated(toAnnotationSpec(annotation));
+      }
+    }
+    return type.getTypeName();
+  }
+
   /**
-   * Returns a ParameterSpec of the input parameter, @Nullable annotated if existing in original
-   * (this does not handle Nullable type annotations).
+   * Returns a ParameterSpec of the input parameter, @Nullable annotated if existing in original.
    */
   private static ParameterSpec getParameterSpecWithNullable(XVariableElement parameter) {
-    ParameterSpec.Builder builder =
-        ParameterSpec.builder(parameter.getType().getTypeName(), getSimpleName(parameter));
-    getNullableAnnotationSpec(parameter).ifPresent(builder::addAnnotation);
+    TypeName type = withAnyNullnessAnnotation(parameter.getType());
+    ParameterSpec.Builder builder = ParameterSpec.builder(type, getSimpleName(parameter));
+    /*
+     * If we already have a type-use Nullable, don't consider also adding a declaration Nullable,
+     * which could be a duplicate in the case of "hybrid" annotations that support both type-use and
+     * declaration targets.
+     */
+    if (!type.isAnnotated()) {
+      getNullableAnnotationSpec(parameter).ifPresent(builder::addAnnotation);
+    }
     return builder.build();
   }
 
