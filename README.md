@@ -38,8 +38,8 @@ release.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-DAGGER_TAG = "2.53"
-DAGGER_SHA = "37f3a26c07d59bbf1568a91279f029fe3ca045ff9110356d3a5450559123381d"
+DAGGER_TAG = "2.53.1"
+DAGGER_SHA = "b82f1133b623892617f9e64fd14ba9203647e470a32048ba8aa26075bbb8a9e5"
 http_archive(
     name = "dagger",
     strip_prefix = "dagger-dagger-%s" % DAGGER_TAG,
