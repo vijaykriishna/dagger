@@ -70,9 +70,9 @@ android_library(
         "//java/dagger/hilt/processor/internal/root:root_plugin",
     ],
     exports = [
-        ":activity_retained_lifecycle",
         "//:dagger_with_compiler",
         "//java/dagger/hilt:install_in",
+        "//java/dagger/hilt/android:activity_retained_lifecycle",
         "//java/dagger/hilt/android/components",
         "//java/dagger/hilt/android/internal/builders",
         "//java/dagger/hilt/android/internal/legacy:aggregated_element_proxy",
