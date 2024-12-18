@@ -24,9 +24,13 @@ import org.jspecify.annotations.Nullable;
 public final class Providers {
 
   /** Converts a javax provider to a Dagger internal provider. */
+  @SuppressWarnings("unchecked")
   public static <T extends @Nullable Object> Provider<T> asDaggerProvider(
       final javax.inject.Provider<T> provider) {
     checkNotNull(provider);
+    if (provider instanceof Provider) {
+      return (Provider) provider;
+    }
     return new Provider<T>() {
         @Override public T get() {
           return provider.get();
