@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
@@ -58,7 +59,7 @@ final class DelegatingFrameworkInstanceCreationExpression
                 bindingRequest(dependency.key(), binding.frameworkType()),
                 componentImplementation.shardImplementation(binding).name())
             .codeBlock(),
-        binding.frameworkType().frameworkClassName());
+        toJavaPoet(binding.frameworkType().frameworkClassName()));
   }
 
   @AssistedFactory

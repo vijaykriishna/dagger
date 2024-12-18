@@ -16,11 +16,12 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -29,6 +30,7 @@ import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** One of the core types initialized as fields in a generated component. */
@@ -176,22 +178,22 @@ public enum FrameworkType {
   }
 
   /** The class of fields of this type. */
-  public ClassName frameworkClassName() {
+  public XClassName frameworkClassName() {
     switch (this) {
       case PROVIDER:
-        return TypeNames.DAGGER_PROVIDER;
+        return XTypeNames.DAGGER_PROVIDER;
       case PRODUCER_NODE:
         // TODO(cgdecker): Replace this with new class for representing internal producer nodes.
         // Currently the new class is CancellableProducer, but it may be changed to ProducerNode and
         // made to not implement Producer.
-        return TypeNames.PRODUCER;
+        return XTypeNames.PRODUCER;
     }
     throw new AssertionError("Unknown value: " + this.name());
   }
 
   /** Returns the {@link #frameworkClassName()} parameterized with a type. */
   public ParameterizedTypeName frameworkClassOf(TypeName valueType) {
-    return ParameterizedTypeName.get(frameworkClassName(), valueType);
+    return ParameterizedTypeName.get(toJavaPoet(frameworkClassName()), valueType);
   }
 
   /** The request kind that an instance of this framework type can satisfy directly, if any. */

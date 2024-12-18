@@ -17,15 +17,16 @@
 package dagger.internal.codegen.writing;
 
 
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.FrameworkType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** An {@code Producer} creation expression for provision bindings. */
@@ -49,8 +50,8 @@ final class ProducerFromProviderCreationExpression implements FrameworkInstanceC
   }
 
   @Override
-  public Optional<ClassName> alternativeFrameworkClass() {
-    return Optional.of(TypeNames.PRODUCER);
+  public Optional<XClassName> alternativeFrameworkClass() {
+    return Optional.of(XTypeNames.PRODUCER);
   }
 
   @AssistedFactory

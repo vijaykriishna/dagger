@@ -42,6 +42,7 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
 import static javax.lang.model.SourceVersion.isName;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XFieldElement;
 import androidx.room.compiler.processing.XMethodElement;
@@ -64,6 +65,7 @@ import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 import javax.lang.model.SourceVersion;
 
@@ -96,15 +98,15 @@ public final class SourceFiles {
     return Maps.toMap(
         binding.dependencies(),
         dependency -> {
-          ClassName frameworkClassName =
+          XClassName frameworkClassName =
               frameworkTypeMapper.getFrameworkType(dependency.kind()).frameworkClassName();
           // Remap factory fields back to javax.inject.Provider to maintain backwards compatibility
           // for now. In a future release, we should change this to Dagger Provider. This will still
           // be a breaking change, but keeping compatibility for a while should reduce the
           // likelihood of breakages as it would require components built at much older versions
           // using factories built at newer versions to break.
-          if (frameworkClassName.equals(TypeNames.DAGGER_PROVIDER)) {
-            frameworkClassName = TypeNames.PROVIDER;
+          if (frameworkClassName.equals(XTypeNames.DAGGER_PROVIDER)) {
+            frameworkClassName = XTypeNames.PROVIDER;
           }
           return FrameworkField.create(
               DependencyVariableNamer.name(dependency),

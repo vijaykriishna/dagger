@@ -16,12 +16,14 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.FRAMEWORK_FIELD;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XType;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -36,6 +38,7 @@ import dagger.internal.codegen.javapoet.AnnotationSpecs;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /**
@@ -56,7 +59,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
      * Returns the framework class to use for the field, if different from the one implied by the
      * binding. This implementation returns {@link Optional#empty()}.
      */
-    default Optional<ClassName> alternativeFrameworkClass() {
+    default Optional<XClassName> alternativeFrameworkClass() {
       return Optional.empty();
     }
   }
@@ -143,8 +146,8 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
             binding, frameworkInstanceCreationExpression.alternativeFrameworkClass());
 
     TypeName fieldType = useRawType
-        ? TypeNames.rawTypeName(contributionBindingField.type())
-        : contributionBindingField.type();
+        ? toJavaPoet(contributionBindingField.type().getRawTypeName())
+        : toJavaPoet(contributionBindingField.type());
 
     if (binding.kind() == BindingKind.ASSISTED_INJECTION) {
       // An assisted injection factory doesn't extend Provider, so we reference the generated
@@ -181,7 +184,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     return binding.bindingType().equals(BindingType.PROVISION)
         && frameworkInstanceCreationExpression
             .alternativeFrameworkClass()
-            .map(TypeNames.PROVIDER::equals)
+            .map(XTypeNames.PROVIDER::equals)
             .orElse(true);
   }
 

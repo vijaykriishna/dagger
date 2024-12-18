@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
@@ -494,7 +495,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       generateBindingFieldsForDependencies(binding).forEach(
           (dependency, field) ->
               frameworkFields.put(
-                  dependency, createField(field.type(), nameSet.getUniqueName(field.name()))));
+                  dependency,
+                  createField(toJavaPoet(field.type()), nameSet.getUniqueName(field.name()))));
 
       return new FactoryFields(moduleField, frameworkFields.buildOrThrow());
     }

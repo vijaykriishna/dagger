@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
@@ -34,7 +35,6 @@ import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.javapoet.TypeNames.membersInjectorOf;
-import static dagger.internal.codegen.javapoet.TypeNames.rawTypeName;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
@@ -340,7 +340,9 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                       request.key().type().xprocessing(),
                       membersInjectorTypeName.packageName());
               TypeName fieldType =
-                  useRawFrameworkType ? rawTypeName(bindingField.type()) : bindingField.type();
+                  useRawFrameworkType
+                      ? toJavaPoet(bindingField.type().getRawTypeName())
+                      : toJavaPoet(bindingField.type());
               String fieldName = fieldNames.getUniqueName(bindingField.name());
               FieldSpec field =
                   useRawFrameworkType

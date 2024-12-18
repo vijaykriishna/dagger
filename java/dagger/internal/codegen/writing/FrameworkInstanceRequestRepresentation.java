@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
@@ -51,7 +52,10 @@ abstract class FrameworkInstanceRequestRepresentation extends RequestRepresentat
   Expression getDependencyExpression(ClassName requestingClass) {
     MemberSelect memberSelect = frameworkInstanceSupplier.memberSelect();
     XType expressionType =
-        wrapType(frameworkType().frameworkClassName(), binding.contributedType(), processingEnv);
+        wrapType(
+            toJavaPoet(frameworkType().frameworkClassName()),
+            binding.contributedType(),
+            processingEnv);
     return Expression.create(
         isTypeAccessibleFrom(binding.contributedType(), requestingClass.packageName())
                 || isInlinedFactoryCreation(memberSelect)

@@ -20,16 +20,16 @@ import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static com.google.common.collect.Iterables.getLast;
 import static dagger.internal.codegen.model.BindingKind.MEMBERS_INJECTOR;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.CaseFormat;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.MapType;
 import java.util.Optional;
 
@@ -55,7 +55,7 @@ public abstract class FrameworkField {
    * @param frameworkClassName the framework class that wraps the type (e.g., {@code Provider}).
    * @param type the base type of the field (e.g., {@code Foo}).
    */
-  public static FrameworkField create(String fieldName, ClassName frameworkClassName, XType type) {
+  public static FrameworkField create(String fieldName, XClassName frameworkClassName, XType type) {
     return createInternal(fieldName, frameworkClassName, Optional.of(type));
   }
 
@@ -66,7 +66,7 @@ public abstract class FrameworkField {
    *     one for the binding's type.
    */
   public static FrameworkField forBinding(
-      ContributionBinding binding, Optional<ClassName> frameworkClassName) {
+      ContributionBinding binding, Optional<XClassName> frameworkClassName) {
     return createInternal(
         bindingName(binding),
         frameworkClassName.orElse(binding.frameworkType().frameworkClassName()),
@@ -99,17 +99,17 @@ public abstract class FrameworkField {
   }
 
   private static FrameworkField createInternal(
-      String fieldName, ClassName frameworkClassName, Optional<XType> type) {
+      String fieldName, XClassName frameworkClassName, Optional<XType> type) {
     return new AutoValue_FrameworkField(
         frameworkFieldName(fieldName, frameworkClassName),
         type.isPresent()
-            ? ParameterizedTypeName.get(frameworkClassName, type.get().getTypeName())
+            ? frameworkClassName.parametrizedBy(type.get().asTypeName())
             // Use a raw framework classname, e.g. Provider
             : frameworkClassName);
   }
 
-  private static String frameworkFieldName(String fieldName, ClassName frameworkClassName) {
-    String suffix = frameworkClassName.simpleName();
+  private static String frameworkFieldName(String fieldName, XClassName frameworkClassName) {
+    String suffix = getLast(frameworkClassName.getSimpleNames());
     return fieldName.endsWith(suffix) ? fieldName : fieldName + suffix;
   }
 
@@ -129,5 +129,5 @@ public abstract class FrameworkField {
 
   public abstract String name();
 
-  public abstract TypeName type();
+  public abstract XTypeName type();
 }

@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.ClassName.OBJECT;
@@ -425,7 +426,8 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
       generateBindingFieldsForDependencies(binding).forEach(
           (dependency, field) ->
               builder.put(
-                  dependency, createField(field.type(), nameSet.getUniqueName(field.name()))));
+                  dependency,
+                  createField(toJavaPoet(field.type()), nameSet.getUniqueName(field.name()))));
       return new FactoryFields(binding, moduleField, builder.buildOrThrow());
     }
 

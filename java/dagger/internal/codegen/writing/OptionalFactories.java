@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static com.google.common.base.Verify.verify;
@@ -267,7 +268,7 @@ final class OptionalFactories {
       return new StringBuilder("Present")
           .append(UPPER_UNDERSCORE.to(UPPER_CAMEL, optionalKind().name()))
           .append(UPPER_UNDERSCORE.to(UPPER_CAMEL, valueKind().toString()))
-          .append(frameworkType().frameworkClassName().simpleName())
+          .append(toJavaPoet(frameworkType().frameworkClassName()).simpleName())
           .toString();
     }
 
