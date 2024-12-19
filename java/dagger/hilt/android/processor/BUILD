@@ -93,7 +93,7 @@ gen_maven_artifact(
         "net.ltgt.gradle.incap:incap",
         "org.jetbrains.kotlin:kotlin-stdlib",
     ],
-    javadoc_android_api_level = 32,
+    javadoc_android_api_level = 34,
     javadoc_root_packages = [
         # Java 11 javadocs requires non-empty root package so use ".internal" as the root package.
         "dagger.hilt.processor.internal",

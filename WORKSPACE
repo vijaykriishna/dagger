@@ -63,8 +63,8 @@ http_archive(
 
 android_sdk_repository(
     name = "androidsdk",
-    api_level = 32,
-    build_tools_version = "32.0.0",
+    api_level = 34,
+    build_tools_version = "34.0.0",
 )
 
 ####################################################

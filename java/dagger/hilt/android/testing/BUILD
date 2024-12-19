@@ -249,7 +249,7 @@ gen_maven_artifact(
         "com.google.guava:guava",
         "javax.annotation:javax.annotation-api",
     ],
-    javadoc_android_api_level = 32,
+    javadoc_android_api_level = 34,
     javadoc_exclude_packages = [
         "dagger.hilt.internal",
         "dagger.hilt.android.internal",
