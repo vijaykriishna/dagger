@@ -25,7 +25,7 @@ kt_compiler_test(
     srcs = ["ViewModelProcessorTest.kt"],
     compiler_deps = [
         "//java/dagger/hilt/android:hilt_android_app",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
         "//java/dagger/hilt/android/lifecycle:hilt_view_model",
     ],
     deps = [
@@ -44,7 +44,7 @@ kt_compiler_test(
         "ViewModelValidationPluginTest.kt",
     ],
     compiler_deps = [
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel_savedstate",
         "//third_party/java/compile_testing",
@@ -76,7 +76,7 @@ kt_compiler_test(
         "ViewModelValidationPluginWithAssistedInjectTest.kt",
     ],
     compiler_deps = [
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel_savedstate",
         "//third_party/java/compile_testing",

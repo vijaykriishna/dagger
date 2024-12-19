@@ -32,7 +32,7 @@ compiler_test(
         "//java/dagger/hilt:install_in",
         "//java/dagger/hilt/android/testing:hilt_android_test",
         "//java/dagger/hilt/android/components",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
     ],
     deps = [
         "//java/dagger/hilt/android/testing/compile",

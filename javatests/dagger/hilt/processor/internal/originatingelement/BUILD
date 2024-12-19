@@ -24,7 +24,7 @@ compiler_test(
     srcs = ["OriginatingElementProcessorTest.java"],
     compiler_deps = [
         "//java/dagger/hilt/codegen:originating_element",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
     ],
     deps = [

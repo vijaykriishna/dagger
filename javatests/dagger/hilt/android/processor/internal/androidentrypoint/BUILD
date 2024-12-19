@@ -23,7 +23,7 @@ compiler_test(
     srcs = ["ActivityGeneratorTest.java"],
     compiler_deps = [
         "//java/dagger/hilt/android:android_entry_point",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
     ],
     resources = glob([
         "goldens/ActivityGeneratorTest_*",
@@ -42,7 +42,7 @@ compiler_test(
     compiler_deps = [
         "//java/dagger/hilt/android:hilt_android_app",
         "//java/dagger/hilt/android:android_entry_point",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
     ],
     deps = [
         "//java/dagger/hilt/android/testing/compile",
@@ -59,7 +59,7 @@ kt_compiler_test(
     compiler_deps = [
         "//java/dagger/hilt/android:hilt_android_app",
         "//java/dagger/hilt/android:android_entry_point",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
     ],
     deps = [
         "//java/dagger/hilt/android/testing/compile",

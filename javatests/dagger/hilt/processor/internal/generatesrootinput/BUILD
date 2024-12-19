@@ -24,7 +24,7 @@ compiler_test(
     srcs = ["GeneratesRootInputProcessorTest.java"],
     compiler_deps = [
         "//java/dagger/hilt:generates_root_input",
-        "@androidsdk//:platforms/android-32/android.jar",
+        "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
     ],
     deps = [
