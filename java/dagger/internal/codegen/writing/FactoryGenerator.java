@@ -159,13 +159,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   // private static final class InstanceHolder {
-  //   private static final FooModule_ProvidesFooFactory INSTANCE =
+  //   static final FooModule_ProvidesFooFactory INSTANCE =
   //       new FooModule_ProvidesFooFactory();
   // }
   private TypeSpec staticInstanceHolderType(ContributionBinding binding) {
     ClassName generatedClassName = generatedClassNameForBinding(binding);
     FieldSpec.Builder instanceHolderFieldBuilder =
-        FieldSpec.builder(generatedClassName, "INSTANCE", PRIVATE, STATIC, FINAL)
+        FieldSpec.builder(generatedClassName, "INSTANCE", STATIC, FINAL)
             .initializer("new $T()", generatedClassName);
     if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
       // If the factory has type parameters, ignore them in the field declaration & initializer

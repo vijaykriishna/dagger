@@ -201,11 +201,16 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
   }
 
   private FieldSpec skeletonField(FieldSpec completeField) {
-    return FieldSpec.builder(
-            completeField.type,
-            completeField.name,
-            completeField.modifiers.toArray(new Modifier[0]))
-        .addAnnotations(completeField.annotations)
-        .build();
+    FieldSpec.Builder skeleton =
+        FieldSpec.builder(
+                completeField.type,
+                completeField.name,
+                completeField.modifiers.toArray(new Modifier[0]))
+            .addAnnotations(completeField.annotations);
+    if (completeField.modifiers.contains(Modifier.FINAL)) {
+      // Final fields must be initialized so use the default value.
+      skeleton.initializer(getDefaultValueCodeBlock(completeField.type));
+    }
+    return skeleton.build();
   }
 }

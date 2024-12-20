@@ -38,7 +38,7 @@ public final class ParameterizedModule_ProvideNonGenericTypeFactory implements F
   }
 
   private static final class InstanceHolder {
-    private static final ParameterizedModule_ProvideNonGenericTypeFactory INSTANCE = new ParameterizedModule_ProvideNonGenericTypeFactory();
+    static final ParameterizedModule_ProvideNonGenericTypeFactory INSTANCE = new ParameterizedModule_ProvideNonGenericTypeFactory();
   }
 }
 

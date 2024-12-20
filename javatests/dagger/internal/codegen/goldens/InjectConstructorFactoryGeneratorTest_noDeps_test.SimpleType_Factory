@@ -37,7 +37,7 @@ public final class SimpleType_Factory implements Factory<SimpleType> {
   }
 
   private static final class InstanceHolder {
-    private static final SimpleType_Factory INSTANCE = new SimpleType_Factory();
+    static final SimpleType_Factory INSTANCE = new SimpleType_Factory();
   }
 }
 

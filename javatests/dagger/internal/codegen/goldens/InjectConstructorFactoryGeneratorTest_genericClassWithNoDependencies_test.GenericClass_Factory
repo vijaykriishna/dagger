@@ -39,7 +39,7 @@ public final class GenericClass_Factory<T> implements Factory<GenericClass<T>> {
 
   private static final class InstanceHolder {
     @SuppressWarnings("rawtypes")
-    private static final GenericClass_Factory INSTANCE = new GenericClass_Factory();
+    static final GenericClass_Factory INSTANCE = new GenericClass_Factory();
   }
 }
 

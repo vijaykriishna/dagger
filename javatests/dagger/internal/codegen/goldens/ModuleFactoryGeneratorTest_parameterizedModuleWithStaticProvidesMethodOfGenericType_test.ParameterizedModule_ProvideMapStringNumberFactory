@@ -39,7 +39,7 @@ public final class ParameterizedModule_ProvideMapStringNumberFactory implements 
   }
 
   private static final class InstanceHolder {
-    private static final ParameterizedModule_ProvideMapStringNumberFactory INSTANCE = new ParameterizedModule_ProvideMapStringNumberFactory();
+    static final ParameterizedModule_ProvideMapStringNumberFactory INSTANCE = new ParameterizedModule_ProvideMapStringNumberFactory();
   }
 }
 

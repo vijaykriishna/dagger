@@ -37,7 +37,7 @@ public final class OuterType_A_Factory implements Factory<OuterType.A> {
   }
 
   private static final class InstanceHolder {
-    private static final OuterType_A_Factory INSTANCE = new OuterType_A_Factory();
+    static final OuterType_A_Factory INSTANCE = new OuterType_A_Factory();
   }
 }
 
