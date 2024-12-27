@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
@@ -62,7 +63,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   @Override
   public CodeBlock creationExpression() {
-    ClassName mapFactoryClassName = mapFactoryClassName(binding);
+    ClassName mapFactoryClassName = toJavaPoet(mapFactoryClassName(binding));
     CodeBlock.Builder builder = CodeBlock.builder().add("$T.", mapFactoryClassName);
     TypeName valueTypeName = TypeName.OBJECT;
     if (!useRawType()) {

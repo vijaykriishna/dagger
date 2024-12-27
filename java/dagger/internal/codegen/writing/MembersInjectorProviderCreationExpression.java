@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
@@ -73,7 +74,7 @@ final class MembersInjectorProviderCreationExpression
       membersInjector =
           CodeBlock.of(
               "$T.create($L)",
-              membersInjectorNameForType(injectedTypeElement),
+              toJavaPoet(membersInjectorNameForType(injectedTypeElement)),
               componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
                   binding, shardImplementation.name()));
     }

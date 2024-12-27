@@ -22,6 +22,7 @@ import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static java.lang.String.format;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -50,16 +51,16 @@ import javax.inject.Inject;
  */
 public final class ComponentNames {
   /** Returns the class name for the top-level generated class. */
-  public static ClassName getTopLevelClassName(ComponentDescriptor componentDescriptor) {
+  public static XClassName getTopLevelClassName(ComponentDescriptor componentDescriptor) {
     checkState(!componentDescriptor.isSubcomponent());
-    ClassName componentName = componentDescriptor.typeElement().getClassName();
-    return ClassName.get(componentName.packageName(), "Dagger" + classFileName(componentName));
+    XClassName componentName = componentDescriptor.typeElement().asClassName();
+    return XClassName.Companion.get(componentName.getPackageName(), "Dagger" + classFileName(componentName));
   }
 
   private static final Splitter QUALIFIED_NAME_SPLITTER = Splitter.on('.');
 
   private final CompilerOptions compilerOptions;
-  private final ClassName topLevelClassName;
+  private final XClassName topLevelClassName;
   private final ImmutableMap<ComponentPath, String> namesByPath;
   private final ImmutableMap<ComponentPath, String> creatorNamesByPath;
   private final ImmutableMultimap<Key, ComponentPath> pathsByCreatorKey;
@@ -75,7 +76,7 @@ public final class ComponentNames {
   }
 
   /** Returns the simple component name for the given {@link ComponentDescriptor}. */
-  ClassName get(ComponentPath componentPath) {
+  XClassName get(ComponentPath componentPath) {
     return compilerOptions.generatedClassExtendsComponent() && componentPath.atRoot()
         ? topLevelClassName
         : topLevelClassName.nestedClass(namesByPath.get(componentPath) + "Impl");
@@ -85,7 +86,7 @@ public final class ComponentNames {
    * Returns the component descriptor for the component with the given subcomponent creator {@link
    * Key}.
    */
-  ClassName getSubcomponentCreatorName(ComponentPath componentPath, Key creatorKey) {
+  XClassName getSubcomponentCreatorName(ComponentPath componentPath, Key creatorKey) {
     checkArgument(pathsByCreatorKey.containsKey(creatorKey));
     // First, find the subcomponent path corresponding to the subcomponent creator key.
     // The key may correspond to multiple paths, so we need to find the one under this component.
@@ -100,7 +101,7 @@ public final class ComponentNames {
    * Returns the simple name for the subcomponent creator implementation for the given {@link
    * ComponentDescriptor}.
    */
-  ClassName getCreatorName(ComponentPath componentPath) {
+  XClassName getCreatorName(ComponentPath componentPath) {
     checkArgument(creatorNamesByPath.containsKey(componentPath));
     return topLevelClassName.nestedClass(creatorNamesByPath.get(componentPath));
   }

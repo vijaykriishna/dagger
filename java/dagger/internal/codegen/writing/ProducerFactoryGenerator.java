@@ -114,7 +114,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
 
     FactoryFields factoryFields = FactoryFields.create(binding);
     TypeSpec.Builder factoryBuilder =
-        classBuilder(generatedClassNameForBinding(binding))
+        classBuilder(toJavaPoet(generatedClassNameForBinding(binding)))
             .superclass(
                 ParameterizedTypeName.get(
                     TypeNames.ABSTRACT_PRODUCES_METHOD_PRODUCER,
@@ -158,7 +158,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     constructorBuilder.addStatement(
         "super($N, $L, $N)",
         factoryFields.monitorField,
-        producerTokenConstruction(generatedClassNameForBinding(binding), binding),
+        producerTokenConstruction(toJavaPoet(generatedClassNameForBinding(binding)), binding),
         factoryFields.executorField);
     factoryFields.getAll()
         .forEach(

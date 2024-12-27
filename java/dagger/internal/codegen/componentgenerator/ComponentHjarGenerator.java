@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.componentgenerator;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -90,7 +91,7 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
 
   @Override
   public ImmutableList<TypeSpec.Builder> topLevelTypes(ComponentDescriptor componentDescriptor) {
-    ClassName generatedTypeName = getTopLevelClassName(componentDescriptor);
+    ClassName generatedTypeName = toJavaPoet(getTopLevelClassName(componentDescriptor));
     TypeSpec.Builder generatedComponent =
         TypeSpec.classBuilder(generatedTypeName)
             .addModifiers(FINAL)

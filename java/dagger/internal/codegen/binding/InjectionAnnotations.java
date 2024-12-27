@@ -36,6 +36,7 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
@@ -45,7 +46,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ElementFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -54,6 +54,7 @@ import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -165,10 +166,10 @@ public final class InjectionAnnotations {
   private Optional<XAnnotation> getScopeMetadata(XElement element) {
     return getGeneratedNameForScopeMetadata(element)
         .flatMap(factoryName -> Optional.ofNullable(processingEnv.findTypeElement(factoryName)))
-        .flatMap(factory -> Optional.ofNullable(factory.getAnnotation(TypeNames.SCOPE_METADATA)));
+        .flatMap(factory -> Optional.ofNullable(factory.getAnnotation(XTypeNames.SCOPE_METADATA)));
   }
 
-  private Optional<ClassName> getGeneratedNameForScopeMetadata(XElement element) {
+  private Optional<XClassName> getGeneratedNameForScopeMetadata(XElement element) {
     // Currently, we only support ScopeMetadata for inject-constructor types and provides methods.
     if (isTypeElement(element)) {
       return asTypeElement(element).getConstructors().stream()
@@ -297,10 +298,10 @@ public final class InjectionAnnotations {
   private Optional<XAnnotation> getQualifierMetadata(XElement element) {
     return getGeneratedNameForQualifierMetadata(element)
         .flatMap(name -> Optional.ofNullable(processingEnv.findTypeElement(name)))
-        .flatMap(type -> Optional.ofNullable(type.getAnnotation(TypeNames.QUALIFIER_METADATA)));
+        .flatMap(type -> Optional.ofNullable(type.getAnnotation(XTypeNames.QUALIFIER_METADATA)));
   }
 
-  private Optional<ClassName> getGeneratedNameForQualifierMetadata(XElement element) {
+  private Optional<XClassName> getGeneratedNameForQualifierMetadata(XElement element) {
     // Currently we only support @QualifierMetadata for @Inject fields, @Inject method parameters,
     // @Inject constructor parameters, @Provides methods, and @Provides method parameters.
     if (isField(element) && hasInjectAnnotation(element)) {

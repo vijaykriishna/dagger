@@ -16,6 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -298,7 +300,8 @@ public final class ComponentImplementation {
     this.processingEnv = processingEnv;
 
     // The first group of keys belong to the component itself. We call this the componentShard.
-    this.componentShard = new ShardImplementation(componentNames.get(graph.componentPath()));
+    this.componentShard =
+        new ShardImplementation(toJavaPoet(componentNames.get(graph.componentPath())));
 
     // Claim the method names for all local and inherited methods on the component type.
     XTypeElements.getAllNonPrivateInstanceMethods(graph.componentTypeElement()).stream()
@@ -383,8 +386,8 @@ public final class ComponentImplementation {
                   ClassName fieldType = componentImpl.name();
                   String fieldName =
                       componentImpl.isNested()
-                          ? simpleVariableName(componentImpl.name())
-                          : simpleVariableName(component);
+                          ? simpleVariableName(toXPoet(componentImpl.name()))
+                          : simpleVariableName(toXPoet(component));
                   FieldSpec.Builder field =
                       FieldSpec.builder(
                           fieldType,
@@ -433,7 +436,7 @@ public final class ComponentImplementation {
    * generated class unless this is a top-level component, in which case it will be nested.
    */
   public ClassName getCreatorName() {
-    return componentNames.getCreatorName(graph.componentPath());
+    return toJavaPoet(componentNames.getCreatorName(graph.componentPath()));
   }
 
   /** Generates the component and returns the resulting {@link TypeSpec}. */
@@ -588,7 +591,8 @@ public final class ComponentImplementation {
      * {@link Key}.
      */
     ClassName getSubcomponentCreatorSimpleName(Key creatorKey) {
-      return componentNames.getSubcomponentCreatorName(graph.componentPath(), creatorKey);
+      return toJavaPoet(
+          componentNames.getSubcomponentCreatorName(graph.componentPath(), creatorKey));
     }
 
     /**

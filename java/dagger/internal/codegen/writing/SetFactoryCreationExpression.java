@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.setFactoryClassName;
 
@@ -49,7 +50,8 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   @Override
   public CodeBlock creationExpression() {
-    CodeBlock.Builder builder = CodeBlock.builder().add("$T.", setFactoryClassName(binding));
+    CodeBlock.Builder builder =
+        CodeBlock.builder().add("$T.", toJavaPoet(setFactoryClassName(binding)));
     if (!useRawType()) {
       SetType setType = SetType.from(binding.key());
       builder.add(

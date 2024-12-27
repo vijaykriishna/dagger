@@ -228,7 +228,7 @@ public abstract class ComponentRequirement {
         /* overrideNullPolicy= */ Optional.empty(),
         /* key= */ Optional.empty(),
         Nullability.NOT_NULLABLE,
-        simpleVariableName(type.getTypeElement().getClassName()));
+        simpleVariableName(type.getTypeElement().asClassName()));
   }
 
   private static ComponentRequirement create(

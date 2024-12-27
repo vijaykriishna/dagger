@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
@@ -95,7 +96,7 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
 
   @Override
   public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement annotationType) {
-    ClassName generatedTypeName = getAnnotationCreatorClassName(annotationType);
+    ClassName generatedTypeName = toJavaPoet(getAnnotationCreatorClassName(annotationType));
     TypeSpec.Builder annotationCreatorBuilder =
         classBuilder(generatedTypeName)
             .addModifiers(PUBLIC, FINAL)

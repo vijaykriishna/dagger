@@ -498,7 +498,7 @@ final class ComponentCreatorImplementationFactory {
 
     @Override
     protected MethodSpec.Builder setterMethodBuilder(ComponentRequirement requirement) {
-      String name = simpleVariableName(requirement.typeElement().getClassName());
+      String name = simpleVariableName(requirement.typeElement().asClassName());
       return methodBuilder(name)
           .addModifiers(PUBLIC)
           .addParameter(requirement.type().getTypeName(), name)

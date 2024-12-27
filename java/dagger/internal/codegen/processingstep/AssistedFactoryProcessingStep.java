@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.processingstep;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethods;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectedConstructors;
@@ -62,6 +63,7 @@ import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedFactoryMetadata;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedParameter;
+import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -272,7 +274,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     public ImmutableList<TypeSpec.Builder> topLevelTypes(AssistedFactoryBinding binding) {
       XTypeElement factory = asTypeElement(binding.bindingElement().get());
 
-      ClassName name = generatedClassNameForBinding(binding);
+      ClassName name = toJavaPoet(generatedClassNameForBinding(binding));
       TypeSpec.Builder builder =
           TypeSpec.classBuilder(name)
               .addModifiers(PUBLIC, FINAL)
@@ -359,13 +361,14 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
 
     /** Returns the generated factory {@link TypeName type} for an @AssistedInject constructor. */
     private TypeName delegateFactoryTypeName(XType assistedInjectType) {
+      AssistedInjectionBinding binding =
+          bindingFactory.assistedInjectionBinding(
+              getOnlyElement(assistedInjectedConstructors(assistedInjectType.getTypeElement())),
+              Optional.empty());
+
       // The name of the generated factory for the assisted inject type,
       // e.g. an @AssistedInject Foo(...) {...} constructor will generate a Foo_Factory class.
-      ClassName generatedFactoryClassName =
-          generatedClassNameForBinding(
-              bindingFactory.assistedInjectionBinding(
-                  getOnlyElement(assistedInjectedConstructors(assistedInjectType.getTypeElement())),
-                  Optional.empty()));
+      ClassName generatedFactoryClassName = toJavaPoet(generatedClassNameForBinding(binding));
 
       // Return the factory type resolved with the same type parameters as the assisted inject type.
       return assistedInjectType.getTypeArguments().isEmpty()

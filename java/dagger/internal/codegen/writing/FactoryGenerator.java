@@ -133,7 +133,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
 
   private TypeSpec.Builder factoryBuilder(ContributionBinding binding) {
     TypeSpec.Builder factoryBuilder =
-        classBuilder(generatedClassNameForBinding(binding))
+        classBuilder(toJavaPoet(generatedClassNameForBinding(binding)))
             .addModifiers(PUBLIC, FINAL)
             .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
             .addAnnotation(scopeMetadataAnnotation(binding))
@@ -163,7 +163,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   //       new FooModule_ProvidesFooFactory();
   // }
   private TypeSpec staticInstanceHolderType(ContributionBinding binding) {
-    ClassName generatedClassName = generatedClassNameForBinding(binding);
+    ClassName generatedClassName = toJavaPoet(generatedClassNameForBinding(binding));
     FieldSpec.Builder instanceHolderFieldBuilder =
         FieldSpec.builder(generatedClassName, "INSTANCE", STATIC, FINAL)
             .initializer("new $T()", generatedClassName);
@@ -178,7 +178,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   private static ClassName instanceHolderClassName(ContributionBinding binding) {
-    return generatedClassNameForBinding(binding).nestedClass("InstanceHolder");
+    return toJavaPoet(generatedClassNameForBinding(binding).nestedClass("InstanceHolder"));
   }
 
   // public FooModule_ProvidesFooFactory(
@@ -310,7 +310,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                 sourceFiles.frameworkTypeUsageStatement(
                     CodeBlock.of("$N", factoryFields.get(request)), request.kind()),
             param -> assistedParameters.get(param).name,
-            generatedClassNameForBinding(binding),
+            toJavaPoet(generatedClassNameForBinding(binding)),
             factoryFields.moduleField.map(module -> CodeBlock.of("$N", module)),
             compilerOptions);
 
@@ -328,7 +328,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
           .addCode(
               InjectionSiteMethod.invokeAll(
                   injectionSites(binding),
-                  generatedClassNameForBinding(binding),
+                  toJavaPoet(generatedClassNameForBinding(binding)),
                   instance,
                   binding.key().type().xprocessing(),
                   sourceFiles.frameworkFieldUsages(

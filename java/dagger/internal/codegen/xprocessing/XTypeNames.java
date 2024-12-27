@@ -16,6 +16,8 @@
 
 package dagger.internal.codegen.xprocessing;
 
+import static com.google.common.collect.Iterables.getLast;
+
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
@@ -281,6 +283,10 @@ public final class XTypeNames {
 
   public static boolean isFutureType(XTypeName typeName) {
     return FUTURE_TYPES.contains(typeName.getRawTypeName());
+  }
+
+  public static String simpleName(XClassName className) {
+    return getLast(className.getSimpleNames());
   }
 
   private XTypeNames() {}

@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
@@ -63,7 +64,7 @@ final class StaticMemberSelects {
    */
   static MemberSelect emptySetFactory(MultiboundSetBinding binding) {
     return new ParameterizedStaticMethod(
-        setFactoryClassName(binding),
+        toJavaPoet(setFactoryClassName(binding)),
         ImmutableList.of(SetType.from(binding.key()).elementType()),
         CodeBlock.of("empty()"),
         FACTORY);
@@ -83,7 +84,7 @@ final class StaticMemberSelects {
         "%s should have no dependencies and be unscoped to create a no argument factory.",
         binding);
 
-    ClassName factoryName = generatedClassNameForBinding(binding);
+    ClassName factoryName = toJavaPoet(generatedClassNameForBinding(binding));
     XType keyType = binding.key().type().xprocessing();
     if (isDeclared(keyType)) {
       ImmutableList<TypeVariableName> typeVariables = bindingTypeElementTypeVariableNames(binding);

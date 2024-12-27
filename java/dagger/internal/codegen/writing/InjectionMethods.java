@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedParameter;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
@@ -106,7 +107,7 @@ final class InjectionMethods {
       invokeArguments(binding, dependencyUsage, uniqueAssistedParameterName)
           .forEach(arguments::add);
 
-      ClassName enclosingClass = generatedClassNameForBinding(binding);
+      ClassName enclosingClass = toJavaPoet(generatedClassNameForBinding(binding));
       String methodName = generatedProxyMethodName(binding);
       return invokeMethod(methodName, arguments.build(), enclosingClass, requestingClass);
     }
@@ -222,7 +223,8 @@ final class InjectionMethods {
                       .map(dependencyUsage)
                       .collect(toImmutableList()))
               .build();
-      ClassName enclosingClass = membersInjectorNameForType(injectionSite.enclosingTypeElement());
+      ClassName enclosingClass =
+          toJavaPoet(membersInjectorNameForType(injectionSite.enclosingTypeElement()));
       String methodName = membersInjectorMethodName(injectionSite);
       return invokeMethod(methodName, arguments, enclosingClass, generatedTypeName);
     }

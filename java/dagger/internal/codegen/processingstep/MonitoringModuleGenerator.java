@@ -16,9 +16,11 @@
 
 package dagger.internal.codegen.processingstep;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
+import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.javapoet.TypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY;
 import static dagger.internal.codegen.javapoet.TypeNames.providerOf;
 import static dagger.internal.codegen.javapoet.TypeNames.setOf;
@@ -31,12 +33,12 @@ import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dagger.Module;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.MonitoringModules;
-import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.multibindings.Multibinds;
 import javax.inject.Inject;
@@ -61,9 +63,10 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
 
   @Override
   public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement componentElement) {
-    monitoringModules.add(SourceFiles.generatedMonitoringModuleName(componentElement));
+    ClassName name = toJavaPoet(generatedMonitoringModuleName(componentElement));
+    monitoringModules.add(name);
     return ImmutableList.of(
-        classBuilder(SourceFiles.generatedMonitoringModuleName(componentElement))
+        classBuilder(name)
             .addAnnotation(Module.class)
             .addModifiers(ABSTRACT)
             .addMethod(privateConstructor())

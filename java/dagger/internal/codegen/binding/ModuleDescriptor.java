@@ -267,7 +267,7 @@ public abstract class ModuleDescriptor {
           module.getPackageName(),
           String.format(
               "%s_%s",
-              classFileName(module.getClassName()),
+              classFileName(module.asClassName()),
               LOWER_CAMEL.to(UPPER_CAMEL, getSimpleName(method))));
     }
 

@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.writing.ComponentNames.getTopLevelClassName;
@@ -56,7 +57,7 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   @Inject
   ComponentWrapperImplementation(@TopLevel BindingGraph graph) {
     this.graph = graph;
-    this.name = ComponentNames.getTopLevelClassName(graph.componentDescriptor());
+    this.name = toJavaPoet(ComponentNames.getTopLevelClassName(graph.componentDescriptor()));
   }
 
   @Override
@@ -92,7 +93,8 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   @Override
   public TypeSpec generate() {
     TypeSpec.Builder builder =
-        classBuilder(getTopLevelClassName(graph.componentDescriptor())).addModifiers(FINAL);
+        classBuilder(toJavaPoet(getTopLevelClassName(graph.componentDescriptor())))
+            .addModifiers(FINAL);
 
     if (graph.componentTypeElement().isPublic()) {
       builder.addModifiers(PUBLIC);

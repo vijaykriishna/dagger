@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
@@ -245,7 +246,8 @@ final class ComponentDeclarations {
           ? ImmutableSet.of(
               moduleDescriptorFactory.create(
                   DaggerSuperficialValidation.requireTypeElement(
-                      processingEnv, generatedMonitoringModuleName(descriptor.typeElement()))),
+                      processingEnv,
+                      toJavaPoet(generatedMonitoringModuleName(descriptor.typeElement())))),
               moduleDescriptorFactory.create(
                   processingEnv.requireTypeElement(TypeNames.PRODUCTION_EXECTUTOR_MODULE)))
           : ImmutableSet.of();

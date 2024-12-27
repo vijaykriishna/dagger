@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
@@ -119,7 +119,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         "tried to generate a MembersInjector for a binding of a resolved generic type: %s",
         binding);
 
-    ClassName generatedTypeName = membersInjectorNameForType(binding.membersInjectedType());
+    ClassName generatedTypeName =
+        toJavaPoet(membersInjectorNameForType(binding.membersInjectedType()));
     ImmutableList<TypeVariableName> typeParameters = bindingTypeElementTypeVariableNames(binding);
     ImmutableMap<DependencyRequest, FieldSpec> frameworkFields = frameworkFields(binding);
     TypeSpec.Builder injectorTypeBuilder =
@@ -323,7 +324,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         .addCode(
             InjectionSiteMethod.invokeAll(
                 binding.injectionSites(),
-                membersInjectorNameForType(binding.membersInjectedType()),
+                toJavaPoet(membersInjectorNameForType(binding.membersInjectedType())),
                 CodeBlock.of("instance"),
                 instanceType,
                 dependencyCodeBlocks::get))
@@ -352,7 +353,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   private static ImmutableMap<DependencyRequest, FieldSpec> frameworkFields(
       MembersInjectionBinding binding) {
     UniqueNameSet fieldNames = new UniqueNameSet();
-    ClassName membersInjectorTypeName = membersInjectorNameForType(binding.membersInjectedType());
+    ClassName membersInjectorTypeName =
+        toJavaPoet(membersInjectorNameForType(binding.membersInjectedType()));
     ImmutableMap.Builder<DependencyRequest, FieldSpec> builder = ImmutableMap.builder();
     generateBindingFieldsForDependencies(binding)
         .forEach(

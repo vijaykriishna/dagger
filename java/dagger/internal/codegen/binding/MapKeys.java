@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -177,7 +178,8 @@ public final class MapKeys {
    * XProcessingEnv)} is generated.
    */
   public static ClassName mapKeyProxyClassName(ContributionBinding binding) {
-    return elementBasedClassName(asExecutable(binding.bindingElement().get()), "MapKey");
+    return toJavaPoet(
+        elementBasedClassName(asExecutable(binding.bindingElement().get()), "MapKey"));
   }
 
   /**
@@ -226,7 +228,7 @@ public final class MapKeys {
   }
 
   public static ClassName lazyClassKeyProxyClassName(XMethodElement methodElement) {
-    return elementBasedClassName(methodElement, "_LazyMapKey");
+    return toJavaPoet(elementBasedClassName(methodElement, "_LazyMapKey"));
   }
 
   private MapKeys() {}

@@ -16,9 +16,11 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
+import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isNested;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -26,6 +28,7 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
@@ -37,7 +40,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.ModuleKind;
 import dagger.internal.codegen.base.SourceFileGenerator;
-import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.langmodel.Accessibility;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -86,10 +88,10 @@ public final class ModuleProxies {
   /** The name of the class that hosts the module constructor proxy method. */
   private static ClassName constructorProxyTypeName(XTypeElement moduleElement) {
     ModuleKind.checkIsModule(moduleElement);
-    ClassName moduleClassName = moduleElement.getClassName();
-    return moduleClassName
+    XClassName moduleClassName = moduleElement.asClassName();
+    return toJavaPoet(moduleClassName)
         .topLevelClassName()
-        .peerClass(SourceFiles.classFileName(moduleClassName) + "_Proxy");
+        .peerClass(classFileName(moduleClassName) + "_Proxy");
   }
 
   /**

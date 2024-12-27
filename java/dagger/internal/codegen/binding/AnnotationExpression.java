@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
@@ -26,11 +27,11 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.javapoet.TypeNames;
 
@@ -47,7 +48,7 @@ import dagger.internal.codegen.javapoet.TypeNames;
  */
 public final class AnnotationExpression {
   private final XAnnotation annotation;
-  private final ClassName creatorClass;
+  private final XClassName creatorClass;
 
   AnnotationExpression(XAnnotation annotation) {
     this.annotation = annotation;
@@ -65,7 +66,7 @@ public final class AnnotationExpression {
   private CodeBlock getAnnotationInstanceExpression(XAnnotation annotation) {
     return CodeBlock.of(
         "$T.$L($L)",
-        creatorClass,
+        toJavaPoet(creatorClass),
         createMethodName(annotation.getType().getTypeElement()),
         makeParametersCodeBlock(
             annotation.getAnnotationValues().stream()
@@ -77,11 +78,11 @@ public final class AnnotationExpression {
    * Returns the name of the generated class that contains the static {@code create} methods for an
    * annotation type.
    */
-  public static ClassName getAnnotationCreatorClassName(XTypeElement annotationType) {
-    ClassName annotationTypeName = annotationType.getClassName();
-    return annotationTypeName
-        .topLevelClassName()
-        .peerClass(classFileName(annotationTypeName) + "Creator");
+  public static XClassName getAnnotationCreatorClassName(XTypeElement annotationType) {
+    XClassName annotationTypeName = annotationType.asClassName();
+    return XClassName.Companion.get(
+        annotationTypeName.getPackageName(),
+        classFileName(annotationTypeName) + "Creator");
   }
 
   public static String createMethodName(XTypeElement annotationType) {

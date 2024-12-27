@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
@@ -66,7 +67,7 @@ final class InjectionOrProvisionProviderCreationExpression
 
   @Override
   public CodeBlock creationExpression() {
-    ClassName factoryImpl = generatedClassNameForBinding(binding);
+    ClassName factoryImpl = toJavaPoet(generatedClassNameForBinding(binding));
     CodeBlock createFactory =
         CodeBlock.of(
             "$T.$L($L)",
