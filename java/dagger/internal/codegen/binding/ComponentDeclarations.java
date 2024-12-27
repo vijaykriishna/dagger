@@ -26,10 +26,12 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.WildcardTypeName;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
+import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Key;
@@ -39,11 +41,6 @@ import javax.inject.Inject;
 
 /** Stores the bindings and declarations of a component by key. */
 final class ComponentDeclarations {
-  private static final ImmutableSet<TypeName> MAP_FRAMEWORK_TYPENAMES =
-      ImmutableSet.of(TypeNames.PROVIDER, TypeNames.PRODUCER, TypeNames.PRODUCED);
-  private static final ImmutableSet<TypeName> SET_FRAMEWORK_TYPENAMES =
-      ImmutableSet.of(TypeNames.PRODUCED);
-
   private final KeyFactory keyFactory;
   private final ImmutableSetMultimap<Key, ContributionBinding> bindings;
   private final ImmutableSetMultimap<Key, DelegateDeclaration> delegates;
@@ -322,14 +319,14 @@ final class ComponentDeclarations {
       return ParameterizedTypeName.get(
             mapTypeName.rawType,
             mapKeyTypeName,
-            unwrapFrameworkTypeName(mapValueTypeName, MAP_FRAMEWORK_TYPENAMES));
+            unwrapFrameworkTypeName(mapValueTypeName, FrameworkTypes.MAP_VALUE_FRAMEWORK_TYPES));
     }
     if (isValidSetMultibindingTypeName(typeName)) {
       ParameterizedTypeName setTypeName = (ParameterizedTypeName) typeName;
       TypeName setValueTypeName = getOnlyElement(setTypeName.typeArguments);
       return ParameterizedTypeName.get(
           setTypeName.rawType,
-          unwrapFrameworkTypeName(setValueTypeName, SET_FRAMEWORK_TYPENAMES));
+          unwrapFrameworkTypeName(setValueTypeName, FrameworkTypes.SET_VALUE_FRAMEWORK_TYPES));
     }
     return typeName;
   }
@@ -356,7 +353,7 @@ final class ComponentDeclarations {
   }
 
   private static TypeName unwrapFrameworkTypeName(
-      TypeName typeName, ImmutableSet<TypeName> frameworkTypeNames) {
+      TypeName typeName, ImmutableSet<ClassName> frameworkTypeNames) {
     if (typeName instanceof ParameterizedTypeName) {
       ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
       if (frameworkTypeNames.contains(parameterizedTypeName.rawType)) {
