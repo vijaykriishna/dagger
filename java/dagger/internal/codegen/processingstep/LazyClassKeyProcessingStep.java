@@ -18,6 +18,7 @@ package dagger.internal.codegen.processingstep;
 
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.joining;
 
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
@@ -38,7 +39,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
@@ -46,7 +46,10 @@ import javax.inject.Inject;
 /** Generate keep rules for LazyClassKey referenced classes to prevent class merging. */
 final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XElement> {
   private static final String PROGUARD_KEEP_RULE = "-keep,allowobfuscation,allowshrinking class ";
-  private final SetMultimap<ClassName, ClassName> processedElements = LinkedHashMultimap.create();
+
+  // Note: We aggregate @LazyClassKey usages across processing rounds, so we use ClassName instead
+  // of XElement as the map key to avoid storing XElement instances across processing rounds.
+  private final SetMultimap<ClassName, ClassName> lazyMapKeysByModule = LinkedHashMultimap.create();
   private final LazyMapKeyProxyGenerator lazyMapKeyProxyGenerator;
 
   @Inject
@@ -73,7 +76,7 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
       return;
     }
     XTypeElement moduleElement = XElements.asTypeElement(element.getEnclosingElement());
-    processedElements.put(moduleElement.getClassName(), lazyClassKey);
+    lazyMapKeysByModule.put(moduleElement.getClassName(), lazyClassKey);
     XMethodElement method = XElements.asMethod(element);
     lazyMapKeyProxyGenerator.generate(method);
   }
@@ -91,30 +94,45 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
             || element.hasAnnotation(TypeNames.PRODUCER_MODULE));
   }
 
+  // TODO(b/386393062): Avoid generating proguard files in processOver.
   @Override
   public void processOver(
       XProcessingEnv env, Map<String, ? extends Set<? extends XElement>> elementsByAnnotation) {
     super.processOver(env, elementsByAnnotation);
-    StringBuilder proguardRules = new StringBuilder();
-    for (Map.Entry<ClassName, Collection<ClassName>> moduleToLazyClassKeys :
-        processedElements.asMap().entrySet()) {
-      String bindingGraphProguardName =
-          getFullyQualifiedEnclosedClassName(moduleToLazyClassKeys.getKey()) + "_LazyClassKeys.pro";
-      for (ClassName lazyClassKey : moduleToLazyClassKeys.getValue()) {
-        proguardRules.append(PROGUARD_KEEP_RULE).append(lazyClassKey).append("\n");
-      }
-      writeProguardFile(bindingGraphProguardName, proguardRules.toString(), env.getFiler());
-    }
+    lazyMapKeysByModule
+        .asMap()
+        .forEach(
+            (moduleClassName, lazyClassKeys) -> {
+              // Note: we could probably get better incremental performance by using the method
+              // element instead of the module element as the originating element. However, that
+              // would require appending the method name to each proguard file, which would probably
+              // cause issues with the filename length limit (256 characters) given it already must
+              // include the module's fully qualified name.
+              XTypeElement originatingElement =
+                  env.requireTypeElement(moduleClassName.canonicalName());
+
+              Path proguardFile =
+                  Path.of(
+                      "META-INF/proguard",
+                      getFullyQualifiedEnclosedClassName(moduleClassName) + "_LazyClassKeys.pro");
+
+              String proguardFileContents =
+                  lazyClassKeys.stream()
+                      .map(lazyClassKey -> PROGUARD_KEEP_RULE + lazyClassKey.canonicalName())
+                      .collect(joining("\n"));
+
+              writeResource(env.getFiler(), originatingElement, proguardFile, proguardFileContents);
+            });
+    // Processing is over so this shouldn't matter, but clear the map just incase.
+    lazyMapKeysByModule.clear();
   }
 
-  private void writeProguardFile(String proguardFileName, String proguardRules, XFiler filer) {
+  private void writeResource(
+      XFiler filer, XElement originatingElement, Path path, String contents) {
     try (OutputStream outputStream =
-            filer.writeResource(
-                Path.of("META-INF/proguard/" + proguardFileName),
-                ImmutableList.<XElement>of(),
-                XFiler.Mode.Isolating);
+            filer.writeResource(path, ImmutableList.of(originatingElement), XFiler.Mode.Isolating);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, UTF_8))) {
-      writer.write(proguardRules);
+      writer.write(contents);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -122,10 +140,11 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
 
   /** Returns the fully qualified class name, with _ instead of . */
   private static String getFullyQualifiedEnclosedClassName(ClassName className) {
-    return className.packageName().replace('.', '_') + getEnclosedName(className);
-  }
-
-  public static String getEnclosedName(ClassName name) {
-    return Joiner.on('_').join(name.simpleNames());
+    return Joiner.on('_')
+        .join(
+            ImmutableList.<String>builder()
+                .add(className.packageName().replace('.', '_'))
+                .addAll(className.simpleNames())
+                .build());
   }
 }
