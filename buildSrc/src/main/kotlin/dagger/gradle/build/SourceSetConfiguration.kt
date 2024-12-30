@@ -72,7 +72,7 @@ fun Project.daggerSources(block: DaggerSourceSet.() -> Unit) {
     val javaExtension = extensions.findByType(JavaPluginExtension::class.java)
         ?: error("The daggerSources() configuration must be applied to a Kotlin (JVM) project.")
     val daggerSources = DaggerSourceSet(this, kotlinExtension.sourceSets, javaExtension.sourceSets)
-    black.invoke(daggerSources)
+    block.invoke(daggerSources)
 }
 
 /**

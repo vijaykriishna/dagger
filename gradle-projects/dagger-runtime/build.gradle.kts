@@ -1,4 +1,6 @@
 import dagger.gradle.build.daggerSources
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id(libs.plugins.kotlinJvm.get().pluginId)

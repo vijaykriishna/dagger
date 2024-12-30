@@ -11,7 +11,9 @@ env:
   USE_JAVA_DISTRIBUTION: 'zulu'
   USE_JAVA_VERSION: '11'
   # This is required by Gradle 8.0+.
-  USE_JAVA_VERSION_FOR_PLUGIN: '17'
+  USE_JAVA_VERSION_FOR_GRADLE_PLUGIN: '17'
+  # Required by JDK Toolchain Configuration
+  USE_JAVA_VERSION_FOR_GRADLE: '18'
   DAGGER_RELEASE_VERSION: "${{ github.event.inputs.dagger_release_version }}"
   # The default Maven 3.9.0 has a regression so we manually install 3.8.7.
   # https://issues.apache.org/jira/browse/MNG-7679
