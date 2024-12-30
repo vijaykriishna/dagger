@@ -68,8 +68,9 @@ import javax.inject.Inject;
 /** A factory for {@link BindingGraph} objects. */
 public final class LegacyBindingGraphFactory {
 
-  static boolean useLegacyBindingGraphFactory(ComponentDescriptor componentDescriptor) {
-    return true;
+  static boolean useLegacyBindingGraphFactory(
+      CompilerOptions compilerOptions, ComponentDescriptor componentDescriptor) {
+    return compilerOptions.useLegacyBindingGraphFactory();
   }
 
   static boolean hasStrictMultibindingsExemption(

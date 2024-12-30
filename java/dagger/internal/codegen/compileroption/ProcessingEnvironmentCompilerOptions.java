@@ -35,6 +35,7 @@ import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompil
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_MULTIBINDING_VALIDATION;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_SUPERFICIAL_VALIDATION;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY;
+import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_LEGACY_BINDING_GRAPH_FACTORY;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.VALIDATE_TRANSITIVE_COMPONENT_DEPENDENCIES;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WARN_IF_INJECTION_FACTORY_NOT_GENERATED_UPSTREAM;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WRITE_PRODUCER_NAME_IN_TOKEN;
@@ -204,6 +205,11 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
   }
 
   @Override
+  public boolean useLegacyBindingGraphFactory() {
+    return isEnabled(USE_LEGACY_BINDING_GRAPH_FACTORY);
+  }
+
+  @Override
   public int keysPerComponentShard(XTypeElement component) {
     if (options.containsKey(KEYS_PER_COMPONENT_SHARD)) {
       checkArgument(
@@ -238,15 +244,14 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
     noLongerRecognized(FLOATING_BINDS_METHODS);
     noLongerRecognized(EXPERIMENTAL_AHEAD_OF_TIME_SUBCOMPONENTS);
     noLongerRecognized(USE_GRADLE_INCREMENTAL_PROCESSING);
-    if (!isEnabled(IGNORE_PROVISION_KEY_WILDCARDS)) {
-      if (processingEnv.getBackend() == XProcessingEnv.Backend.KSP) {
-        processingEnv.getMessager().printMessage(
-            Diagnostic.Kind.ERROR,
-            String.format(
-                "When using KSP, you must also enable the '%s' compiler option (see %s).",
-                "dagger.ignoreProvisionKeyWildcards",
-                "https://dagger.dev/dev-guide/compiler-options#ignore-provision-key-wildcards"));
-      }
+    if (processingEnv.getBackend() == XProcessingEnv.Backend.KSP
+        && !isEnabled(IGNORE_PROVISION_KEY_WILDCARDS)) {
+      processingEnv.getMessager().printMessage(
+          Diagnostic.Kind.ERROR,
+          String.format(
+              "When using KSP, you must also enable the '%s' compiler option (see %s).",
+              "dagger.ignoreProvisionKeyWildcards",
+              "https://dagger.dev/dev-guide/compiler-options#ignore-provision-key-wildcards"));
     }
     return this;
   }
@@ -336,6 +341,8 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
     STRICT_SUPERFICIAL_VALIDATION(ENABLED),
 
     GENERATED_CLASS_EXTENDS_COMPONENT,
+
+    USE_LEGACY_BINDING_GRAPH_FACTORY(ENABLED),
 
     USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY,
 

@@ -112,6 +112,11 @@ final class JavacPluginCompilerOptions extends CompilerOptions {
   }
 
   @Override
+  public boolean useLegacyBindingGraphFactory() {
+    return true;
+  }
+
+  @Override
   public boolean useFrameworkTypeInMapMultibindingContributionKey() {
     return false;
   }

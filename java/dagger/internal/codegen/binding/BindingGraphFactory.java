@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.not;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
+import static dagger.internal.codegen.binding.LegacyBindingGraphFactory.useLegacyBindingGraphFactory;
 import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static dagger.internal.codegen.extension.DaggerGraphs.unreachableNodes;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
@@ -106,7 +107,7 @@ public final class BindingGraphFactory {
    */
   public BindingGraph create(
       ComponentDescriptor componentDescriptor, boolean createFullBindingGraph) {
-    return LegacyBindingGraphFactory.useLegacyBindingGraphFactory(componentDescriptor)
+    return useLegacyBindingGraphFactory(compilerOptions, componentDescriptor)
         ? legacyBindingGraphFactory.create(componentDescriptor, createFullBindingGraph)
         : createBindingGraph(componentDescriptor, createFullBindingGraph);
   }
