@@ -1,9 +1,7 @@
 import dagger.gradle.build.daggerSources
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
-    id(libs.plugins.kotlinJvm.get().pluginId)
+    alias(libs.plugins.dagger.kotlinJvm)
 }
 
 // TODO(danysantiago): Add proguard files as META-INF resources
@@ -22,16 +20,6 @@ daggerSources {
             "dagger/internal",
         )
     )
-}
-
-// TODO(danysantiago): Move configuration to a buildSrc plugin so it is applied to all projects
-kotlin {
-    jvmToolchain(18)
-    compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_1_8
-        apiVersion = KotlinVersion.KOTLIN_1_8
-        jvmTarget = JvmTarget.JVM_1_8
-    }
 }
 
 dependencies {

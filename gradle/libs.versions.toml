@@ -1,18 +1,22 @@
 [versions]
-kotlin = "2.0.21"
 guava = "33.0.0-jre"
+jdk = "18"
 junit = "4.13"
+jvmTarget = "1.8"
+kotlin = "2.0.21"
+kotlinTarget = "1.9"
 truth = "1.4.0"
 
 [libraries]
-kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+guava-jre = { module = "com.google.guava:guava", version.ref = "guava" }
 jakarta-inject = { module = "jakarta.inject:jakarta.inject-api", version = "2.0.1" }
 javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
-guava-jre = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
+dagger-kotlinJvm = { id = "dagger.gradle.build.jvm" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

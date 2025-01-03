@@ -1,12 +1,23 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    `kotlin-dsl`
 }
 
 kotlin {
-    jvmToolchain(18)
+    jvmToolchain {
+        languageVersion.set(libs.versions.jdk.map(JavaLanguageVersion::of))
+    }
 }
 
 dependencies {
     implementation(gradleApi())
     implementation(libs.kotlin.gradlePlugin)
+}
+
+gradlePlugin {
+    plugins {
+        register("kotlinJvm") {
+            id = libs.plugins.dagger.kotlinJvm.get().pluginId
+            implementationClass = "dagger.gradle.build.KotlinJvmConventionPlugin"
+        }
+    }
 }
