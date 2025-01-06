@@ -20,6 +20,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.nio.file.Path
@@ -37,34 +38,111 @@ class DaggerSourceSet(
     private val kotlinSourceSets: NamedDomainObjectContainer<KotlinSourceSet>,
     private val javaSourceSets: NamedDomainObjectContainer<JavaSourceSet>,
 ) {
+    private val resourceCopyTask: TaskProvider<ResourceCopyTask> =
+        project.tasks.register("copyResources", ResourceCopyTask::class.java) {
+            outputDirectory.set(project.layout.buildDirectory.dir("generated/resources"))
+        }
+
+    init {
+        listOf(resourceCopyTask.map { it.outputDirectory }).let {
+            kotlinSourceSets.named("main").configure { resources.setSrcDirs(it) }
+            javaSourceSets.named("main").configure { resources.setSrcDirs(it) }
+        }
+    }
+
+    /**
+     * The main source set whose based path is `<root>/java`
+     */
     val main: SourceSet = object : SourceSet {
         override fun setPackages(packages: List<String>) {
             val packagePaths = packages.map { Path(it) }
-            kotlinSourceSets.getByName("main").kotlin
-                .includePackages("${project.rootDir}/java", packagePaths)
-            javaSourceSets.getByName("main").java
-                .includePackages("${project.rootDir}/java", packagePaths)
+            kotlinSourceSets.named("main").configure {
+                kotlin.includePackages("${project.rootDir}/java", packagePaths)
+            }
+            javaSourceSets.named("main").configure {
+                java.includePackages("${project.rootDir}/java", packagePaths)
+            }
+        }
+
+        override fun setResources(resources: Map<String, String>) {
+            resourceCopyTask.configure {
+                val baseDir = project.rootProject.layout.projectDirectory.dir("java")
+                resources.forEach { (resourceFilePath, jarDirectoryPath) ->
+                    val resource = baseDir.file(resourceFilePath)
+                    resourceSpecs.put(resource.asFile.path, jarDirectoryPath)
+                    inputFiles.add(resource)
+                }
+            }
         }
     }
+
+    /**
+     * The main source set whose based path is `<root>/javatests`
+     */
     val test: SourceSet = object : SourceSet {
         override fun setPackages(packages: List<String>) {
             val packagePaths = packages.map { Path(it) }
-            kotlinSourceSets.getByName("test").kotlin
-                .includePackages("${project.rootDir}/javatests", packagePaths)
-            javaSourceSets.getByName("test").java
-                .includePackages("${project.rootDir}/javatests", packagePaths)
+            kotlinSourceSets.named("test").configure {
+                kotlin.includePackages("${project.rootDir}/javatests", packagePaths)
+            }
+            javaSourceSets.named("test").configure {
+                java.includePackages("${project.rootDir}/javatests", packagePaths)
+            }
+        }
+
+        override fun setResources(resources: Map<String, String>) {
+            throw UnsupportedOperationException(
+                "Resources are only configurable for the 'main' source set."
+            )
         }
     }
 
     interface SourceSet {
+        /**
+         * Sets the list of source packages that are part of the project's source set.
+         *
+         * Only sources directly in those packages are included and not in its subpackages.
+         *
+         * Example usage:
+         * ```
+         * daggerSources {
+         *     main.setPackages(
+         *         listOf(
+         *             "dagger",
+         *             "dagger/assisted",
+         *             "dagger/internal",
+         *             "dagger/multibindings",
+         *         )
+         *     )
+         * }
+         * ```
+         * @see daggerSources
+         */
         fun setPackages(packages: List<String>)
+
+        /**
+         * Sets the resource file paths and their corresponding artifact location.
+         *
+         * Example usage:
+         * ```
+         * daggerSources {
+         *     main.setResources(
+         *         mapOf("dagger/r8.pro" to "META-INF/com.android.tools/r8/")
+         *     )
+         * }
+         * ```
+         * @see daggerSources
+         */
+        fun setResources(resources: Map<String, String>)
     }
 }
 
 /**
  * Configure project's source set based on Dagger's project structure.
  *
- * Specifically it will include sources in the packages specified by [DaggerSourceSet.SourceSet.setPackages].
+ * Specifically it will include sources in the packages specified by
+ * [DaggerSourceSet.SourceSet.setPackages] and resources as specified by
+ * [DaggerSourceSet.SourceSet.setResources].
  */
 fun Project.daggerSources(block: DaggerSourceSet.() -> Unit) {
     val kotlinExtension = extensions.findByType(KotlinProjectExtension::class.java)

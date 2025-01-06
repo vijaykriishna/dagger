@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.dagger.kotlinJvm)
 }
 
-// TODO(danysantiago): Add proguard files as META-INF resources
 daggerSources {
     main.setPackages(
         listOf(
@@ -12,6 +11,12 @@ daggerSources {
             "dagger/assisted",
             "dagger/internal",
             "dagger/multibindings",
+        )
+    )
+    main.setResources(
+        mapOf(
+            "dagger/proguard.pro" to "META-INF/com.android.tools/proguard",
+            "dagger/r8.pro" to "META-INF/com.android.tools/r8"
         )
     )
     test.setPackages(
