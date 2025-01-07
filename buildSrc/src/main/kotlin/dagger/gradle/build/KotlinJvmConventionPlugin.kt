@@ -26,9 +26,9 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 class KotlinJvmConventionPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.pluginManager.apply(KGP_JVM_ID)
+        project.pluginManager.apply(project.getPluginIdByName("kotlinJvm"))
 
-        project.plugins.withId(KGP_JVM_ID) {
+        project.plugins.withId(project.getPluginIdByName("kotlinJvm")) {
             val kotlinProject = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
             kotlinProject.explicitApi()
             kotlinProject.jvmToolchain {
@@ -40,9 +40,5 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
                 jvmTarget.set(JvmTarget.fromTarget(project.getVersionByName("jvmTarget")))
             }
         }
-    }
-
-    companion object {
-        private const val KGP_JVM_ID = "org.jetbrains.kotlin.jvm"
     }
 }

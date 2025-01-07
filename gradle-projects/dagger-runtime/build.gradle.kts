@@ -2,6 +2,7 @@ import dagger.gradle.build.daggerSources
 
 plugins {
     alias(libs.plugins.dagger.kotlinJvm)
+    alias(libs.plugins.dagger.publish)
 }
 
 daggerSources {

@@ -31,3 +31,12 @@ internal fun Project.getVersionByName(name: String): String {
         error("Could not find a version for `$name`")
     }
 }
+
+internal fun Project.getPluginIdByName(name: String): String {
+    val plugin = versionCatalog.findPlugin(name)
+    return if (plugin.isPresent) {
+        plugin.get().map { it.pluginId }.get()
+    } else {
+        error("Could not find plugin id for `$name`")
+    }
+}

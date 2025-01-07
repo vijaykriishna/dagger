@@ -11,6 +11,7 @@ kotlin {
 dependencies {
     implementation(gradleApi())
     implementation(libs.kotlin.gradlePlugin)
+    implementation(libs.publishPlugin)
 }
 
 gradlePlugin {
@@ -19,5 +20,11 @@ gradlePlugin {
             id = libs.plugins.dagger.kotlinJvm.get().pluginId
             implementationClass = "dagger.gradle.build.KotlinJvmConventionPlugin"
         }
+    }
+    plugins {
+      register("publish") {
+        id = libs.plugins.dagger.publish.get().pluginId
+        implementationClass = "dagger.gradle.build.PublishConventionPlugin"
+      }
     }
 }
