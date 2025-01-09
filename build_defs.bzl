@@ -20,4 +20,4 @@ DOCLINT_REFERENCES = ["-Xdoclint:reference"]
 
 JAVA_RELEASE_MIN = ["-source 8 -target 8"]
 
-POM_VERSION = "${project.version}"
+POM_VERSION = "2.55"
