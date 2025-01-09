@@ -5,6 +5,66 @@ redirect_from:
   - /compiler-options
 ---
 
+## useBindingGraphFix
+
+In v2.55, Dagger introduced a rewrite of its core binding graph creation logic
+that fixes many subtle bugs that have plague the previous version. However,
+these fixes also come with a behavior change (see details below), so we've
+introduced a flag to ease the migration to the new behavior. To enable the
+fixes, pass the following compiler option:
+
+`-Adagger.useBindingGraphFix=ENABLED`.
+
+In a future release, we will enable this flag by default, and remove the flag
+entirely once users have had a chance to migrate.
+
+### Background
+
+In the last few years, Dagger has seen a number of subtle bugs which have led to
+incorrect binding graphs (e.g. missing multibindings), nonsensical error
+messages (e.g. dependency traces that don't match the reported error), and
+difficult to reproduce issues (e.g. issues that depend on the order of bindings
+in the user's code). The root cause of these bugs stemmed from issues in the
+[`LegacyBindingGraphFactory`] which is responsible for iterating through the
+bindings of a component and creating the binding graph. To fix these bugs, we've
+rewritten the core logic to be more robust (e.g. replacing custom iteration
+logic with standard graph data structures and algorithms). However, enabling
+these fixes also comes with a behavior change that could affect some users in
+rare cases.
+
+[`LegacyBindingGraphFactory`]:(https://github.com/google/dagger/blob/master/java/dagger/internal/codegen/binding/LegacyBindingGraphFactory.java)
+
+### Behavior changes
+
+With `-Adagger.useBindingGraphFix=ENABLED`, module bindings are no longer
+allowed to "float" from their installed component into a subcomponent to satisfy
+a missing dependency. For example, consider a module that provides an
+`ActivityBinding` into the `SingletonComponent`, but its `Activity` dependency
+is not available from the `SingletonComponent`:
+
+```java
+@Module
+@InstallIn(SingletonComponent.class)
+interface ActivityBindingModule {
+  @Provides
+  static ActivityBinding provide(Activity activity, Set<Foo> multibindings) {
+    …
+  }
+}
+```
+
+With the old behavior (`useBindingGraphFix=DISABLED`), Dagger won't report a
+missing binding error if there is a multibinding contribution for `Set<Foo>`
+installed in the `ActivityComponent` and nothing in the `SingletonComponent`
+requests the `ActivityBinding`. With the new behavior
+(`useBindingGraphFix=ENABLED`), Dagger will always report a missing binding
+error.
+
+In practice, the new behavior is much easier to reason about, and if you are
+broken by this change it can usually be fixed by just moving the module to the
+correct component. For example, we can fix the case above by installing the
+module into the `ActivityComponent` instead of the `SingletonComponent`:
+
 ## fastInit mode
 
 You can choose to generate your Dagger [`@Component`]s in a mode that
