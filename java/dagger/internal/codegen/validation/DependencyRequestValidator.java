@@ -18,7 +18,9 @@ package dagger.internal.codegen.validation;
 
 import static androidx.room.compiler.processing.XElementKt.isField;
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static dagger.internal.codegen.base.FrameworkTypes.isDisallowedType;
 import static dagger.internal.codegen.base.FrameworkTypes.isFrameworkType;
+import static dagger.internal.codegen.base.FrameworkTypes.isMapValueFrameworkType;
 import static dagger.internal.codegen.base.RequestKinds.extractKeyType;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedInjectionType;
@@ -40,6 +42,7 @@ import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.FrameworkTypes;
+import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -154,6 +157,14 @@ final class DependencyRequestValidator {
         // will just be noise.
         return;
       }
+      if (isDisallowedType(requestType)) {
+        report.addError(
+            "Dagger disallows injecting the type: " + XTypes.toStableString(requestType),
+            requestElement);
+        // If the requested type is a disallowed type then skip the remaining checks as they
+        // will just be noise.
+        return;
+      }
       XType keyType = extractKeyType(requestType);
       if (qualifiers.isEmpty() && isDeclared(keyType)) {
         XTypeElement typeElement = keyType.getTypeElement();
@@ -189,6 +200,24 @@ final class DependencyRequestValidator {
           report.addSubreport(
               membersInjectionValidator.validateMembersInjectionRequest(
                   requestElement, keyType.getTypeArguments().get(0)));
+        }
+      }
+      if (MapType.isMap(keyType)) {
+        MapType mapType = MapType.from(keyType);
+        if (!mapType.isRawType()) {
+          XType valueType = mapType.valueType();
+          if (isMapValueFrameworkType(valueType) && isRawParameterizedType(valueType)) {
+            report.addError(
+                "Dagger does not support injecting maps of raw framework types: "
+                + XTypes.toStableString(requestType),
+                requestElement);
+          }
+          if (isDisallowedType(valueType)) {
+            report.addError(
+                "Dagger does not support injecting maps of disallowed types: "
+                + XTypes.toStableString(requestType),
+                requestElement);
+          }
         }
       }
     }

@@ -78,6 +78,19 @@ public class ModuleFactoryGeneratorTest {
   }
 
   @Test
+  public void providesMethodReturnsDaggerInternalProvider() {
+    assertThatModuleMethod("@Provides dagger.internal.Provider<String> provideProvider() {}")
+        .hasError("@Provides methods must not return disallowed types");
+  }
+
+  @Test
+  public void providesIntoSetMethodReturnsDaggerInternalProvider() {
+    assertThatModuleMethod(
+        "@Provides @IntoSet dagger.internal.Provider<String> provideProvider() {}")
+        .hasError("@Provides methods must not return disallowed types");
+  }
+
+  @Test
   public void providesMethodReturnsLazy() {
     assertThatModuleMethod("@Provides Lazy<String> provideLazy() {}")
         .hasError("@Provides methods must not return framework types");
@@ -118,10 +131,29 @@ public class ModuleFactoryGeneratorTest {
         .hasError("@Provides methods annotated with @ElementsIntoSet cannot return a raw Set");
   }
 
+  @Test public void providesElementsIntoSetMethodReturnsSetDaggerProvider() {
+    assertThatModuleMethod(
+        "@Provides @ElementsIntoSet Set<dagger.internal.Provider<String>> provideProvider() {}")
+        .hasError("@Provides methods must not return disallowed types");
+  }
+
   @Test public void providesMethodSetValuesNotASet() {
     assertThatModuleMethod(
             "@Provides @ElementsIntoSet List<String> provideStrings() { return null; }")
         .hasError("@Provides methods annotated with @ElementsIntoSet must return a Set");
+  }
+
+  @Test
+  public void bindsMethodReturnsProvider() {
+    assertThatModuleMethod("@Binds abstract Provider<Number> bindsProvider(Provider<Long> impl);")
+        .hasError("@Binds methods must not return framework types");
+  }
+
+  @Test
+  public void bindsMethodReturnsDaggerProvider() {
+    assertThatModuleMethod("@Binds abstract dagger.internal.Provider<Number> "
+        + "bindsProvider(dagger.internal.Provider<Long> impl);")
+        .hasError("@Binds methods must not return disallowed types");
   }
 
   @Test public void modulesWithTypeParamsMustBeAbstract() {

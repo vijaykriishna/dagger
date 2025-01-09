@@ -779,33 +779,6 @@ public class MembersInjectionTest {
   }
 
   @Test
-  public void rawFrameworkTypeField() {
-    Source file =
-        CompilerTests.javaSource(
-            "test.RawFrameworkTypes",
-            "package test;",
-            "",
-            "import javax.inject.Inject;",
-            "import javax.inject.Provider;",
-            "",
-            "class RawProviderField {",
-            "  @Inject",
-            "  Provider fieldWithRawProvider;",
-            "}");
-
-    CompilerTests.daggerCompiler(file)
-        .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
-            subject -> {
-              subject.hasErrorCount(1);
-              subject.hasErrorContaining(
-                      "Dagger does not support injecting raw type: javax.inject.Provider")
-                  .onSource(file)
-                  .onLineContaining("Provider fieldWithRawProvider");
-            });
-  }
-
-  @Test
   public void throwExceptionInjectedMethod() {
     Source file =
         CompilerTests.javaSource(
@@ -831,10 +804,37 @@ public class MembersInjectionTest {
   }
 
   @Test
+  public void rawFrameworkTypeField() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.RawProviderField",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "import javax.inject.Provider;",
+            "",
+            "class RawProviderField {",
+            "  @Inject",
+            "  Provider fieldWithRawProvider;",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger does not support injecting raw type: javax.inject.Provider")
+                  .onSource(file)
+                  .onLineContaining("Provider fieldWithRawProvider");
+            });
+  }
+
+  @Test
   public void rawFrameworkMethodTypeParameter() {
     Source file =
         CompilerTests.javaSource(
-            "test.RawFrameworkTypes",
+            "test.RawProviderParameter",
             "package test;",
             "",
             "import javax.inject.Inject;",
@@ -862,7 +862,7 @@ public class MembersInjectionTest {
   public void rawFrameworkConstructorTypeParameter() {
     Source file =
         CompilerTests.javaSource(
-            "test.RawFrameworkTypes",
+            "test.RawProviderParameter",
             "package test;",
             "",
             "import dagger.Component;",
@@ -884,6 +884,274 @@ public class MembersInjectionTest {
                       "Dagger does not support injecting raw type: javax.inject.Provider")
                   .onSource(file)
                   .onLineContaining("Provider rawProviderParameter");
+            });
+  }
+
+  @Test
+  public void rawMapFrameworkConstructorTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.RawMapProviderParameter",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import javax.inject.Inject;",
+            "import javax.inject.Provider;",
+            "import java.util.Map;",
+            "",
+            "class RawMapProviderParameter {",
+            "  @Inject",
+            "  RawMapProviderParameter(",
+            "      Map<String, Provider> rawProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger does not support injecting maps of raw framework types: "
+                      + "java.util.Map<java.lang.String,javax.inject.Provider>")
+                  .onSource(file)
+                  .onLineContaining("Map<String, Provider> rawProviderParameter");
+            });
+  }
+
+  @Test
+  public void daggerProviderField() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerProviderField",
+            "package test;",
+            "",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "",
+            "class DaggerProviderField {",
+            "  @Inject",
+            "  Provider<String> fieldWithDaggerProvider;",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger disallows injecting the type: "
+                      + "dagger.internal.Provider<java.lang.String>")
+                  .onSource(file)
+                  .onLineContaining("Provider<String> fieldWithDaggerProvider");
+            });
+  }
+
+  @Test
+  public void daggerProviderMethodTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerProviderParameter",
+            "package test;",
+            "",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "",
+            "class DaggerProviderParameter {",
+            "  @Inject",
+            "  void methodInjection(",
+            "      Provider<String> daggerProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger disallows injecting the type: "
+                      + "dagger.internal.Provider<java.lang.String>")
+                  .onSource(file)
+                  .onLineContaining("Provider<String> daggerProviderParameter");
+            });
+  }
+
+  @Test
+  public void daggerProviderConstructorTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerProviderParameter",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "",
+            "class DaggerProviderParameter {",
+            "  @Inject",
+            "  DaggerProviderParameter(",
+            "      Provider<String> daggerProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger disallows injecting the type: "
+                      + "dagger.internal.Provider<java.lang.String>")
+                  .onSource(file)
+                  .onLineContaining("Provider<String> daggerProviderParameter");
+            });
+  }
+
+  @Test
+  public void rawDaggerProviderConstructorTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.RawDaggerProviderParameter",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "",
+            "class RawDaggerProviderParameter {",
+            "  @Inject",
+            "  RawDaggerProviderParameter(",
+            "      Provider rawDaggerProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger disallows injecting the type: dagger.internal.Provider")
+                  .onSource(file)
+                  .onLineContaining("Provider rawDaggerProviderParameter");
+            });
+  }
+
+  @Test
+  public void daggerMapProviderField() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerMapProviderField",
+            "package test;",
+            "",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "import java.util.Map;",
+            "",
+            "class DaggerMapProviderField {",
+            "  @Inject",
+            "  Map<String, Provider<Long>> fieldWithDaggerMapProvider;",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                      "Dagger does not support injecting maps of disallowed types: "
+                      + "java.util.Map<java.lang.String,dagger.internal.Provider<java.lang.Long>>")
+                  .onSource(file)
+                  .onLineContaining("Map<String, Provider<Long>> fieldWithDaggerMapProvider");
+            });
+  }
+
+  @Test
+  public void daggerMapProviderMethodTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerMapProviderParameter",
+            "package test;",
+            "",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "import java.util.Map;",
+            "",
+            "class DaggerMapProviderParameter {",
+            "  @Inject",
+            "  void methodInjection(",
+            "      Map<String, Provider<Long>> daggerMapProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "Dagger does not support injecting maps of disallowed types: "
+                      + "java.util.Map<java.lang.String,dagger.internal.Provider<java.lang.Long>>")
+                  .onSource(file)
+                  .onLineContaining("Map<String, Provider<Long>> daggerMapProviderParameter");
+            });
+  }
+
+  @Test
+  public void daggerMapProviderConstructorTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.DaggerMapProviderParameter",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "import java.util.Map;",
+            "",
+            "class DaggerMapProviderParameter {",
+            "  @Inject",
+            "  DaggerMapProviderParameter(",
+            "      Map<String, Provider<Long>> daggerMapProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "Dagger does not support injecting maps of disallowed types: "
+                  + "java.util.Map<java.lang.String,dagger.internal.Provider<java.lang.Long>>")
+                  .onSource(file)
+                  .onLineContaining("Map<String, Provider<Long>> daggerMapProviderParameter");
+            });
+  }
+
+  @Test
+  public void rawDaggerMapProviderConstructorTypeParameter() {
+    Source file =
+        CompilerTests.javaSource(
+            "test.RawDaggerMapProviderParameter",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import dagger.internal.Provider;",
+            "import javax.inject.Inject;",
+            "import java.util.Map;",
+            "",
+            "class RawDaggerMapProviderParameter {",
+            "  @Inject",
+            "  RawDaggerMapProviderParameter(",
+            "      Map<String, Provider> rawDaggerMapProviderParameter) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(file)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "Dagger does not support injecting maps of disallowed types: "
+                  + "java.util.Map<java.lang.String,dagger.internal.Provider>")
+                  .onSource(file)
+                  .onLineContaining("Map<String, Provider> rawDaggerMapProviderParameter");
             });
   }
 

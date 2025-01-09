@@ -42,6 +42,7 @@ import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -176,6 +177,9 @@ public abstract class BindingElementValidator<E extends XElement> {
     protected void checkType() {
       switch (ContributionType.fromBindingElement(element)) {
         case UNIQUE:
+          // Basic checks on the types
+          bindingElementType().ifPresent(this::checkKeyType);
+
           // Validate that a unique binding is not attempting to bind a framework type. This
           // validation is only appropriate for unique bindings because multibindings may collect
           // framework types.  E.g. Set<Provider<Foo>> is perfectly reasonable.
@@ -185,17 +189,22 @@ public abstract class BindingElementValidator<E extends XElement> {
           // This validation is only appropriate for unique bindings because multibindings may
           // collect assisted types.
           checkAssistedType();
-          // fall through
+
+          // Check for any specifically disallowed types
+          bindingElementType().ifPresent(this::checkDisallowedType);
+          break;
 
         case SET:
           bindingElementType().ifPresent(this::checkSetValueFrameworkType);
           break;
+
         case MAP:
           bindingElementType().ifPresent(this::checkMapValueFrameworkType);
           break;
 
         case SET_VALUES:
           checkSetValuesType();
+          break;
       }
     }
 
@@ -360,7 +369,8 @@ public abstract class BindingElementValidator<E extends XElement> {
      */
     private void checkFrameworkType() {
       if (bindingElementType().filter(FrameworkTypes::isFrameworkType).isPresent()) {
-        report.addError(bindingElements("must not %s framework types", bindingElementTypeVerb()));
+        report.addError(bindingElements("must not %s framework types: %s",
+            bindingElementTypeVerb(), XTypes.toStableString(bindingElementType().get())));
       }
     }
 
@@ -368,16 +378,28 @@ public abstract class BindingElementValidator<E extends XElement> {
       checkKeyType(bindingType);
       if (FrameworkTypes.isSetValueFrameworkType(bindingType)) {
         report.addError(bindingElements(
-            "with @IntoSet/@ElementsIntoSet must not %s framework types",
-            bindingElementTypeVerb()));
+            "with @IntoSet/@ElementsIntoSet must not %s framework types: %s",
+            bindingElementTypeVerb(), XTypes.toStableString(bindingType)));
       }
+      checkDisallowedType(bindingType);
     }
 
     private void checkMapValueFrameworkType(XType bindingType) {
       checkKeyType(bindingType);
       if (FrameworkTypes.isMapValueFrameworkType(bindingType)) {
         report.addError(
-            bindingElements("with @IntoMap must not %s framework types", bindingElementTypeVerb()));
+            bindingElements("with @IntoMap must not %s framework types: %s",
+                bindingElementTypeVerb(), XTypes.toStableString(bindingType)));
+      }
+      checkDisallowedType(bindingType);
+    }
+
+    private void checkDisallowedType(XType bindingType) {
+      // TODO(erichang): Consider if we want to go inside complex types to ban
+      // dagger.internal.Provider as well? E.g. List<dagger.internal.Provider<Foo>>
+      if (FrameworkTypes.isDisallowedType(bindingType)) {
+        report.addError(bindingElements("must not %s disallowed types: %s",
+            bindingElementTypeVerb(), XTypes.toStableString(bindingElementType().get())));
       }
     }
   }

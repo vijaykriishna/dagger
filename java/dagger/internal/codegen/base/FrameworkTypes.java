@@ -55,6 +55,12 @@ public final class FrameworkTypes {
           TypeNames.PROVIDER,
           TypeNames.JAKARTA_PROVIDER);
 
+  // This is a set of types that are disallowed from use, but also aren't framework types in the
+  // sense that they aren't supported. Like we shouldn't try to unwrap these if we see them, though
+  // we shouldn't see them at all if they are correctly caught in validation.
+  private static final ImmutableSet<ClassName> DISALLOWED_TYPES =
+      ImmutableSet.of(TypeNames.DAGGER_PROVIDER);
+
   /** Returns true if the type represents a producer-related framework type. */
   public static boolean isProducerType(XType type) {
     return typeIsOneOf(PRODUCTION_TYPES, type);
@@ -71,6 +77,10 @@ public final class FrameworkTypes {
 
   public static boolean isMapValueFrameworkType(XType type) {
     return typeIsOneOf(MAP_VALUE_FRAMEWORK_TYPES, type);
+  }
+
+  public static boolean isDisallowedType(XType type) {
+    return typeIsOneOf(DISALLOWED_TYPES, type);
   }
 
   private static boolean typeIsOneOf(Set<ClassName> classNames, XType type) {
