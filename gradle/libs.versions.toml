@@ -20,6 +20,7 @@ publishPlugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
+binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.17.0" }
 dagger-kotlinJvm = { id = "dagger.gradle.build.jvm" }
 dagger-publish = { id = "dagger.gradle.build.publish" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
