@@ -34,8 +34,8 @@ import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompil
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.PLUGINS_VISIT_FULL_BINDING_GRAPHS;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_MULTIBINDING_VALIDATION;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.STRICT_SUPERFICIAL_VALIDATION;
+import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_BINDING_GRAPH_FIX;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY;
-import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.USE_LEGACY_BINDING_GRAPH_FACTORY;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.VALIDATE_TRANSITIVE_COMPONENT_DEPENDENCIES;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WARN_IF_INJECTION_FACTORY_NOT_GENERATED_UPSTREAM;
 import static dagger.internal.codegen.compileroption.ProcessingEnvironmentCompilerOptions.Feature.WRITE_PRODUCER_NAME_IN_TOKEN;
@@ -205,8 +205,8 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
   }
 
   @Override
-  public boolean useLegacyBindingGraphFactory() {
-    return isEnabled(USE_LEGACY_BINDING_GRAPH_FACTORY);
+  public boolean useBindingGraphFix() {
+    return isEnabled(USE_BINDING_GRAPH_FIX);
   }
 
   @Override
@@ -342,7 +342,7 @@ public final class ProcessingEnvironmentCompilerOptions extends CompilerOptions 
 
     GENERATED_CLASS_EXTENDS_COMPONENT,
 
-    USE_LEGACY_BINDING_GRAPH_FACTORY(ENABLED),
+    USE_BINDING_GRAPH_FIX,
 
     USE_FRAMEWORK_TYPE_IN_MAP_MULTIBINDING_CONTRIBUTION_KEY,
 

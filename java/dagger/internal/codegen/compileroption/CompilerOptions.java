@@ -119,24 +119,14 @@ public abstract class CompilerOptions {
   public abstract boolean generatedClassExtendsComponent();
 
   /**
-   * Returns {@code true} if Dagger should use the legacy binding graph factory.
+   * Returns {@code true} if Dagger should turn on the binding graph fix.
    *
-   * <p>Note: This flag is only intended to give users time to migrate to the new binding graph
-   * factory. New users should not enable this flag. This flag will be removed in a future release.
+   * <p>Note: This flag is only intended to give users time to migrate. This flag will be removed in
+   * a future release.
    *
-   * <p>The legacy binding graph factory contains a number of bugs which can lead to an incorrect
-   * binding graph (e.g. missing multibindings), can be difficult to debug, and are often dependent
-   * on the ordering of bindings/dependency requests in the user's code.
-   *
-   * <p>The new binding graph factory fixes many of these issues by switching to a well known graph
-   * data structure and algorithms to avoid many of the subtle bugs that plagued the legacy binding
-   * graph factory. However, note that the new binding graph factory also has a behavior change that
-   * could cause issues for some users. Specifically, a module binding is no longer allowed to float
-   * from its installed component into one of its subcomponents in order to satisfy a missing
-   * dependency. Thus, any (transitive) dependencies of the module binding that are missing from the
-   * installed component will now be reported as an error.
+   * <p>See https://dagger.dev/dev-guide/compiler-options#useBindingGraphFix for more details.
    */
-  public abstract boolean useLegacyBindingGraphFactory();
+  public abstract boolean useBindingGraphFix();
 
   /**
    * Returns {@code true} if the key for map multibinding contributions contain a framework type.

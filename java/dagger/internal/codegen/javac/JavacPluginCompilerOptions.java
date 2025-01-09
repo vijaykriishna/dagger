@@ -112,8 +112,8 @@ final class JavacPluginCompilerOptions extends CompilerOptions {
   }
 
   @Override
-  public boolean useLegacyBindingGraphFactory() {
-    return true;
+  public boolean useBindingGraphFix() {
+    return false;
   }
 
   @Override

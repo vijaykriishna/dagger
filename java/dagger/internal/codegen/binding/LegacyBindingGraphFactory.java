@@ -70,7 +70,7 @@ public final class LegacyBindingGraphFactory {
 
   static boolean useLegacyBindingGraphFactory(
       CompilerOptions compilerOptions, ComponentDescriptor componentDescriptor) {
-    return compilerOptions.useLegacyBindingGraphFactory();
+    return !compilerOptions.useBindingGraphFix();
   }
 
   static boolean hasStrictMultibindingsExemption(
