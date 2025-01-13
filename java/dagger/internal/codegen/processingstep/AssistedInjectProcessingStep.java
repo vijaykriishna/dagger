@@ -18,39 +18,36 @@ package dagger.internal.codegen.processingstep;
 
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectAssistedParameters;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedParameter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.InjectValidator;
 import dagger.internal.codegen.validation.ValidationReport;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashSet;
 import java.util.Set;
 import javax.inject.Inject;
 
 /** An annotation processor for {@link dagger.assisted.AssistedInject}-annotated elements. */
 final class AssistedInjectProcessingStep extends TypeCheckingProcessingStep<XConstructorElement> {
-  private final XMessager messager;
   private final InjectValidator injectValidator;
 
   @Inject
-  AssistedInjectProcessingStep(XMessager messager, InjectValidator injectValidator) {
-    this.messager = messager;
+  AssistedInjectProcessingStep(InjectValidator injectValidator) {
     this.injectValidator = injectValidator;
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.ASSISTED_INJECT);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.ASSISTED_INJECT);
   }
 
   @Override
   protected void process(
-      XConstructorElement assistedInjectElement, ImmutableSet<ClassName> annotations) {
+      XConstructorElement assistedInjectElement, ImmutableSet<XClassName> annotations) {
     // The InjectValidator has already run and reported its errors in InjectProcessingStep, so no
     // need to report its errors. However, the AssistedInjectValidator relies on the InjectValidator
     // returning a clean report, so we check that first before running AssistedInjectValidator. This

@@ -28,7 +28,7 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /** A validator for {@link dagger.BindsOptionalOf} methods. */
@@ -41,8 +41,8 @@ final class BindsOptionalOfMethodValidator extends BindingMethodValidator {
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
-        TypeNames.BINDS_OPTIONAL_OF,
-        ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE),
+        XTypeNames.BINDS_OPTIONAL_OF,
+        ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE),
         MUST_BE_ABSTRACT,
         NO_EXCEPTIONS,
         NO_MULTIBINDINGS,

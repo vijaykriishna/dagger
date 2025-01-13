@@ -21,6 +21,7 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.base.ComponentCreatorAnnotation.getCreatorAnnotations;
 import static dagger.internal.codegen.base.ModuleAnnotation.moduleAnnotations;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
+import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
@@ -39,10 +40,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import dagger.internal.codegen.base.ComponentCreatorAnnotation;
 import dagger.internal.codegen.base.ComponentCreatorKind;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 
 /**
@@ -213,8 +214,8 @@ public abstract class ComponentCreatorDescriptor {
       XType parameterType,
       DependencyRequestFactory dependencyRequestFactory,
       XElement elementForVariableName) {
-    if (method.hasAnnotation(TypeNames.BINDS_INSTANCE)
-        || parameter.hasAnnotation(TypeNames.BINDS_INSTANCE)) {
+    if (method.hasAnnotation(XTypeNames.BINDS_INSTANCE)
+        || parameter.hasAnnotation(XTypeNames.BINDS_INSTANCE)) {
       DependencyRequest request =
           dependencyRequestFactory.forRequiredResolvedVariable(parameter, parameterType);
       return ComponentRequirement.forBoundInstance(
@@ -224,7 +225,7 @@ public abstract class ComponentCreatorDescriptor {
           Nullability.of(elementForVariableName));
     }
 
-    return parameterType.getTypeElement().hasAnyAnnotation(moduleAnnotations())
+    return hasAnyAnnotation(parameterType.getTypeElement(), moduleAnnotations())
         ? ComponentRequirement.forModule(parameterType)
         : ComponentRequirement.forDependency(parameterType);
   }

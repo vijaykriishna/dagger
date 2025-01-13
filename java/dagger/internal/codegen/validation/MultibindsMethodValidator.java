@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /** A validator for {@link dagger.multibindings.Multibinds} methods. */
@@ -44,8 +44,8 @@ class MultibindsMethodValidator extends BindingMethodValidator {
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
-        TypeNames.MULTIBINDS,
-        ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE),
+        XTypeNames.MULTIBINDS,
+        ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE),
         MUST_BE_ABSTRACT,
         NO_EXCEPTIONS,
         NO_MULTIBINDINGS,

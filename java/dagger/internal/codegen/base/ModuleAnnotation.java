@@ -18,9 +18,10 @@ package dagger.internal.codegen.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.xprocessing.XAnnotations.getClassName;
+import static dagger.internal.codegen.xprocessing.XAnnotations.asClassName;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
@@ -29,15 +30,14 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** A {@code @Module} or {@code @ProducerModule} annotation. */
 @AutoValue
 public abstract class ModuleAnnotation {
-  private static final ImmutableSet<ClassName> MODULE_ANNOTATIONS =
-      ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE);
+  private static final ImmutableSet<XClassName> MODULE_ANNOTATIONS =
+      ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE);
 
   private XAnnotation annotation;
 
@@ -46,12 +46,12 @@ public abstract class ModuleAnnotation {
     return annotation;
   }
 
-  /** Returns the {@link ClassName} name of the annotation. */
-  public abstract ClassName className();
+  /** Returns the {@link XClassName} name of the annotation. */
+  public abstract XClassName className();
 
   /** The simple name of the annotation. */
   public String simpleName() {
-    return className().simpleName();
+    return XTypeNames.simpleName(className());
   }
 
   /**
@@ -80,11 +80,11 @@ public abstract class ModuleAnnotation {
 
   /** Returns {@code true} if the argument is a {@code @Module} or {@code @ProducerModule}. */
   public static boolean isModuleAnnotation(XAnnotation annotation) {
-    return MODULE_ANNOTATIONS.contains(getClassName(annotation));
+    return MODULE_ANNOTATIONS.contains(asClassName(annotation));
   }
 
   /** The module annotation types. */
-  public static ImmutableSet<ClassName> moduleAnnotations() {
+  public static ImmutableSet<XClassName> moduleAnnotations() {
     return MODULE_ANNOTATIONS;
   }
 
@@ -93,7 +93,7 @@ public abstract class ModuleAnnotation {
         isModuleAnnotation(annotation),
         "%s is not a Module or ProducerModule annotation",
         annotation);
-    ModuleAnnotation moduleAnnotation = new AutoValue_ModuleAnnotation(getClassName(annotation));
+    ModuleAnnotation moduleAnnotation = new AutoValue_ModuleAnnotation(asClassName(annotation));
     moduleAnnotation.annotation = annotation;
     return moduleAnnotation;
   }
@@ -104,7 +104,7 @@ public abstract class ModuleAnnotation {
    */
   public static Optional<ModuleAnnotation> moduleAnnotation(
       XElement element, DaggerSuperficialValidation superficialValidation) {
-    return getAnyAnnotation(element, TypeNames.MODULE, TypeNames.PRODUCER_MODULE)
+    return getAnyAnnotation(element, XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE)
         .map(
             annotation -> {
               superficialValidation.validateAnnotationOf(element, annotation);

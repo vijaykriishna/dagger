@@ -26,8 +26,11 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
+import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
@@ -39,8 +42,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.binding.InjectionAnnotations;
@@ -50,6 +51,7 @@ import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -195,13 +197,13 @@ public final class InjectValidator implements ClearableCache {
         builder.addError("Constructors cannot be annotated with both @Inject and @AssistedInject");
       }
 
-      ClassName injectAnnotation =
+      XClassName injectAnnotation =
           getAnyAnnotation(
                   constructorElement,
-                  TypeNames.INJECT,
-                  TypeNames.INJECT_JAVAX,
-                  TypeNames.ASSISTED_INJECT)
-              .map(XAnnotations::getClassName)
+                  XTypeNames.INJECT,
+                  XTypeNames.INJECT_JAVAX,
+                  XTypeNames.ASSISTED_INJECT)
+              .map(XAnnotations::asClassName)
               .get();
 
       if (constructorElement.isPrivate()) {
@@ -219,7 +221,7 @@ public final class InjectValidator implements ClearableCache {
           builder.addError(
               String.format(
                   "@Qualifier annotations are not allowed on @%s constructors",
-                  injectAnnotation.simpleName()),
+                  simpleName(injectAnnotation)),
               constructorElement,
               qualifier);
         }
@@ -227,10 +229,10 @@ public final class InjectValidator implements ClearableCache {
         String scopeErrorMsg =
             String.format(
                 "@Scope annotations are not allowed on @%s constructors",
-                injectAnnotation.simpleName());
+                simpleName(injectAnnotation));
 
-        if (injectAnnotation.equals(TypeNames.INJECT)
-            || injectAnnotation.equals(TypeNames.INJECT_JAVAX)) {
+        if (injectAnnotation.equals(XTypeNames.INJECT)
+            || injectAnnotation.equals(XTypeNames.INJECT_JAVAX)) {
           scopeErrorMsg += "; annotate the class instead";
         }
 
@@ -249,7 +251,7 @@ public final class InjectValidator implements ClearableCache {
         builder.addItem(
             String.format(
                 "Dagger does not support checked exceptions on @%s constructors",
-                injectAnnotation.simpleName()),
+                simpleName(injectAnnotation)),
             privateMemberDiagnosticKind,
             constructorElement);
       }
@@ -261,7 +263,7 @@ public final class InjectValidator implements ClearableCache {
         builder.addError(
             String.format(
                 "@%s is nonsense on the constructor of an abstract class",
-                injectAnnotation.simpleName()),
+                simpleName(injectAnnotation)),
             constructorElement);
       }
 
@@ -270,14 +272,14 @@ public final class InjectValidator implements ClearableCache {
             String.format(
                 "@%s constructors are invalid on inner classes. "
                     + "Did you mean to make the class static?",
-                injectAnnotation.simpleName()),
+                simpleName(injectAnnotation)),
             constructorElement);
       }
 
       // Note: superficial validation of the annotations is done as part of getting the scopes.
       ImmutableSet<Scope> scopes =
           injectionAnnotations.getScopes(constructorElement.getEnclosingElement());
-      if (injectAnnotation.equals(TypeNames.ASSISTED_INJECT)) {
+      if (injectAnnotation.equals(XTypeNames.ASSISTED_INJECT)) {
         for (Scope scope : scopes) {
           builder.addError(
               "A type with an @AssistedInject-annotated constructor cannot be scoped",
@@ -419,7 +421,7 @@ public final class InjectValidator implements ClearableCache {
       }
 
       Optional.ofNullable(typeElement.getSuperType())
-          .filter(supertype -> !supertype.getTypeName().equals(TypeName.OBJECT))
+          .filter(supertype -> !supertype.asTypeName().equals(XTypeName.ANY_OBJECT))
           .ifPresent(
               supertype -> {
                 superficialValidation.validateSuperTypeOf(typeElement);

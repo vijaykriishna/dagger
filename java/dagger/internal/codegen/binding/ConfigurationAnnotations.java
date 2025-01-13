@@ -22,10 +22,10 @@ import static dagger.internal.codegen.base.ComponentCreatorAnnotation.subcompone
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.Component;
 import dagger.Module;
 import java.util.Optional;
@@ -37,7 +37,7 @@ import java.util.Optional;
 public final class ConfigurationAnnotations {
 
   public static Optional<XTypeElement> getSubcomponentCreator(XTypeElement subcomponent) {
-    checkArgument(subcomponent.hasAnyAnnotation(subcomponentAnnotations()));
+    checkArgument(hasAnyAnnotation(subcomponent, subcomponentAnnotations()));
     return subcomponent.getEnclosedTypeElements().stream()
         .filter(ConfigurationAnnotations::isSubcomponentCreator)
         // TODO(bcorso): Consider doing toOptional() instead since there should be at most 1.
@@ -50,7 +50,7 @@ public final class ConfigurationAnnotations {
 
   /** Returns the enclosed types annotated with the given annotation. */
   public static ImmutableSet<XTypeElement> enclosedAnnotatedTypes(
-      XTypeElement typeElement, ImmutableSet<ClassName> annotations) {
+      XTypeElement typeElement, ImmutableSet<XClassName> annotations) {
     return typeElement.getEnclosedTypeElements().stream()
         .filter(enclosedType -> hasAnyAnnotation(enclosedType, annotations))
         .collect(toImmutableSet());

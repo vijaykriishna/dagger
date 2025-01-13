@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Optional;
 import java.util.Set;
@@ -44,8 +45,8 @@ final class ProducesMethodValidator extends BindingMethodValidator {
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
-        TypeNames.PRODUCES,
-        TypeNames.PRODUCER_MODULE,
+        XTypeNames.PRODUCES,
+        XTypeNames.PRODUCER_MODULE,
         MUST_BE_CONCRETE,
         EXCEPTION,
         ALLOWS_MULTIBINDINGS,

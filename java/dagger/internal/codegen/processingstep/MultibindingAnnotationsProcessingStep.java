@@ -18,12 +18,11 @@ package dagger.internal.codegen.processingstep;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XMessager;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.AnyBindingMethodValidator;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -34,22 +33,19 @@ import javax.inject.Inject;
 final class MultibindingAnnotationsProcessingStep
     extends TypeCheckingProcessingStep<XExecutableElement> {
   private final AnyBindingMethodValidator anyBindingMethodValidator;
-  private final XMessager messager;
 
   @Inject
-  MultibindingAnnotationsProcessingStep(
-      AnyBindingMethodValidator anyBindingMethodValidator, XMessager messager) {
+  MultibindingAnnotationsProcessingStep(AnyBindingMethodValidator anyBindingMethodValidator) {
     this.anyBindingMethodValidator = anyBindingMethodValidator;
-    this.messager = messager;
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.INTO_SET, TypeNames.ELEMENTS_INTO_SET, TypeNames.INTO_MAP);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.INTO_SET, XTypeNames.ELEMENTS_INTO_SET, XTypeNames.INTO_MAP);
   }
 
   @Override
-  protected void process(XExecutableElement method, ImmutableSet<ClassName> annotations) {
+  protected void process(XExecutableElement method, ImmutableSet<XClassName> annotations) {
     if (!anyBindingMethodValidator.isBindingMethod(method)) {
       annotations.forEach(
           annotation ->

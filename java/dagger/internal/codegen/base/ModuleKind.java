@@ -19,12 +19,12 @@ package dagger.internal.codegen.base;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -32,13 +32,13 @@ import java.util.Set;
 /** Enumeration of the kinds of modules. */
 public enum ModuleKind {
   /** {@code @Module} */
-  MODULE(TypeNames.MODULE),
+  MODULE(XTypeNames.MODULE),
 
   /** {@code @ProducerModule} */
-  PRODUCER_MODULE(TypeNames.PRODUCER_MODULE);
+  PRODUCER_MODULE(XTypeNames.PRODUCER_MODULE);
 
   /** Returns the annotations for modules of the given kinds. */
-  private static ImmutableSet<ClassName> annotationsFor(Set<ModuleKind> kinds) {
+  private static ImmutableSet<XClassName> annotationsFor(Set<ModuleKind> kinds) {
     return kinds.stream().map(ModuleKind::annotation).collect(toImmutableSet());
   }
 
@@ -74,9 +74,10 @@ public enum ModuleKind {
     }
   }
 
-  private final ClassName moduleAnnotation;
+  @SuppressWarnings("ImmutableEnumChecker")
+  private final XClassName moduleAnnotation;
 
-  ModuleKind(ClassName moduleAnnotation) {
+  ModuleKind(XClassName moduleAnnotation) {
     this.moduleAnnotation = moduleAnnotation;
   }
 
@@ -95,7 +96,7 @@ public enum ModuleKind {
   }
 
   /** Returns the annotation that marks a module of this kind. */
-  public ClassName annotation() {
+  public XClassName annotation() {
     return moduleAnnotation;
   }
 

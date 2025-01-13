@@ -35,6 +35,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
@@ -658,7 +659,7 @@ public abstract class ComponentDescriptor {
       if (isDeclared(returnType)
               && !injectionAnnotations.getQualifier(componentMethod).isPresent()) {
         XTypeElement returnTypeElement = returnType.getTypeElement();
-        if (returnTypeElement.hasAnyAnnotation(subcomponentAnnotations())) {
+        if (hasAnyAnnotation(returnTypeElement, subcomponentAnnotations())) {
           // It's a subcomponent factory method. There is no dependency request, and there could be
           // any number of parameters. Just return the descriptor.
           return descriptor.subcomponent(subcomponentDescriptor(returnTypeElement)).build();

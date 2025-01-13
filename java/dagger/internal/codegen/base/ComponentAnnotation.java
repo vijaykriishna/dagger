@@ -17,9 +17,10 @@
 package dagger.internal.codegen.base;
 
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
-import static dagger.internal.codegen.xprocessing.XAnnotations.getClassName;
+import static dagger.internal.codegen.xprocessing.XAnnotations.asClassName;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
@@ -28,8 +29,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -42,33 +42,33 @@ import java.util.Optional;
 @AutoValue
 public abstract class ComponentAnnotation {
   /** The root component annotation types. */
-  private static final ImmutableSet<ClassName> ROOT_COMPONENT_ANNOTATIONS =
-      ImmutableSet.of(TypeNames.COMPONENT, TypeNames.PRODUCTION_COMPONENT);
+  private static final ImmutableSet<XClassName> ROOT_COMPONENT_ANNOTATIONS =
+      ImmutableSet.of(XTypeNames.COMPONENT, XTypeNames.PRODUCTION_COMPONENT);
 
   /** The subcomponent annotation types. */
-  private static final ImmutableSet<ClassName> SUBCOMPONENT_ANNOTATIONS =
-      ImmutableSet.of(TypeNames.SUBCOMPONENT, TypeNames.PRODUCTION_SUBCOMPONENT);
+  private static final ImmutableSet<XClassName> SUBCOMPONENT_ANNOTATIONS =
+      ImmutableSet.of(XTypeNames.SUBCOMPONENT, XTypeNames.PRODUCTION_SUBCOMPONENT);
 
   /** All component annotation types. */
-  private static final ImmutableSet<ClassName> ALL_COMPONENT_ANNOTATIONS =
-      ImmutableSet.<ClassName>builder()
+  private static final ImmutableSet<XClassName> ALL_COMPONENT_ANNOTATIONS =
+      ImmutableSet.<XClassName>builder()
           .addAll(ROOT_COMPONENT_ANNOTATIONS)
           .addAll(SUBCOMPONENT_ANNOTATIONS)
           .build();
 
   /** All component and creator annotation types. */
-  private static final ImmutableSet<ClassName> ALL_COMPONENT_AND_CREATOR_ANNOTATIONS =
-      ImmutableSet.<ClassName>builder()
+  private static final ImmutableSet<XClassName> ALL_COMPONENT_AND_CREATOR_ANNOTATIONS =
+      ImmutableSet.<XClassName>builder()
           .addAll(ALL_COMPONENT_ANNOTATIONS)
           .addAll(ComponentCreatorAnnotation.allCreatorAnnotations())
           .build();
 
   /** All production annotation types. */
-  private static final ImmutableSet<ClassName> PRODUCTION_ANNOTATIONS =
+  private static final ImmutableSet<XClassName> PRODUCTION_ANNOTATIONS =
       ImmutableSet.of(
-          TypeNames.PRODUCTION_COMPONENT,
-          TypeNames.PRODUCTION_SUBCOMPONENT,
-          TypeNames.PRODUCER_MODULE);
+          XTypeNames.PRODUCTION_COMPONENT,
+          XTypeNames.PRODUCTION_SUBCOMPONENT,
+          XTypeNames.PRODUCER_MODULE);
 
   private XAnnotation annotation;
 
@@ -77,12 +77,12 @@ public abstract class ComponentAnnotation {
     return annotation;
   }
 
-  /** Returns the {@link ClassName} name of the annotation. */
-  public abstract ClassName className();
+  /** Returns the {@link XClassName} name of the annotation. */
+  public abstract XClassName className();
 
   /** The simple name of the annotation type. */
   public final String simpleName() {
-    return className().simpleName();
+    return XTypeNames.simpleName(className());
   }
 
   /**
@@ -172,7 +172,7 @@ public abstract class ComponentAnnotation {
 
   private static Optional<ComponentAnnotation> anyComponentAnnotation(
       XElement element,
-      Collection<ClassName> annotations,
+      Collection<XClassName> annotations,
       DaggerSuperficialValidation superficialValidation) {
     return getAnyAnnotation(element, annotations)
         .map(
@@ -184,7 +184,7 @@ public abstract class ComponentAnnotation {
 
   /** Returns {@code true} if the argument is a component annotation. */
   public static boolean isComponentAnnotation(XAnnotation annotation) {
-    return ALL_COMPONENT_ANNOTATIONS.contains(getClassName(annotation));
+    return ALL_COMPONENT_ANNOTATIONS.contains(asClassName(annotation));
   }
 
   /** Creates a fictional component annotation representing a module. */
@@ -194,28 +194,28 @@ public abstract class ComponentAnnotation {
 
   private static ComponentAnnotation create(XAnnotation annotation) {
     ComponentAnnotation componentAnnotation =
-        new AutoValue_ComponentAnnotation(getClassName(annotation));
+        new AutoValue_ComponentAnnotation(asClassName(annotation));
     componentAnnotation.annotation = annotation;
     return componentAnnotation;
   }
 
   /** The root component annotation types. */
-  public static ImmutableSet<ClassName> rootComponentAnnotations() {
+  public static ImmutableSet<XClassName> rootComponentAnnotations() {
     return ROOT_COMPONENT_ANNOTATIONS;
   }
 
   /** The subcomponent annotation types. */
-  public static ImmutableSet<ClassName> subcomponentAnnotations() {
+  public static ImmutableSet<XClassName> subcomponentAnnotations() {
     return SUBCOMPONENT_ANNOTATIONS;
   }
 
   /** All component annotation types. */
-  public static ImmutableSet<ClassName> allComponentAnnotations() {
+  public static ImmutableSet<XClassName> allComponentAnnotations() {
     return ALL_COMPONENT_ANNOTATIONS;
   }
 
   /** All component and creator annotation types. */
-  public static ImmutableSet<ClassName> allComponentAndCreatorAnnotations() {
+  public static ImmutableSet<XClassName> allComponentAndCreatorAnnotations() {
     return ALL_COMPONENT_AND_CREATOR_ANNOTATIONS;
   }
 }

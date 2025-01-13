@@ -38,11 +38,14 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.javacOverrides;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
+import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.Comparator.comparing;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
@@ -56,7 +59,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import dagger.Component;
 import dagger.internal.codegen.base.ClearableCache;
@@ -206,7 +208,7 @@ public final class ComponentValidator implements ClearableCache {
     private String invalidTypeError() {
       return String.format(
           "@%s may only be applied to an interface or abstract class",
-          componentKind().annotation().simpleName());
+          simpleName(componentKind().annotation()));
     }
 
     private void validateFields() {
@@ -318,7 +320,7 @@ public final class ComponentValidator implements ClearableCache {
             .filter(annotation -> legalSubcomponentAnnotations().contains(annotation.className()));
       }
 
-      private ImmutableSet<ClassName> legalSubcomponentAnnotations() {
+      private ImmutableSet<XClassName> legalSubcomponentAnnotations() {
         return componentKind().legalSubcomponentKinds().stream()
             .map(ComponentKind::annotation)
             .collect(toImmutableSet());
@@ -335,7 +337,7 @@ public final class ComponentValidator implements ClearableCache {
       private void validateSubcomponentFactoryMethod(ComponentAnnotation subcomponentAnnotation) {
         referencedSubcomponents.put(returnType.getTypeElement(), method);
 
-        ImmutableSet<ClassName> legalModuleAnnotations =
+        ImmutableSet<XClassName> legalModuleAnnotations =
             ComponentKind.forAnnotatedElement(returnType.getTypeElement())
                 .get()
                 .legalModuleKinds()
@@ -510,7 +512,7 @@ public final class ComponentValidator implements ClearableCache {
         if (!isDeclared(type)) {
           report.addError(
               XTypes.toStableString(type) + " is not a valid component dependency type");
-        } else if (type.getTypeElement().hasAnyAnnotation(moduleAnnotations())) {
+        } else if (hasAnyAnnotation(type.getTypeElement(), moduleAnnotations())) {
           report.addError(
               XTypes.toStableString(type) + " is a module, which cannot be a component dependency");
         }
@@ -571,7 +573,8 @@ public final class ComponentValidator implements ClearableCache {
     return javacOverrides(overrider, overridden, asTypeElement(overrider.getEnclosingElement()));
   }
 
-  private static Optional<XAnnotation> checkForAnnotations(XType type, Set<ClassName> annotations) {
+  private static Optional<XAnnotation> checkForAnnotations(
+      XType type, Set<XClassName> annotations) {
     return Optional.ofNullable(type.getTypeElement())
         .flatMap(typeElement -> getAnyAnnotation(typeElement, annotations));
   }

@@ -23,11 +23,11 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.ClearableCache;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +37,11 @@ import javax.inject.Singleton;
 /** Validates any binding method. */
 @Singleton
 public final class AnyBindingMethodValidator implements ClearableCache {
-  private final ImmutableMap<ClassName, BindingMethodValidator> validators;
+  private final ImmutableMap<XClassName, BindingMethodValidator> validators;
   private final Map<XMethodElement, ValidationReport> reports = new HashMap<>();
 
   @Inject
-  AnyBindingMethodValidator(ImmutableMap<ClassName, BindingMethodValidator> validators) {
+  AnyBindingMethodValidator(ImmutableMap<XClassName, BindingMethodValidator> validators) {
     this.validators = validators;
   }
 
@@ -51,7 +51,7 @@ public final class AnyBindingMethodValidator implements ClearableCache {
   }
 
   /** Returns the binding method annotations considered by this validator. */
-  public ImmutableSet<ClassName> methodAnnotations() {
+  public ImmutableSet<XClassName> methodAnnotations() {
     return validators.keySet();
   }
 
@@ -90,7 +90,7 @@ public final class AnyBindingMethodValidator implements ClearableCache {
 
   private ValidationReport validateUncached(XMethodElement method) {
     ValidationReport.Builder report = ValidationReport.about(method);
-    ImmutableSet<ClassName> bindingMethodAnnotations =
+    ImmutableSet<XClassName> bindingMethodAnnotations =
         methodAnnotations().stream().filter(method::hasAnnotation).collect(toImmutableSet());
     switch (bindingMethodAnnotations.size()) {
       case 0:
@@ -107,7 +107,9 @@ public final class AnyBindingMethodValidator implements ClearableCache {
             String.format(
                 "%s is annotated with more than one of (%s)",
                 getSimpleName(method),
-                methodAnnotations().stream().map(ClassName::canonicalName).collect(joining(", "))),
+                methodAnnotations().stream()
+                    .map(XClassName::getCanonicalName)
+                    .collect(joining(", "))),
             method);
         break;
     }

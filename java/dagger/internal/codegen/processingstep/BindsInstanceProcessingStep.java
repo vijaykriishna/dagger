@@ -19,15 +19,14 @@ package dagger.internal.codegen.processingstep;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.BindsInstanceMethodValidator;
 import dagger.internal.codegen.validation.BindsInstanceParameterValidator;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -37,25 +36,22 @@ import javax.inject.Inject;
 final class BindsInstanceProcessingStep extends TypeCheckingProcessingStep<XElement> {
   private final BindsInstanceMethodValidator methodValidator;
   private final BindsInstanceParameterValidator parameterValidator;
-  private final XMessager messager;
 
   @Inject
   BindsInstanceProcessingStep(
       BindsInstanceMethodValidator methodValidator,
-      BindsInstanceParameterValidator parameterValidator,
-      XMessager messager) {
+      BindsInstanceParameterValidator parameterValidator) {
     this.methodValidator = methodValidator;
     this.parameterValidator = parameterValidator;
-    this.messager = messager;
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.BINDS_INSTANCE);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.BINDS_INSTANCE);
   }
 
   @Override
-  protected void process(XElement element, ImmutableSet<ClassName> annotations) {
+  protected void process(XElement element, ImmutableSet<XClassName> annotations) {
     if (isMethod(element)) {
       methodValidator.validate((XMethodElement) element).printMessagesTo(messager);
     } else if (isMethodParameter(element)) {

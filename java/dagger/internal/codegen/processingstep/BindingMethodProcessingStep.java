@@ -18,33 +18,28 @@ package dagger.internal.codegen.processingstep;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import androidx.room.compiler.processing.XMessager;
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.validation.AnyBindingMethodValidator;
 import javax.inject.Inject;
 
 /** A step that validates all binding methods that were not validated while processing modules. */
 final class BindingMethodProcessingStep extends TypeCheckingProcessingStep<XMethodElement> {
-
-  private final XMessager messager;
   private final AnyBindingMethodValidator anyBindingMethodValidator;
 
   @Inject
-  BindingMethodProcessingStep(
-      XMessager messager, AnyBindingMethodValidator anyBindingMethodValidator) {
-    this.messager = messager;
+  BindingMethodProcessingStep(AnyBindingMethodValidator anyBindingMethodValidator) {
     this.anyBindingMethodValidator = anyBindingMethodValidator;
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
+  public ImmutableSet<XClassName> annotationClassNames() {
     return anyBindingMethodValidator.methodAnnotations();
   }
 
   @Override
-  protected void process(XMethodElement method, ImmutableSet<ClassName> annotations) {
+  protected void process(XMethodElement method, ImmutableSet<XClassName> annotations) {
     checkArgument(
         anyBindingMethodValidator.isBindingMethod(method),
         "%s is not annotated with any of %s",

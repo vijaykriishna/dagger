@@ -19,25 +19,24 @@ package dagger.internal.codegen.processingstep;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.DelegateDeclaration;
 import dagger.internal.codegen.binding.ProductionBinding;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.ModuleValidator;
 import dagger.internal.codegen.validation.ValidationReport;
 import dagger.internal.codegen.writing.InaccessibleMapKeyProxyGenerator;
 import dagger.internal.codegen.writing.ModuleGenerator;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
@@ -47,7 +46,6 @@ import javax.inject.Inject;
  * methods.
  */
 final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement> {
-  private final XMessager messager;
   private final ModuleValidator moduleValidator;
   private final BindingFactory bindingFactory;
   private final SourceFileGenerator<ContributionBinding> factoryGenerator;
@@ -59,7 +57,6 @@ final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement
 
   @Inject
   ModuleProcessingStep(
-      XMessager messager,
       ModuleValidator moduleValidator,
       BindingFactory bindingFactory,
       SourceFileGenerator<ContributionBinding> factoryGenerator,
@@ -67,7 +64,6 @@ final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement
       @ModuleGenerator SourceFileGenerator<XTypeElement> moduleConstructorProxyGenerator,
       InaccessibleMapKeyProxyGenerator inaccessibleMapKeyProxyGenerator,
       DelegateDeclaration.Factory delegateDeclarationFactory) {
-    this.messager = messager;
     this.moduleValidator = moduleValidator;
     this.bindingFactory = bindingFactory;
     this.factoryGenerator = factoryGenerator;
@@ -78,8 +74,8 @@ final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE);
   }
 
   @Override
@@ -95,7 +91,7 @@ final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement
   }
 
   @Override
-  protected void process(XTypeElement module, ImmutableSet<ClassName> annotations) {
+  protected void process(XTypeElement module, ImmutableSet<XClassName> annotations) {
     if (processedModuleElements.contains(module)) {
       return;
     }
@@ -121,11 +117,11 @@ final class ModuleProcessingStep extends TypeCheckingProcessingStep<XTypeElement
 
   private void generateForMethodsIn(XTypeElement module) {
     for (XMethodElement method : module.getDeclaredMethods()) {
-      if (method.hasAnnotation(TypeNames.PROVIDES)) {
+      if (method.hasAnnotation(XTypeNames.PROVIDES)) {
         generate(factoryGenerator, bindingFactory.providesMethodBinding(method, module));
-      } else if (method.hasAnnotation(TypeNames.PRODUCES)) {
+      } else if (method.hasAnnotation(XTypeNames.PRODUCES)) {
         generate(producerFactoryGenerator, bindingFactory.producesMethodBinding(method, module));
-      } else if (method.hasAnnotation(TypeNames.BINDS)) {
+      } else if (method.hasAnnotation(XTypeNames.BINDS)) {
         inaccessibleMapKeyProxyGenerator.generate(bindsMethodBinding(module, method), messager);
       }
     }

@@ -19,9 +19,11 @@ package dagger.internal.codegen.validation;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.getEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
+import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
@@ -33,12 +35,13 @@ import com.google.errorprone.annotations.FormatMethod;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** A validator for methods that represent binding declarations. */
 abstract class BindingMethodValidator extends BindingElementValidator<XMethodElement> {
-  private final ClassName methodAnnotation;
-  private final ImmutableSet<ClassName> enclosingElementAnnotations;
+  private final XClassName methodAnnotation;
+  private final ImmutableSet<XClassName> enclosingElementAnnotations;
   private final Abstractness abstractness;
   private final ExceptionSuperclass exceptionSuperclass;
   private final XProcessingEnv processingEnv;
@@ -52,8 +55,8 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
    *     with this annotation
    */
   protected BindingMethodValidator(
-      ClassName methodAnnotation,
-      ClassName enclosingElementAnnotation,
+      XClassName methodAnnotation,
+      XClassName enclosingElementAnnotation,
       Abstractness abstractness,
       ExceptionSuperclass exceptionSuperclass,
       AllowsMultibindings allowsMultibindings,
@@ -81,8 +84,8 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
    *     annotated with one of these annotations
    */
   protected BindingMethodValidator(
-      ClassName methodAnnotation,
-      Iterable<ClassName> enclosingElementAnnotations,
+      XClassName methodAnnotation,
+      Iterable<XClassName> enclosingElementAnnotations,
       Abstractness abstractness,
       ExceptionSuperclass exceptionSuperclass,
       AllowsMultibindings allowsMultibindings,
@@ -100,7 +103,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
   }
 
   /** The annotation that identifies binding methods validated by this object. */
-  final ClassName methodAnnotation() {
+  final XClassName methodAnnotation() {
     return methodAnnotation;
   }
 
@@ -116,7 +119,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
 
   @Override
   protected final String bindingElements() {
-    return String.format("@%s methods", methodAnnotation.simpleName());
+    return String.format("@%s methods", simpleName(methodAnnotation));
   }
 
   @Override
@@ -174,7 +177,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
             bindingMethods(
                 "can only be present within a @%s",
                 enclosingElementAnnotations.stream()
-                    .map(ClassName::simpleName)
+                    .map(XTypeNames::simpleName)
                     .collect(joining(" or @"))));
       }
     }

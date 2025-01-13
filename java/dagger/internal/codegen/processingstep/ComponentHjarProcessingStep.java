@@ -21,10 +21,9 @@ import static dagger.internal.codegen.base.ComponentAnnotation.rootComponentAnno
 import static dagger.internal.codegen.base.ComponentCreatorAnnotation.rootComponentCreatorAnnotations;
 import static java.util.Collections.disjoint;
 
-import androidx.room.compiler.processing.XMessager;
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ComponentDescriptor;
@@ -48,7 +47,6 @@ import javax.inject.Inject;
  * normal step. Method bodies are omitted as Turbine ignores them entirely.
  */
 final class ComponentHjarProcessingStep extends TypeCheckingProcessingStep<XTypeElement> {
-  private final XMessager messager;
   private final ComponentValidator componentValidator;
   private final ComponentCreatorValidator creatorValidator;
   private final ComponentDescriptor.Factory componentDescriptorFactory;
@@ -56,12 +54,10 @@ final class ComponentHjarProcessingStep extends TypeCheckingProcessingStep<XType
 
   @Inject
   ComponentHjarProcessingStep(
-      XMessager messager,
       ComponentValidator componentValidator,
       ComponentCreatorValidator creatorValidator,
       ComponentDescriptor.Factory componentDescriptorFactory,
       SourceFileGenerator<ComponentDescriptor> componentGenerator) {
-    this.messager = messager;
     this.componentValidator = componentValidator;
     this.creatorValidator = creatorValidator;
     this.componentDescriptorFactory = componentDescriptorFactory;
@@ -69,7 +65,7 @@ final class ComponentHjarProcessingStep extends TypeCheckingProcessingStep<XType
   }
 
   @Override
-  public Set<ClassName> annotationClassNames() {
+  public Set<XClassName> annotationClassNames() {
     return union(rootComponentAnnotations(), rootComponentCreatorAnnotations());
   }
 
@@ -78,7 +74,7 @@ final class ComponentHjarProcessingStep extends TypeCheckingProcessingStep<XType
   // clause for any exception that's not TypeNotPresentException and ignore the component entirely
   // in that case.
   @Override
-  protected void process(XTypeElement element, ImmutableSet<ClassName> annotations) {
+  protected void process(XTypeElement element, ImmutableSet<XClassName> annotations) {
     if (!disjoint(annotations, rootComponentAnnotations())) {
       processRootComponent(element);
     }

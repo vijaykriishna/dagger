@@ -34,10 +34,13 @@ import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.hasTypeParameters;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isEffectivelyPrivate;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isEffectivelyPublic;
+import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.areEquivalentTypes;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XMethodElement;
@@ -52,8 +55,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.ComponentCreatorAnnotation;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ModuleKind;
@@ -66,6 +67,7 @@ import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -84,17 +86,17 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class ModuleValidator {
-  private static final ImmutableSet<ClassName> SUBCOMPONENT_TYPES =
-      ImmutableSet.of(TypeNames.SUBCOMPONENT, TypeNames.PRODUCTION_SUBCOMPONENT);
-  private static final ImmutableSet<ClassName> SUBCOMPONENT_CREATOR_TYPES =
+  private static final ImmutableSet<XClassName> SUBCOMPONENT_TYPES =
+      ImmutableSet.of(XTypeNames.SUBCOMPONENT, XTypeNames.PRODUCTION_SUBCOMPONENT);
+  private static final ImmutableSet<XClassName> SUBCOMPONENT_CREATOR_TYPES =
       ImmutableSet.of(
-          TypeNames.SUBCOMPONENT_BUILDER,
-          TypeNames.SUBCOMPONENT_FACTORY,
-          TypeNames.PRODUCTION_SUBCOMPONENT_BUILDER,
-          TypeNames.PRODUCTION_SUBCOMPONENT_FACTORY);
+          XTypeNames.SUBCOMPONENT_BUILDER,
+          XTypeNames.SUBCOMPONENT_FACTORY,
+          XTypeNames.PRODUCTION_SUBCOMPONENT_BUILDER,
+          XTypeNames.PRODUCTION_SUBCOMPONENT_FACTORY);
   private static final Optional<Class<?>> ANDROID_PROCESSOR;
-  private static final ClassName CONTRIBUTES_ANDROID_INJECTOR_NAME =
-      ClassName.get("dagger.android", "ContributesAndroidInjector");
+  private static final XClassName CONTRIBUTES_ANDROID_INJECTOR_NAME =
+      XClassName.get("dagger.android", "ContributesAndroidInjector");
   private static final String ANDROID_PROCESSOR_NAME = "dagger.android.processor.AndroidProcessor";
 
   static {
@@ -186,7 +188,7 @@ public final class ModuleValidator {
       builder.addError(
           String.format(
               "A @%s may not contain both non-static and abstract binding methods",
-              moduleKind.annotation().simpleName()));
+              simpleName(moduleKind.annotation())));
     }
 
     validateModuleVisibility(module, moduleKind, builder);
@@ -235,7 +237,7 @@ public final class ModuleValidator {
                         .addError(
                             String.format(
                                 "@%s was used, but %s was not found on the processor path",
-                                CONTRIBUTES_ANDROID_INJECTOR_NAME.simpleName(),
+                                simpleName(CONTRIBUTES_ANDROID_INJECTOR_NAME),
                                 ANDROID_PROCESSOR_NAME))
                         .build()));
   }
@@ -246,7 +248,7 @@ public final class ModuleValidator {
       return;
     }
     XTypeElement currentClass = module;
-    while (!currentClass.getSuperType().getTypeName().equals(TypeName.OBJECT)) {
+    while (!currentClass.getSuperType().asTypeName().equals(XTypeName.ANY_OBJECT)) {
       currentClass = currentClass.getSuperType().getTypeElement();
       currentClass.getDeclaredMethods().stream()
           .filter(anyBindingMethodValidator::isBindingMethod)
@@ -258,7 +260,7 @@ public final class ModuleValidator {
                       String.format(
                           "@%s-annotated Kotlin object cannot inherit instance (i.e. non-abstract, "
                               + "non-JVM static) binding method: %s",
-                          moduleKind.annotation().simpleName(),
+                          simpleName(moduleKind.annotation()),
                           methodSignatureFormatter.format(method))));
     }
   }
@@ -430,7 +432,7 @@ public final class ModuleValidator {
             includedModule);
       }
 
-      ImmutableSet<ClassName> validModuleAnnotations =
+      ImmutableSet<XClassName> validModuleAnnotations =
           validModuleKinds.stream().map(ModuleKind::annotation).collect(toImmutableSet());
       if (!hasAnyAnnotation(module, validModuleAnnotations)) {
         subreport.addError(
@@ -439,7 +441,7 @@ public final class ModuleValidator {
                 module.getQualifiedName(),
                 (validModuleAnnotations.size() > 1 ? "one of " : "")
                     + validModuleAnnotations.stream()
-                        .map(otherClass -> "@" + otherClass.simpleName())
+                        .map(otherClass -> "@" + simpleName(otherClass))
                         .collect(joining(", "))),
             annotatedType,
             annotation,
@@ -501,7 +503,7 @@ public final class ModuleValidator {
     ListMultimap<String, XMethodElement> allMethodsByName =
         MultimapBuilder.hashKeys().arrayListValues().build(moduleMethodsByName);
 
-    while (!currentClass.getSuperType().getTypeName().equals(TypeName.OBJECT)) {
+    while (!currentClass.getSuperType().asTypeName().equals(XTypeName.ANY_OBJECT)) {
       currentClass = currentClass.getSuperType().getTypeElement();
       List<XMethodElement> superclassMethods = currentClass.getDeclaredMethods();
       for (XMethodElement superclassMethod : superclassMethods) {
@@ -555,8 +557,8 @@ public final class ModuleValidator {
                     + "abstract or static.",
                 formatListForErrorMessage(
                     invalidVisibilityIncludes.stream()
-                        .map(XTypeElement::getClassName)
-                        .map(ClassName::canonicalName)
+                        .map(XTypeElement::asClassName)
+                        .map(XClassName::getCanonicalName)
                         .collect(toImmutableList()))),
             moduleElement);
       }
@@ -596,7 +598,7 @@ public final class ModuleValidator {
       report.addError(
           String.format(
               "@%ss cannot be scoped. Did you mean to scope a method instead?",
-              moduleKind.annotation().simpleName()),
+              simpleName(moduleKind.annotation())),
           module,
           scope.scopeAnnotation().xprocessing());
     }
@@ -611,7 +613,7 @@ public final class ModuleValidator {
             includedModule ->
                 builder.addError(
                     String.format(
-                        "@%s cannot include themselves.", moduleKind.annotation().simpleName()),
+                        "@%s cannot include themselves.", simpleName(moduleKind.annotation())),
                     module,
                     moduleAnnotation,
                     includedModule));

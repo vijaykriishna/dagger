@@ -20,6 +20,7 @@ import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -30,10 +31,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.writing.LazyMapKeyProxyGenerator;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,7 +49,8 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
 
   // Note: We aggregate @LazyClassKey usages across processing rounds, so we use ClassName instead
   // of XElement as the map key to avoid storing XElement instances across processing rounds.
-  private final SetMultimap<ClassName, ClassName> lazyMapKeysByModule = LinkedHashMultimap.create();
+  private final SetMultimap<XClassName, XClassName> lazyMapKeysByModule =
+      LinkedHashMultimap.create();
   private final LazyMapKeyProxyGenerator lazyMapKeyProxyGenerator;
 
   @Inject
@@ -58,40 +59,40 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.LAZY_CLASS_KEY);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.LAZY_CLASS_KEY);
   }
 
   @Override
-  protected void process(XElement element, ImmutableSet<ClassName> annotations) {
-    ClassName lazyClassKey =
+  protected void process(XElement element, ImmutableSet<XClassName> annotations) {
+    XClassName lazyClassKey =
         element
-            .getAnnotation(TypeNames.LAZY_CLASS_KEY)
+            .getAnnotation(XTypeNames.LAZY_CLASS_KEY)
             .getAsType("value")
             .getTypeElement()
-            .getClassName();
+            .asClassName();
     // No need to fail, since we want to support customized usage of class key annotations.
     // https://github.com/google/dagger/pull/2831
     if (!isMapBinding(element) || !isModuleOrProducerModule(element.getEnclosingElement())) {
       return;
     }
     XTypeElement moduleElement = XElements.asTypeElement(element.getEnclosingElement());
-    lazyMapKeysByModule.put(moduleElement.getClassName(), lazyClassKey);
+    lazyMapKeysByModule.put(moduleElement.asClassName(), lazyClassKey);
     XMethodElement method = XElements.asMethod(element);
     lazyMapKeyProxyGenerator.generate(method);
   }
 
   private static boolean isMapBinding(XElement element) {
-    return element.hasAnnotation(TypeNames.INTO_MAP)
-        && (element.hasAnnotation(TypeNames.BINDS)
-            || element.hasAnnotation(TypeNames.PROVIDES)
-            || element.hasAnnotation(TypeNames.PRODUCES));
+    return element.hasAnnotation(XTypeNames.INTO_MAP)
+        && (element.hasAnnotation(XTypeNames.BINDS)
+            || element.hasAnnotation(XTypeNames.PROVIDES)
+            || element.hasAnnotation(XTypeNames.PRODUCES));
   }
 
   private static boolean isModuleOrProducerModule(XElement element) {
     return isTypeElement(element)
-        && (element.hasAnnotation(TypeNames.MODULE)
-            || element.hasAnnotation(TypeNames.PRODUCER_MODULE));
+        && (element.hasAnnotation(XTypeNames.MODULE)
+            || element.hasAnnotation(XTypeNames.PRODUCER_MODULE));
   }
 
   // TODO(b/386393062): Avoid generating proguard files in processOver.
@@ -108,8 +109,7 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
               // would require appending the method name to each proguard file, which would probably
               // cause issues with the filename length limit (256 characters) given it already must
               // include the module's fully qualified name.
-              XTypeElement originatingElement =
-                  env.requireTypeElement(moduleClassName.canonicalName());
+              XTypeElement originatingElement = env.requireTypeElement(moduleClassName);
 
               Path proguardFile =
                   Path.of(
@@ -118,7 +118,7 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
 
               String proguardFileContents =
                   lazyClassKeys.stream()
-                      .map(lazyClassKey -> PROGUARD_KEEP_RULE + lazyClassKey.canonicalName())
+                      .map(lazyClassKey -> PROGUARD_KEEP_RULE + lazyClassKey.getCanonicalName())
                       .collect(joining("\n"));
 
               writeResource(env.getFiler(), originatingElement, proguardFile, proguardFileContents);
@@ -139,12 +139,12 @@ final class LazyClassKeyProcessingStep extends TypeCheckingProcessingStep<XEleme
   }
 
   /** Returns the fully qualified class name, with _ instead of . */
-  private static String getFullyQualifiedEnclosedClassName(ClassName className) {
+  private static String getFullyQualifiedEnclosedClassName(XClassName className) {
     return Joiner.on('_')
         .join(
             ImmutableList.<String>builder()
-                .add(className.packageName().replace('.', '_'))
-                .addAll(className.simpleNames())
+                .add(className.getPackageName().replace('.', '_'))
+                .addAll(className.getSimpleNames())
                 .build());
   }
 }

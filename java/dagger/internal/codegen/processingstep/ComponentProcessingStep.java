@@ -23,13 +23,12 @@ import static dagger.internal.codegen.base.ComponentAnnotation.subcomponentAnnot
 import static dagger.internal.codegen.base.ComponentCreatorAnnotation.allCreatorAnnotations;
 import static java.util.Collections.disjoint;
 
-import androidx.room.compiler.processing.XMessager;
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.BindingGraphFactory;
@@ -47,7 +46,6 @@ import javax.inject.Inject;
  * as part of the {@link ComponentProcessor}.
  */
 final class ComponentProcessingStep extends TypeCheckingProcessingStep<XTypeElement> {
-  private final XMessager messager;
   private final ComponentValidator componentValidator;
   private final ComponentCreatorValidator creatorValidator;
   private final ComponentDescriptorValidator componentDescriptorValidator;
@@ -58,7 +56,6 @@ final class ComponentProcessingStep extends TypeCheckingProcessingStep<XTypeElem
 
   @Inject
   ComponentProcessingStep(
-      XMessager messager,
       ComponentValidator componentValidator,
       ComponentCreatorValidator creatorValidator,
       ComponentDescriptorValidator componentDescriptorValidator,
@@ -66,7 +63,6 @@ final class ComponentProcessingStep extends TypeCheckingProcessingStep<XTypeElem
       BindingGraphFactory bindingGraphFactory,
       SourceFileGenerator<BindingGraph> componentGenerator,
       BindingGraphValidator bindingGraphValidator) {
-    this.messager = messager;
     this.componentValidator = componentValidator;
     this.creatorValidator = creatorValidator;
     this.componentDescriptorValidator = componentDescriptorValidator;
@@ -77,12 +73,12 @@ final class ComponentProcessingStep extends TypeCheckingProcessingStep<XTypeElem
   }
 
   @Override
-  public Set<ClassName> annotationClassNames() {
+  public Set<XClassName> annotationClassNames() {
     return union(allComponentAnnotations(), allCreatorAnnotations());
   }
 
   @Override
-  protected void process(XTypeElement element, ImmutableSet<ClassName> annotations) {
+  protected void process(XTypeElement element, ImmutableSet<XClassName> annotations) {
     if (!disjoint(annotations, rootComponentAnnotations())) {
       processRootComponent(element);
     }

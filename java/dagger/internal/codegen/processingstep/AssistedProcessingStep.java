@@ -24,15 +24,14 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.ValidationReport;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -42,22 +41,20 @@ import javax.inject.Inject;
  */
 final class AssistedProcessingStep extends TypeCheckingProcessingStep<XExecutableParameterElement> {
   private final InjectionAnnotations injectionAnnotations;
-  private final XMessager messager;
 
   @Inject
-  AssistedProcessingStep(InjectionAnnotations injectionAnnotations, XMessager messager) {
+  AssistedProcessingStep(InjectionAnnotations injectionAnnotations) {
     this.injectionAnnotations = injectionAnnotations;
-    this.messager = messager;
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.ASSISTED);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.ASSISTED);
   }
 
   @Override
   protected void process(
-      XExecutableParameterElement assisted, ImmutableSet<ClassName> annotations) {
+      XExecutableParameterElement assisted, ImmutableSet<XClassName> annotations) {
     new AssistedValidator().validate(assisted).printMessagesTo(messager);
   }
 
@@ -90,7 +87,7 @@ final class AssistedProcessingStep extends TypeCheckingProcessingStep<XExecutabl
 
   private boolean isAssistedInjectConstructor(XExecutableElement executableElement) {
     return isConstructor(executableElement)
-        && executableElement.hasAnnotation(TypeNames.ASSISTED_INJECT);
+        && executableElement.hasAnnotation(XTypeNames.ASSISTED_INJECT);
   }
 
   private boolean isAssistedFactoryCreateMethod(XExecutableElement executableElement) {

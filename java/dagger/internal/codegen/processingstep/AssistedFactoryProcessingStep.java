@@ -40,6 +40,7 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XFiler;
@@ -66,8 +67,8 @@ import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedPara
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.validation.ValidationReport;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.HashSet;
 import java.util.Optional;
@@ -102,12 +103,12 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.ASSISTED_FACTORY);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.ASSISTED_FACTORY);
   }
 
   @Override
-  protected void process(XTypeElement factory, ImmutableSet<ClassName> annotations) {
+  protected void process(XTypeElement factory, ImmutableSet<XClassName> annotations) {
     ValidationReport report = new AssistedFactoryValidator().validate(factory);
     report.printMessagesTo(messager);
     if (report.isClean()) {

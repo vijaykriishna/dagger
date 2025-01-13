@@ -31,11 +31,11 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** A type that a component needs an instance of. */
@@ -170,13 +170,13 @@ public abstract class ComponentRequirement {
     // in one place; listing individual annotations all over the place is brittle.
     return hasAnyAnnotation(
         method,
-        TypeNames.PROVIDES,
-        TypeNames.PRODUCES,
+        XTypeNames.PROVIDES,
+        XTypeNames.PRODUCES,
         // TODO(ronshapiro): it would be cool to have internal meta-annotations that could describe
         // these, like @AbstractBindingMethod
-        TypeNames.BINDS,
-        TypeNames.MULTIBINDS,
-        TypeNames.BINDS_OPTIONAL_OF);
+        XTypeNames.BINDS,
+        XTypeNames.MULTIBINDS,
+        XTypeNames.BINDS_OPTIONAL_OF);
   }
 
   /** The key for this requirement, if one is available. */

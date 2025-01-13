@@ -18,9 +18,9 @@ package dagger.internal.codegen.validation;
 
 import static com.google.common.collect.Maps.uniqueIndex;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.Module;
 import dagger.Provides;
 
@@ -31,7 +31,7 @@ import dagger.Provides;
 @Module
 public interface BindingMethodValidatorsModule {
   @Provides
-  static ImmutableMap<ClassName, BindingMethodValidator> indexValidators(
+  static ImmutableMap<XClassName, BindingMethodValidator> indexValidators(
       ProvidesMethodValidator providesMethodValidator,
       ProducesMethodValidator producesMethodValidator,
       BindsMethodValidator bindsMethodValidator,

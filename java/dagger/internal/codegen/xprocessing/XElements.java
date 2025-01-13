@@ -31,6 +31,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotated;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
@@ -277,12 +278,12 @@ public final class XElements {
   }
 
   /** Returns {@code true} if {@code annotated} is annotated with any of the given annotations. */
-  public static boolean hasAnyAnnotation(XAnnotated annotated, ClassName... annotations) {
+  public static boolean hasAnyAnnotation(XAnnotated annotated, XClassName... annotations) {
     return hasAnyAnnotation(annotated, ImmutableSet.copyOf(annotations));
   }
 
   /** Returns {@code true} if {@code annotated} is annotated with any of the given annotations. */
-  public static boolean hasAnyAnnotation(XAnnotated annotated, Collection<ClassName> annotations) {
+  public static boolean hasAnyAnnotation(XAnnotated annotated, Collection<XClassName> annotations) {
     return annotations.stream().anyMatch(annotated::hasAnnotation);
   }
 
@@ -291,7 +292,7 @@ public final class XElements {
    * Optional.empty()}.
    */
   public static Optional<XAnnotation> getAnyAnnotation(
-      XAnnotated annotated, ClassName... annotations) {
+      XAnnotated annotated, XClassName... annotations) {
     return getAnyAnnotation(annotated, ImmutableSet.copyOf(annotations));
   }
 
@@ -300,7 +301,7 @@ public final class XElements {
    * Optional.empty()}.
    */
   public static Optional<XAnnotation> getAnyAnnotation(
-      XAnnotated annotated, Collection<ClassName> annotations) {
+      XAnnotated annotated, Collection<XClassName> annotations) {
     return annotations.stream()
         .filter(annotated::hasAnnotation)
         .map(annotated::getAnnotation)

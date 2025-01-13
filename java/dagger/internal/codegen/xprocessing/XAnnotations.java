@@ -21,6 +21,7 @@ import static androidx.room.compiler.processing.compat.XConverters.toJavac;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XProcessingEnv;
@@ -53,6 +54,11 @@ public final class XAnnotations {
   /** Returns the class name of the given annotation */
   public static ClassName getClassName(XAnnotation annotation) {
     return annotation.getType().getTypeElement().getClassName();
+  }
+
+  /** Returns the class name of the given annotation */
+  public static XClassName asClassName(XAnnotation annotation) {
+    return annotation.getType().getTypeElement().asClassName();
   }
 
   private static final Equivalence<XAnnotation> XANNOTATION_EQUIVALENCE =

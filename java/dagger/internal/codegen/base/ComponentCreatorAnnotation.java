@@ -21,55 +21,59 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.extension.DaggerStreams.valuesOf;
 import static java.util.stream.Collectors.mapping;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 /** Simple representation of a component creator annotation type. */
 public enum ComponentCreatorAnnotation {
-  COMPONENT_BUILDER(TypeNames.COMPONENT_BUILDER),
-  COMPONENT_FACTORY(TypeNames.COMPONENT_FACTORY),
-  SUBCOMPONENT_BUILDER(TypeNames.SUBCOMPONENT_BUILDER),
-  SUBCOMPONENT_FACTORY(TypeNames.SUBCOMPONENT_FACTORY),
-  PRODUCTION_COMPONENT_BUILDER(TypeNames.PRODUCTION_COMPONENT_BUILDER),
-  PRODUCTION_COMPONENT_FACTORY(TypeNames.PRODUCTION_COMPONENT_FACTORY),
-  PRODUCTION_SUBCOMPONENT_BUILDER(TypeNames.PRODUCTION_SUBCOMPONENT_BUILDER),
-  PRODUCTION_SUBCOMPONENT_FACTORY(TypeNames.PRODUCTION_SUBCOMPONENT_FACTORY),
+  COMPONENT_BUILDER(XTypeNames.COMPONENT_BUILDER),
+  COMPONENT_FACTORY(XTypeNames.COMPONENT_FACTORY),
+  SUBCOMPONENT_BUILDER(XTypeNames.SUBCOMPONENT_BUILDER),
+  SUBCOMPONENT_FACTORY(XTypeNames.SUBCOMPONENT_FACTORY),
+  PRODUCTION_COMPONENT_BUILDER(XTypeNames.PRODUCTION_COMPONENT_BUILDER),
+  PRODUCTION_COMPONENT_FACTORY(XTypeNames.PRODUCTION_COMPONENT_FACTORY),
+  PRODUCTION_SUBCOMPONENT_BUILDER(XTypeNames.PRODUCTION_SUBCOMPONENT_BUILDER),
+  PRODUCTION_SUBCOMPONENT_FACTORY(XTypeNames.PRODUCTION_SUBCOMPONENT_FACTORY),
   ;
 
-  private final ClassName annotation;
-  private final ComponentCreatorKind creatorKind;
-  private final ClassName componentAnnotation;
+  @SuppressWarnings("ImmutableEnumChecker")
+  private final XClassName annotation;
 
-  ComponentCreatorAnnotation(ClassName annotation) {
+  private final ComponentCreatorKind creatorKind;
+
+  @SuppressWarnings("ImmutableEnumChecker")
+  private final XClassName componentAnnotation;
+
+  ComponentCreatorAnnotation(XClassName annotation) {
     this.annotation = annotation;
-    this.creatorKind = ComponentCreatorKind.valueOf(toUpperCase(annotation.simpleName()));
-    this.componentAnnotation = annotation.enclosingClassName();
+    this.creatorKind = ComponentCreatorKind.valueOf(toUpperCase(XTypeNames.simpleName(annotation)));
+    this.componentAnnotation = XTypeNames.enclosingClassName(annotation);
   }
 
   /** The actual annotation type. */
-  public ClassName annotation() {
+  public XClassName annotation() {
     return annotation;
   }
 
   /** The component annotation type that encloses this creator annotation type. */
-  public final ClassName componentAnnotation() {
+  public final XClassName componentAnnotation() {
     return componentAnnotation;
   }
 
   /** Returns {@code true} if the creator annotation is for a subcomponent. */
   public final boolean isSubcomponentCreatorAnnotation() {
-    return componentAnnotation().simpleName().endsWith("Subcomponent");
+    return XTypeNames.simpleName(componentAnnotation()).endsWith("Subcomponent");
   }
 
   /**
    * Returns {@code true} if the creator annotation is for a production component or subcomponent.
    */
   public final boolean isProductionCreatorAnnotation() {
-    return componentAnnotation().simpleName().startsWith("Production");
+    return XTypeNames.simpleName(componentAnnotation()).startsWith("Production");
   }
 
   /** The creator kind the annotation is associated with. */
@@ -80,16 +84,20 @@ public enum ComponentCreatorAnnotation {
 
   @Override
   public final String toString() {
-    return annotation().canonicalName();
+    return annotation().getCanonicalName();
+  }
+
+  public final String simpleName() {
+    return XTypeNames.simpleName(annotation());
   }
 
   /** Returns all component creator annotations. */
-  public static ImmutableSet<ClassName> allCreatorAnnotations() {
+  public static ImmutableSet<XClassName> allCreatorAnnotations() {
     return stream().collect(toAnnotationClasses());
   }
 
   /** Returns all root component creator annotations. */
-  public static ImmutableSet<ClassName> rootComponentCreatorAnnotations() {
+  public static ImmutableSet<XClassName> rootComponentCreatorAnnotations() {
     return stream()
         .filter(
             componentCreatorAnnotation ->
@@ -98,7 +106,7 @@ public enum ComponentCreatorAnnotation {
   }
 
   /** Returns all subcomponent creator annotations. */
-  public static ImmutableSet<ClassName> subcomponentCreatorAnnotations() {
+  public static ImmutableSet<XClassName> subcomponentCreatorAnnotations() {
     return stream()
         .filter(
             componentCreatorAnnotation ->
@@ -107,7 +115,7 @@ public enum ComponentCreatorAnnotation {
   }
 
   /** Returns all production component creator annotations. */
-  public static ImmutableSet<ClassName> productionCreatorAnnotations() {
+  public static ImmutableSet<XClassName> productionCreatorAnnotations() {
     return stream()
         .filter(
             componentCreatorAnnotation ->
@@ -116,14 +124,12 @@ public enum ComponentCreatorAnnotation {
   }
 
   /** Returns the legal creator annotations for the given {@code componentAnnotation}. */
-  public static ImmutableSet<ClassName> creatorAnnotationsFor(
+  public static ImmutableSet<XClassName> creatorAnnotationsFor(
       ComponentAnnotation componentAnnotation) {
     return stream()
         .filter(
             creatorAnnotation ->
-                creatorAnnotation
-                    .componentAnnotation()
-                    .simpleName()
+                XTypeNames.simpleName(creatorAnnotation.componentAnnotation())
                     .equals(componentAnnotation.simpleName()))
         .collect(toAnnotationClasses());
   }
@@ -137,7 +143,7 @@ public enum ComponentCreatorAnnotation {
     return valuesOf(ComponentCreatorAnnotation.class);
   }
 
-  private static Collector<ComponentCreatorAnnotation, ?, ImmutableSet<ClassName>>
+  private static Collector<ComponentCreatorAnnotation, ?, ImmutableSet<XClassName>>
       toAnnotationClasses() {
     return mapping(ComponentCreatorAnnotation::annotation, toImmutableSet());
   }

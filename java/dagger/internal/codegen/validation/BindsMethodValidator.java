@@ -32,8 +32,8 @@ import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.BindsTypeChecker;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /** A validator for {@link dagger.Binds} methods. */
@@ -49,8 +49,8 @@ final class BindsMethodValidator extends BindingMethodValidator {
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
-        TypeNames.BINDS,
-        ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE),
+        XTypeNames.BINDS,
+        ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE),
         MUST_BE_ABSTRACT,
         NO_EXCEPTIONS,
         ALLOWS_MULTIBINDINGS,

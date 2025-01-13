@@ -23,12 +23,12 @@ import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asField;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Set;
 import javax.inject.Inject;
 
@@ -49,8 +49,8 @@ final class InjectProcessingStep extends TypeCheckingProcessingStep<XElement> {
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.INJECT, TypeNames.INJECT_JAVAX, TypeNames.ASSISTED_INJECT);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.INJECT, XTypeNames.INJECT_JAVAX, XTypeNames.ASSISTED_INJECT);
   }
 
   // Override to avoid prevalidation. The InjectProcessingStep does all of the required validation
@@ -62,7 +62,7 @@ final class InjectProcessingStep extends TypeCheckingProcessingStep<XElement> {
   }
 
   @Override
-  protected void process(XElement injectElement, ImmutableSet<ClassName> annotations) {
+  protected void process(XElement injectElement, ImmutableSet<XClassName> annotations) {
     // Only process an element once to avoid getting duplicate errors when an element is annotated
     // with multiple inject annotations.
     if (processedElements.contains(injectElement)) {

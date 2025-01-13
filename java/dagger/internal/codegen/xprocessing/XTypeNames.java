@@ -22,6 +22,7 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
+import javax.annotation.Nullable;
 
 /** Common names and convenience methods for XPoet {@link XTypeName} usage. */
 public final class XTypeNames {
@@ -287,6 +288,16 @@ public final class XTypeNames {
 
   public static String simpleName(XClassName className) {
     return getLast(className.getSimpleNames());
+  }
+
+  @Nullable
+  public static XClassName enclosingClassName(XClassName className) {
+    int size = className.getSimpleNames().size();
+    return size == 1
+        ? null
+        : XClassName.Companion.get(
+            className.getPackageName(),
+            className.getSimpleNames().subList(0, size - 1).toArray(new String[0]));
   }
 
   private XTypeNames() {}

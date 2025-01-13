@@ -26,7 +26,7 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /** A validator for {@link dagger.Provides} methods. */
@@ -40,8 +40,8 @@ final class ProvidesMethodValidator extends BindingMethodValidator {
       DependencyRequestValidator dependencyRequestValidator,
       InjectionAnnotations injectionAnnotations) {
     super(
-        TypeNames.PROVIDES,
-        ImmutableSet.of(TypeNames.MODULE, TypeNames.PRODUCER_MODULE),
+        XTypeNames.PROVIDES,
+        ImmutableSet.of(XTypeNames.MODULE, XTypeNames.PRODUCER_MODULE),
         MUST_BE_CONCRETE,
         RUNTIME_EXCEPTION,
         ALLOWS_MULTIBINDINGS,
