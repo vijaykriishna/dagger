@@ -22,7 +22,7 @@ package(default_visibility = ["//:src"])
 java_plugin(
     name = "bootstrap",
     generates_api = 1,
-    processor_class = "dagger.internal.codegen.ComponentProcessor",
+    processor_class = "dagger.internal.codegen.BootstrapProcessor",
     deps = [":bootstrap_compiler"],
 )
 
