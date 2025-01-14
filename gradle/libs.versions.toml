@@ -1,6 +1,8 @@
 [versions]
 autoValue = "1.9"
+autoService = "1.0"
 guava = "33.0.0-jre"
+gradleIncap = "0.2"
 jdk = "18"
 junit = "4.13"
 jvmTarget = "1.8"
@@ -14,16 +16,24 @@ truth = "1.4.0"
 auto-common = { module = "com.google.auto:auto-common", version = "1.2.1" }
 auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValue" }
 auto-value-compiler = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
+auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
+auto-service-compiler = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+checkerFramework = { module = "org.checkerframework:checker-compat-qual", version = "2.5.3" }
 findBugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.1" }
+javaFormatter = { module = "com.google.googlejavaformat:google-java-format", version = "1.5" }
 guava-jre = { module = "com.google.guava:guava", version.ref = "guava" }
 guava-failureAccess = { module = "com.google.guava:failureaccess", version = "1.0.1" }
+gradleIncap-annotations = { module = "net.ltgt.gradle.incap:incap", version.ref = "gradleIncap" }
+gradleIncap-compiler = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "gradleIncap" }
 jakarta-inject = { module = "jakarta.inject:jakarta.inject-api", version = "2.0.1" }
 javaPoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-metadataJvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.11.0" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 publishPlugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "publish" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
