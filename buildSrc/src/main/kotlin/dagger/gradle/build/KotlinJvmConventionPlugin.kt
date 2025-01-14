@@ -16,8 +16,10 @@
 
 package dagger.gradle.build
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -30,7 +32,6 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
 
         project.plugins.withId(project.getPluginIdByName("kotlinJvm")) {
             val kotlinProject = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
-            kotlinProject.explicitApi()
             kotlinProject.jvmToolchain {
                 languageVersion.set(JavaLanguageVersion.of(project.getVersionByName("jdk")))
             }
@@ -39,6 +40,10 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
                 apiVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
                 jvmTarget.set(JvmTarget.fromTarget(project.getVersionByName("jvmTarget")))
             }
+
+            val javaProject = project.extensions.getByName("java") as JavaPluginExtension
+            javaProject.sourceCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
+            javaProject.targetCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
         }
     }
 }

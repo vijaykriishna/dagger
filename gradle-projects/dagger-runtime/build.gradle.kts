@@ -38,3 +38,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.guava.jre)
 }
+
+kotlin {
+    explicitApi()
+}
