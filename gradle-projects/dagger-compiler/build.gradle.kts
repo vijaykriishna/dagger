@@ -3,6 +3,7 @@ import dagger.gradle.build.daggerSources
 plugins {
     alias(libs.plugins.dagger.kotlinJvm)
     alias(libs.plugins.dagger.publish)
+    alias(libs.plugins.dagger.shadow)
 }
 
 daggerSources {
@@ -30,7 +31,6 @@ dependencies {
     implementation(project(":dagger"))
     implementation(project(":dagger-spi"))
 
-    implementation(libs.auto.common)
     implementation(libs.auto.value.annotations)
     annotationProcessor(libs.auto.value.compiler)
     implementation(libs.auto.service.annotations)
@@ -51,12 +51,20 @@ dependencies {
 
     annotationProcessor(
         files(project.rootProject.layout.projectDirectory
-            .dir("java/dagger/internal/codegen/bootstrap")
-            .file("bootstrap_compiler_deploy.jar"))
+              .dir("java/dagger/internal/codegen/bootstrap")
+              .file("bootstrap_compiler_deploy.jar"))
     )
-    implementation(
+
+    // These dependencies are shaded into dagger-spi
+    compileOnly(libs.auto.common)
+    compileOnly(
         files(project.rootProject.layout.projectDirectory
-            .dir("java/dagger/internal/codegen/xprocessing")
-            .file("xprocessing.jar"))
+              .dir("java/dagger/internal/codegen/xprocessing")
+              .file("xprocessing.jar"))
     )
+}
+
+shading {
+    relocate("com.google.auto.common", "dagger.spi.internal.shaded.auto.common")
+    relocate("androidx.room", "dagger.spi.internal.shaded.androidx.room")
 }

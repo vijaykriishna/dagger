@@ -3,6 +3,7 @@ import dagger.gradle.build.daggerSources
 plugins {
     alias(libs.plugins.dagger.kotlinJvm)
     alias(libs.plugins.dagger.publish)
+    alias(libs.plugins.dagger.shadow)
 }
 
 daggerSources {
@@ -16,17 +17,30 @@ daggerSources {
     )
 }
 
-// TODO(danysantiago): Shadow / jarjar: 1. xprocessing, 2. auto-common and 3. kotlin-metadata-jvm
 dependencies {
     implementation(project(":dagger"))
 
-    implementation(libs.auto.common)
+    implementation(libs.findBugs)
     implementation(libs.auto.value.annotations)
     annotationProcessor(libs.auto.value.compiler)
-    implementation(libs.findBugs)
-    implementation(libs.javaPoet)
-    implementation(libs.javax.inject)
+    implementation(libs.ksp.api)
     implementation(libs.guava.failureAccess)
     implementation(libs.guava.jre)
-    implementation(libs.ksp.api)
+    implementation(libs.javaPoet)
+    implementation(libs.javax.inject)
+
+    // These dependencies will be shaded (included) within the artifact of this project and are
+    // shared with other processors, such as dagger-compiler.
+    val shaded by configurations.getting
+    shaded(libs.auto.common)
+    shaded(
+        files(project.rootProject.layout.projectDirectory
+              .dir("java/dagger/internal/codegen/xprocessing")
+              .file("xprocessing.jar"))
+    )
+}
+
+shading {
+    relocate("com.google.auto.common", "dagger.spi.internal.shaded.auto.common")
+    relocate("androidx.room", "dagger.spi.internal.shaded.androidx.room")
 }

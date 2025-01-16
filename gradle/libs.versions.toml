@@ -10,6 +10,7 @@ kotlin = "2.0.21"
 kotlinTarget = "1.9"
 ksp = "2.0.21-1.0.28"
 publish = "0.30.0"
+shadow = "8.3.5"
 truth = "1.4.0"
 
 [libraries]
@@ -37,10 +38,13 @@ kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.11.0" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 publishPlugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "publish" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
+shadowPlugin = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [plugins]
 binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.17.0" }
 dagger-kotlinJvm = { id = "dagger.gradle.build.jvm" }
 dagger-publish = { id = "dagger.gradle.build.publish" }
+dagger-shadow = { id = "dagger.gradle.build.shadow" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

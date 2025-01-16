@@ -12,6 +12,7 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.kotlin.gradlePlugin)
     implementation(libs.publishPlugin)
+    implementation(libs.shadowPlugin)
 }
 
 gradlePlugin {
@@ -22,9 +23,15 @@ gradlePlugin {
         }
     }
     plugins {
-      register("publish") {
-        id = libs.plugins.dagger.publish.get().pluginId
-        implementationClass = "dagger.gradle.build.PublishConventionPlugin"
-      }
+        register("publish") {
+            id = libs.plugins.dagger.publish.get().pluginId
+            implementationClass = "dagger.gradle.build.PublishConventionPlugin"
+        }
+    }
+    plugins {
+        register("shadow") {
+            id = libs.plugins.dagger.shadow.get().pluginId
+            implementationClass = "dagger.gradle.build.ShadowConventionPlugin"
+        }
     }
 }
