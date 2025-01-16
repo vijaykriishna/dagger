@@ -24,7 +24,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Verify.verify;
 import static dagger.internal.codegen.javapoet.TypeNames.DOUBLE_CHECK;
 import static dagger.internal.codegen.javapoet.TypeNames.PRODUCER;
-import static dagger.internal.codegen.javapoet.TypeNames.PROVIDER;
 import static dagger.internal.codegen.javapoet.TypeNames.PROVIDER_OF_LAZY;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
@@ -280,7 +279,7 @@ public final class SourceFiles {
     MapType mapType = MapType.from(binding.key());
     switch (binding.bindingType()) {
       case PROVISION:
-        return mapType.valuesAreTypeOf(PROVIDER)
+        return mapType.valuesAreProvider()
             ? XTypeNames.MAP_PROVIDER_FACTORY : XTypeNames.MAP_FACTORY;
       case PRODUCTION:
         return mapType.valuesAreFrameworkType()

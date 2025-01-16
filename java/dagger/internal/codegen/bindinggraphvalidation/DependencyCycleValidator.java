@@ -43,7 +43,6 @@ import dagger.internal.codegen.base.Formatter;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.binding.DependencyRequestFormatter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
@@ -242,7 +241,7 @@ final class DependencyCycleValidator extends ValidationBindingGraphPlugin {
 
       case INSTANCE:
         if (MapType.isMap(requestedType)) {
-          return MapType.from(requestedType).valuesAreTypeOf(TypeNames.PROVIDER);
+          return MapType.from(requestedType).valuesAreProvider();
         }
         // fall through
 

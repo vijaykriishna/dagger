@@ -86,6 +86,11 @@ public abstract class MapType {
     return valueRequestKind() != RequestKind.INSTANCE;
   }
 
+  /** Returns {@code true} if the raw type of {@link #valueType()} is a provider type.*/
+  public boolean valuesAreProvider() {
+    return valuesAreTypeOf(TypeNames.PROVIDER) || valuesAreTypeOf(TypeNames.JAKARTA_PROVIDER);
+  }
+
   /**
    * Returns the map's {@link #valueType()} without any wrapping framework type, if one exists.
    *
@@ -124,19 +129,20 @@ public abstract class MapType {
     }
   }
 
-  /** {@code true} if {@code type} is a {@link java.util.Map} type. */
+  /** Returns {@code true} if {@code type} is a {@link java.util.Map} type. */
   public static boolean isMap(XType type) {
     return isTypeOf(type, TypeNames.MAP);
   }
 
-  /** {@code true} if {@code key.type()} is a {@link java.util.Map} type. */
+  /** Returns {@code true} if {@code key.type()} is a {@link java.util.Map} type. */
   public static boolean isMap(Key key) {
     return isMap(key.type().xprocessing());
   }
 
+  /** Returns {@code true} if the given type is a {@code Map<K, Provider<V>>}. */
   public static boolean isMapOfProvider(XType keyType) {
     if (MapType.isMap(keyType)) {
-      return MapType.from(keyType).valuesAreTypeOf(TypeNames.PROVIDER);
+      return MapType.from(keyType).valuesAreProvider();
     }
     return false;
   }

@@ -101,7 +101,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     MapType mapType = MapType.from(binding.key());
     switch (binding.bindingType()) {
       case PROVISION:
-        return mapType.valuesAreTypeOf(TypeNames.PROVIDER)
+        return mapType.valuesAreProvider()
             ? TypeNames.LAZY_CLASS_KEY_MAP_PROVIDER_FACTORY
             : TypeNames.LAZY_CLASS_KEY_MAP_FACTORY;
       case PRODUCTION:

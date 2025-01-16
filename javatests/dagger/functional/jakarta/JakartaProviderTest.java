@@ -26,6 +26,7 @@ import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
+import dagger.multibindings.LazyClassKey;
 import dagger.multibindings.StringKey;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -75,6 +76,10 @@ public final class JakartaProviderTest {
 
     Map<String, javax.inject.Provider<Bar>> getJavaxProviderMap();
 
+    Map<Class<?>, Provider<Bar>> getJakartaProviderClassMap();
+
+    Map<Class<?>, javax.inject.Provider<Bar>> getJavaxProviderClassMap();
+
     Map<String, Provider<Lazy<Bar>>> getJakartaProviderLazyMap();
 
     Map<String, javax.inject.Provider<Lazy<Bar>>> getJavaxProviderLazyMap();
@@ -103,10 +108,17 @@ public final class JakartaProviderTest {
     Bar() {}
   }
 
+  // Scoped as this forces the generated code to use a Provider instead of inlining
+  // in default mode
+  @TestScope
   public static final class InjectUsages {
     Provider<Bar> jakartaBar;
     Provider<Bar> jakartaQualifiedBar;
     javax.inject.Provider<Bar> javaxQualifiedBar;
+    Map<String, javax.inject.Provider<Bar>> javaxProviderMap;
+    Map<String, Provider<Bar>> jakartaProviderMap;
+    Map<Class<?>, javax.inject.Provider<Bar>> javaxProviderClassMap;
+    Map<Class<?>, Provider<Bar>> jakartaProviderClassMap;
 
     @Inject
     InjectUsages(Provider<Bar> jakartaBar) {
@@ -117,9 +129,18 @@ public final class JakartaProviderTest {
 
     @Inject
     void injectBar(
-        Provider<Bar> jakartaQualifiedBar, javax.inject.Provider<Bar> javaxQualifiedBar) {
+        Provider<Bar> jakartaQualifiedBar,
+        javax.inject.Provider<Bar> javaxQualifiedBar,
+        Map<String, javax.inject.Provider<Bar>> javaxProviderMap,
+        Map<String, Provider<Bar>> jakartaProviderMap,
+        Map<Class<?>, javax.inject.Provider<Bar>> javaxProviderClassMap,
+        Map<Class<?>, Provider<Bar>> jakartaProviderClassMap) {
       this.jakartaQualifiedBar = jakartaQualifiedBar;
       this.javaxQualifiedBar = javaxQualifiedBar;
+      this.javaxProviderMap = javaxProviderMap;
+      this.jakartaProviderMap = jakartaProviderMap;
+      this.javaxProviderClassMap = javaxProviderClassMap;
+      this.jakartaProviderClassMap = jakartaProviderClassMap;
     }
   }
 
@@ -145,6 +166,11 @@ public final class JakartaProviderTest {
     @IntoMap
     @StringKey("bar")
     abstract Bar bindBarIntoMap(Bar bar);
+
+    @Binds
+    @IntoMap
+    @LazyClassKey(Bar.class)
+    abstract Bar bindBarIntoClassMap(Bar bar);
 
     // TODO(b/65118638): Use @Binds @IntoMap Lazy<T> once that works properly.
     @Provides
@@ -210,8 +236,17 @@ public final class JakartaProviderTest {
     assertThat(testComponent.getJakartaProviderMap().get("bar").get()).isSameInstanceAs(
         testComponent.getJavaxProviderMap().get("bar").get());
 
+    assertThat(testComponent.getJakartaProviderClassMap().get(Bar.class).get()).isSameInstanceAs(
+        testComponent.getJavaxProviderClassMap().get(Bar.class).get());
+
     assertThat(testComponent.getJakartaProviderLazyMap().get("bar").get().get()).isSameInstanceAs(
         testComponent.getJavaxProviderLazyMap().get("bar").get().get());
+
+    assertThat(injectUsages.jakartaProviderMap.get("bar").get()).isSameInstanceAs(
+        injectUsages.javaxProviderMap.get("bar").get());
+
+    assertThat(injectUsages.jakartaProviderClassMap.get(Bar.class).get()).isSameInstanceAs(
+        injectUsages.javaxProviderClassMap.get(Bar.class).get());
 
     Map<Long, Provider<Long>> manualJakartaMap = testComponent.getManuallyProvidedJakartaMap();
     assertThat(manualJakartaMap.keySet()).containsExactly(9L);
