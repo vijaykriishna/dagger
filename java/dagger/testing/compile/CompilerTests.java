@@ -74,7 +74,10 @@ public final class CompilerTests {
       ImmutableList.of(
           "-api-version=1.9",
           "-language-version=1.9",
-          "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true");
+          "-jvm-target=11",
+          "-Xjvm-default=all",
+          "-P",
+          "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true");
 
   /** Returns the {@link XProcessingEnv.Backend} for the given {@link CompilationResultSubject}. */
   public static XProcessingEnv.Backend backend(CompilationResultSubject subject) {
