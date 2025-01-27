@@ -161,7 +161,8 @@ public class SubcomponentCreatorValidationTest extends ComponentCreatorTestHelpe
         "  }",
         "}");
     CompilerTests.daggerCompiler(componentFile, childComponentFile)
-        .compile(
+        // TODO(b/381556660): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(
@@ -203,7 +204,8 @@ public class SubcomponentCreatorValidationTest extends ComponentCreatorTestHelpe
         "  }",
         "}");
     CompilerTests.daggerCompiler(componentFile, childComponentFile)
-        .compile(
+        // TODO(b/381556660): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(

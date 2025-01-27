@@ -193,7 +193,8 @@ public class BindsMethodValidationTest {
   @Test
   public void elementsIntoSet_withRawSets() {
     assertThatMethod("@Binds @ElementsIntoSet abstract Set bindRawSet(HashSet hashSet);")
-        .hasError("cannot return a raw Set");
+        // TODO(b/381557054): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyHasError("cannot return a raw Set");
   }
 
   @Test

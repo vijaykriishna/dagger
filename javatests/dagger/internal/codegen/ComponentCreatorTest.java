@@ -180,7 +180,8 @@ public class ComponentCreatorTest extends ComponentCreatorTestHelper {
 
     CompilerTests.daggerCompiler(componentFile)
         .withProcessingOptions(compilerOptions)
-        .compile(
+        // TODO(b/381556660): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(
@@ -215,7 +216,8 @@ public class ComponentCreatorTest extends ComponentCreatorTestHelper {
             "}");
     CompilerTests.daggerCompiler(componentFile)
         .withProcessingOptions(compilerOptions)
-        .compile(
+        // TODO(b/381556660): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(

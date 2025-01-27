@@ -444,7 +444,8 @@ public final class ModuleValidationTest {
             "class OtherModule {}");
 
     CompilerTests.daggerCompiler(module, otherModule)
-        .compile(
+        // TODO(b/381557487): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(2);
               String error =

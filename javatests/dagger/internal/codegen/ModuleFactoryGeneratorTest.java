@@ -995,7 +995,8 @@ public class ModuleFactoryGeneratorTest {
             "  }",
             "}");
     CompilerTests.daggerCompiler(moduleFile, QUALIFIER_A, QUALIFIER_B)
-        .compile(
+        // TODO(b/381557487): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               // There are two errors -- 1 per qualifier.
               subject.hasErrorCount(2);

@@ -297,7 +297,7 @@ public final class InjectConstructorFactoryGeneratorTest {
             "      String s) {}",
             "}");
     CompilerTests.daggerCompiler(file, QUALIFIER_A, QUALIFIER_B)
-        .compile(
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(2);
               subject.hasErrorContaining(
@@ -787,7 +787,8 @@ public final class InjectConstructorFactoryGeneratorTest {
             "      String s) {}",
             "}");
     CompilerTests.daggerCompiler(file, QUALIFIER_A, QUALIFIER_B)
-        .compile(
+        // TODO(b/381557487): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(2);
               subject.hasErrorContaining(

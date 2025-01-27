@@ -310,7 +310,8 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
             "}");
     CompilerTests.daggerCompiler(fooKey, fooKeyModule)
         .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
+        // TODO(b/390652173): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(0);
               PrimitiveByteArraySubject proguardFile =
@@ -350,7 +351,8 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
             "}");
     CompilerTests.daggerCompiler(fooKey, outerClass)
         .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
+        // TODO(b/390652173): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(0);
               PrimitiveByteArraySubject proguardFile =
@@ -411,7 +413,8 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
             "}");
     CompilerTests.daggerCompiler(fooKey, fooKeyModule, barKey, barKeyModule)
         .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
+        // TODO(b/390652173): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(0);
               PrimitiveByteArraySubject fooKeyModuleProguardFile =
@@ -466,7 +469,8 @@ public class LazyClassKeyMapBindingComponentProcessorTest {
             "}");
     CompilerTests.daggerCompiler(fooKey, barKey, fooKeyAndBarKeyModule)
         .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
+        // TODO(b/390652173): Remove legacy KSP1 usage after KSP2 issue has been fixed.
+        .legacyCompile(
             subject -> {
               subject.hasErrorCount(0);
               PrimitiveByteArraySubject proguardFile =
