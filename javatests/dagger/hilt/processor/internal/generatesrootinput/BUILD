@@ -32,6 +32,7 @@ compiler_test(
         "//java/dagger/hilt/android/testing/compile",
         "//java/dagger/hilt/processor/internal:base_processor",
         "//java/dagger/hilt/processor/internal/generatesrootinput:generates_root_inputs",
+        "//java/dagger/internal/codegen/extension",
         "//java/dagger/internal/codegen/xprocessing",
         "//java/dagger/internal/codegen/xprocessing:xprocessing-testing",
         "//third_party/java/javapoet",
