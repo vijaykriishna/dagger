@@ -28,17 +28,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link Factory} implementation used to implement {@link Set} bindings. This factory always
  * returns a new {@link Set} instance for each call to {@link #get} (as required by {@link Factory})
  * whose elements are populated by subsequent calls to their {@link Provider#get} methods.
  */
-public final class SetFactory<T> implements Factory<Set<T>> {
+public final class SetFactory<T extends @Nullable Object> implements Factory<Set<T>> {
   private static final Factory<Set<Object>> EMPTY_FACTORY = InstanceFactory.create(emptySet());
 
   @SuppressWarnings({"unchecked", "rawtypes"}) // safe covariant cast
-  public static <T> Factory<Set<T>> empty() {
+  public static <T extends @Nullable Object> Factory<Set<T>> empty() {
     return (Factory) EMPTY_FACTORY;
   }
 
@@ -47,7 +48,8 @@ public final class SetFactory<T> implements Factory<Set<T>> {
    * individual {@code Provider<T>} and {@code collectionProviderSize} {@code
    * Provider<Collection<T>>} instances.
    */
-  public static <T> Builder<T> builder(int individualProviderSize, int collectionProviderSize) {
+  public static <T extends @Nullable Object> Builder<T> builder(
+      int individualProviderSize, int collectionProviderSize) {
     return new Builder<T>(individualProviderSize, collectionProviderSize);
   }
 
@@ -56,7 +58,7 @@ public final class SetFactory<T> implements Factory<Set<T>> {
    * These are only intended to be single-use and from within generated code. Do <em>NOT</em> add
    * providers after calling {@link #build()}.
    */
-  public static final class Builder<T> {
+  public static final class Builder<T extends @Nullable Object> {
     private final List<Provider<T>> individualProviders;
     private final List<Provider<Collection<T>>> collectionProviders;
 

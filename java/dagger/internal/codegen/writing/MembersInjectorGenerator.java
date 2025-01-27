@@ -363,8 +363,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
               // framework type for the field.
               boolean useRawFrameworkType =
                   !isTypeAccessibleFrom(
-                      request.key().type().xprocessing(),
-                      membersInjectorTypeName.packageName());
+                      request.key().type().xprocessing(), membersInjectorTypeName.packageName());
               TypeName fieldType =
                   useRawFrameworkType
                       ? toJavaPoet(bindingField.type().getRawTypeName())

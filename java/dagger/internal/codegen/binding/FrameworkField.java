@@ -16,11 +16,15 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.XTypeNameKt.toKotlinPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static com.google.common.collect.Iterables.getLast;
+import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.model.BindingKind.MEMBERS_INJECTOR;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
@@ -30,7 +34,9 @@ import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.CaseFormat;
+import com.squareup.javapoet.AnnotationSpec;
 import dagger.internal.codegen.base.MapType;
+import dagger.internal.codegen.xprocessing.Nullability;
 import java.util.Optional;
 
 /**
@@ -56,7 +62,8 @@ public abstract class FrameworkField {
    * @param type the base type of the field (e.g., {@code Foo}).
    */
   public static FrameworkField create(String fieldName, XClassName frameworkClassName, XType type) {
-    return createInternal(fieldName, frameworkClassName, Optional.of(type));
+    return createInternal(
+        fieldName, frameworkClassName, Optional.of(type), Nullability.NOT_NULLABLE);
   }
 
   /**
@@ -70,7 +77,8 @@ public abstract class FrameworkField {
     return createInternal(
         bindingName(binding),
         frameworkClassName.orElse(binding.frameworkType().frameworkClassName()),
-        bindingType(binding));
+        bindingType(binding),
+        binding.nullability());
   }
 
   private static String bindingName(ContributionBinding binding) {
@@ -99,13 +107,28 @@ public abstract class FrameworkField {
   }
 
   private static FrameworkField createInternal(
-      String fieldName, XClassName frameworkClassName, Optional<XType> type) {
+      String fieldName,
+      XClassName frameworkClassName,
+      Optional<XType> type,
+      Nullability nullability) {
+
+    XTypeName fieldType =
+        type.map(XType::asTypeName)
+            .map(
+                typeName ->
+                    toXPoet(
+                        toJavaPoet(typeName)
+                            .annotated(
+                                nullability.typeUseNullableAnnotations().stream()
+                                    .map(AnnotationSpec::builder)
+                                    .map(AnnotationSpec.Builder::build)
+                                    .collect(toImmutableList())),
+                        toKotlinPoet(typeName)))
+            .map(frameworkClassName::parametrizedBy)
+            .orElse(frameworkClassName);
+
     return new AutoValue_FrameworkField(
-        frameworkFieldName(fieldName, frameworkClassName),
-        type.isPresent()
-            ? frameworkClassName.parametrizedBy(type.get().asTypeName())
-            // Use a raw framework classname, e.g. Provider
-            : frameworkClassName);
+        frameworkFieldName(fieldName, frameworkClassName), fieldType);
   }
 
   private static String frameworkFieldName(String fieldName, XClassName frameworkClassName) {

@@ -46,6 +46,13 @@ public class ComponentProcessorTest {
     return CompilerMode.TEST_PARAMETERS;
   }
 
+  private static final Source NULLABLE =
+      CompilerTests.javaSource(
+          "test.Nullable", // force one-string-per-line format
+          "package test;",
+          "",
+          "public @interface Nullable {}");
+
   private static final TypeSpec GENERATED_INJECT_TYPE =
       TypeSpec.classBuilder("GeneratedInjectType")
           .addMethod(
@@ -768,6 +775,48 @@ public class ComponentProcessorTest {
             "}");
 
     CompilerTests.daggerCompiler(aFile, bFile, aComponentFile, bComponentFile)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/DaggerBComponent"));
+            });
+  }
+
+  @Test
+  public void componentWithNullableDependency() throws Exception {
+    Source bFile =
+        CompilerTests.javaSource(
+            "test.B",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "import javax.inject.Provider;",
+            "",
+            "final class B {",
+            "  @Inject B(Provider<String> a) {}",
+            "}");
+    Source nullableStringComponentFile =
+        CompilerTests.javaSource(
+            "test.NullableStringComponent",
+            "package test;",
+            "",
+            "interface NullableStringComponent {",
+            "  @Nullable String nullableString();",
+            "}");
+    Source bComponentFile =
+        CompilerTests.javaSource(
+            "test.BComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "",
+            "@Component(dependencies = NullableStringComponent.class)",
+            "interface BComponent {",
+            "  B b();",
+            "}");
+
+    CompilerTests.daggerCompiler(nullableStringComponentFile, bFile, bComponentFile, NULLABLE)
         .withProcessingOptions(compilerMode.processorOptions())
         .compile(
             subject -> {

@@ -127,7 +127,12 @@ final class DependencyMethodProviderCreationExpression
     componentShard.addType(
         COMPONENT_PROVISION_FACTORY,
         classBuilder(factoryClassName)
-            .addSuperinterface(daggerProviderOf(keyType))
+            .addSuperinterface(
+                daggerProviderOf(
+                    keyType.annotated(
+                        binding.nullability().typeUseNullableAnnotations().stream()
+                            .map(annotation -> AnnotationSpec.builder(annotation).build())
+                            .collect(toImmutableList()))))
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addField(dependencyClassName, dependency().variableName(), PRIVATE, FINAL)
             .addMethod(

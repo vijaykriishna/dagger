@@ -144,9 +144,10 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
         FrameworkField.forBinding(
             binding, frameworkInstanceCreationExpression.alternativeFrameworkClass());
 
-    XTypeName fieldType = useRawType
-        ? contributionBindingField.type().getRawTypeName()
-        : contributionBindingField.type();
+    XTypeName fieldType =
+        useRawType
+            ? contributionBindingField.type().getRawTypeName()
+            : contributionBindingField.type();
 
     if (binding.kind() == BindingKind.ASSISTED_INJECTION) {
       // An assisted injection factory doesn't extend Provider, so we reference the generated

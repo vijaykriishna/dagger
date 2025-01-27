@@ -61,7 +61,7 @@ public final class DaggerCollections {
    * Creates a {@link HashSet} instance, with a high enough "intial capcity" that it <em>should</em>
    * hold {@code expectedSize} elements without growth.
    */
-  static <T> HashSet<T> newHashSetWithExpectedSize(int expectedSize) {
+  static <T extends @Nullable Object> HashSet<T> newHashSetWithExpectedSize(int expectedSize) {
     return new HashSet<T>(calculateInitialCapacity(expectedSize));
   }
 

@@ -452,11 +452,12 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
 
       ImmutableMap.Builder<DependencyRequest, FieldSpec> builder =
           ImmutableMap.builder();
-      generateBindingFieldsForDependencies(binding).forEach(
-          (dependency, field) ->
-              builder.put(
-                  dependency,
-                  createField(toJavaPoet(field.type()), nameSet.getUniqueName(field.name()))));
+      generateBindingFieldsForDependencies(binding)
+          .forEach(
+              (dependency, field) ->
+                  builder.put(
+                      dependency,
+                      createField(toJavaPoet(field.type()), nameSet.getUniqueName(field.name()))));
       return new FactoryFields(binding, moduleField, builder.buildOrThrow());
     }
 
