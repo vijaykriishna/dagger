@@ -1,6 +1,7 @@
 import dagger.gradle.build.daggerSources
 import dagger.gradle.build.findBootstrapCompilerJar
 import dagger.gradle.build.findXProcessingJar
+import dagger.gradle.build.findXProcessingTestingJar
 
 plugins {
   alias(libs.plugins.dagger.kotlinJvm)
@@ -28,6 +29,8 @@ daggerSources {
       "java/dagger/internal/codegen/xprocessing",
     )
   )
+  test.setPackages(listOf("javatests/dagger/internal/codegen"))
+  test.setResources(mapOf("javatests/dagger/internal/codegen/goldens" to "goldens"))
 }
 
 dependencies {
@@ -57,6 +60,24 @@ dependencies {
   // These dependencies are shaded into dagger-spi
   compileOnly(libs.auto.common)
   compileOnly(files(project.findXProcessingJar()))
+
+  testImplementation(project(":dagger-producers"))
+  testImplementation(project(":dagger-testing"))
+
+  testImplementation(libs.junit)
+  testImplementation(libs.truth)
+  testImplementation(libs.auto.common)
+
+  testImplementation(files(project.findXProcessingJar()))
+  testImplementation(files(project.findXProcessingTestingJar()))
+  testImplementation(libs.javaCompileTesting)
+  testImplementation(libs.kotlin.compilerEmbeddable)
+  testImplementation(libs.kotlin.annotationProcessingEmbeddable)
+  testImplementation(libs.ksp)
+  testImplementation(libs.ksp.common)
+  testImplementation(libs.ksp.embeddable)
+
+  testAnnotationProcessor(project(":dagger-compiler"))
 }
 
 shading {

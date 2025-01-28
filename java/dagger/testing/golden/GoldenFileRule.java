@@ -29,7 +29,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-
 /** A test rule that manages golden files for tests. */
 public final class GoldenFileRule implements TestRule {
   /** The generated import used in the golden files */
@@ -109,7 +108,11 @@ public final class GoldenFileRule implements TestRule {
             getFormattedMethodName(description),
             qualifiedName);
 
-    URL url = description.getTestClass().getResource("goldens/" + fileName);
+    String resourceName = "goldens/" + fileName;
+    URL url = description.getTestClass().getResource(resourceName);
+    if (url == null) {
+      url = description.getTestClass().getClassLoader().getResource(resourceName);
+    }
     return url == null
         // If the golden file does not exist, create a fake file with a comment pointing to the
         // missing golden file. This is helpful for scripts that need to generate golden files from

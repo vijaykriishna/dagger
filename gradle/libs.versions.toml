@@ -35,11 +35,16 @@ javaPoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-annotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable", version.ref = "kotlin"  }
+kotlin-compilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-metadataJvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.11.0" }
+ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+ksp-common = { module = "com.google.devtools.ksp:symbol-processing-common-deps", version.ref = "ksp" }
+ksp-embeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embeddable", version.ref = "ksp" }
 publishPlugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "publish" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 shadowPlugin = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }

@@ -17,8 +17,11 @@
 package dagger.gradle.build
 
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -28,7 +31,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
-private typealias JavaSourceSet = org.gradle.api.tasks.SourceSet
+internal typealias JavaSourceSet = org.gradle.api.tasks.SourceSet
 
 @DslMarker annotation class DaggerGradleDsl
 
@@ -39,16 +42,22 @@ class DaggerSourceSet(
   private val javaSourceSets: NamedDomainObjectContainer<JavaSourceSet>,
 ) {
   private val resourceCopyTask: TaskProvider<ResourceCopyTask> =
-    project.tasks.register("copyResources", ResourceCopyTask::class.java) {
-      outputDirectory.set(project.layout.buildDirectory.dir("generated/resources"))
-    }
+    ResourceCopyTask.register(
+      project = project,
+      name = "copyResource",
+      buildDir = project.layout.buildDirectory.dir("generated/main/resources"),
+      kotlinSourceSet = kotlinSourceSets.named("main"),
+      javaSourceSet = javaSourceSets.named("main"),
+    )
 
-  init {
-    listOf(resourceCopyTask.map { it.outputDirectory }).let {
-      kotlinSourceSets.named("main").configure { resources.setSrcDirs(it) }
-      javaSourceSets.named("main").configure { resources.setSrcDirs(it) }
-    }
-  }
+  private val testResourceCopyTask: TaskProvider<ResourceCopyTask> =
+    ResourceCopyTask.register(
+      project = project,
+      name = "testCopyResources",
+      buildDir = project.layout.buildDirectory.dir("generated/test/resources"),
+      kotlinSourceSet = kotlinSourceSets.named("test"),
+      javaSourceSet = javaSourceSets.named("test"),
+    )
 
   /** The main source set */
   val main: SourceSet =
@@ -64,14 +73,11 @@ class DaggerSourceSet(
       }
 
       override fun setResources(resources: Map<String, String>) {
-        resourceCopyTask.configure {
-          val baseDir = project.rootProject.layout.projectDirectory
-          resources.forEach { (resourceFilePath, jarDirectoryPath) ->
-            val resource = baseDir.file(resourceFilePath)
-            resourceSpecs.put(resource.asFile.path, jarDirectoryPath)
-            inputFiles.add(resource)
-          }
-        }
+        configureResourceCopyTask(
+          task = resourceCopyTask,
+          baseDir = project.rootProject.layout.projectDirectory,
+          resources = resources,
+        )
       }
     }
 
@@ -89,9 +95,37 @@ class DaggerSourceSet(
       }
 
       override fun setResources(resources: Map<String, String>) {
-        throw UnsupportedOperationException(
-          "Resources are only configurable for the 'main' source set."
+        configureResourceCopyTask(
+          task = testResourceCopyTask,
+          baseDir = project.rootProject.layout.projectDirectory,
+          resources = resources,
         )
+      }
+    }
+
+  @OptIn(ExperimentalPathApi::class)
+  private fun configureResourceCopyTask(
+    task: TaskProvider<ResourceCopyTask>,
+    baseDir: Directory,
+    resources: Map<String, String>,
+  ) =
+    task.configure {
+      resources.forEach { (resourceFilePath, jarDirectoryPath) ->
+        val filePath = baseDir.asFile.toPath().resolve(resourceFilePath)
+        if (filePath.isDirectory()) {
+          filePath
+            .walk()
+            .filterNot { it.isDirectory() }
+            .forEach {
+              val resource = baseDir.dir(resourceFilePath).file(it.fileName.toString())
+              resourceSpecs.put(it.pathString, jarDirectoryPath)
+              inputFiles.add(resource)
+            }
+        } else {
+          val resource = baseDir.file(resourceFilePath)
+          resourceSpecs.put(resource.asFile.path, jarDirectoryPath)
+          inputFiles.add(resource)
+        }
       }
     }
 
