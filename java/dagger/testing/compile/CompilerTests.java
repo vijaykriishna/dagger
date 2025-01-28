@@ -138,7 +138,17 @@ public final class CompilerTests {
         ImmutableList.copyOf(sources), DEFAULT_PROCESSOR_OPTIONS);
   }
 
-  /** */
+  /**
+   * Used to compile regular java or kotlin sources and use its compiled artifacts as inputs for
+   * further compilation or processing.
+   *
+   * @see DaggerCompiler#withAdditionalClasspath(ImmutableList)
+   */
+  public static LibraryCompiler libraryCompiler(Source... sources) {
+    return new AutoValue_CompilerTests_LibraryCompiler(ImmutableList.copyOf(sources));
+  }
+
+  /** Used to compile regular java or kotlin sources and inspect the elements processed. */
   @AutoValue
   public abstract static class InvocationCompiler {
     /** Returns the sources being compiled */
@@ -162,6 +172,25 @@ public final class CompilerTests {
     }
   }
 
+  /** Used to compile regular java or kotlin sources into a library artifact. */
+  @AutoValue
+  public abstract static class LibraryCompiler {
+    /** Returns the sources being compiled */
+    abstract ImmutableList<Source> sources();
+
+    public ImmutableList<File> compile() {
+      return ImmutableList.copyOf(
+          ProcessorTestExtKt.compileFiles(
+              sources(),
+              /* options= */ ImmutableMap.of(),
+              /* annotationProcessors= */ ImmutableList.of(),
+              /* symbolProcessorProviders= */ ImmutableList.of(),
+              /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
+              /* kotlincArguments= */ DEFAULT_KOTLINC_OPTIONS,
+              /* includeSystemClasspath= */ true));
+    }
+  }
+
   /** Used to compile Dagger sources and inspect the compiled results. */
   @AutoValue
   public abstract static class DaggerCompiler {
@@ -170,6 +199,7 @@ public final class CompilerTests {
       // Set default values
       return builder
           .processorOptions(DEFAULT_PROCESSOR_OPTIONS)
+          .additionalClasspath(ImmutableList.of())
           .additionalJavacProcessors(ImmutableList.of())
           .additionalKspProcessors(ImmutableList.of())
           .processingStepSuppliers(ImmutableSet.of())
@@ -181,6 +211,9 @@ public final class CompilerTests {
 
     /** Returns the annotation processor options */
     abstract ImmutableMap<String, String> processorOptions();
+
+    /** Returns extra files for the classpath. */
+    abstract ImmutableList<File> additionalClasspath();
 
     /** Returns the extra Javac processors. */
     abstract ImmutableCollection<Processor> additionalJavacProcessors();
@@ -204,11 +237,11 @@ public final class CompilerTests {
       return bindingGraphPluginSuppliers().stream().map(Supplier::get).collect(toImmutableList());
     }
 
-    /** Returns a builder with the current values of this {@link Compiler} as default. */
+    /** Returns a builder with the current values of this {@link DaggerCompiler} as default. */
     abstract Builder toBuilder();
 
     /**
-     * Returns a new {@link Compiler} instance with the given processor options.
+     * Returns a new {@link DaggerCompiler} instance with the given processor options.
      *
      * <p>Note that the default processor options are still applied unless they are explicitly
      * overridden by the given processing options.
@@ -220,23 +253,28 @@ public final class CompilerTests {
       return toBuilder().processorOptions(newProcessorOptions).build();
     }
 
-    /** Returns a new {@link HiltCompiler} instance with the additional Javac processors. */
+    /** Returns a new {@link DaggerCompiler} instance with the additional Javac processors. */
     public DaggerCompiler withAdditionalJavacProcessors(Processor... processors) {
       return toBuilder().additionalJavacProcessors(ImmutableList.copyOf(processors)).build();
     }
 
-    /** Returns a new {@link HiltCompiler} instance with the additional KSP processors. */
+    /** Returns a new {@link DaggerCompiler} instance with the additional KSP processors. */
     public DaggerCompiler withAdditionalKspProcessors(SymbolProcessorProvider... processors) {
       return toBuilder().additionalKspProcessors(ImmutableList.copyOf(processors)).build();
     }
 
-    /** Returns a new {@link Compiler} instance with the given processing steps. */
+    /** Returns a new {@link DaggerCompiler} instance with the given processing steps. */
     public DaggerCompiler withProcessingSteps(Supplier<XProcessingStep>... suppliers) {
       return toBuilder().processingStepSuppliers(ImmutableList.copyOf(suppliers)).build();
     }
 
     public DaggerCompiler withBindingGraphPlugins(Supplier<BindingGraphPlugin>... suppliers) {
       return toBuilder().bindingGraphPluginSuppliers(ImmutableList.copyOf(suppliers)).build();
+    }
+
+    /** Returns a new {@link DaggerCompiler} instance with the additional files in the classpath. */
+    public DaggerCompiler withAdditionalClasspath(ImmutableList<File> libs) {
+      return toBuilder().additionalClasspath(libs).build();
     }
 
     public void compile(Consumer<CompilationResultSubject> onCompilationResult) {
@@ -258,7 +296,7 @@ public final class CompilerTests {
         ImmutableList<String> kotlincArguments) {
       ProcessorTestExtKt.runProcessorTest(
           sources().asList(),
-          /* classpath= */ ImmutableList.of(),
+          additionalClasspath(),
           processorOptions(),
           /* javacArguments= */ DEFAULT_JAVAC_OPTIONS,
           /* kotlincArguments= */ kotlincArguments,
@@ -294,6 +332,8 @@ public final class CompilerTests {
     public abstract static class Builder {
       abstract Builder sources(ImmutableCollection<Source> sources);
       abstract Builder processorOptions(Map<String, String> processorOptions);
+
+      abstract Builder additionalClasspath(ImmutableList<File> libs);
 
       abstract Builder additionalJavacProcessors(ImmutableCollection<Processor> processors);
 

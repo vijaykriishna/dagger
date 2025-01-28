@@ -1393,6 +1393,46 @@ public class ComponentProcessorTest {
    */
   @Test
   public void unprocessedMembersInjectorNotes() {
+    Source testClasses =
+        CompilerTests.javaSource(
+            "dagger.internal.codegen.ComponentProcessorTestClasses",
+            "package dagger.internal.codegen;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public final class ComponentProcessorTestClasses {",
+            "  public static final class NoInjectMemberNoConstructor {}",
+            "",
+            "  public static final class NoInjectMemberWithConstructor {",
+            "     @Inject",
+            "     NoInjectMemberWithConstructor() {}",
+            "  }",
+            "",
+            "  public abstract static class LocalInjectMemberNoConstructor {",
+            "    @Inject Object object;",
+            "  }",
+            "",
+            "  public static final class LocalInjectMemberWithConstructor {",
+            "    @SuppressWarnings(\"BadInject\") // Ignore this check as we want to test this case"
+                + " in particular.",
+            "    @Inject Object object;",
+            "",
+            "    @Inject",
+            "    LocalInjectMemberWithConstructor() {}",
+            "  }",
+            "",
+            "  public static final class ParentInjectMemberNoConstructor extends"
+                + " LocalInjectMemberNoConstructor {",
+            "  }",
+            "",
+            "  public static final class ParentInjectMemberWithConstructor",
+            "      extends LocalInjectMemberNoConstructor {",
+            "    @Inject",
+            "    ParentInjectMemberWithConstructor() {}",
+            "  }",
+            "",
+            "  private ComponentProcessorTestClasses() {}",
+            "}");
     Source component =
         CompilerTests.javaSource(
             "test.TestComponent",
@@ -1426,6 +1466,7 @@ public class ComponentProcessorTest {
             "  }",
             "}");
     CompilerTests.daggerCompiler(module, component)
+        .withAdditionalClasspath(CompilerTests.libraryCompiler(testClasses).compile())
         .withProcessingOptions(
             ImmutableMap.<String, String>builder()
                 .putAll(compilerMode.processorOptions())

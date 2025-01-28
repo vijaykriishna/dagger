@@ -34,18 +34,6 @@ kt_jvm_library(
     ],
 )
 
-# These sources are purposely compiled without the Dagger compiler for certain tests.
-java_library(
-    name = "java_lib_no_dagger_compiler",
-    srcs = [
-        "ComponentProcessorTestClasses.java",
-        "InvalidInjectConstructor.java",
-    ],
-    deps = [
-        "//third_party/java/jsr330_inject",
-    ],
-)
-
 # TODO(bcorso): Move this into a subpackage.
 java_library(
     name = "compilers",
@@ -105,7 +93,6 @@ MEDIUM_TESTS = [
 
 DEPS = [
     ":compilers",
-    ":java_lib_no_dagger_compiler",
     ":kt_lib_no_dagger_compiler",
     "//third_party/java/guava/base",
     "//third_party/java/guava/collect",
