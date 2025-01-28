@@ -28,3 +28,8 @@ fun Project.findXProcessingJar(): RegularFile =
   rootProject.layout.projectDirectory
     .dir("java/dagger/internal/codegen/xprocessing")
     .file("xprocessing.jar")
+
+fun Project.findXProcessingTestingJar(): RegularFile =
+  rootProject.layout.projectDirectory
+    .dir("java/dagger/internal/codegen/xprocessing")
+    .file("xprocessing-testing.jar")

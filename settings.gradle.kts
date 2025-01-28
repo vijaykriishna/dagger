@@ -33,3 +33,5 @@ includeProject(
 includeProject(":dagger-producers", "gradle-projects/dagger-producers")
 
 includeProject(":dagger-spi", "gradle-projects/dagger-spi")
+
+includeProject(":dagger-testing", "gradle-projects/dagger-testing")
