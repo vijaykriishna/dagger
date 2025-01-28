@@ -24,70 +24,91 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 
+/**
+ * A convention plugin that sets the default configurations for projects with shading (also know as
+ * jarjaring or shadowing) in Dagger's codebase.
+ *
+ * This plugin can be applied using:
+ * ```
+ * plugins {
+ *   alias(libs.plugins.dagger.shadow)
+ * }
+ * ```
+ *
+ * Shaded dependencies are specify via a configuration created by the plugin:
+ * ```
+ * dependencies {
+ *   shaded(libs.auto.common)
+ * }
+ * ```
+ *
+ * Relocation rules can be specify via an extension created by the plugin:
+ * ```
+ * shading {
+ *   relocate("com.google.auto.common", "dagger.spi.internal.shaded.auto.common")
+ * }
+ * ```
+ */
 class ShadowConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        project.pluginManager.apply(project.getPluginIdByName("shadow"))
+  override fun apply(project: Project) {
+    project.pluginManager.apply(project.getPluginIdByName("shadow"))
 
-        val shadeExtension = project.extensions.create<ShadeExtension>("shading")
+    val shadeExtension = project.extensions.create<ShadeExtension>("shading")
 
-        // Configuration for shaded dependencies
-        val shadedConfiguration = project.configurations.create("shaded") {
-            isCanBeConsumed = false
-            isCanBeResolved = true
-            isTransitive = false // Do not include transitive dependencies of shaded deps
-        }
+    // Configuration for shaded dependencies
+    val shadedConfiguration =
+      project.configurations.create("shaded") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+        isTransitive = false // Do not include transitive dependencies of shaded deps
+      }
 
-        // Shaded dependencies are compile only dependencies
-        project.configurations.named("compileOnly").configure { extendsFrom(shadedConfiguration) }
+    // Shaded dependencies are compile only dependencies
+    project.configurations.named("compileOnly").configure { extendsFrom(shadedConfiguration) }
 
-        val shadowTask = project.tasks.withType<ShadowJar>().named("shadowJar") {
-            // Use no classifier, the shaded jar is the one to be published.
-            archiveClassifier.set("")
-            // Set the 'shaded' configuration as the dependencies configuration to shade
-            configurations = listOf(shadedConfiguration)
-            // Enable service files merging
-            mergeServiceFiles()
-            // Enable package relocation (necessary for project that only relocate but have no
-            // shaded deps)
-            isEnableRelocation = true
+    val shadowTask =
+      project.tasks.withType<ShadowJar>().named("shadowJar") {
+        // Use no classifier, the shaded jar is the one to be published.
+        archiveClassifier.set("")
+        // Set the 'shaded' configuration as the dependencies configuration to shade
+        configurations = listOf(shadedConfiguration)
+        // Enable service files merging
+        mergeServiceFiles()
+        // Enable package relocation (necessary for project that only relocate but have no
+        // shaded deps)
+        isEnableRelocation = true
 
-            shadeExtension.rules.forEach { (from, to) ->
-                relocate(from, to)
-            }
-        }
+        shadeExtension.rules.forEach { (from, to) -> relocate(from, to) }
+      }
 
-        // Change the default jar task classifier to avoid conflicting with the shaded one.
-        project.tasks.withType<Jar>().named("jar").configure {
-            archiveClassifier.set("before-shade")
-        }
+    // Change the default jar task classifier to avoid conflicting with the shaded one.
+    project.tasks.withType<Jar>().named("jar").configure { archiveClassifier.set("before-shade") }
 
-        configureOutgoingArtifacts(project, shadowTask)
+    configureOutgoingArtifacts(project, shadowTask)
+  }
+
+  /**
+   * Configure Gradle consumers (that use Gradle publishing metadata) of the project to use the
+   * shaded jar.
+   *
+   * This is necessary so that the publishing Gradle module metadata references the shaded jar. See
+   * https://github.com/GradleUp/shadow/issues/847
+   */
+  private fun configureOutgoingArtifacts(project: Project, task: TaskProvider<ShadowJar>) {
+    project.configurations.configureEach {
+      if (name == "apiElements" || name == "runtimeElements") {
+        outgoing.artifacts.clear()
+        outgoing.artifact(task)
+      }
     }
-
-    /**
-     * Configure Gradle consumers (that use Gradle publishing metadata) of the project to use the
-     * shaded jar.
-     *
-     * This is necessary so that the publishing Gradle module metadata references the shaded jar.
-     * See https://github.com/GradleUp/shadow/issues/847
-     */
-    private fun configureOutgoingArtifacts(project: Project, task: TaskProvider<ShadowJar>) {
-        project.configurations.configureEach {
-            if (name == "apiElements" || name == "runtimeElements") {
-                outgoing.artifacts.clear()
-                outgoing.artifact(task)
-            }
-        }
-    }
+  }
 }
 
 abstract class ShadeExtension {
-    internal val rules = mutableMapOf<String, String>()
+  internal val rules = mutableMapOf<String, String>()
 
-    fun relocate(fromPackage: String, toPackage: String) {
-        check(!rules.containsKey(fromPackage)) {
-            "Duplicate shading rule declared for $fromPackage"
-        }
-        rules[fromPackage] = toPackage
-    }
+  fun relocate(fromPackage: String, toPackage: String) {
+    check(!rules.containsKey(fromPackage)) { "Duplicate shading rule declared for $fromPackage" }
+    rules[fromPackage] = toPackage
+  }
 }

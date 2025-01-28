@@ -20,30 +20,53 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 
+/**
+ * A convention plugin that sets the default configuration for JVM (Kotlin + Java) projects in
+ * Dagger's codebase. Individual libraries can override these conventions if necessary.
+ *
+ * This plugin can be applied using:
+ * ```
+ * plugins {
+ *   alias(libs.plugins.dagger.kotlinJvm)
+ * }
+ * ```
+ *
+ * Source sets for the project should be configured using the `daggerSources` extension:
+ * ```
+ * daggerSources {
+ *     main.setPackages(
+ *         listOf("dagger", "dagger/internal")
+ *     )
+ *     main.setResources(
+ *         mapOf("dagger/r8.pro" to "META-INF/com.android.tools/r8")
+ *     )
+ *     test.setPackages(
+ *         listOf("dagger", "dagger/internal")
+ *     )
+ * }
+ * ```
+ */
 class KotlinJvmConventionPlugin : Plugin<Project> {
-
-    override fun apply(project: Project) {
-        project.pluginManager.apply(project.getPluginIdByName("kotlinJvm"))
-
-        project.plugins.withId(project.getPluginIdByName("kotlinJvm")) {
-            val kotlinProject = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
-            kotlinProject.jvmToolchain {
-                languageVersion.set(JavaLanguageVersion.of(project.getVersionByName("jdk")))
-            }
-            kotlinProject.compilerOptions.apply {
-                languageVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
-                apiVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
-                jvmTarget.set(JvmTarget.fromTarget(project.getVersionByName("jvmTarget")))
-            }
-
-            val javaProject = project.extensions.getByName("java") as JavaPluginExtension
-            javaProject.sourceCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
-            javaProject.targetCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
-        }
+  override fun apply(project: Project) {
+    project.pluginManager.apply(project.getPluginIdByName("kotlinJvm"))
+    project.plugins.withId(project.getPluginIdByName("kotlinJvm")) {
+      val kotlinProject = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
+      kotlinProject.jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(project.getVersionByName("jdk")))
+      }
+      kotlinProject.compilerOptions.apply {
+        languageVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
+        apiVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
+        jvmTarget.set(JvmTarget.fromTarget(project.getVersionByName("jvmTarget")))
+      }
+      val javaProject = project.extensions.getByName("java") as JavaPluginExtension
+      javaProject.sourceCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
+      javaProject.targetCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
     }
+  }
 }
