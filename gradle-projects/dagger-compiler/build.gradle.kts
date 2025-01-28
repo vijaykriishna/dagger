@@ -1,4 +1,6 @@
 import dagger.gradle.build.daggerSources
+import dagger.gradle.build.findBootstrapCompilerJar
+import dagger.gradle.build.findXProcessingJar
 
 plugins {
   alias(libs.plugins.dagger.kotlinJvm)
@@ -49,23 +51,11 @@ dependencies {
   implementation(libs.kotlinPoet)
   implementation(libs.ksp.api)
 
-  annotationProcessor(
-    files(
-      project.rootProject.layout.projectDirectory
-        .dir("java/dagger/internal/codegen/bootstrap")
-        .file("bootstrap_compiler_deploy.jar")
-    )
-  )
+  annotationProcessor(files(project.findBootstrapCompilerJar()))
 
   // These dependencies are shaded into dagger-spi
   compileOnly(libs.auto.common)
-  compileOnly(
-    files(
-      project.rootProject.layout.projectDirectory
-        .dir("java/dagger/internal/codegen/xprocessing")
-        .file("xprocessing.jar")
-    )
-  )
+  compileOnly(files(project.findXProcessingJar()))
 }
 
 shading {

@@ -1,6 +1,7 @@
 [versions]
-autoValue = "1.9"
+autoFactory = "1.0"
 autoService = "1.0"
+autoValue = "1.9"
 guava = "33.0.0-jre"
 gradleIncap = "0.2"
 jdk = "18"
@@ -15,10 +16,12 @@ truth = "1.4.0"
 
 [libraries]
 auto-common = { module = "com.google.auto:auto-common", version = "1.2.1" }
-auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValue" }
-auto-value-compiler = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
+auto-factory-annotations = { module = "com.google.auto.factory:auto-factory", version.ref = "autoFactory" }
+auto-factory-compiler = { module = "com.google.auto.factory:auto-factory", version.ref = "autoFactory" }
 auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
 auto-service-compiler = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValue" }
+auto-value-compiler = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
 checkerFramework = { module = "org.checkerframework:checker-compat-qual", version = "2.5.3" }
 findBugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.1" }
 javaFormatter = { module = "com.google.googlejavaformat:google-java-format", version = "1.5" }
