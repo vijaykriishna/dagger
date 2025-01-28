@@ -23,11 +23,13 @@ fun includeProject(name: String, path: String) {
 
 includeProject(":dagger", "gradle-projects/dagger-runtime")
 
-includeProject(":dagger-spi", "gradle-projects/dagger-spi")
-
 includeProject(":dagger-compiler", "gradle-projects/dagger-compiler")
 
 includeProject(
   ":dagger-compiler-functional-tests",
   "gradle-projects/dagger-compiler-functional-tests",
 )
+
+includeProject(":dagger-producers", "gradle-projects/dagger-producers")
+
+includeProject(":dagger-spi", "gradle-projects/dagger-spi")
