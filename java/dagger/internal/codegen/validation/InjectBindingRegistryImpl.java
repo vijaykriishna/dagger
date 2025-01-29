@@ -49,7 +49,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.ClassName;
 import dagger.Component;
 import dagger.Provides;
-import dagger.internal.codegen.base.SourceFileGenerationException;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
@@ -98,7 +97,7 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
       this.factoryClass = factoryClass;
     }
 
-    void generateBindings(SourceFileGenerator<B> generator) throws SourceFileGenerationException {
+    void generateBindings(SourceFileGenerator<B> generator) {
       for (B binding = bindingsRequiringGeneration.poll();
           binding != null;
           binding = bindingsRequiringGeneration.poll()) {
@@ -231,8 +230,7 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
   @Override
   public void generateSourcesForRequiredBindings(
       SourceFileGenerator<ContributionBinding> factoryGenerator,
-      SourceFileGenerator<MembersInjectionBinding> membersInjectorGenerator)
-      throws SourceFileGenerationException {
+      SourceFileGenerator<MembersInjectionBinding> membersInjectorGenerator) {
     injectionBindings.generateBindings(factoryGenerator);
     membersInjectionBindings.generateBindings(membersInjectorGenerator);
   }

@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XMethodElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.Component;
 import dagger.Provides;
-import dagger.internal.codegen.base.SourceFileGenerationException;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.model.Key;
 import java.util.Optional;
@@ -69,6 +68,5 @@ public interface InjectBindingRegistry {
    */
   void generateSourcesForRequiredBindings(
       SourceFileGenerator<ContributionBinding> factoryGenerator,
-      SourceFileGenerator<MembersInjectionBinding> membersInjectorGenerator)
-      throws SourceFileGenerationException;
+      SourceFileGenerator<MembersInjectionBinding> membersInjectorGenerator);
 }

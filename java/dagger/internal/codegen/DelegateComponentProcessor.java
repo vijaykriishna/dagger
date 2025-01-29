@@ -30,7 +30,6 @@ import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 import dagger.internal.codegen.base.ClearableCache;
-import dagger.internal.codegen.base.SourceFileGenerationException;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.SourceFileHjarGenerator;
 import dagger.internal.codegen.binding.ComponentDescriptor;
@@ -122,12 +121,8 @@ final class DelegateComponentProcessor {
 
   public void postRound(XProcessingEnv env, XRoundEnv roundEnv) {
     if (!roundEnv.isProcessingOver()) {
-      try {
-        injectBindingRegistry.generateSourcesForRequiredBindings(
-            factoryGenerator, membersInjectorGenerator);
-      } catch (SourceFileGenerationException e) {
-        e.printMessageTo(env.getMessager());
-      }
+      injectBindingRegistry.generateSourcesForRequiredBindings(
+          factoryGenerator, membersInjectorGenerator);
     } else {
       validationBindingGraphPlugins.endPlugins();
       externalBindingGraphPlugins.endPlugins();
