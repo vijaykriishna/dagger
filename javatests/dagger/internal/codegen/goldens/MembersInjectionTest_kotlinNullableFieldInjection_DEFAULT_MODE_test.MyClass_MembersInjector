@@ -4,7 +4,6 @@ import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 import org.jetbrains.annotations.Nullable;
@@ -38,12 +37,6 @@ public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
   public static MembersInjector<MyClass> create(Provider<String> nullableStringProvider,
       Provider<Object> nullableObjectProvider) {
     return new MyClass_MembersInjector(nullableStringProvider, nullableObjectProvider);
-  }
-
-  public static MembersInjector<MyClass> create(
-      javax.inject.Provider<String> nullableStringProvider,
-      javax.inject.Provider<Object> nullableObjectProvider) {
-    return new MyClass_MembersInjector(Providers.asDaggerProvider(nullableStringProvider), Providers.asDaggerProvider(nullableObjectProvider));
   }
 
   @Override

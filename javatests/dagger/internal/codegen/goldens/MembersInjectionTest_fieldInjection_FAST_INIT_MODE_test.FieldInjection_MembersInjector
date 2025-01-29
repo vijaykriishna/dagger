@@ -6,7 +6,6 @@ import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.InjectedFieldSignature;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 
@@ -42,12 +41,6 @@ public final class FieldInjection_MembersInjector implements MembersInjector<Fie
   public static MembersInjector<FieldInjection> create(Provider<String> stringProvider,
       Provider<String> stringProvider2, Provider<String> stringProvider3) {
     return new FieldInjection_MembersInjector(stringProvider, stringProvider2, stringProvider3);
-  }
-
-  public static MembersInjector<FieldInjection> create(javax.inject.Provider<String> stringProvider,
-      javax.inject.Provider<String> stringProvider2,
-      javax.inject.Provider<String> stringProvider3) {
-    return new FieldInjection_MembersInjector(Providers.asDaggerProvider(stringProvider), Providers.asDaggerProvider(stringProvider2), Providers.asDaggerProvider(stringProvider3));
   }
 
   @Override

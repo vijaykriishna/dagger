@@ -3,7 +3,6 @@ package test;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
@@ -34,10 +33,6 @@ public final class InjectConstructor_Factory implements Factory<InjectConstructo
   @Override
   public InjectConstructor get() {
     return newInstance(sProvider.get());
-  }
-
-  public static InjectConstructor_Factory create(javax.inject.Provider<String> sProvider) {
-    return new InjectConstructor_Factory(Providers.asDaggerProvider(sProvider));
   }
 
   public static InjectConstructor_Factory create(Provider<String> sProvider) {

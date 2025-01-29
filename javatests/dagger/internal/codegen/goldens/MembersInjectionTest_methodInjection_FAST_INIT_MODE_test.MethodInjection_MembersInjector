@@ -5,7 +5,6 @@ import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 
@@ -46,13 +45,6 @@ public final class MethodInjection_MembersInjector implements MembersInjector<Me
       Provider<String> stringProvider2, Provider<String> stringProvider3,
       Provider<String> stringProvider4) {
     return new MethodInjection_MembersInjector(stringProvider, stringProvider2, stringProvider3, stringProvider4);
-  }
-
-  public static MembersInjector<MethodInjection> create(
-      javax.inject.Provider<String> stringProvider, javax.inject.Provider<String> stringProvider2,
-      javax.inject.Provider<String> stringProvider3,
-      javax.inject.Provider<String> stringProvider4) {
-    return new MethodInjection_MembersInjector(Providers.asDaggerProvider(stringProvider), Providers.asDaggerProvider(stringProvider2), Providers.asDaggerProvider(stringProvider3), Providers.asDaggerProvider(stringProvider4));
   }
 
   @Override

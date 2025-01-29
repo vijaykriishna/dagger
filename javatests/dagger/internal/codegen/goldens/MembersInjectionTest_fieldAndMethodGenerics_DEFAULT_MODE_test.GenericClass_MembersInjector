@@ -4,7 +4,6 @@ import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 
@@ -36,11 +35,6 @@ public final class GenericClass_MembersInjector<A, B> implements MembersInjector
   public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider<A> aProvider,
       Provider<B> bProvider) {
     return new GenericClass_MembersInjector<A, B>(aProvider, bProvider);
-  }
-
-  public static <A, B> MembersInjector<GenericClass<A, B>> create(
-      javax.inject.Provider<A> aProvider, javax.inject.Provider<B> bProvider) {
-    return new GenericClass_MembersInjector<A, B>(Providers.asDaggerProvider(aProvider), Providers.asDaggerProvider(bProvider));
   }
 
   @Override

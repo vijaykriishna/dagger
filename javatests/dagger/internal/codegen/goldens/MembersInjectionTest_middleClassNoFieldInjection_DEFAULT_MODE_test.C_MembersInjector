@@ -4,7 +4,6 @@ import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
 
@@ -32,10 +31,6 @@ public final class C_MembersInjector implements MembersInjector<C> {
 
   public static MembersInjector<C> create(Provider<String> valueCProvider) {
     return new C_MembersInjector(valueCProvider);
-  }
-
-  public static MembersInjector<C> create(javax.inject.Provider<String> valueCProvider) {
-    return new C_MembersInjector(Providers.asDaggerProvider(valueCProvider));
   }
 
   @Override

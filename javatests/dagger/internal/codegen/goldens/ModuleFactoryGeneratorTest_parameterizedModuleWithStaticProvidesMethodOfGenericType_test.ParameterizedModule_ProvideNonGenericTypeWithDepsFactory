@@ -4,7 +4,6 @@ import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
-import dagger.internal.Providers;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
@@ -35,11 +34,6 @@ public final class ParameterizedModule_ProvideNonGenericTypeWithDepsFactory impl
   @Override
   public String get() {
     return provideNonGenericTypeWithDeps(oProvider.get());
-  }
-
-  public static ParameterizedModule_ProvideNonGenericTypeWithDepsFactory create(
-      javax.inject.Provider<Object> oProvider) {
-    return new ParameterizedModule_ProvideNonGenericTypeWithDepsFactory(Providers.asDaggerProvider(oProvider));
   }
 
   public static ParameterizedModule_ProvideNonGenericTypeWithDepsFactory create(
