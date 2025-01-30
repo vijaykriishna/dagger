@@ -41,6 +41,7 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getUastParentOfType
 import org.jetbrains.uast.toUElement
 
@@ -202,7 +203,7 @@ class DaggerKotlinIssueDetector : Detector(), SourceCodeScanner {
           node.hasAnnotation(PROVIDES_ANNOTATION) &&
           node.hasAnnotation(JVM_STATIC_ANNOTATION)
         ) {
-          val containingClass = node.containingClass?.toUElement(UClass::class.java) ?: return
+          val containingClass = node.toUElement()?.getContainingUClass() ?: return
           if (containingClass.isObject()) {
             val annotation = node.findAnnotation(JVM_STATIC_ANNOTATION)
               ?: node.javaPsi.modifierList.findAnnotation(JVM_STATIC_ANNOTATION)!!
