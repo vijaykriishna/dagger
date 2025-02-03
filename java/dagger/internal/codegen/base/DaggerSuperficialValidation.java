@@ -56,6 +56,7 @@ import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.compat.XConverters;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.ClassName;
 import dagger.Reusable;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -465,16 +466,22 @@ public final class DaggerSuperficialValidation {
         validateType("annotation value type", value.asType());
       } else {
         // Validates all other types, e.g. primitives and String values.
-        validateIsTypeOf(expectedType, ClassName.get(value.getValue().getClass()));
+        validateIsTypeOf(expectedType, value.getValue().getClass());
       }
     } catch (RuntimeException e) {
       throw ValidationException.from(e).append(value);
     }
   }
 
-  private void validateIsTypeOf(XType expectedType, ClassName className) {
-    if (!isTypeOf(expectedType.boxed(), className)) {
-      throw new ValidationException.UnknownErrorType();
+  private void validateIsTypeOf(XType expectedType, Class<?> clazz) {
+    ClassName actualClassName = ClassName.get(clazz);
+    if (!isTypeOf(expectedType.boxed(), actualClassName)) {
+      throw new ValidationException.UnknownErrorType()
+          .append(
+              String.format(
+                  "Expected type %s, but got %s",
+                  expectedType.boxed().asTypeName(),
+                  actualClassName));
     }
   }
 
@@ -580,7 +587,8 @@ public final class DaggerSuperficialValidation {
     }
 
     /** Appends the given message and returns this instance of {@link ValidationException} */
-    private ValidationException append(String message) {
+    @CanIgnoreReturnValue
+    protected ValidationException append(String message) {
       messages.add(message);
       return this;
     }
