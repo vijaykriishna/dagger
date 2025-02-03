@@ -166,7 +166,10 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
         FieldSpec.builder(
             toJavaPoet(fieldType),
             shardImplementation.getUniqueFieldName(contributionBindingField.name()));
-    contributionField.addModifiers(PRIVATE);
+    // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
+    if (!shardImplementation.isShardClassPrivate()) {
+      contributionField.addModifiers(PRIVATE);
+    }
     if (useRawType) {
       contributionField.addAnnotation(AnnotationSpecs.suppressWarnings(RAWTYPES));
     }

@@ -49,9 +49,9 @@ final class DaggerBComponent {
 
     private final BComponentImpl bComponentImpl = this;
 
-    private Provider<String> nullableStringProvider;
+    Provider<String> nullableStringProvider;
 
-    private BComponentImpl(NullableStringComponent nullableStringComponentParam) {
+    BComponentImpl(NullableStringComponent nullableStringComponentParam) {
       this.nullableStringComponent = nullableStringComponentParam;
       initialize(nullableStringComponentParam);
 
