@@ -14,6 +14,7 @@
 # Description:
 #   Testing libraries for Hilt Android.
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//:build_defs.bzl", "POM_VERSION")
 load("//tools/maven:maven.bzl", "gen_maven_artifact")
@@ -79,6 +80,7 @@ android_library(
         "//java/dagger/hilt/internal/processedrootsentinel",
         "//java/dagger/hilt/migration:disable_install_in_check",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_multidex_multidex",
         "@maven//:androidx_test_core",
     ],
@@ -228,16 +230,17 @@ gen_maven_artifact(
         "//java/dagger/hilt/android/testing:uninstall_modules",
     ],
     artifact_target_maven_deps = [
-        "androidx.activity:activity",
+        "androidx.activity:activity:aar",
         "androidx.annotation:annotation",
-        "androidx.annotation:annotation-experimental",
-        "androidx.fragment:fragment",
+        "androidx.annotation:annotation-jvm",
+        "androidx.annotation:annotation-experimental:aar",
+        "androidx.fragment:fragment:aar",
         "androidx.lifecycle:lifecycle-common",
-        "androidx.lifecycle:lifecycle-viewmodel",
-        "androidx.lifecycle:lifecycle-viewmodel-savedstate",
-        "androidx.multidex:multidex",
-        "androidx.savedstate:savedstate",
-        "androidx.test:core",
+        "androidx.lifecycle:lifecycle-viewmodel:aar",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
+        "androidx.multidex:multidex:aar",
+        "androidx.savedstate:savedstate:aar",
+        "androidx.test:core:aar",
         "com.google.code.findbugs:jsr305",
         "com.google.dagger:dagger",
         "com.google.dagger:hilt-android",

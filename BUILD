@@ -88,6 +88,7 @@ jarjar_library(
 
 android_library(
     name = "android_local_test_exports",
+    testonly = 1,
     exports = [
         # TODO(bcorso): see if we can remove jsr250 dep from autovalue to prevent this.
         "@maven//:javax_annotation_javax_annotation_api",  # For @Generated

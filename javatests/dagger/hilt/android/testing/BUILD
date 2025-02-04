@@ -14,15 +14,15 @@
 # Description:
 #   Tests for internal code for implementing Hilt processors.
 
+load("@rules_android//rules:rules.bzl", "android_library", "android_local_test")
+load("//:build_defs.bzl", "TEST_MANIFEST_VALUES")
+
 package(default_visibility = ["//:src"])
 
 android_local_test(
     name = "BindValueTest",
     srcs = ["BindValueTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//java/dagger/hilt:entry_point",
@@ -38,10 +38,7 @@ android_local_test(
     name = "BindValueIntoMapTest",
     size = "small",
     srcs = ["BindValueIntoMapTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -59,10 +56,7 @@ android_local_test(
     name = "BindValueIntoSetTest",
     size = "small",
     srcs = ["BindValueIntoSetTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -79,10 +73,7 @@ android_local_test(
     name = "BindElementsIntoSetTest",
     size = "small",
     srcs = ["BindElementsIntoSetTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -100,10 +91,7 @@ android_local_test(
     name = "TestRootModulesTest",
     size = "small",
     srcs = ["TestRootModulesTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -118,10 +106,7 @@ android_local_test(
     name = "HiltAndroidRuleTest",
     size = "small",
     srcs = ["HiltAndroidRuleTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":HiltAndroidRuleTestApp",
         "//:android_local_test_exports",
@@ -145,10 +130,7 @@ android_library(
 android_local_test(
     name = "DelayComponentReadyTest",
     srcs = ["DelayComponentReadyTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//java/dagger/hilt:entry_point",
@@ -162,10 +144,7 @@ android_local_test(
 android_local_test(
     name = "SkipTestInjectionTest",
     srcs = ["SkipTestInjectionTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -179,10 +158,7 @@ android_local_test(
 android_local_test(
     name = "SkipTestInjectionAnnotationTest",
     srcs = ["SkipTestInjectionAnnotationTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",

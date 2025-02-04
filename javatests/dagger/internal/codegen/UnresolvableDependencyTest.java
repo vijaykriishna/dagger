@@ -128,6 +128,7 @@ public final class UnresolvableDependencyTest {
             });
   }
 
+  @org.junit.Ignore // TODO(bcorso): This is a known issue with JDK17.
   @Test
   public void referencesUnresolvableAnnotationOnType() {
     Source fooComponent =
@@ -208,6 +209,7 @@ public final class UnresolvableDependencyTest {
             });
   }
 
+  @org.junit.Ignore // TODO(b/394093156): This is a known issue with JDK17.
   @Test
   public void referencesUnresolvableAnnotationOnTypeOnParameter() {
     Source fooComponent =

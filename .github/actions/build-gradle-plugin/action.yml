@@ -28,7 +28,7 @@ runs:
     - name: 'Cache Bazel files'
       uses: actions/cache@v4
       with:
-        path: ~/.cache/bazel
+        path: ~/.cache/bazel_github # The bazel cache path set in .bazelrc.
         key: ${{ runner.os }}-bazel-build-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-bazel-build-
@@ -50,10 +50,5 @@ runs:
       env:
         AGP_VERSION: '${{ inputs.agp }}'
     - name: 'Clean bazel cache'
-      # According to the documentation, we should be able to exclude these via
-      # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
-      # doesn't seem to work.
-      run: |
-        rm -rf $(bazel info repository_cache)
-        rm -rf ~/.cache/bazel/*/*/external/
+      run: rm -rf $(bazel info repository_cache)
       shell: bash

@@ -1898,6 +1898,7 @@ public class ComponentProcessorTest {
             });
   }
 
+  @org.junit.Ignore // TODO(b/394093156): This is a known issue with JDK17.
   @Test
   public void justInTimeAtInjectConstructor_hasGeneratedQualifier() throws Exception {
     Source injected =
@@ -1953,6 +1954,7 @@ public class ComponentProcessorTest {
           });
   }
 
+  @org.junit.Ignore // TODO(b/394093156): This is a known issue with JDK17.
   @Test
   public void moduleHasGeneratedQualifier() throws Exception {
     Source module =

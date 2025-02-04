@@ -15,6 +15,7 @@
 # Description:
 #   Hilt ViewModel integration.
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//tools:bazel_compat.bzl", "compat_kt_android_library")
 
@@ -53,6 +54,7 @@ android_library(
     deps = [
         ":package_info",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
     ],
 )
 
@@ -72,6 +74,7 @@ compat_kt_android_library(
         ":package_info",
         "//java/dagger/hilt/android/internal/lifecycle",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
     ],
 )

@@ -17,6 +17,8 @@
 #   meant to be temporary and so defaults may change with releases and then these flags
 #   may eventually be removed, just like compiler options with similar purposes.
 
+load("@rules_android//rules:rules.bzl", "android_library")
+
 package(default_visibility = ["//:src"])
 
 android_library(

@@ -26,6 +26,7 @@ compiler_test(
         "//java/dagger/hilt/android:android_entry_point",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
     ],
     deps = [
         "//java/dagger/hilt/android/testing/compile",

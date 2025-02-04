@@ -20,4 +20,6 @@ DOCLINT_REFERENCES = ["-Xdoclint:reference"]
 
 JAVA_RELEASE_MIN = ["-source 8 -target 8"]
 
+TEST_MANIFEST_VALUES = {"minSdkVersion": "19"}
+
 POM_VERSION = "${project.version}"

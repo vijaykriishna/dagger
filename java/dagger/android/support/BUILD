@@ -15,6 +15,7 @@
 # Description:
 #   Public Dagger API for Android that interacts with the Android support libraries
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
@@ -46,6 +47,7 @@ android_library(
         "//third_party/java/error_prone:annotations",
         "@maven//:androidx_activity_activity",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_appcompat_appcompat",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
@@ -60,13 +62,14 @@ gen_maven_artifact(
     artifact_name = "Dagger Android Support",
     artifact_target = ":support",
     artifact_target_maven_deps = [
-        "androidx.activity:activity",
+        "androidx.activity:activity:aar",
         "androidx.annotation:annotation",
-        "androidx.appcompat:appcompat",
-        "androidx.fragment:fragment",
+        "androidx.annotation:annotation-jvm",
+        "androidx.appcompat:appcompat:aar",
+        "androidx.fragment:fragment:aar",
         "androidx.lifecycle:lifecycle-common",
-        "androidx.lifecycle:lifecycle-viewmodel",
-        "androidx.lifecycle:lifecycle-viewmodel-savedstate",
+        "androidx.lifecycle:lifecycle-viewmodel:aar",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
         "com.google.dagger:dagger",
         "com.google.dagger:dagger-android",
     ],

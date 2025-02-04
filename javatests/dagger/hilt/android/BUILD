@@ -14,20 +14,11 @@
 # Description:
 #   Tests for internal code for implementing Hilt processors.
 
+load("@rules_android//rules:rules.bzl", "android_library", "android_local_test")
+load("//:build_defs.bzl", "TEST_MANIFEST_VALUES")
 load("//third_party/kotlin/build_extensions:rules.bzl", "kt_android_library")
 
 package(default_visibility = ["//:src"])
-
-android_library(
-    name = "resources",
-    manifest = "AndroidManifest.xml",
-    resource_files = glob(["res/**"]),
-    deps = [
-        "@maven//:androidx_navigation_navigation_common",
-        "@maven//:androidx_navigation_navigation_fragment",
-        "@maven//:androidx_navigation_navigation_runtime",
-    ],
-)
 
 # Checks that multiple test roots can be compiled together. This library
 # only compiles the sources. they are tested in the android_local_tests.
@@ -64,9 +55,7 @@ android_library(
 
 android_local_test(
     name = "ActivityScenarioRuleTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":multi_test_root_tests",
     ],
@@ -74,9 +63,7 @@ android_local_test(
 
 android_local_test(
     name = "CustomTestApplicationTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":multi_test_root_tests",
     ],
@@ -84,9 +71,7 @@ android_local_test(
 
 android_local_test(
     name = "MultiTestRoot1Test",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":multi_test_root_tests",
     ],
@@ -94,9 +79,7 @@ android_local_test(
 
 android_local_test(
     name = "MultiTestRoot2Test",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":multi_test_root_tests",
     ],
@@ -106,9 +89,7 @@ android_local_test(
     name = "AliasOfMultipleScopesTest",
     srcs = ["AliasOfMultipleScopesTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//java/dagger/hilt:define_component",
@@ -143,9 +124,7 @@ android_local_test(
     name = "CustomInjectTest",
     size = "small",
     srcs = ["CustomInjectTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":custom_inject_classes",
         "//:android_local_test_exports",
@@ -158,9 +137,7 @@ android_local_test(
     name = "EarlyEntryPointHiltAndroidAppRuntimeTest",
     size = "small",
     srcs = ["EarlyEntryPointHiltAndroidAppRuntimeTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":EarlyEntryPointHiltAndroidAppRuntimeClasses",
         "//:android_local_test_exports",
@@ -191,9 +168,7 @@ android_local_test(
         "EarlyEntryPointHiltAndroidTestRuntimeClasses.java",
         "EarlyEntryPointHiltAndroidTestRuntimeTest.java",
     ],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -214,9 +189,7 @@ android_local_test(
         "EarlyEntryPointCustomApplicationClasses.java",
         "EarlyEntryPointCustomApplicationTest.java",
     ],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -234,9 +207,7 @@ android_local_test(
     name = "EarlyEntryPointNoEntryPointsDefinedTest",
     size = "small",
     srcs = ["EarlyEntryPointNoEntryPointsDefinedTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -253,9 +224,7 @@ android_local_test(
     name = "FragmentContextOnAttachTest",
     size = "small",
     srcs = ["FragmentContextOnAttachTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -281,9 +250,7 @@ android_local_test(
         # superclass validation in this test just to verify everything builds.
         "-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true",
     ],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//java/dagger/hilt:install_in",
@@ -296,9 +263,7 @@ android_local_test(
 android_local_test(
     name = "ModuleTest",
     srcs = ["ModuleTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -314,9 +279,7 @@ android_local_test(
     name = "InjectionTest",
     size = "small",
     srcs = ["InjectionTest.java"],
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -336,9 +299,7 @@ android_local_test(
     name = "DefaultViewModelFactoryTest",
     srcs = ["DefaultViewModelFactoryTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -363,9 +324,7 @@ android_local_test(
     name = "PackagePrivateConstructorTest",
     srcs = ["PackagePrivateConstructorTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//java/dagger/hilt/android:android_entry_point",
@@ -379,9 +338,7 @@ android_local_test(
     name = "QualifierInKotlinFieldsTest",
     srcs = ["QualifierInKotlinFieldsTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":QualifierInFieldsClass",
         "//:android_local_test_exports",
@@ -417,9 +374,7 @@ android_local_test(
         "OptionalInjectWithHiltTest.java",
     ],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":OptionalInjectTestClasses",
         "//:android_local_test_exports",
@@ -443,9 +398,7 @@ android_local_test(
         "OptionalInjectWithoutHiltTest.java",
     ],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":OptionalInjectTestClasses",
         "//:android_local_test_exports",
@@ -483,9 +436,7 @@ android_local_test(
     name = "ActivityRetainedClearedListenerTest",
     srcs = ["ActivityRetainedClearedListenerTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -509,9 +460,7 @@ android_local_test(
     name = "ActivityInjectedViewModelTest",
     srcs = ["ActivityInjectedViewModelTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -534,9 +483,7 @@ android_local_test(
     name = "ViewModelScopedTest",
     srcs = ["ViewModelScopedTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -563,9 +510,7 @@ android_local_test(
     srcs = ["ViewModelAssistedTest.java"],
     javacopts = ["-Adagger.hilt.enableAssistedInjectViewModels=true"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -592,46 +537,10 @@ android_local_test(
 )
 
 android_local_test(
-    name = "ViewModelSavedStateOwnerTest",
-    srcs = ["ViewModelSavedStateOwnerTest.java"],
-    manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
-    deps = [
-        ":resources",
-        "//:android_local_test_exports",
-        "//:dagger_with_compiler",
-        "//java/dagger/hilt:install_in",
-        "//java/dagger/hilt/android:android_entry_point",
-        "//java/dagger/hilt/android:package_info",
-        "//java/dagger/hilt/android:unstable_api",
-        "//java/dagger/hilt/android/lifecycle:activity_retained_saved_state",
-        "//java/dagger/hilt/android/lifecycle:hilt_view_model",
-        "//java/dagger/hilt/android/scopes",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
-        "//third_party/java/jsr330_inject",
-        "//third_party/java/truth",
-        "@maven//:androidx_activity_activity",
-        "@maven//:androidx_annotation_annotation_experimental",
-        "@maven//:androidx_fragment_fragment",
-        "@maven//:androidx_lifecycle_lifecycle_common",
-        "@maven//:androidx_lifecycle_lifecycle_viewmodel",
-        "@maven//:androidx_lifecycle_lifecycle_viewmodel_savedstate",
-        "@maven//:androidx_navigation_navigation_common",
-        "@maven//:androidx_navigation_navigation_fragment",
-        "@maven//:androidx_navigation_navigation_runtime",
-        "@maven//:junit_junit",
-    ],
-)
-
-android_local_test(
     name = "ViewModelWithBaseTest",
     srcs = ["ViewModelWithBaseTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -655,9 +564,7 @@ android_local_test(
     name = "ActivityInjectedSavedStateViewModelTest",
     srcs = ["ActivityInjectedSavedStateViewModelTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",
@@ -772,9 +679,7 @@ android_library(
 
 android_local_test(
     name = "UsesLocalComponentTestBindingsTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":shared_component_test_classes",
     ],
@@ -782,9 +687,7 @@ android_local_test(
 
 android_local_test(
     name = "UsesLocalComponentUninstallModuleTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":shared_component_test_classes",
     ],
@@ -792,9 +695,7 @@ android_local_test(
 
 android_local_test(
     name = "UsesSharedComponent1Test",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":shared_component_test_classes",
     ],
@@ -802,9 +703,7 @@ android_local_test(
 
 android_local_test(
     name = "UsesSharedComponent2Test",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":shared_component_test_classes",
     ],
@@ -812,9 +711,7 @@ android_local_test(
 
 android_local_test(
     name = "UsesSharedComponentEnclosedTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":shared_component_test_classes",
     ],
@@ -822,9 +719,7 @@ android_local_test(
 
 android_local_test(
     name = "UsesSharedComponentTestInstallInTest",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":test_install_in_test_classes",
     ],

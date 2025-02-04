@@ -14,6 +14,9 @@
 # Description:
 #   Tests for internal code for implementing Hilt processors.
 
+load("@rules_android//rules:rules.bzl", "android_local_test")
+load("//:build_defs.bzl", "TEST_MANIFEST_VALUES")
+
 package(default_visibility = ["//:src"])
 
 android_local_test(
@@ -21,9 +24,7 @@ android_local_test(
     size = "small",
     srcs = ["FragmentContextWrapperLeakTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "14",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         "//:android_local_test_exports",
         "//:dagger_with_compiler",

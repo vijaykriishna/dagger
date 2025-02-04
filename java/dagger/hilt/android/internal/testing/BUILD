@@ -15,6 +15,7 @@
 # Description:
 #   Internal Hilt android testing libraries
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//:src"])

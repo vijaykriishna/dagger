@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("@rules_java//java:defs.bzl", "java_library")
 
 # Description:
@@ -49,6 +50,7 @@ android_library(
         "//java/dagger/hilt/internal:preconditions",
         "@maven//:androidx_activity_activity",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
@@ -90,6 +92,7 @@ android_library(
         "//java/dagger/hilt/migration:disable_install_in_check",
         "@maven//:androidx_activity_activity",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
@@ -230,14 +233,15 @@ gen_maven_artifact(
         "//java/dagger/hilt/internal/componenttreedeps:componenttreedeps",
     ],
     artifact_target_maven_deps = [
-        "androidx.activity:activity",
+        "androidx.activity:activity:aar",
         "androidx.annotation:annotation",
-        "androidx.annotation:annotation-experimental",
-        "androidx.fragment:fragment",
+        "androidx.annotation:annotation-jvm",
+        "androidx.annotation:annotation-experimental:aar",
+        "androidx.fragment:fragment:aar",
         "androidx.lifecycle:lifecycle-common",
-        "androidx.lifecycle:lifecycle-viewmodel",
-        "androidx.lifecycle:lifecycle-viewmodel-savedstate",
-        "androidx.savedstate:savedstate",
+        "androidx.lifecycle:lifecycle-viewmodel:aar",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
+        "androidx.savedstate:savedstate:aar",
         "com.google.code.findbugs:jsr305",
         "com.google.dagger:dagger-lint-aar",
         "com.google.dagger:dagger",

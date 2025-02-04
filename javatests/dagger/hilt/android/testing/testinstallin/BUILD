@@ -14,16 +14,16 @@
 # Description:
 #   Tests for internal code for implementing Hilt processors.
 
+load("@rules_android//rules:rules.bzl", "android_library", "android_local_test")
+load("//:build_defs.bzl", "TEST_MANIFEST_VALUES")
+
 package(default_visibility = ["//:src"])
 
 android_local_test(
     name = "TestInstallInFooTest",
     srcs = ["TestInstallInFooTest.java"],
     manifest = "AndroidManifest.xml",
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":TestInstallInModules",
         "//:android_local_test_exports",
@@ -46,10 +46,7 @@ android_local_test(
 android_local_test(
     name = "TestInstallInBarTest",
     srcs = ["TestInstallInBarTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":TestInstallInModules",
         "//:android_local_test_exports",
@@ -68,10 +65,7 @@ android_local_test(
 android_local_test(
     name = "TestInstallInAppTest",
     srcs = ["TestInstallInAppTest.java"],
-    manifest_values = {
-        "minSdkVersion": "15",
-        "targetSdkVersion": "27",
-    },
+    manifest_values = TEST_MANIFEST_VALUES,
     deps = [
         ":TestInstallInApp",
         ":TestInstallInModules",

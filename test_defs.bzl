@@ -15,7 +15,8 @@
 """This file defines constants useful across the Dagger tests."""
 
 load("@rules_java//java:defs.bzl", "java_library", "java_test")
-load("//:build_defs.bzl", "JAVA_RELEASE_MIN")
+load("//:build_defs.bzl", "JAVA_RELEASE_MIN", "TEST_MANIFEST_VALUES")
+load("@rules_android//rules:rules.bzl", "android_library", "android_local_test")
 load(
     "@io_bazel_rules_kotlin//kotlin:jvm.bzl",
     "kt_jvm_library",
@@ -146,11 +147,11 @@ def GenRobolectricTests(
         shard_count = None,
         functional = True,
         require_jdk7_syntax = True,
-        manifest_values = None):
+        manifest_values = TEST_MANIFEST_VALUES):
     deps = (deps or []) + ["//:android_local_test_exports"]
     _GenTestsWithVariants(
-        library_rule_type = native.android_library,
-        test_rule_type = native.android_local_test,
+        library_rule_type = android_library,
+        test_rule_type = android_local_test,
         name = name,
         srcs = srcs,
         deps = deps,
@@ -342,8 +343,8 @@ def _is_hjar_test_supported(bazel_rule):
     return bazel_rule not in (
         kt_jvm_library,
         kt_jvm_test,
-        native.android_library,
-        native.android_local_test,
+        android_library,
+        android_local_test,
     )
 
 def _hjar_test(name, tags):

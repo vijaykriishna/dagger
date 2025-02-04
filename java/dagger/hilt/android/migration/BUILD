@@ -15,6 +15,7 @@
 # Description:
 #   Helpers for migrating to Hilt.
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//:src"])
@@ -34,6 +35,7 @@ android_library(
         "//java/dagger/hilt/internal:preconditions",
         "@maven//:androidx_activity_activity",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
@@ -55,6 +57,7 @@ android_library(
         "//java/dagger/hilt/android/internal/migration:has_custom_inject",
         "//java/dagger/hilt/internal:preconditions",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
     ],
 )
 

@@ -15,6 +15,8 @@
 # Description:
 #   Internal classes for migration
 
+load("@rules_android//rules:rules.bzl", "android_library")
+
 package(default_visibility = ["//:src"])
 
 android_library(

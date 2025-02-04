@@ -15,6 +15,7 @@
 # Description:
 #   Public Dagger API for Android
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
@@ -58,6 +59,7 @@ android_library(
         "//third_party/java/auto:value",
         "//third_party/java/error_prone:annotations",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
     ],
 )
 
@@ -68,6 +70,7 @@ gen_maven_artifact(
     artifact_target = ":android",
     artifact_target_maven_deps = [
         "androidx.annotation:annotation",
+        "androidx.annotation:annotation-jvm",
         "com.google.dagger:dagger",
         "com.google.dagger:dagger-lint-aar",
     ],

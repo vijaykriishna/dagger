@@ -15,6 +15,8 @@
 # Description:
 #   Hilt lifecycle ViewModel hooks.
 
+load("@rules_android//rules:rules.bzl", "android_library")
+
 package(default_visibility = ["//:src"])
 
 android_library(
@@ -33,6 +35,7 @@ android_library(
         "//java/dagger/hilt/internal:preconditions",
         "@maven//:androidx_activity_activity",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",

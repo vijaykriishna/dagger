@@ -15,6 +15,8 @@
 # Description:
 #   Internal Hilt Android utitlies
 
+load("@rules_android//rules:rules.bzl", "android_library")
+
 package(default_visibility = ["//:src"])
 
 android_library(

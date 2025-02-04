@@ -260,6 +260,7 @@ public class DaggerSuperficialValidationTest {
         });
   }
 
+  @org.junit.Ignore // TODO(b/394093156): This is a known issue with JDK17.
   @Test
   public void missingAnnotation() {
     runTest(

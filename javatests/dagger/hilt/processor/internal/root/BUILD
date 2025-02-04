@@ -14,6 +14,7 @@
 # Description:
 #   Tests for internal code for implementing Hilt processors.
 
+load("@rules_android//rules:rules.bzl", "android_library")
 load("//java/dagger/testing/compile:macros.bzl", "compiler_test")
 
 package(default_visibility = ["//:src"])
@@ -36,6 +37,7 @@ compiler_test(
         "//java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:org_robolectric_robolectric",
         "@maven//:androidx_test_ext_junit",
         "@maven//:androidx_test_core",
@@ -67,6 +69,7 @@ compiler_test(
         "//java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:org_robolectric_robolectric",
         "@maven//:androidx_test_ext_junit",
         "@maven//:androidx_test_core",
@@ -88,6 +91,7 @@ compiler_test(
         "//java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:org_robolectric_robolectric",
         "@maven//:androidx_test_ext_junit",
         "@maven//:androidx_test_core",
@@ -108,6 +112,7 @@ compiler_test(
         "//java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
         "@maven//:org_robolectric_robolectric",
         "@maven//:androidx_test_ext_junit",
         "@maven//:androidx_test_core",
