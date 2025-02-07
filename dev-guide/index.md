@@ -15,7 +15,7 @@ space without doing much at all: the `BarcodeDecoderFactory`, the
 `CameraServiceLoader`, and the `MutableContextWrapper`. These classes are the
 clumsy duct tape that wires the interesting stuff together.
 
-Dagger is a replacement for these `FactoryFactory` classes that implements the
+Dagger is a replacement for these `Factory` classes that implements the
 [dependency injection][DI] design pattern without the burden of writing the
 boilerplate. It allows you to focus on the interesting classes. Declare
 dependencies, specify how to satisfy them, and ship your app.
