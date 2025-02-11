@@ -24,7 +24,6 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -38,10 +37,7 @@ import dagger.internal.codegen.model.Key;
  *
  * <p>{@link com.google.common.base.Optional} and {@link java.util.Optional} are supported.
  */
-@AutoValue
-public abstract class OptionalType {
-  private XType type;
-
+public final class OptionalType {
   /** A variant of {@code Optional}. */
   public enum OptionalKind {
     /** {@link com.google.common.base.Optional}. */
@@ -108,22 +104,44 @@ public abstract class OptionalType {
     }
   }
 
-  /** The optional type itself. */
-  abstract TypeName typeName();
+  /**
+   * Returns a {@link OptionalType} for {@code key}'s {@link Key#type() type}.
+   *
+   * @throws IllegalArgumentException if {@code key.type()} is not an {@code Optional} type
+   */
+  public static OptionalType from(Key key) {
+    return from(key.type().xprocessing());
+  }
+
+  /**
+   * Returns a {@link OptionalType} for {@code type}.
+   *
+   * @throws IllegalArgumentException if {@code type} is not an {@code Optional} type
+   */
+  public static OptionalType from(XType type) {
+    checkArgument(isOptional(type), "%s must be an Optional", type);
+    return new OptionalType(type);
+  }
+
+  private final XType type;
+
+  private OptionalType(XType type) {
+    this.type = type;
+  }
 
   /** The optional type itself. */
-  private XType type() {
-    return type;
+  TypeName typeName() {
+    return type.getTypeName();
   }
 
   /** Which {@code Optional} type is used. */
   public OptionalKind kind() {
-    return OptionalKind.of(type().getTypeElement());
+    return OptionalKind.of(type.getTypeElement());
   }
 
   /** The value type. */
   public XType valueType() {
-    return type().getTypeArguments().get(0);
+    return type.getTypeArguments().get(0);
   }
 
   /** Returns {@code true} if {@code type} is an {@code Optional} type. */
@@ -134,27 +152,6 @@ public abstract class OptionalType {
   /** Returns {@code true} if {@code key.type()} is an {@code Optional} type. */
   public static boolean isOptional(Key key) {
     return isOptional(key.type().xprocessing());
-  }
-
-  /**
-   * Returns a {@link OptionalType} for {@code type}.
-   *
-   * @throws IllegalArgumentException if {@code type} is not an {@code Optional} type
-   */
-  public static OptionalType from(XType type) {
-    checkArgument(isOptional(type), "%s must be an Optional", type);
-    OptionalType optionalType = new AutoValue_OptionalType(type.getTypeName());
-    optionalType.type = type;
-    return optionalType;
-  }
-
-  /**
-   * Returns a {@link OptionalType} for {@code key}'s {@link Key#type() type}.
-   *
-   * @throws IllegalArgumentException if {@code key.type()} is not an {@code Optional} type
-   */
-  public static OptionalType from(Key key) {
-    return from(key.type().xprocessing());
   }
 
   public static boolean isOptionalProviderType(XType type) {

@@ -22,7 +22,6 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
 import androidx.room.compiler.processing.XType;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -32,8 +31,26 @@ import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypes;
 
 /** Information about a {@link java.util.Map} type. */
-@AutoValue
-public abstract class MapType {
+public final class MapType {
+  /**
+   * Returns a {@link MapType} for {@code key}'s {@link Key#type() type}.
+   *
+   * @throws IllegalArgumentException if {@code key.type()} is not a {@link java.util.Map} type
+   */
+  public static MapType from(Key key) {
+    return from(key.type().xprocessing());
+  }
+
+  /**
+   * Returns a {@link MapType} for {@code type}.
+   *
+   * @throws IllegalArgumentException if {@code type} is not a {@link java.util.Map} type
+   */
+  public static MapType from(XType type) {
+    checkArgument(isMap(type), "%s is not a Map", type);
+    return new MapType(type);
+  }
+
   // TODO(b/28555349): support PROVIDER_OF_LAZY here too
   // TODO(b/376124787): We could consolidate this with a similar list in FrameworkTypes
   // if we had a better way to go from RequestKind to framework ClassName or vice versa
@@ -41,19 +58,20 @@ public abstract class MapType {
   private static final ImmutableSet<RequestKind> VALID_FRAMEWORK_REQUEST_KINDS =
       ImmutableSet.of(RequestKind.PROVIDER, RequestKind.PRODUCER, RequestKind.PRODUCED);
 
-  private XType type;
+  private final XType type;
+
+  private MapType(XType type) {
+    this.type = type;
+  }
 
   /** The map type itself. */
-  abstract TypeName typeName();
-
-  /** The map type itself. */
-  private XType type() {
-    return type;
+  TypeName typeName() {
+    return type.getTypeName();
   }
 
   /** {@code true} if the map type is the raw {@link java.util.Map} type. */
   public boolean isRawType() {
-    return XTypes.isRawParameterizedType(type());
+    return XTypes.isRawParameterizedType(type);
   }
 
   /**
@@ -63,7 +81,7 @@ public abstract class MapType {
    */
   public XType keyType() {
     checkState(!isRawType());
-    return type().getTypeArguments().get(0);
+    return type.getTypeArguments().get(0);
   }
 
   /**
@@ -73,7 +91,7 @@ public abstract class MapType {
    */
   public XType valueType() {
     checkState(!isRawType());
-    return type().getTypeArguments().get(1);
+    return type.getTypeArguments().get(1);
   }
 
   /** Returns {@code true} if the raw type of {@link #valueType()} is {@code className}. */
@@ -145,26 +163,5 @@ public abstract class MapType {
       return MapType.from(keyType).valuesAreProvider();
     }
     return false;
-  }
-
-  /**
-   * Returns a {@link MapType} for {@code type}.
-   *
-   * @throws IllegalArgumentException if {@code type} is not a {@link java.util.Map} type
-   */
-  public static MapType from(XType type) {
-    checkArgument(isMap(type), "%s is not a Map", type);
-    MapType mapType = new AutoValue_MapType(type.getTypeName());
-    mapType.type = type;
-    return mapType;
-  }
-
-  /**
-   * Returns a {@link MapType} for {@code key}'s {@link Key#type() type}.
-   *
-   * @throws IllegalArgumentException if {@code key.type()} is not a {@link java.util.Map} type
-   */
-  public static MapType from(Key key) {
-    return from(key.type().xprocessing());
   }
 }

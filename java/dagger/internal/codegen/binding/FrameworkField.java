@@ -32,7 +32,6 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
-import com.google.auto.value.AutoValue;
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.AnnotationSpec;
 import dagger.internal.codegen.base.MapType;
@@ -50,8 +49,7 @@ import java.util.Optional;
  *   <li>{@code Provider<Map<SomeMapKey, MapValue>>}.
  * </ul>
  */
-@AutoValue
-public abstract class FrameworkField {
+public final class FrameworkField {
 
   /**
    * Creates a framework field.
@@ -127,8 +125,7 @@ public abstract class FrameworkField {
             .map(frameworkClassName::parametrizedBy)
             .orElse(frameworkClassName);
 
-    return new AutoValue_FrameworkField(
-        frameworkFieldName(fieldName, frameworkClassName), fieldType);
+    return new FrameworkField(frameworkFieldName(fieldName, frameworkClassName), fieldType);
   }
 
   private static String frameworkFieldName(String fieldName, XClassName frameworkClassName) {
@@ -150,7 +147,19 @@ public abstract class FrameworkField {
     }
   }
 
-  public abstract String name();
+  private final String name;
+  private final XTypeName type;
 
-  public abstract XTypeName type();
+  FrameworkField(String name, XTypeName type) {
+    this.name = name;
+    this.type = type;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public XTypeName type() {
+    return type;
+  }
 }

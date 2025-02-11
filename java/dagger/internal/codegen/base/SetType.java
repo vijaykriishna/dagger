@@ -21,7 +21,6 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
 import androidx.room.compiler.processing.XType;
-import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -29,26 +28,45 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypes;
 
 /** Information about a {@link java.util.Set} type. */
-@AutoValue
-public abstract class SetType {
-  private XType type;
+public final class SetType {
+  /**
+   * Returns a {@link SetType} for {@code key}'s {@link Key#type() type}.
+   *
+   * @throws IllegalArgumentException if {@code key.type()} is not a {@link java.util.Set} type
+   */
+  public static SetType from(Key key) {
+    return from(key.type().xprocessing());
+  }
+
+  /**
+   * Returns a {@link SetType} for {@code type}.
+   *
+   * @throws IllegalArgumentException if {@code type} is not a {@link java.util.Set} type
+   */
+  public static SetType from(XType type) {
+    checkArgument(isSet(type), "%s must be a Set", type);
+    return new SetType(type);
+  }
+
+  private final XType type;
+
+  private SetType(XType type) {
+    this.type = type;
+  }
 
   /** The set type itself. */
-  abstract TypeName typeName();
-
-  /** The set type itself. */
-  private XType type() {
-    return type;
+  TypeName typeName() {
+    return type.getTypeName();
   }
 
   /** {@code true} if the set type is the raw {@link java.util.Set} type. */
   public boolean isRawType() {
-    return XTypes.isRawParameterizedType(type());
+    return XTypes.isRawParameterizedType(type);
   }
 
   /** Returns the element type. */
   public XType elementType() {
-    return unwrapType(type());
+    return unwrapType(type);
   }
 
   /** Returns {@code true} if {@link #elementType()} is of type {@code className}. */
@@ -67,7 +85,7 @@ public abstract class SetType {
         elementsAreTypeOf(wrappingClass),
         "expected elements to be %s, but this type is %s",
         wrappingClass,
-        type());
+        type);
     return unwrapType(elementType());
   }
 
@@ -79,26 +97,5 @@ public abstract class SetType {
   /** {@code true} if {@code key.type()} is a {@link java.util.Set} type. */
   public static boolean isSet(Key key) {
     return isSet(key.type().xprocessing());
-  }
-
-  /**
-   * Returns a {@link SetType} for {@code type}.
-   *
-   * @throws IllegalArgumentException if {@code type} is not a {@link java.util.Set} type
-   */
-  public static SetType from(XType type) {
-    checkArgument(isSet(type), "%s must be a Set", type);
-    SetType setType = new AutoValue_SetType(type.getTypeName());
-    setType.type = type;
-    return setType;
-  }
-
-  /**
-   * Returns a {@link SetType} for {@code key}'s {@link Key#type() type}.
-   *
-   * @throws IllegalArgumentException if {@code key.type()} is not a {@link java.util.Set} type
-   */
-  public static SetType from(Key key) {
-    return from(key.type().xprocessing());
   }
 }
