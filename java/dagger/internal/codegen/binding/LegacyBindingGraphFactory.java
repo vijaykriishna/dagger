@@ -44,7 +44,6 @@ import dagger.internal.codegen.base.Keys;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.ComponentPath;
@@ -53,6 +52,7 @@ import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.model.Scope;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -398,7 +398,7 @@ public final class LegacyBindingGraphFactory {
       }
 
       // Add members injector binding
-      if (isTypeOf(requestKey.type().xprocessing(), TypeNames.MEMBERS_INJECTOR)) {
+      if (isTypeOf(requestKey.type().xprocessing(), XTypeNames.MEMBERS_INJECTOR)) {
         injectBindingRegistry.getOrFindMembersInjectorBinding(requestKey).ifPresent(bindings::add);
       }
 

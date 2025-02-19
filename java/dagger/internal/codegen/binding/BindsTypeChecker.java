@@ -23,13 +23,13 @@ import static dagger.internal.codegen.xprocessing.XProcessingEnvs.getUnboundedWi
 import static dagger.internal.codegen.xprocessing.XTypes.isAssignableTo;
 import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
 
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.javapoet.ExpressionType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import javax.inject.Inject;
 
@@ -77,7 +77,7 @@ public final class BindsTypeChecker {
         // TODO(b/211774331): The left hand side type should be limited to Set types.
         // NOTE: We rewrap the LHS to use java.util.Set before looking for the addAll() method
         // because Kotlin source may be using kotlin.collection.Set which does not include addAll().
-        return methodParameterType(rewrapType(leftHandSide,  TypeNames.SET), "addAll");
+        return methodParameterType(rewrapType(leftHandSide,  XTypeName.MUTABLE_SET), "addAll");
       case MAP:
         XType parameterizedMapType =
             processingEnv.getDeclaredType(mapElement(), unboundedWildcard(), leftHandSide);
@@ -100,11 +100,11 @@ public final class BindsTypeChecker {
   }
 
   private XTypeElement setElement() {
-    return processingEnv.requireTypeElement(TypeNames.SET);
+    return processingEnv.requireTypeElement(XTypeName.MUTABLE_SET);
   }
 
   private XTypeElement mapElement() {
-    return processingEnv.requireTypeElement(TypeNames.MAP);
+    return processingEnv.requireTypeElement(XTypeName.MUTABLE_MAP);
   }
 
   private XType unboundedWildcard() {

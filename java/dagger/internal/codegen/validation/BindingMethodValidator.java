@@ -19,7 +19,6 @@ package dagger.internal.codegen.validation;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.getEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
-import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 import static java.util.stream.Collectors.joining;
 
@@ -35,7 +34,6 @@ import com.google.errorprone.annotations.FormatMethod;
 import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.javapoet.TypeNames;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** A validator for methods that represent binding declarations. */
@@ -119,7 +117,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
 
   @Override
   protected final String bindingElements() {
-    return String.format("@%s methods", simpleName(methodAnnotation));
+    return String.format("@%s methods", methodAnnotation.getSimpleName());
   }
 
   @Override
@@ -177,7 +175,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
             bindingMethods(
                 "can only be present within a @%s",
                 enclosingElementAnnotations.stream()
-                    .map(XTypeNames::simpleName)
+                    .map(XClassName::getSimpleName)
                     .collect(joining(" or @"))));
       }
     }

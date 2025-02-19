@@ -74,7 +74,7 @@ public final class DuplicateAndroidInjectorsChecker implements BindingGraphPlugi
 
     return XTypes.isTypeOf(
             DaggerElements.toXProcessing(key.type(), processingEnv),
-            TypeNames.DISPATCHING_ANDROID_INJECTOR)
+            XTypeNames.DISPATCHING_ANDROID_INJECTOR)
         && !key.qualifier().isPresent();
   }
 
@@ -127,12 +127,12 @@ public final class DuplicateAndroidInjectorsChecker implements BindingGraphPlugi
                   DaggerElements.toXProcessing(requestedBinding.key().type(), processingEnv)
                       .getTypeArguments()
                       .get(1);
-              if (!XTypes.isTypeOf(valueType, TypeNames.PROVIDER)
+              if (!XTypes.isTypeOf(valueType, XTypeNames.PROVIDER)
                   || !XTypes.isDeclared(valueType)) {
                 return false;
               }
               XType providedType = valueType.getTypeArguments().get(0);
-              return XTypes.isTypeOf(providedType, TypeNames.ANDROID_INJECTOR_FACTORY);
+              return XTypes.isTypeOf(providedType, XTypeNames.ANDROID_INJECTOR_FACTORY);
             });
   }
 
@@ -142,7 +142,8 @@ public final class DuplicateAndroidInjectorsChecker implements BindingGraphPlugi
         .map(
             bindingElement ->
                 XElements.getAnnotatedAnnotations(
-                    DaggerElements.toXProcessing(bindingElement, processingEnv), TypeNames.MAP_KEY))
+                    DaggerElements.toXProcessing(bindingElement, processingEnv),
+                    XTypeNames.MAP_KEY))
         .flatMap(
             annotations ->
                 annotations.isEmpty()

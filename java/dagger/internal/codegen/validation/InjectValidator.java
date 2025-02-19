@@ -26,7 +26,6 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
-import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -221,7 +220,7 @@ public final class InjectValidator implements ClearableCache {
           builder.addError(
               String.format(
                   "@Qualifier annotations are not allowed on @%s constructors",
-                  simpleName(injectAnnotation)),
+                  injectAnnotation.getSimpleName()),
               constructorElement,
               qualifier);
         }
@@ -229,7 +228,7 @@ public final class InjectValidator implements ClearableCache {
         String scopeErrorMsg =
             String.format(
                 "@Scope annotations are not allowed on @%s constructors",
-                simpleName(injectAnnotation));
+                injectAnnotation.getSimpleName());
 
         if (injectAnnotation.equals(XTypeNames.INJECT)
             || injectAnnotation.equals(XTypeNames.INJECT_JAVAX)) {
@@ -251,7 +250,7 @@ public final class InjectValidator implements ClearableCache {
         builder.addItem(
             String.format(
                 "Dagger does not support checked exceptions on @%s constructors",
-                simpleName(injectAnnotation)),
+                injectAnnotation.getSimpleName()),
             privateMemberDiagnosticKind,
             constructorElement);
       }
@@ -263,7 +262,7 @@ public final class InjectValidator implements ClearableCache {
         builder.addError(
             String.format(
                 "@%s is nonsense on the constructor of an abstract class",
-                simpleName(injectAnnotation)),
+                injectAnnotation.getSimpleName()),
             constructorElement);
       }
 
@@ -272,7 +271,7 @@ public final class InjectValidator implements ClearableCache {
             String.format(
                 "@%s constructors are invalid on inner classes. "
                     + "Did you mean to make the class static?",
-                simpleName(injectAnnotation)),
+                injectAnnotation.getSimpleName()),
             constructorElement);
       }
 

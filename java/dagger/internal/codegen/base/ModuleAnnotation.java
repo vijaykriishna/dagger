@@ -51,7 +51,7 @@ public abstract class ModuleAnnotation {
 
   /** The simple name of the annotation. */
   public String simpleName() {
-    return XTypeNames.simpleName(className());
+    return className().getSimpleName();
   }
 
   /**

@@ -34,7 +34,6 @@ import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.hasTypeParameters;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isEffectivelyPrivate;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isEffectivelyPublic;
-import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.areEquivalentTypes;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.stream.Collectors.joining;
@@ -188,7 +187,7 @@ public final class ModuleValidator {
       builder.addError(
           String.format(
               "A @%s may not contain both non-static and abstract binding methods",
-              simpleName(moduleKind.annotation())));
+              moduleKind.annotation().getSimpleName()));
     }
 
     validateModuleVisibility(module, moduleKind, builder);
@@ -237,7 +236,7 @@ public final class ModuleValidator {
                         .addError(
                             String.format(
                                 "@%s was used, but %s was not found on the processor path",
-                                simpleName(CONTRIBUTES_ANDROID_INJECTOR_NAME),
+                                CONTRIBUTES_ANDROID_INJECTOR_NAME.getSimpleName(),
                                 ANDROID_PROCESSOR_NAME))
                         .build()));
   }
@@ -260,7 +259,7 @@ public final class ModuleValidator {
                       String.format(
                           "@%s-annotated Kotlin object cannot inherit instance (i.e. non-abstract, "
                               + "non-JVM static) binding method: %s",
-                          simpleName(moduleKind.annotation()),
+                          moduleKind.annotation().getSimpleName(),
                           methodSignatureFormatter.format(method))));
     }
   }
@@ -441,7 +440,7 @@ public final class ModuleValidator {
                 module.getQualifiedName(),
                 (validModuleAnnotations.size() > 1 ? "one of " : "")
                     + validModuleAnnotations.stream()
-                        .map(otherClass -> "@" + simpleName(otherClass))
+                        .map(otherClass -> "@" + otherClass.getSimpleName())
                         .collect(joining(", "))),
             annotatedType,
             annotation,
@@ -598,7 +597,7 @@ public final class ModuleValidator {
       report.addError(
           String.format(
               "@%ss cannot be scoped. Did you mean to scope a method instead?",
-              simpleName(moduleKind.annotation())),
+              moduleKind.annotation().getSimpleName()),
           module,
           scope.scopeAnnotation().xprocessing());
     }
@@ -613,7 +612,7 @@ public final class ModuleValidator {
             includedModule ->
                 builder.addError(
                     String.format(
-                        "@%s cannot include themselves.", simpleName(moduleKind.annotation())),
+                        "@%s cannot include themselves.", moduleKind.annotation().getSimpleName()),
                     module,
                     moduleAnnotation,
                     includedModule));

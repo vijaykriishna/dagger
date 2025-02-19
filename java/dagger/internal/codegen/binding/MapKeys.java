@@ -46,8 +46,8 @@ import com.squareup.javapoet.MethodSpec;
 import dagger.MapKey;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.MapKeyAccessibility;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -68,7 +68,7 @@ public final class MapKeys {
 
   /** Returns all of the {@link MapKey} annotations that annotate {@code bindingElement}. */
   public static ImmutableSet<XAnnotation> getMapKeys(XElement bindingElement) {
-    return XElements.getAnnotatedAnnotations(bindingElement, TypeNames.MAP_KEY);
+    return XElements.getAnnotatedAnnotations(bindingElement, XTypeNames.MAP_KEY);
   }
 
   /**
@@ -80,7 +80,7 @@ public final class MapKeys {
    */
   private static Optional<XAnnotationValue> unwrapValue(XAnnotation mapKey) {
     XTypeElement mapKeyType = mapKey.getType().getTypeElement();
-    XAnnotation mapKeyAnnotation = mapKeyType.getAnnotation(TypeNames.MAP_KEY);
+    XAnnotation mapKeyAnnotation = mapKeyType.getAnnotation(XTypeNames.MAP_KEY);
     checkArgument(mapKeyAnnotation != null, "%s is not annotated with @MapKey", mapKeyType);
     return mapKeyAnnotation.getAsBoolean("unwrapValue")
         ? Optional.of(getOnlyElement(mapKey.getAnnotationValues()))
@@ -120,8 +120,8 @@ public final class MapKeys {
     }
     // If the source kind is Kotlin, the annotation value type is seen as KClass rather than Class,
     // but either way we want the multibinding key to be Class so we rewrap it here.
-    return isTypeOf(annotationValueType, TypeNames.KCLASS)
-        ? rewrapType(annotationValueType, TypeNames.CLASS)
+    return isTypeOf(annotationValueType, XTypeNames.KCLASS)
+        ? rewrapType(annotationValueType, XTypeNames.CLASS)
         : annotationValueType.boxed();
   }
 
@@ -215,8 +215,9 @@ public final class MapKeys {
           && contributionBinding
               .mapKey()
               .get()
-              .getClassName()
-              .equals(TypeNames.LAZY_CLASS_KEY);
+              .getTypeElement()
+              .asClassName()
+              .equals(XTypeNames.LAZY_CLASS_KEY);
     }
     return false;
   }

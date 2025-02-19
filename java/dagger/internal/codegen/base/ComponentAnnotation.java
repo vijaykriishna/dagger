@@ -82,7 +82,7 @@ public abstract class ComponentAnnotation {
 
   /** The simple name of the annotation type. */
   public final String simpleName() {
-    return XTypeNames.simpleName(className());
+    return className().getSimpleName();
   }
 
   /**

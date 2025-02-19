@@ -34,7 +34,10 @@ import dagger.internal.codegen.xprocessing.XTypeElements
 import dagger.internal.codegen.xprocessing.XTypes
 
 /** Data class that represents a Hilt injected ViewModel */
-@OptIn(ExperimentalProcessingApi::class)
+@OptIn(
+  ExperimentalProcessingApi::class,
+  com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview::class
+)
 internal class ViewModelMetadata
 private constructor(val viewModelElement: XTypeElement, val assistedFactory: XTypeElement) {
   val className = viewModelElement.asClassName().toJavaPoet()

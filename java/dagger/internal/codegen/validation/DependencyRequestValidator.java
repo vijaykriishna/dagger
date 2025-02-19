@@ -48,6 +48,7 @@ import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -193,7 +194,7 @@ final class DependencyRequestValidator {
                 + XTypes.toStableString(keyType),
             requestElement);
       }
-      if (isTypeOf(keyType, TypeNames.MEMBERS_INJECTOR)) {
+      if (isTypeOf(keyType, XTypeNames.MEMBERS_INJECTOR)) {
         if (keyType.getTypeArguments().isEmpty()) {
           report.addError("Cannot inject a raw MembersInjector", requestElement);
         } else {

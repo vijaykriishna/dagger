@@ -44,6 +44,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XElement;
@@ -57,7 +58,6 @@ import androidx.room.compiler.processing.compat.XConverters;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.ClassName;
 import dagger.Reusable;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -90,8 +90,9 @@ public final class DaggerSuperficialValidation {
    * Returns the type element with the given class name or throws {@link ValidationException} if it
    * is not accessible in the current compilation.
    */
-  public static XTypeElement requireTypeElement(XProcessingEnv processingEnv, ClassName className) {
-    return requireTypeElement(processingEnv, className.canonicalName());
+  public static XTypeElement requireTypeElement(
+      XProcessingEnv processingEnv, XClassName className) {
+    return requireTypeElement(processingEnv, className.getCanonicalName());
   }
 
   /**
@@ -474,7 +475,10 @@ public final class DaggerSuperficialValidation {
   }
 
   private void validateIsTypeOf(XType expectedType, Class<?> clazz) {
-    ClassName actualClassName = ClassName.get(clazz);
+    // TODO(b/248633751): We get the XClassName via an XTypeElement rather than XClassName.get()
+    // because the latter does not handle interop types correctly.
+    XClassName actualClassName =
+        processingEnv.requireTypeElement(clazz.getCanonicalName()).asClassName();
     if (!isTypeOf(expectedType.boxed(), actualClassName)) {
       throw new ValidationException.UnknownErrorType()
           .append(

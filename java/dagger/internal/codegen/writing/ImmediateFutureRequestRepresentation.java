@@ -30,7 +30,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
   private final RequestRepresentation instanceRequestRepresentation;
@@ -50,7 +50,7 @@ final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
   @Override
   Expression getDependencyExpression(ClassName requestingClass) {
     return Expression.create(
-        wrapType(TypeNames.LISTENABLE_FUTURE, type, processingEnv),
+        wrapType(XTypeNames.LISTENABLE_FUTURE, type, processingEnv),
         CodeBlock.of("$T.immediateFuture($L)", Futures.class, instanceExpression(requestingClass)));
   }
 

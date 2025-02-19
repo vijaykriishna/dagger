@@ -18,10 +18,10 @@ package dagger.internal.codegen.base;
 
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Set;
 
 /**
@@ -30,36 +30,36 @@ import java.util.Set;
  */
 public final class FrameworkTypes {
   // TODO(erichang): Add the Jakarta Provider here
-  private static final ImmutableSet<ClassName> PROVISION_TYPES =
+  private static final ImmutableSet<XClassName> PROVISION_TYPES =
       ImmutableSet.of(
-          TypeNames.PROVIDER,
-          TypeNames.JAKARTA_PROVIDER,
-          TypeNames.LAZY,
-          TypeNames.MEMBERS_INJECTOR);
+          XTypeNames.PROVIDER,
+          XTypeNames.JAKARTA_PROVIDER,
+          XTypeNames.LAZY,
+          XTypeNames.MEMBERS_INJECTOR);
 
   // NOTE(beder): ListenableFuture is not considered a producer framework type because it is not
   // defined by the framework, so we can't treat it specially in ordinary Dagger.
-  private static final ImmutableSet<ClassName> PRODUCTION_TYPES =
-      ImmutableSet.of(TypeNames.PRODUCED, TypeNames.PRODUCER);
+  private static final ImmutableSet<XClassName> PRODUCTION_TYPES =
+      ImmutableSet.of(XTypeNames.PRODUCED, XTypeNames.PRODUCER);
 
-  private static final ImmutableSet<ClassName> ALL_FRAMEWORK_TYPES =
-      ImmutableSet.<ClassName>builder().addAll(PROVISION_TYPES).addAll(PRODUCTION_TYPES).build();
+  private static final ImmutableSet<XClassName> ALL_FRAMEWORK_TYPES =
+      ImmutableSet.<XClassName>builder().addAll(PROVISION_TYPES).addAll(PRODUCTION_TYPES).build();
 
-  public static final ImmutableSet<ClassName> SET_VALUE_FRAMEWORK_TYPES =
-      ImmutableSet.of(TypeNames.PRODUCED);
+  public static final ImmutableSet<XClassName> SET_VALUE_FRAMEWORK_TYPES =
+      ImmutableSet.of(XTypeNames.PRODUCED);
 
-  public static final ImmutableSet<ClassName> MAP_VALUE_FRAMEWORK_TYPES =
+  public static final ImmutableSet<XClassName> MAP_VALUE_FRAMEWORK_TYPES =
       ImmutableSet.of(
-          TypeNames.PRODUCED,
-          TypeNames.PRODUCER,
-          TypeNames.PROVIDER,
-          TypeNames.JAKARTA_PROVIDER);
+          XTypeNames.PRODUCED,
+          XTypeNames.PRODUCER,
+          XTypeNames.PROVIDER,
+          XTypeNames.JAKARTA_PROVIDER);
 
   // This is a set of types that are disallowed from use, but also aren't framework types in the
   // sense that they aren't supported. Like we shouldn't try to unwrap these if we see them, though
   // we shouldn't see them at all if they are correctly caught in validation.
-  private static final ImmutableSet<ClassName> DISALLOWED_TYPES =
-      ImmutableSet.of(TypeNames.DAGGER_PROVIDER);
+  private static final ImmutableSet<XClassName> DISALLOWED_TYPES =
+      ImmutableSet.of(XTypeNames.DAGGER_PROVIDER);
 
   /** Returns true if the type represents a producer-related framework type. */
   public static boolean isProducerType(XType type) {
@@ -83,7 +83,7 @@ public final class FrameworkTypes {
     return typeIsOneOf(DISALLOWED_TYPES, type);
   }
 
-  private static boolean typeIsOneOf(Set<ClassName> classNames, XType type) {
+  private static boolean typeIsOneOf(Set<XClassName> classNames, XType type) {
     return classNames.stream().anyMatch(className -> isTypeOf(type, className));
   }
 

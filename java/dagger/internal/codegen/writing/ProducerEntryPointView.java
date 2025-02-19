@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.FRAMEWORK_FIELD;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
@@ -28,9 +29,9 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /**
@@ -93,7 +94,7 @@ final class ProducerEntryPointView {
         CodeBlock.of(
             "this.$N = $T.entryPointViewOf($L, $L);",
             field,
-            TypeNames.PRODUCERS,
+            toJavaPoet(XTypeNames.PRODUCERS),
             producerExpression.getDependencyExpression(shardImplementation.name()).codeBlock(),
             // Always pass in the componentShard reference here rather than the owning shard for
             // this key because this needs to be the root CancellationListener.
@@ -112,7 +113,7 @@ final class ProducerEntryPointView {
   // needing to (re)compute this?
   private XType fieldType(ComponentMethodDescriptor componentMethod) {
     return wrapType(
-        TypeNames.PRODUCER,
+        XTypeNames.PRODUCER,
         componentMethod.dependencyRequest().get().key().type().xprocessing(),
         processingEnv);
   }

@@ -20,10 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypes;
 
@@ -55,8 +54,8 @@ public final class SetType {
   }
 
   /** The set type itself. */
-  TypeName typeName() {
-    return type.getTypeName();
+  XTypeName typeName() {
+    return type.asTypeName();
   }
 
   /** {@code true} if the set type is the raw {@link java.util.Set} type. */
@@ -70,7 +69,7 @@ public final class SetType {
   }
 
   /** Returns {@code true} if {@link #elementType()} is of type {@code className}. */
-  public boolean elementsAreTypeOf(ClassName className) {
+  public boolean elementsAreTypeOf(XClassName className) {
     return !isRawType() && isTypeOf(elementType(), className);
   }
 
@@ -80,7 +79,7 @@ public final class SetType {
    * @throws IllegalStateException if {@link #elementType()} is not a {@code WrappingClass<T>}
    */
   // TODO(b/202033221): Consider using stricter input type, e.g. FrameworkType.
-  public XType unwrappedElementType(ClassName wrappingClass) {
+  public XType unwrappedElementType(XClassName wrappingClass) {
     checkArgument(
         elementsAreTypeOf(wrappingClass),
         "expected elements to be %s, but this type is %s",
@@ -91,7 +90,8 @@ public final class SetType {
 
   /** {@code true} if {@code type} is a {@link java.util.Set} type. */
   public static boolean isSet(XType type) {
-    return isTypeOf(type, TypeNames.SET);
+    // In general, Dagger ignores mutability so check for both kotlin.collection.(Set|MutableSet).
+    return XTypes.isTypeOf(type, XTypeName.SET) || XTypes.isTypeOf(type, XTypeName.MUTABLE_SET);
   }
 
   /** {@code true} if {@code key.type()} is a {@link java.util.Set} type. */

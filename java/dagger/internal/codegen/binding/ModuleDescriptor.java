@@ -29,6 +29,8 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
@@ -37,8 +39,6 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Traverser;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.Module;
@@ -228,7 +228,7 @@ public abstract class ModuleDescriptor {
       XType superclass = moduleElement.getSuperType();
       if (superclass != null) {
         verify(isDeclared(superclass));
-        if (!TypeName.OBJECT.equals(superclass.getTypeName())) {
+        if (!superclass.asTypeName().equals(XTypeName.ANY_OBJECT)) {
           collectIncludedModules(includedModules, superclass.getTypeElement());
         }
       }
@@ -244,8 +244,8 @@ public abstract class ModuleDescriptor {
       return includedModules;
     }
 
-    private static final ClassName CONTRIBUTES_ANDROID_INJECTOR =
-        ClassName.get("dagger.android", "ContributesAndroidInjector");
+    private static final XClassName CONTRIBUTES_ANDROID_INJECTOR =
+        XClassName.get("dagger.android", "ContributesAndroidInjector");
 
     // @ContributesAndroidInjector generates a module that is implicitly included in the enclosing
     // module
@@ -262,8 +262,8 @@ public abstract class ModuleDescriptor {
           .collect(toImmutableSet());
     }
 
-    private ClassName implicitlyIncludedModuleName(XTypeElement module, XMethodElement method) {
-      return ClassName.get(
+    private XClassName implicitlyIncludedModuleName(XTypeElement module, XMethodElement method) {
+      return XClassName.get(
           module.getPackageName(),
           String.format(
               "%s_%s",

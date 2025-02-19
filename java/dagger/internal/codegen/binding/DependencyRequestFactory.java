@@ -40,12 +40,12 @@ import com.google.common.collect.ImmutableSet;
 import dagger.Lazy;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerElement;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -152,7 +152,7 @@ public final class DependencyRequestFactory {
     Optional<XAnnotation> qualifier = injectionAnnotations.getQualifier(productionMethod);
     // Only a component production method can be a request for a ListenableFuture, so we
     // special-case it here.
-    if (isTypeOf(type, TypeNames.LISTENABLE_FUTURE)) {
+    if (isTypeOf(type, XTypeNames.LISTENABLE_FUTURE)) {
       return DependencyRequest.builder()
           .kind(FUTURE)
           .key(keyFactory.forQualifiedType(qualifier, unwrapType(type)))

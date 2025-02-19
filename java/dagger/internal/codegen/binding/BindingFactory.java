@@ -45,12 +45,12 @@ import dagger.Module;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.SetType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -126,7 +126,7 @@ public final class BindingFactory {
   // TODO(dpb): See if we can just pass the parameterized type and not also the constructor.
   public AssistedInjectionBinding assistedInjectionBinding(
       XConstructorElement constructorElement, Optional<XType> resolvedEnclosingType) {
-    checkArgument(constructorElement.hasAnnotation(TypeNames.ASSISTED_INJECT));
+    checkArgument(constructorElement.hasAnnotation(XTypeNames.ASSISTED_INJECT));
 
     XConstructorType constructorType = constructorElement.getExecutableType();
     XType enclosingType = constructorElement.getEnclosingElement().getType();
@@ -265,11 +265,11 @@ public final class BindingFactory {
       Key key, Iterable<ContributionBinding> multibindingContributions) {
     if (MapType.isMap(key)) {
       MapType mapType = MapType.from(key);
-      if (mapType.valuesAreTypeOf(TypeNames.PRODUCER)
-          || mapType.valuesAreTypeOf(TypeNames.PRODUCED)) {
+      if (mapType.valuesAreTypeOf(XTypeNames.PRODUCER)
+          || mapType.valuesAreTypeOf(XTypeNames.PRODUCED)) {
         return Optional.of(BindingType.PRODUCTION);
       }
-    } else if (SetType.isSet(key) && SetType.from(key).elementsAreTypeOf(TypeNames.PRODUCED)) {
+    } else if (SetType.isSet(key) && SetType.from(key).elementsAreTypeOf(XTypeNames.PRODUCED)) {
       return Optional.of(BindingType.PRODUCTION);
     }
     if (Iterables.any(
@@ -420,8 +420,8 @@ public final class BindingFactory {
                 // contributions should include the factory type based on the compiler flag,
                 // -Adagger.useFrameworkTypeInMapMultibindingContributionKey.
                 : optionalBindingType.get() == BindingType.PRODUCTION
-                    ? keyFactory.forDelegateBinding(delegateDeclaration, TypeNames.PRODUCER)
-                    : keyFactory.forDelegateBinding(delegateDeclaration, TypeNames.PROVIDER))
+                    ? keyFactory.forDelegateBinding(delegateDeclaration, XTypeNames.PRODUCER)
+                    : keyFactory.forDelegateBinding(delegateDeclaration, XTypeNames.PROVIDER))
         .scope(injectionAnnotations.getScope(delegateDeclaration.bindingElement().get()))
         .build();
   }

@@ -84,6 +84,7 @@ gen_maven_artifact(
         "com.google.dagger:dagger-spi",
         "com.google.guava:failureaccess",
         "com.squareup:kotlinpoet",
+        "com.squareup:kotlinpoet-javapoet",
         "net.ltgt.gradle.incap:incap",
         "org.jetbrains.kotlin:kotlin-stdlib",
     ],

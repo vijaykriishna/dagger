@@ -33,7 +33,7 @@ import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.squareup.javapoet.CodeBlock;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * Returns an expression creating an instance of the visited annotation type. Its parameter must be
@@ -99,9 +99,10 @@ public final class AnnotationExpression {
       return CodeBlock.of(
           "new $T[] {$L}",
           // TODO(b/264464791): The KClass -> Class swap can be removed once this bug is fixed.
-          isTypeOf(componentType, TypeNames.KCLASS)
-              ? TypeNames.CLASS
-              : componentType.getRawType().getTypeName(),
+          toJavaPoet(
+              isTypeOf(componentType, XTypeNames.KCLASS)
+                  ? XTypeNames.CLASS
+                  : componentType.getRawType().asTypeName()),
           value.asAnnotationValueList().stream()
               .map(this::getValueExpression)
               .collect(toParametersCodeBlock()));

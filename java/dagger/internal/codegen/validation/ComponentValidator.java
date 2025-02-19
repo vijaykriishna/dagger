@@ -41,7 +41,6 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.javacOverrides;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
-import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.Comparator.comparing;
 
@@ -208,7 +207,7 @@ public final class ComponentValidator implements ClearableCache {
     private String invalidTypeError() {
       return String.format(
           "@%s may only be applied to an interface or abstract class",
-          simpleName(componentKind().annotation()));
+          componentKind().annotation().getSimpleName());
     }
 
     private void validateFields() {

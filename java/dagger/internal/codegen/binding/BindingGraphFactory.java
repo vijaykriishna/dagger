@@ -47,7 +47,6 @@ import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.base.TarjanSCCs;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.Edge;
 import dagger.internal.codegen.model.BindingGraph.MissingBinding;
@@ -58,6 +57,7 @@ import dagger.internal.codegen.model.DaggerTypeElement;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -284,7 +284,7 @@ public final class BindingGraphFactory {
       }
 
       // Add members injector binding
-      if (isTypeOf(requestKey.type().xprocessing(), TypeNames.MEMBERS_INJECTOR)) {
+      if (isTypeOf(requestKey.type().xprocessing(), XTypeNames.MEMBERS_INJECTOR)) {
         injectBindingRegistry.getOrFindMembersInjectorBinding(requestKey).ifPresent(bindings::add);
       }
 

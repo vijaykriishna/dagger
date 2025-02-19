@@ -50,7 +50,7 @@ public enum ComponentCreatorAnnotation {
 
   ComponentCreatorAnnotation(XClassName annotation) {
     this.annotation = annotation;
-    this.creatorKind = ComponentCreatorKind.valueOf(toUpperCase(XTypeNames.simpleName(annotation)));
+    this.creatorKind = ComponentCreatorKind.valueOf(toUpperCase(annotation.getSimpleName()));
     this.componentAnnotation = XTypeNames.enclosingClassName(annotation);
   }
 
@@ -66,14 +66,14 @@ public enum ComponentCreatorAnnotation {
 
   /** Returns {@code true} if the creator annotation is for a subcomponent. */
   public final boolean isSubcomponentCreatorAnnotation() {
-    return XTypeNames.simpleName(componentAnnotation()).endsWith("Subcomponent");
+    return componentAnnotation().getSimpleName().endsWith("Subcomponent");
   }
 
   /**
    * Returns {@code true} if the creator annotation is for a production component or subcomponent.
    */
   public final boolean isProductionCreatorAnnotation() {
-    return XTypeNames.simpleName(componentAnnotation()).startsWith("Production");
+    return componentAnnotation().getSimpleName().startsWith("Production");
   }
 
   /** The creator kind the annotation is associated with. */
@@ -88,7 +88,7 @@ public enum ComponentCreatorAnnotation {
   }
 
   public final String simpleName() {
-    return XTypeNames.simpleName(annotation());
+    return annotation().getSimpleName();
   }
 
   /** Returns all component creator annotations. */
@@ -129,7 +129,7 @@ public enum ComponentCreatorAnnotation {
     return stream()
         .filter(
             creatorAnnotation ->
-                XTypeNames.simpleName(creatorAnnotation.componentAnnotation())
+                creatorAnnotation.componentAnnotation().getSimpleName()
                     .equals(componentAnnotation.simpleName()))
         .collect(toAnnotationClasses());
   }

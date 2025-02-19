@@ -33,6 +33,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isNoType;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XArrayType;
 import androidx.room.compiler.processing.XConstructorType;
 import androidx.room.compiler.processing.XExecutableType;
@@ -279,8 +280,8 @@ public final class XTypes {
   }
 
   /** Returns {@code true} if the raw type of {@code type} is equal to {@code className}. */
-  public static boolean isTypeOf(XType type, ClassName className) {
-    return isDeclared(type) && type.getTypeElement().getClassName().equals(className);
+  public static boolean isTypeOf(XType type, XClassName className) {
+    return isDeclared(type) && type.getTypeElement().asClassName().equals(className);
   }
 
   /** Returns {@code true} if the given type represents the {@code null} type. */
@@ -471,9 +472,10 @@ public final class XTypes {
    *
    * @throws IllegalArgumentException if {@code} has more than one type argument.
    */
-  public static XType rewrapType(XType type, ClassName wrappingClassName) {
+  public static XType rewrapType(XType type, XClassName wrappingClassName) {
     XProcessingEnv processingEnv = getProcessingEnv(type);
-    XTypeElement wrappingType = processingEnv.requireTypeElement(wrappingClassName.canonicalName());
+    XTypeElement wrappingType =
+        processingEnv.requireTypeElement(wrappingClassName.getCanonicalName());
     switch (type.getTypeArguments().size()) {
       case 0:
         return processingEnv.getDeclaredType(wrappingType);

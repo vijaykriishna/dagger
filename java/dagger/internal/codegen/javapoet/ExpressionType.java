@@ -18,11 +18,11 @@ package dagger.internal.codegen.javapoet;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XRawType;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.compat.XConverters;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.xprocessing.XProcessingEnvs;
 import dagger.internal.codegen.xprocessing.XTypes;
@@ -67,7 +67,7 @@ public final class ExpressionType {
         : ExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
   }
 
-  public ExpressionType wrapType(ClassName wrapper) {
+  public ExpressionType wrapType(XClassName wrapper) {
     return optionalType.isPresent()
         ? ExpressionType.create(
             XProcessingEnvs.wrapType(wrapper, optionalType.get(), processingEnv))
@@ -78,7 +78,7 @@ public final class ExpressionType {
         : ExpressionType.createRawType(processingEnv.requireType(wrapper));
   }
 
-  public ExpressionType rewrapType(ClassName wrapper) {
+  public ExpressionType rewrapType(XClassName wrapper) {
     return optionalType.isPresent()
         ? ExpressionType.create(XTypes.rewrapType(optionalType.get(), wrapper))
         : ExpressionType.createRawType(processingEnv.requireType(wrapper));

@@ -21,10 +21,10 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.javapoet.TypeNames;
@@ -98,11 +98,11 @@ public enum FrameworkType {
 
         case PROVIDER_OF_LAZY:
           return Expression.create(
-              from.type().rewrapType(TypeNames.LAZY).wrapType(TypeNames.DAGGER_PROVIDER),
+              from.type().rewrapType(XTypeNames.LAZY).wrapType(XTypeNames.DAGGER_PROVIDER),
               codeBlock);
 
         case FUTURE:
-          return Expression.create(from.type().rewrapType(TypeNames.LISTENABLE_FUTURE), codeBlock);
+          return Expression.create(from.type().rewrapType(XTypeNames.LISTENABLE_FUTURE), codeBlock);
 
         default:
           return Expression.create(
@@ -138,7 +138,7 @@ public enum FrameworkType {
       switch (requestKind) {
         case FUTURE:
           return Expression.create(
-              from.type().rewrapType(TypeNames.LISTENABLE_FUTURE),
+              from.type().rewrapType(XTypeNames.LISTENABLE_FUTURE),
               to(
                   requestKind,
                   from.codeBlock()));
@@ -192,8 +192,8 @@ public enum FrameworkType {
   }
 
   /** Returns the {@link #frameworkClassName()} parameterized with a type. */
-  public ParameterizedTypeName frameworkClassOf(TypeName valueType) {
-    return ParameterizedTypeName.get(toJavaPoet(frameworkClassName()), valueType);
+  public ParameterizedTypeName frameworkClassOf(XTypeName valueType) {
+    return ParameterizedTypeName.get(toJavaPoet(frameworkClassName()), toJavaPoet(valueType));
   }
 
   /** The request kind that an instance of this framework type can satisfy directly, if any. */

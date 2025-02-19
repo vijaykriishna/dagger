@@ -21,13 +21,13 @@ import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 
 /** Information about a {@link java.util.Map} type. */
@@ -53,7 +53,7 @@ public final class MapType {
 
   // TODO(b/28555349): support PROVIDER_OF_LAZY here too
   // TODO(b/376124787): We could consolidate this with a similar list in FrameworkTypes
-  // if we had a better way to go from RequestKind to framework ClassName or vice versa
+  // if we had a better way to go from RequestKind to framework class name or vice versa
   /** The valid framework request kinds allowed on a multibinding map value. */
   private static final ImmutableSet<RequestKind> VALID_FRAMEWORK_REQUEST_KINDS =
       ImmutableSet.of(RequestKind.PROVIDER, RequestKind.PRODUCER, RequestKind.PRODUCED);
@@ -65,8 +65,8 @@ public final class MapType {
   }
 
   /** The map type itself. */
-  TypeName typeName() {
-    return type.getTypeName();
+  XTypeName typeName() {
+    return type.asTypeName();
   }
 
   /** {@code true} if the map type is the raw {@link java.util.Map} type. */
@@ -95,7 +95,7 @@ public final class MapType {
   }
 
   /** Returns {@code true} if the raw type of {@link #valueType()} is {@code className}. */
-  public boolean valuesAreTypeOf(ClassName className) {
+  public boolean valuesAreTypeOf(XClassName className) {
     return !isRawType() && isTypeOf(valueType(), className);
   }
 
@@ -106,7 +106,7 @@ public final class MapType {
 
   /** Returns {@code true} if the raw type of {@link #valueType()} is a provider type.*/
   public boolean valuesAreProvider() {
-    return valuesAreTypeOf(TypeNames.PROVIDER) || valuesAreTypeOf(TypeNames.JAKARTA_PROVIDER);
+    return valuesAreTypeOf(XTypeNames.PROVIDER) || valuesAreTypeOf(XTypeNames.JAKARTA_PROVIDER);
   }
 
   /**
@@ -149,7 +149,8 @@ public final class MapType {
 
   /** Returns {@code true} if {@code type} is a {@link java.util.Map} type. */
   public static boolean isMap(XType type) {
-    return isTypeOf(type, TypeNames.MAP);
+    // In general, Dagger ignores mutability so check for both kotlin.collection.(Map|MutableMap).
+    return XTypes.isTypeOf(type, XTypeName.MAP) || XTypes.isTypeOf(type, XTypeName.MUTABLE_MAP);
   }
 
   /** Returns {@code true} if {@code key.type()} is a {@link java.util.Map} type. */

@@ -16,21 +16,21 @@
 
 package dagger.internal.codegen.base;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.valuesOf;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * Information about an {@code Optional} type.
@@ -41,45 +41,47 @@ public final class OptionalType {
   /** A variant of {@code Optional}. */
   public enum OptionalKind {
     /** {@link com.google.common.base.Optional}. */
-    GUAVA_OPTIONAL(TypeNames.GUAVA_OPTIONAL, "absent"),
+    GUAVA_OPTIONAL(XTypeNames.GUAVA_OPTIONAL, "absent"),
 
     /** {@link java.util.Optional}. */
-    JDK_OPTIONAL(TypeNames.JDK_OPTIONAL, "empty");
+    JDK_OPTIONAL(XTypeNames.JDK_OPTIONAL, "empty");
 
     // Keep a cache from class name to OptionalKind for quick look-up.
-    private static final ImmutableMap<ClassName, OptionalKind> OPTIONAL_KIND_BY_CLASS_NAME =
+    private static final ImmutableMap<XClassName, OptionalKind> OPTIONAL_KIND_BY_CLASS_NAME =
         valuesOf(OptionalKind.class)
             .collect(toImmutableMap(value -> value.className, value -> value));
 
-    private final ClassName className;
+    @SuppressWarnings("ImmutableEnumChecker")
+    private final XClassName className; // XClassName is immutable
+
     private final String absentMethodName;
 
-    OptionalKind(ClassName className, String absentMethodName) {
+    OptionalKind(XClassName className, String absentMethodName) {
       this.className = className;
       this.absentMethodName = absentMethodName;
     }
 
     private static boolean isOptionalKind(XTypeElement type) {
-      return OPTIONAL_KIND_BY_CLASS_NAME.containsKey(type.getClassName());
+      return OPTIONAL_KIND_BY_CLASS_NAME.containsKey(type.asClassName());
     }
 
     private static OptionalKind of(XTypeElement type) {
-      return OPTIONAL_KIND_BY_CLASS_NAME.get(type.getClassName());
+      return OPTIONAL_KIND_BY_CLASS_NAME.get(type.asClassName());
     }
 
-    /** Returns the {@link ClassName} of this optional kind. */
-    public ClassName className() {
+    /** Returns the {@link XClassName} of this optional kind. */
+    public XClassName className() {
       return className;
     }
 
     /** Returns {@code valueType} wrapped in the correct class. */
-    public ParameterizedTypeName of(TypeName valueType) {
-      return ParameterizedTypeName.get(className, valueType);
+    public XTypeName of(XTypeName valueType) {
+      return className.parametrizedBy(valueType);
     }
 
     /** Returns an expression for the absent/empty value. */
     public CodeBlock absentValueExpression() {
-      return CodeBlock.of("$T.$L()", className, absentMethodName);
+      return CodeBlock.of("$T.$L()", toJavaPoet(className), absentMethodName);
     }
 
     /**
@@ -87,12 +89,15 @@ public final class OptionalType {
      */
     public CodeBlock parameterizedAbsentValueExpression(OptionalType optionalType) {
       return CodeBlock.of(
-          "$T.<$T>$L()", className, optionalType.valueType().getTypeName(), absentMethodName);
+          "$T.<$T>$L()",
+          toJavaPoet(className),
+          toJavaPoet(optionalType.valueType().asTypeName()),
+          absentMethodName);
     }
 
     /** Returns an expression for the present {@code value}. */
     public CodeBlock presentExpression(CodeBlock value) {
-      return CodeBlock.of("$T.of($L)", className, value);
+      return CodeBlock.of("$T.of($L)", toJavaPoet(className), value);
     }
 
     /**
@@ -100,7 +105,8 @@ public final class OptionalType {
      * matter what type the value is.
      */
     public CodeBlock presentObjectExpression(CodeBlock value) {
-      return CodeBlock.of("$T.<$T>of($L)", className, TypeName.OBJECT, value);
+      return CodeBlock.of(
+          "$T.<$T>of($L)", toJavaPoet(className), toJavaPoet(XTypeName.ANY_OBJECT), value);
     }
   }
 
@@ -130,8 +136,8 @@ public final class OptionalType {
   }
 
   /** The optional type itself. */
-  TypeName typeName() {
-    return type.getTypeName();
+  XTypeName typeName() {
+    return type.asTypeName();
   }
 
   /** Which {@code Optional} type is used. */
@@ -157,7 +163,7 @@ public final class OptionalType {
   public static boolean isOptionalProviderType(XType type) {
     if (OptionalType.isOptional(type)) {
       OptionalType optionalType = OptionalType.from(type);
-      if (isTypeOf(optionalType.valueType(), TypeNames.PROVIDER)) {
+      if (isTypeOf(optionalType.valueType(), XTypeNames.PROVIDER)) {
         return true;
       }
     }

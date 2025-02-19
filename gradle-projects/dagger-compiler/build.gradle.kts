@@ -53,6 +53,7 @@ dependencies {
   implementation(libs.kotlin.stdlib)
   implementation(libs.kotlin.metadataJvm)
   implementation(libs.kotlinPoet)
+  implementation(libs.kotlinPoet.javaPoet)
   implementation(libs.ksp.api)
 
   annotationProcessor(files(project.findBootstrapCompilerJar()))

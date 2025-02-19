@@ -271,7 +271,7 @@ public final class XElements {
   }
 
   public static ImmutableSet<XAnnotation> getAnnotatedAnnotations(
-      XAnnotated annotated, ClassName annotationName) {
+      XAnnotated annotated, XClassName annotationName) {
     return annotated.getAllAnnotations().stream()
         .filter(annotation -> annotation.getType().getTypeElement().hasAnnotation(annotationName))
         .collect(toImmutableSet());

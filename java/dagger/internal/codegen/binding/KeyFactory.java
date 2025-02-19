@@ -24,17 +24,18 @@ import static dagger.internal.codegen.base.ProducerAnnotations.productionQualifi
 import static dagger.internal.codegen.base.RequestKinds.extractKeyType;
 import static dagger.internal.codegen.binding.MapKeys.getMapKey;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
+import static dagger.internal.codegen.xprocessing.XTypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.ClassName;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.internal.codegen.base.ContributionType;
@@ -44,7 +45,6 @@ import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DaggerExecutableElement;
 import dagger.internal.codegen.model.DaggerType;
@@ -52,6 +52,7 @@ import dagger.internal.codegen.model.DaggerTypeElement;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.multibindings.Multibinds;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -74,12 +75,12 @@ public final class KeyFactory {
 
   private XType setOf(XType elementType) {
     return processingEnv.getDeclaredType(
-        processingEnv.requireTypeElement(TypeNames.SET), elementType.boxed());
+        processingEnv.requireTypeElement(XTypeName.SET), elementType.boxed());
   }
 
   private XType mapOf(XType keyType, XType valueType) {
     return processingEnv.getDeclaredType(
-        processingEnv.requireTypeElement(TypeNames.MAP), keyType.boxed(), valueType.boxed());
+        processingEnv.requireTypeElement(XTypeName.MAP), keyType.boxed(), valueType.boxed());
   }
 
   /**
@@ -93,11 +94,11 @@ public final class KeyFactory {
 
   private XType optionalOf(XType type) {
     return processingEnv.getDeclaredType(
-        processingEnv.requireTypeElement(TypeNames.JDK_OPTIONAL), type.boxed());
+        processingEnv.requireTypeElement(XTypeNames.JDK_OPTIONAL), type.boxed());
   }
 
   /** Returns {@code Map<KeyType, FrameworkType<ValueType>>}. */
-  private XType mapOfFrameworkType(XType keyType, ClassName frameworkClassName, XType valueType) {
+  private XType mapOfFrameworkType(XType keyType, XClassName frameworkClassName, XType valueType) {
     checkArgument(FrameworkTypes.MAP_VALUE_FRAMEWORK_TYPES.contains(frameworkClassName));
     return mapOf(
         keyType,
@@ -128,35 +129,35 @@ public final class KeyFactory {
   }
 
   public Key forProvidesMethod(XMethodElement method, XTypeElement contributingModule) {
-    checkArgument(method.hasAnnotation(TypeNames.PROVIDES));
-    return forBindingMethod(method, contributingModule, Optional.of(TypeNames.PROVIDER));
+    checkArgument(method.hasAnnotation(XTypeNames.PROVIDES));
+    return forBindingMethod(method, contributingModule, Optional.of(XTypeNames.PROVIDER));
   }
 
   public Key forProducesMethod(XMethodElement method, XTypeElement contributingModule) {
-    checkArgument(method.hasAnnotation(TypeNames.PRODUCES));
-    return forBindingMethod(method, contributingModule, Optional.of(TypeNames.PRODUCER));
+    checkArgument(method.hasAnnotation(XTypeNames.PRODUCES));
+    return forBindingMethod(method, contributingModule, Optional.of(XTypeNames.PRODUCER));
   }
 
   /** Returns the key bound by a {@link Binds} method. */
   Key forBindsMethod(XMethodElement method, XTypeElement contributingModule) {
-    checkArgument(method.hasAnnotation(TypeNames.BINDS));
+    checkArgument(method.hasAnnotation(XTypeNames.BINDS));
     return forBindingMethod(method, contributingModule, Optional.empty());
   }
 
   /** Returns the base key bound by a {@link BindsOptionalOf} method. */
   Key forBindsOptionalOfMethod(XMethodElement method, XTypeElement contributingModule) {
-    checkArgument(method.hasAnnotation(TypeNames.BINDS_OPTIONAL_OF));
+    checkArgument(method.hasAnnotation(XTypeNames.BINDS_OPTIONAL_OF));
     return forBindingMethod(method, contributingModule, Optional.empty());
   }
 
   private Key forBindingMethod(
       XMethodElement method,
       XTypeElement contributingModule,
-      Optional<ClassName> frameworkClassName) {
+      Optional<XClassName> frameworkClassName) {
     XMethodType methodType = method.asMemberOf(contributingModule.getType());
     ContributionType contributionType = ContributionType.fromBindingElement(method);
     XType returnType = methodType.getReturnType();
-    if (frameworkClassName.isPresent() && frameworkClassName.get().equals(TypeNames.PRODUCER)) {
+    if (frameworkClassName.isPresent() && frameworkClassName.get().equals(XTypeNames.PRODUCER)) {
       if (isFutureType(returnType)) {
         returnType = getOnlyElement(returnType.getTypeArguments());
       } else if (contributionType.equals(ContributionType.SET_VALUES)
@@ -187,7 +188,7 @@ public final class KeyFactory {
         MapType.isMap(returnType)
             ? mapOfFrameworkType(
                 MapType.from(returnType).keyType(),
-                TypeNames.PROVIDER,
+                XTypeNames.PROVIDER,
                 MapType.from(returnType).valueType())
             : returnType;
     return forMethod(method, keyType);
@@ -197,7 +198,7 @@ public final class KeyFactory {
       XType returnType,
       XMethodElement method,
       ContributionType contributionType,
-      Optional<ClassName> frameworkClassName) {
+      Optional<XClassName> frameworkClassName) {
     switch (contributionType) {
       case UNIQUE:
         return returnType;
@@ -228,7 +229,7 @@ public final class KeyFactory {
             : mapOf(mapKeyType.get(), returnType);
       case SET_VALUES:
         // TODO(gak): do we want to allow people to use "covariant return" here?
-        checkArgument(SetType.isSet(returnType));
+        checkArgument(SetType.isSet(returnType), "%s is not a Set", returnType);
         return returnType;
     }
     throw new AssertionError();
@@ -237,12 +238,12 @@ public final class KeyFactory {
   /**
    * Returns the key for a binding associated with a {@link DelegateDeclaration}.
    *
-   * <p>If {@code delegateDeclaration} is a multibinding map contribution and
-   * {@link CompilerOptions#useFrameworkTypeInMapMultibindingContributionKey()} is enabled, then
-   * transforms the {@code Map<K, V>} key into {@code Map<K, FrameworkType<V>>}, otherwise returns
-   * the unaltered key.
+   * <p>If {@code delegateDeclaration} is a multibinding map contribution and {@link
+   * CompilerOptions#useFrameworkTypeInMapMultibindingContributionKey()} is enabled, then transforms
+   * the {@code Map<K, V>} key into {@code Map<K, FrameworkType<V>>}, otherwise returns the
+   * unaltered key.
    */
-  Key forDelegateBinding(DelegateDeclaration delegateDeclaration, ClassName frameworkType) {
+  Key forDelegateBinding(DelegateDeclaration delegateDeclaration, XClassName frameworkType) {
     return delegateDeclaration.contributionType().equals(ContributionType.MAP)
             && compilerOptions.useFrameworkTypeInMapMultibindingContributionKey()
         ? wrapMapValue(delegateDeclaration.key(), frameworkType)
@@ -272,19 +273,19 @@ public final class KeyFactory {
   }
 
   public Key forProductionExecutor() {
-    return Key.builder(DaggerType.from(processingEnv.requireType(TypeNames.EXECUTOR)))
+    return Key.builder(DaggerType.from(processingEnv.requireType(XTypeNames.EXECUTOR)))
         .qualifier(DaggerAnnotation.from(productionQualifier(processingEnv)))
         .build();
   }
 
   public Key forProductionImplementationExecutor() {
-    return Key.builder(DaggerType.from(processingEnv.requireType(TypeNames.EXECUTOR)))
+    return Key.builder(DaggerType.from(processingEnv.requireType(XTypeNames.EXECUTOR)))
         .qualifier(DaggerAnnotation.from(productionImplementationQualifier(processingEnv)))
         .build();
   }
 
   public Key forProductionComponentMonitor() {
-    return forType(processingEnv.requireType(TypeNames.PRODUCTION_COMPONENT_MONITOR));
+    return forType(processingEnv.requireType(XTypeNames.PRODUCTION_COMPONENT_MONITOR));
   }
 
   /**
@@ -310,11 +311,11 @@ public final class KeyFactory {
    * {@code Map<K, V>}. Otherwise, returns the unaltered key.
    *
    * @throws IllegalArgumentException if the {@code frameworkClassName} is not a valid framework
-   * type for multibinding maps.
+   *     type for multibinding maps.
    * @throws IllegalStateException if the {@code key} is already wrapped in a (different) framework
-   * type.
+   *     type.
    */
-  private Key wrapMapValue(Key key, ClassName frameworkClassName) {
+  private Key wrapMapValue(Key key, XClassName frameworkClassName) {
     checkArgument(FrameworkTypes.MAP_VALUE_FRAMEWORK_TYPES.contains(frameworkClassName));
     if (MapType.isMap(key)) {
       MapType mapType = MapType.from(key);
@@ -332,21 +333,6 @@ public final class KeyFactory {
       }
     }
     return key;
-  }
-
-  /**
-   * If {@code key}'s type is {@code Set<WrappingClass<Bar>>}, returns a key with type {@code Set
-   * <Bar>} with the same qualifier. Otherwise returns {@link Optional#empty()}.
-   */
-  Optional<Key> unwrapSetKey(Key key, ClassName wrappingClassName) {
-    if (SetType.isSet(key)) {
-      SetType setType = SetType.from(key);
-      if (!setType.isRawType() && setType.elementsAreTypeOf(wrappingClassName)) {
-        return Optional.of(
-            key.withType(DaggerType.from(setOf(setType.unwrappedElementType(wrappingClassName)))));
-      }
-    }
-    return Optional.empty();
   }
 
   /**

@@ -18,33 +18,33 @@ package dagger.internal.codegen.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
-import static dagger.internal.codegen.javapoet.TypeNames.lazyOf;
-import static dagger.internal.codegen.javapoet.TypeNames.listenableFutureOf;
-import static dagger.internal.codegen.javapoet.TypeNames.producedOf;
-import static dagger.internal.codegen.javapoet.TypeNames.producerOf;
-import static dagger.internal.codegen.javapoet.TypeNames.providerOf;
 import static dagger.internal.codegen.model.RequestKind.LAZY;
 import static dagger.internal.codegen.model.RequestKind.PRODUCED;
 import static dagger.internal.codegen.model.RequestKind.PRODUCER;
 import static dagger.internal.codegen.model.RequestKind.PROVIDER;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
+import static dagger.internal.codegen.xprocessing.XTypeNames.lazyOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.producedOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.producerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
 import static dagger.internal.codegen.xprocessing.XTypes.checkTypePresent;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.ComponentNode;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Utility methods for {@link RequestKind}s. */
 public final class RequestKinds {
@@ -56,10 +56,10 @@ public final class RequestKinds {
         return type;
 
       case PROVIDER_OF_LAZY:
-        return wrapType(TypeNames.PROVIDER, requestType(LAZY, type, processingEnv), processingEnv);
+        return wrapType(XTypeNames.PROVIDER, requestType(LAZY, type, processingEnv), processingEnv);
 
       case FUTURE:
-        return wrapType(TypeNames.LISTENABLE_FUTURE, type, processingEnv);
+        return wrapType(XTypeNames.LISTENABLE_FUTURE, type, processingEnv);
 
       default:
         return wrapType(frameworkClassName(requestKind), type, processingEnv);
@@ -67,7 +67,7 @@ public final class RequestKinds {
   }
 
   /** Returns the type of a request of this kind for a key with a given type. */
-  public static TypeName requestTypeName(RequestKind requestKind, TypeName keyType) {
+  public static XTypeName requestTypeName(RequestKind requestKind, XTypeName keyType) {
     switch (requestKind) {
       case INSTANCE:
         return keyType;
@@ -95,14 +95,14 @@ public final class RequestKinds {
     }
   }
 
-  private static final ImmutableMap<RequestKind, ClassName> FRAMEWORK_CLASSES =
+  private static final ImmutableMap<RequestKind, XClassName> FRAMEWORK_CLASSES =
       ImmutableMap.of(
           // Default to the javax Provider since that is what is used for the binding graph
           // representation.
-          PROVIDER, TypeNames.PROVIDER,
-          LAZY, TypeNames.LAZY,
-          PRODUCER, TypeNames.PRODUCER,
-          PRODUCED, TypeNames.PRODUCED);
+          PROVIDER, XTypeNames.PROVIDER,
+          LAZY, XTypeNames.LAZY,
+          PRODUCER, XTypeNames.PRODUCER,
+          PRODUCED, XTypeNames.PRODUCED);
 
   /** Returns the {@link RequestKind} that matches the wrapping types (if any) of {@code type}. */
   public static RequestKind getRequestKind(XType type) {
@@ -113,12 +113,12 @@ public final class RequestKinds {
       return RequestKind.INSTANCE;
     }
 
-    if ((isTypeOf(type, TypeNames.PROVIDER) || isTypeOf(type, TypeNames.JAKARTA_PROVIDER))
-        && isTypeOf(unwrapType(type), TypeNames.LAZY)) {
+    if ((isTypeOf(type, XTypeNames.PROVIDER) || isTypeOf(type, XTypeNames.JAKARTA_PROVIDER))
+        && isTypeOf(unwrapType(type), XTypeNames.LAZY)) {
       return RequestKind.PROVIDER_OF_LAZY;
     }
 
-    if (isTypeOf(type, TypeNames.JAKARTA_PROVIDER)) {
+    if (isTypeOf(type, XTypeNames.JAKARTA_PROVIDER)) {
       return RequestKind.PROVIDER;
     }
 
@@ -164,7 +164,7 @@ public final class RequestKinds {
    * classes, and {@link RequestKind#FUTURE} is wrapped with a {@link ListenableFuture}, but for
    * historical/implementation reasons has not had an associated framework class.
    */
-  public static ClassName frameworkClassName(RequestKind requestKind) {
+  public static XClassName frameworkClassName(RequestKind requestKind) {
     checkArgument(
         FRAMEWORK_CLASSES.containsKey(requestKind), "no framework class for %s", requestKind);
     return FRAMEWORK_CLASSES.get(requestKind);

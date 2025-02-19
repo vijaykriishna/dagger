@@ -22,9 +22,6 @@ import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Verify.verify;
-import static dagger.internal.codegen.javapoet.TypeNames.DOUBLE_CHECK;
-import static dagger.internal.codegen.javapoet.TypeNames.PRODUCER;
-import static dagger.internal.codegen.javapoet.TypeNames.PROVIDER_OF_LAZY;
 import static dagger.internal.codegen.model.BindingKind.ASSISTED_INJECTION;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
@@ -32,7 +29,6 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
-import static dagger.internal.codegen.xprocessing.XTypeNames.simpleName;
 import static javax.lang.model.SourceVersion.isName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -55,7 +51,6 @@ import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -106,7 +101,7 @@ public final class SourceFiles {
       case LAZY:
         return CodeBlock.of(
             "$T.lazy($L)",
-            DOUBLE_CHECK,
+            toJavaPoet(XTypeNames.DOUBLE_CHECK),
             frameworkTypeMemberSelect);
       case INSTANCE:
       case FUTURE:
@@ -115,7 +110,8 @@ public final class SourceFiles {
       case PRODUCER:
         return frameworkTypeMemberSelect;
       case PROVIDER_OF_LAZY:
-        return CodeBlock.of("$T.create($L)", PROVIDER_OF_LAZY, frameworkTypeMemberSelect);
+        return CodeBlock.of(
+            "$T.create($L)", toJavaPoet(XTypeNames.PROVIDER_OF_LAZY), frameworkTypeMemberSelect);
       default: // including PRODUCED
         throw new AssertionError(dependencyKind);
     }
@@ -266,7 +262,7 @@ public final class SourceFiles {
         return XTypeNames.SET_FACTORY;
       case PRODUCTION:
         SetType setType = SetType.from(binding.key());
-        return setType.elementsAreTypeOf(TypeNames.PRODUCED)
+        return setType.elementsAreTypeOf(XTypeNames.PRODUCED)
             ? XTypeNames.SET_OF_PRODUCED_PRODUCER
             : XTypeNames.SET_PRODUCER;
       default:
@@ -283,7 +279,7 @@ public final class SourceFiles {
             ? XTypeNames.MAP_PROVIDER_FACTORY : XTypeNames.MAP_FACTORY;
       case PRODUCTION:
         return mapType.valuesAreFrameworkType()
-            ? mapType.valuesAreTypeOf(PRODUCER)
+            ? mapType.valuesAreTypeOf(XTypeNames.PRODUCER)
                 ? XTypeNames.MAP_OF_PRODUCER_PRODUCER
                 : XTypeNames.MAP_OF_PRODUCED_PRODUCER
             : XTypeNames.MAP_PRODUCER;
@@ -320,7 +316,7 @@ public final class SourceFiles {
    * meaningful variable names, but if none can be derived, this will produce something readable.
    */
   public static String simpleVariableName(XClassName className) {
-    String candidateName = UPPER_CAMEL.to(LOWER_CAMEL, simpleName(className));
+    String candidateName = UPPER_CAMEL.to(LOWER_CAMEL, className.getSimpleName());
     String variableName = protectAgainstKeywords(candidateName);
     verify(isName(variableName), "'%s' was expected to be a valid variable name", variableName);
     return variableName;

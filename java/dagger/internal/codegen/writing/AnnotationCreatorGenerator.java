@@ -34,6 +34,8 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -42,13 +44,11 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.inject.Inject;
@@ -81,8 +81,8 @@ import javax.inject.Inject;
  * </pre>
  */
 public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement> {
-  private static final ClassName AUTO_ANNOTATION =
-      ClassName.get("com.google.auto.value", "AutoAnnotation");
+  private static final XClassName AUTO_ANNOTATION =
+      XClassName.get("com.google.auto.value", "AutoAnnotation");
 
   @Inject
   AnnotationCreatorGenerator(XFiler filer, XProcessingEnv processingEnv) {
@@ -96,9 +96,9 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
 
   @Override
   public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement annotationType) {
-    ClassName generatedTypeName = toJavaPoet(getAnnotationCreatorClassName(annotationType));
+    XClassName generatedTypeName = getAnnotationCreatorClassName(annotationType);
     TypeSpec.Builder annotationCreatorBuilder =
-        classBuilder(generatedTypeName)
+        classBuilder(toJavaPoet(generatedTypeName))
             .addModifiers(PUBLIC, FINAL)
             .addMethod(constructorBuilder().addModifiers(PRIVATE).build());
 
@@ -110,27 +110,29 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
   }
 
   private MethodSpec buildCreateMethod(
-      ClassName generatedTypeName, XTypeElement annotationElement) {
+      XClassName generatedTypeName, XTypeElement annotationElement) {
     String createMethodName = createMethodName(annotationElement);
     MethodSpec.Builder createMethod =
         methodBuilder(createMethodName)
-            .addAnnotation(AUTO_ANNOTATION)
+            .addAnnotation(toJavaPoet(AUTO_ANNOTATION))
             .addModifiers(PUBLIC, STATIC)
             .returns(annotationElement.getType().getTypeName());
 
     ImmutableList.Builder<CodeBlock> parameters = ImmutableList.builder();
     for (XMethodElement annotationMember : annotationElement.getDeclaredMethods()) {
       String parameterName = getSimpleName(annotationMember);
-      TypeName parameterType = maybeRewrapKClass(annotationMember.getReturnType()).getTypeName();
-      createMethod.addParameter(parameterType, parameterName);
+      XTypeName parameterType = maybeRewrapKClass(annotationMember.getReturnType()).asTypeName();
+      createMethod.addParameter(toJavaPoet(parameterType), parameterName);
       parameters.add(CodeBlock.of("$L", parameterName));
     }
 
-    ClassName autoAnnotationClass =
+    XClassName autoAnnotationClass =
         generatedTypeName.peerClass(
-            "AutoAnnotation_" + generatedTypeName.simpleName() + "_" + createMethodName);
+            "AutoAnnotation_" + generatedTypeName.getSimpleName() + "_" + createMethodName);
     createMethod.addStatement(
-        "return new $T($L)", autoAnnotationClass, makeParametersCodeBlock(parameters.build()));
+        "return new $T($L)",
+        toJavaPoet(autoAnnotationClass),
+        makeParametersCodeBlock(parameters.build()));
     return createMethod.build();
   }
 
@@ -166,6 +168,6 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
   private XType maybeRewrapKClass(XType type) {
     return isArray(type)
         ? getProcessingEnv(type).getArrayType(maybeRewrapKClass(asArray(type).getComponentType()))
-        : isTypeOf(type, TypeNames.KCLASS) ? rewrapType(type, TypeNames.CLASS) : type;
+        : isTypeOf(type, XTypeNames.KCLASS) ? rewrapType(type, XTypeNames.CLASS) : type;
   }
 }

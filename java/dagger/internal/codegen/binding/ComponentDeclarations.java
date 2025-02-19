@@ -16,17 +16,17 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.WildcardTypeName;
@@ -243,8 +243,7 @@ final class ComponentDeclarations {
           ? ImmutableSet.of(
               moduleDescriptorFactory.create(
                   DaggerSuperficialValidation.requireTypeElement(
-                      processingEnv,
-                      toJavaPoet(generatedMonitoringModuleName(descriptor.typeElement())))),
+                      processingEnv, generatedMonitoringModuleName(descriptor.typeElement()))),
               moduleDescriptorFactory.create(
                   processingEnv.requireTypeElement(TypeNames.PRODUCTION_EXECTUTOR_MODULE)))
           : ImmutableSet.of();
@@ -353,10 +352,10 @@ final class ComponentDeclarations {
   }
 
   private static TypeName unwrapFrameworkTypeName(
-      TypeName typeName, ImmutableSet<ClassName> frameworkTypeNames) {
+      TypeName typeName, ImmutableSet<XClassName> frameworkTypeNames) {
     if (typeName instanceof ParameterizedTypeName) {
       ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-      if (frameworkTypeNames.contains(parameterizedTypeName.rawType)) {
+      if (frameworkTypeNames.contains(toXPoet(parameterizedTypeName.rawType))) {
         typeName = getOnlyElement(parameterizedTypeName.typeArguments);
       }
     }
