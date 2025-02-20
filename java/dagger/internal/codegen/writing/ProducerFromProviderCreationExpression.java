@@ -18,7 +18,6 @@ package dagger.internal.codegen.writing;
 
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -32,12 +31,12 @@ import java.util.Optional;
 /** An {@code Producer} creation expression for provision bindings. */
 final class ProducerFromProviderCreationExpression implements FrameworkInstanceCreationExpression {
   private final RequestRepresentation providerRequestRepresentation;
-  private final ClassName requestingClass;
+  private final XClassName requestingClass;
 
   @AssistedInject
   ProducerFromProviderCreationExpression(
       @Assisted RequestRepresentation providerRequestRepresentation,
-      @Assisted ClassName requestingClass) {
+      @Assisted XClassName requestingClass) {
     this.providerRequestRepresentation = providerRequestRepresentation;
     this.requestingClass = requestingClass;
   }
@@ -57,6 +56,6 @@ final class ProducerFromProviderCreationExpression implements FrameworkInstanceC
   @AssistedFactory
   static interface Factory {
     ProducerFromProviderCreationExpression create(
-        RequestRepresentation providerRequestRepresentation, ClassName requestingClass);
+        RequestRepresentation providerRequestRepresentation, XClassName requestingClass);
   }
 }

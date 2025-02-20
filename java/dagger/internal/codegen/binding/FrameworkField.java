@@ -30,6 +30,7 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import com.google.common.base.CaseFormat;
@@ -118,6 +119,7 @@ public final class FrameworkField {
                         toJavaPoet(typeName)
                             .annotated(
                                 nullability.typeUseNullableAnnotations().stream()
+                                    .map(XConverters::toJavaPoet)
                                     .map(AnnotationSpec::builder)
                                     .map(AnnotationSpec.Builder::build)
                                     .collect(toImmutableList())),

@@ -18,8 +18,9 @@ package dagger.internal.codegen.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.ClassName;
+import dagger.internal.codegen.xprocessing.XAnnotations;
 
 /** A representation of a {@link javax.inject.Scope}. */
 @AutoValue
@@ -47,21 +48,17 @@ public abstract class Scope {
         || scopeAnnotationType.xprocessing().hasAnnotation(SCOPE_JAVAX);
   }
 
-  private static final ClassName PRODUCTION_SCOPE =
-      ClassName.get("dagger.producers", "ProductionScope");
-  private static final ClassName SINGLETON = ClassName.get("jakarta.inject", "Singleton");
-  private static final ClassName SINGLETON_JAVAX = ClassName.get("javax.inject", "Singleton");
-  private static final ClassName REUSABLE = ClassName.get("dagger", "Reusable");
-  private static final ClassName SCOPE = ClassName.get("jakarta.inject", "Scope");
-  private static final ClassName SCOPE_JAVAX = ClassName.get("javax.inject", "Scope");
+  private static final XClassName PRODUCTION_SCOPE =
+      XClassName.get("dagger.producers", "ProductionScope");
+  private static final XClassName SINGLETON = XClassName.get("jakarta.inject", "Singleton");
+  private static final XClassName SINGLETON_JAVAX = XClassName.get("javax.inject", "Singleton");
+  private static final XClassName REUSABLE = XClassName.get("dagger", "Reusable");
+  private static final XClassName SCOPE = XClassName.get("jakarta.inject", "Scope");
+  private static final XClassName SCOPE_JAVAX = XClassName.get("javax.inject", "Scope");
 
 
   /** The {@link DaggerAnnotation} that represents the scope annotation. */
   public abstract DaggerAnnotation scopeAnnotation();
-
-  public final ClassName className() {
-    return scopeAnnotation().className();
-  }
 
   /** Returns {@code true} if this scope is the {@link javax.inject.Singleton @Singleton} scope. */
   public final boolean isSingleton() {
@@ -81,8 +78,8 @@ public abstract class Scope {
     return isScope(PRODUCTION_SCOPE);
   }
 
-  private boolean isScope(ClassName annotation) {
-    return scopeAnnotation().className().equals(annotation);
+  private boolean isScope(XClassName annotation) {
+    return XAnnotations.asClassName(scopeAnnotation().xprocessing()).equals(annotation);
   }
 
   /** Returns a debug representation of the scope. */

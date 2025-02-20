@@ -22,9 +22,9 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
@@ -59,7 +59,7 @@ final class ProducerEntryPointView {
   Optional<Expression> getProducerEntryPointField(
       RequestRepresentation producerExpression,
       ComponentMethodDescriptor componentMethod,
-      ClassName requestingClass) {
+      XClassName requestingClass) {
     if (shardImplementation.componentDescriptor().isProduction()
         && (componentMethod.dependencyRequest().get().kind().equals(RequestKind.FUTURE)
             || componentMethod.dependencyRequest().get().kind().equals(RequestKind.PRODUCER))) {

@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.common.base.Supplier;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -28,7 +28,7 @@ import dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind;
 /** Represents the implementation of a generated class. */
 public interface GeneratedImplementation {
   /** Returns the name of the component. */
-  ClassName name();
+  XClassName name();
 
   /** Returns a new, unique method name for the component based on the given name. */
   String getUniqueClassName(String name);

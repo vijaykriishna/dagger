@@ -26,11 +26,11 @@ import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFr
 import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -45,6 +45,7 @@ import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collections;
 
 /** A {@link RequestRepresentation} for multibound maps. */
@@ -76,7 +77,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     MapType mapType = MapType.from(binding.key());
     Expression dependencyExpression = getUnderlyingMapExpression(requestingClass);
     // LazyClassKey is backed with a string map, therefore needs to be wrapped.
@@ -92,7 +93,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
     return dependencyExpression;
   }
 
-  private Expression getUnderlyingMapExpression(ClassName requestingClass) {
+  private Expression getUnderlyingMapExpression(XClassName requestingClass) {
     // TODO(ronshapiro): We should also make an ImmutableMap version of MapFactory
     boolean isImmutableMapAvailable = isImmutableMapAvailable();
     // TODO(ronshapiro, gak): Use Maps.immutableEnumMap() if it's available?
@@ -147,7 +148,8 @@ final class MapRequestRepresentation extends RequestRepresentation {
         mapType.valueType());
   }
 
-  private CodeBlock keyAndValueExpression(DependencyRequest dependency, ClassName requestingClass) {
+  private CodeBlock keyAndValueExpression(
+      DependencyRequest dependency, XClassName requestingClass) {
     return CodeBlock.of(
         "$L, $L",
         useLazyClassKey
@@ -159,7 +161,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
   }
 
   private Expression collectionsStaticFactoryInvocation(
-      ClassName requestingClass, CodeBlock methodInvocation) {
+      XClassName requestingClass, CodeBlock methodInvocation) {
     return Expression.create(
         binding.key().type().xprocessing(),
         CodeBlock.builder()
@@ -169,10 +171,10 @@ final class MapRequestRepresentation extends RequestRepresentation {
             .build());
   }
 
-  private CodeBlock maybeTypeParameters(ClassName requestingClass) {
+  private CodeBlock maybeTypeParameters(XClassName requestingClass) {
     XType bindingKeyType = binding.key().type().xprocessing();
     MapType mapType = MapType.from(binding.key());
-    return isTypeAccessibleFrom(bindingKeyType, requestingClass.packageName())
+    return isTypeAccessibleFrom(bindingKeyType, requestingClass.getPackageName())
         ? CodeBlock.of(
             "<$T, $T>",
             useLazyClassKey ? TypeNames.STRING : mapType.keyType().getTypeName(),
@@ -182,12 +184,12 @@ final class MapRequestRepresentation extends RequestRepresentation {
 
   private boolean isImmutableMapBuilderWithExpectedSizeAvailable() {
     return isImmutableMapAvailable()
-        && processingEnv.requireTypeElement(TypeNames.IMMUTABLE_MAP).getDeclaredMethods().stream()
+        && processingEnv.requireTypeElement(XTypeNames.IMMUTABLE_MAP).getDeclaredMethods().stream()
             .anyMatch(method -> getSimpleName(method).contentEquals("builderWithExpectedSize"));
   }
 
   private boolean isImmutableMapAvailable() {
-    return processingEnv.findTypeElement(TypeNames.IMMUTABLE_MAP) != null;
+    return processingEnv.findTypeElement(XTypeNames.IMMUTABLE_MAP) != null;
   }
 
   @AssistedFactory

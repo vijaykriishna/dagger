@@ -25,7 +25,6 @@ import static dagger.internal.codegen.binding.SourceFiles.mapFactoryClassName;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -64,8 +63,8 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   @Override
   public CodeBlock creationExpression() {
-    ClassName mapFactoryClassName = toJavaPoet(mapFactoryClassName(binding));
-    CodeBlock.Builder builder = CodeBlock.builder().add("$T.", mapFactoryClassName);
+    XClassName mapFactoryClassName = mapFactoryClassName(binding);
+    CodeBlock.Builder builder = CodeBlock.builder().add("$T.", toJavaPoet(mapFactoryClassName));
     XTypeName valueTypeName = XTypeName.ANY_OBJECT;
     if (!useRawType()) {
       MapType mapType = MapType.from(binding.key());

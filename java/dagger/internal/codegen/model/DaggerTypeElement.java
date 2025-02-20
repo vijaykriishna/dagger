@@ -20,7 +20,6 @@ import static androidx.room.compiler.processing.compat.XConverters.toJavac;
 
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.ClassName;
 import javax.lang.model.element.TypeElement;
 
 /** Wrapper type for a type element. */
@@ -34,10 +33,6 @@ public abstract class DaggerTypeElement {
 
   public TypeElement javac() {
     return toJavac(xprocessing());
-  }
-
-  public ClassName className() {
-    return xprocessing().getClassName();
   }
 
   @Override

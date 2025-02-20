@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XAnnotation;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Preconditions;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import javax.lang.model.element.AnnotationMirror;
 
@@ -39,10 +38,6 @@ public abstract class DaggerAnnotation {
 
   public DaggerTypeElement annotationTypeElement() {
     return DaggerTypeElement.from(xprocessing().getType().getTypeElement());
-  }
-
-  public ClassName className() {
-    return annotationTypeElement().className();
   }
 
   public XAnnotation xprocessing() {

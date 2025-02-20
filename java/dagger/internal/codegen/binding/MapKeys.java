@@ -32,6 +32,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XElement;
@@ -40,7 +41,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import dagger.MapKey;
@@ -135,19 +135,19 @@ public final class MapKeys {
    *     map} contribution.
    */
   public static CodeBlock getMapKeyExpression(
-      ContributionBinding binding, ClassName requestingClass, XProcessingEnv processingEnv) {
+      ContributionBinding binding, XClassName requestingClass, XProcessingEnv processingEnv) {
     XAnnotation mapKeyAnnotation = binding.mapKey().get();
     return MapKeyAccessibility.isMapKeyAccessibleFrom(
-            mapKeyAnnotation, requestingClass.packageName())
+            mapKeyAnnotation, requestingClass.getPackageName())
         ? directMapKeyExpression(mapKeyAnnotation, processingEnv)
-        : CodeBlock.of("$T.create()", mapKeyProxyClassName(binding));
+        : CodeBlock.of("$T.create()", toJavaPoet(mapKeyProxyClassName(binding)));
   }
 
   /**
    * Returns a code block for the map key annotation {@code mapKey}.
    *
    * <p>This method assumes the map key will be accessible in the context that the returned {@link
-   * CodeBlock} is used. Use {@link #getMapKeyExpression(ContributionBinding, ClassName,
+   * CodeBlock} is used. Use {@link #getMapKeyExpression(ContributionBinding, XClassName,
    * XProcessingEnv)} when that assumption is not guaranteed.
    *
    * @throws IllegalArgumentException if the element is annotated with more than one {@code MapKey}
@@ -164,7 +164,7 @@ public final class MapKeys {
               processingEnv, unwrappedValue.get().asString());
       return CodeBlock.of(
           "$T.of($S)",
-          ClassName.get("dagger.android.internal", "AndroidInjectionKeys"),
+          toJavaPoet(XClassName.get("dagger.android.internal", "AndroidInjectionKeys")),
           unwrappedType.getClassName().reflectionName());
     }
     AnnotationExpression annotationExpression = new AnnotationExpression(mapKey);
@@ -174,12 +174,11 @@ public final class MapKeys {
   }
 
   /**
-   * Returns the {@link ClassName} in which {@link #mapKeyFactoryMethod(ContributionBinding,
+   * Returns the {@link XClassName} in which {@link #mapKeyFactoryMethod(ContributionBinding,
    * XProcessingEnv)} is generated.
    */
-  public static ClassName mapKeyProxyClassName(ContributionBinding binding) {
-    return toJavaPoet(
-        elementBasedClassName(asExecutable(binding.bindingElement().get()), "MapKey"));
+  public static XClassName mapKeyProxyClassName(ContributionBinding binding) {
+    return elementBasedClassName(asExecutable(binding.bindingElement().get()), "MapKey");
   }
 
   /**
@@ -223,13 +222,16 @@ public final class MapKeys {
   }
 
   public static CodeBlock getLazyClassMapKeyExpression(ContributionBinding contributionBinding) {
-    ClassName proxyClassName =
+    XClassName proxyClassName =
         lazyClassKeyProxyClassName(XElements.asMethod(contributionBinding.bindingElement().get()));
-    return CodeBlock.of("$T.$N", proxyClassName, LAZY_CLASS_KEY_NAME_FIELD);
+    return CodeBlock.of(
+        "$T.$N",
+        toJavaPoet(proxyClassName),
+        LAZY_CLASS_KEY_NAME_FIELD);
   }
 
-  public static ClassName lazyClassKeyProxyClassName(XMethodElement methodElement) {
-    return toJavaPoet(elementBasedClassName(methodElement, "_LazyMapKey"));
+  public static XClassName lazyClassKeyProxyClassName(XMethodElement methodElement) {
+    return elementBasedClassName(methodElement, "_LazyMapKey");
   }
 
   private MapKeys() {}

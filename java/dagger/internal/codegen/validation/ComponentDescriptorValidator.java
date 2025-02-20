@@ -36,6 +36,7 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.stream.Collectors.joining;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -47,7 +48,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
@@ -62,8 +62,10 @@ import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.compileroption.ValidationType;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Scope;
+import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -200,8 +202,12 @@ public final class ComponentDescriptorValidator {
      * singleton components have no scoped dependencies.
      */
     private void validateDependencyScopes(ComponentDescriptor component) {
-      ImmutableSet<ClassName> scopes =
-          component.scopes().stream().map(Scope::className).collect(toImmutableSet());
+      ImmutableSet<XClassName> scopes =
+          component.scopes().stream()
+              .map(Scope::scopeAnnotation)
+              .map(DaggerAnnotation::xprocessing)
+              .map(XAnnotations::asClassName)
+              .collect(toImmutableSet());
       ImmutableSet<XTypeElement> scopedDependencies =
           scopedTypesIn(
               component.dependencies().stream()
@@ -210,8 +216,8 @@ public final class ComponentDescriptorValidator {
       if (!scopes.isEmpty()) {
         // Dagger 1.x scope compatibility requires this be suppress-able.
         if (compilerOptions.scopeCycleValidationType().diagnosticKind().isPresent()
-            && (scopes.contains(TypeNames.SINGLETON)
-                || scopes.contains(TypeNames.SINGLETON_JAVAX))) {
+            && (scopes.contains(XTypeNames.SINGLETON)
+                || scopes.contains(XTypeNames.SINGLETON_JAVAX))) {
           // Singleton is a special-case representing the longest lifetime, and therefore
           // @Singleton components may not depend on scoped components
           if (!scopedDependencies.isEmpty()) {

@@ -19,9 +19,9 @@ package dagger.internal.codegen.writing;
 import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -46,7 +46,7 @@ final class MembersInjectionRequestRepresentation extends RequestRepresentation 
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     throw new UnsupportedOperationException(binding.toString());
   }
 

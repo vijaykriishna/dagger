@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.javapoet.Expression;
@@ -48,12 +48,12 @@ abstract class FrameworkInstanceRequestRepresentation extends RequestRepresentat
    * added to the component the first time this method is invoked.
    */
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     MemberSelect memberSelect = frameworkInstanceSupplier.memberSelect();
     XType expressionType =
         wrapType(frameworkType().frameworkClassName(), binding.contributedType(), processingEnv);
     return Expression.create(
-        isTypeAccessibleFrom(binding.contributedType(), requestingClass.packageName())
+        isTypeAccessibleFrom(binding.contributedType(), requestingClass.getPackageName())
                 || isInlinedFactoryCreation(memberSelect)
             ? ExpressionType.create(expressionType)
             : ExpressionType.createRawType(expressionType),
@@ -68,7 +68,7 @@ abstract class FrameworkInstanceRequestRepresentation extends RequestRepresentat
    * the initialization {@code this.fooProvider = Foo_Factory.create(Bar_Factory.create());}, {@code
    * Bar_Factory} is considered to be inline.
    *
-   * <p>This is used in {@link #getDependencyExpression(ClassName)} when determining the type of a
+   * <p>This is used in {@link #getDependencyExpression(XClassName)} when determining the type of a
    * factory. Normally if the {@link ContributionBinding#contributedType()} is not accessible from
    * the component, the type of the expression will be a raw {@link javax.inject.Provider}. However,
    * if the factory is created inline, even if contributed type is not accessible, javac will still

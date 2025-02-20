@@ -20,14 +20,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.base.Formatter.INDENT;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
-import static dagger.internal.codegen.xprocessing.XAnnotations.getClassName;
+import static dagger.internal.codegen.xprocessing.XAnnotations.asClassName;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.binding.BindingNode;
 import dagger.internal.codegen.binding.ContributionBinding;
@@ -140,9 +140,9 @@ final class MapMultibindingValidator extends ValidationBindingGraphPlugin {
       Binding multiboundMapBinding,
       ImmutableSet<ContributionBinding> contributions,
       DiagnosticReporter diagnosticReporter) {
-    ImmutableSetMultimap<ClassName, ContributionBinding> contributionsByMapKeyAnnotationType =
+    ImmutableSetMultimap<XClassName, ContributionBinding> contributionsByMapKeyAnnotationType =
         ImmutableSetMultimap.copyOf(
-            Multimaps.index(contributions, mapBinding -> getClassName(mapBinding.mapKey().get())));
+            Multimaps.index(contributions, mapBinding -> asClassName(mapBinding.mapKey().get())));
 
     if (contributionsByMapKeyAnnotationType.keySet().size() > 1) {
       diagnosticReporter.reportBinding(
@@ -154,7 +154,7 @@ final class MapMultibindingValidator extends ValidationBindingGraphPlugin {
   }
 
   private String inconsistentMapKeyAnnotationTypesErrorMessage(
-      ImmutableSetMultimap<ClassName, ContributionBinding> contributionsByMapKeyAnnotationType,
+      ImmutableSetMultimap<XClassName, ContributionBinding> contributionsByMapKeyAnnotationType,
       Key mapBindingKey) {
     StringBuilder message =
         new StringBuilder(mapBindingKey.toString())

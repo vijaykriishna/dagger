@@ -28,12 +28,12 @@ import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dagger.Module;
@@ -63,10 +63,10 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
 
   @Override
   public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement componentElement) {
-    ClassName name = toJavaPoet(generatedMonitoringModuleName(componentElement));
+    XClassName name = generatedMonitoringModuleName(componentElement);
     monitoringModules.add(name);
     return ImmutableList.of(
-        classBuilder(name)
+        classBuilder(toJavaPoet(name))
             .addAnnotation(Module.class)
             .addModifiers(ABSTRACT)
             .addMethod(privateConstructor())

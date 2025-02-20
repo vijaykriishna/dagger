@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
+import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.lang.String.format;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -29,7 +30,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.BindingGraph;
@@ -39,6 +39,7 @@ import dagger.internal.codegen.binding.KeyFactory;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.ComponentPath;
 import dagger.internal.codegen.model.Key;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -54,7 +55,7 @@ public final class ComponentNames {
   public static XClassName getTopLevelClassName(ComponentDescriptor componentDescriptor) {
     checkState(!componentDescriptor.isSubcomponent());
     XClassName componentName = componentDescriptor.typeElement().asClassName();
-    return XClassName.Companion.get(componentName.getPackageName(), "Dagger" + classFileName(componentName));
+    return XClassName.get(componentName.getPackageName(), "Dagger" + classFileName(componentName));
   }
 
   private static final Splitter QUALIFIED_NAME_SPLITTER = Splitter.on('.');
@@ -180,19 +181,21 @@ public final class ComponentNames {
   }
 
   private static String simpleName(ComponentPath componentPath) {
-    return componentPath.currentComponent().className().simpleName();
+    return getSimpleName(componentPath.currentComponent().xprocessing());
   }
 
   /** Returns a prefix that could make the component's simple name more unique. */
   private static String uniquingPrefix(ComponentPath componentPath) {
-    ClassName component = componentPath.currentComponent().className();
+    XClassName component = componentPath.currentComponent().xprocessing().asClassName();
 
-    if (component.enclosingClassName() != null) {
-      return CharMatcher.javaLowerCase().removeFrom(component.enclosingClassName().simpleName());
+    if (XTypeNames.enclosingClassName(component) != null) {
+      return CharMatcher.javaLowerCase()
+          .removeFrom(XTypeNames.enclosingClassName(component).getSimpleName());
     }
 
     // Not in a normally named class. Prefix with the initials of the elements leading here.
-    Iterator<String> pieces = QUALIFIED_NAME_SPLITTER.split(component.canonicalName()).iterator();
+    Iterator<String> pieces =
+        QUALIFIED_NAME_SPLITTER.split(component.getCanonicalName()).iterator();
     StringBuilder b = new StringBuilder();
 
     while (pieces.hasNext()) {

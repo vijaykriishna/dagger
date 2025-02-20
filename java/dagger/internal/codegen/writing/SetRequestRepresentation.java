@@ -22,10 +22,10 @@ import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -39,6 +39,7 @@ import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collections;
 
 /** A binding expression for multibound sets. */
@@ -62,7 +63,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     // TODO(ronshapiro): We should also make an ImmutableSet version of SetFactory
     boolean isImmutableSetAvailable = isImmutableSetAvailable();
     // TODO(ronshapiro, gak): Use Sets.immutableEnumSet() if it's available?
@@ -128,12 +129,12 @@ final class SetRequestRepresentation extends RequestRepresentation {
 
   private XType immutableSetType() {
     return processingEnv.getDeclaredType(
-        processingEnv.requireTypeElement(TypeNames.IMMUTABLE_SET),
+        processingEnv.requireTypeElement(XTypeNames.IMMUTABLE_SET),
         SetType.from(binding.key()).elementType());
   }
 
   private CodeBlock getContributionExpression(
-      DependencyRequest dependency, ClassName requestingClass) {
+      DependencyRequest dependency, XClassName requestingClass) {
     RequestRepresentation bindingExpression =
         componentRequestRepresentations.getRequestRepresentation(bindingRequest(dependency));
     CodeBlock expression = bindingExpression.getDependencyExpression(requestingClass).codeBlock();
@@ -145,7 +146,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
     // provideInaccessibleSetOfFoo.get())"
     return (!isSingleValue(dependency)
             && !isTypeAccessibleFrom(
-                binding.key().type().xprocessing(), requestingClass.packageName())
+                binding.key().type().xprocessing(), requestingClass.getPackageName())
             // TODO(bcorso): Replace instanceof checks with validation on the binding.
             && (bindingExpression instanceof DerivedFromFrameworkInstanceRequestRepresentation
                 || bindingExpression instanceof DelegateRequestRepresentation))
@@ -154,7 +155,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
   }
 
   private Expression collectionsStaticFactoryInvocation(
-      ClassName requestingClass, CodeBlock methodInvocation) {
+      XClassName requestingClass, CodeBlock methodInvocation) {
     return Expression.create(
         binding.key().type().xprocessing(),
         CodeBlock.builder()
@@ -164,9 +165,9 @@ final class SetRequestRepresentation extends RequestRepresentation {
             .build());
   }
 
-  private CodeBlock maybeTypeParameter(ClassName requestingClass) {
+  private CodeBlock maybeTypeParameter(XClassName requestingClass) {
     XType elementType = SetType.from(binding.key()).elementType();
-    return isTypeAccessibleFrom(elementType, requestingClass.packageName())
+    return isTypeAccessibleFrom(elementType, requestingClass.getPackageName())
         ? CodeBlock.of("<$T>", elementType.getTypeName())
         : CodeBlock.of("");
   }
@@ -179,12 +180,12 @@ final class SetRequestRepresentation extends RequestRepresentation {
 
   private boolean isImmutableSetBuilderWithExpectedSizeAvailable() {
     return isImmutableSetAvailable()
-        && processingEnv.requireTypeElement(TypeNames.IMMUTABLE_SET).getDeclaredMethods().stream()
+        && processingEnv.requireTypeElement(XTypeNames.IMMUTABLE_SET).getDeclaredMethods().stream()
             .anyMatch(method -> getSimpleName(method).contentEquals("builderWithExpectedSize"));
   }
 
   private boolean isImmutableSetAvailable() {
-    return processingEnv.findTypeElement(TypeNames.IMMUTABLE_SET) != null;
+    return processingEnv.findTypeElement(XTypeNames.IMMUTABLE_SET) != null;
   }
 
   @AssistedFactory

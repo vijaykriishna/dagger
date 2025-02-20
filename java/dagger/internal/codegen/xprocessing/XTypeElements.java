@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static kotlin.streams.jdk8.StreamsKt.asStream;
 
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XHasModifiers;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XTypeElement;
@@ -51,9 +52,9 @@ public final class XTypeElements {
 
   // TODO(bcorso): Consider XParameterizable interface to handle both methods and types.
   /** Returns the type arguments for the given type as a list of {@link TypeVariableName}. */
-  public static ImmutableList<TypeVariableName> typeVariableNames(XTypeElement typeElement) {
+  public static ImmutableList<XTypeName> typeVariableNames(XTypeElement typeElement) {
     return typeElement.getTypeParameters().stream()
-        .map(XTypeParameterElement::getTypeVariableName)
+        .map(XTypeParameterElement::asTypeVariableName)
         .collect(toImmutableList());
   }
 

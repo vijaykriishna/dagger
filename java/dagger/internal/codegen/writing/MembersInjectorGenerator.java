@@ -50,6 +50,8 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
@@ -62,7 +64,6 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -116,14 +117,16 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         "tried to generate a MembersInjector for a binding of a resolved generic type: %s",
         binding);
 
-    ClassName generatedTypeName =
-        toJavaPoet(membersInjectorNameForType(binding.membersInjectedType()));
-    ImmutableList<TypeVariableName> typeParameters = bindingTypeElementTypeVariableNames(binding);
+    XClassName generatedTypeName = membersInjectorNameForType(binding.membersInjectedType());
+    ImmutableList<XTypeName> typeParameters = bindingTypeElementTypeVariableNames(binding);
     ImmutableMap<DependencyRequest, FieldSpec> frameworkFields = frameworkFields(binding);
     TypeSpec.Builder injectorTypeBuilder =
-        classBuilder(generatedTypeName)
+        classBuilder(toJavaPoet(generatedTypeName))
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(typeParameters)
+            .addTypeVariables(
+                typeParameters.stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()))
             .addAnnotation(qualifierMetadataAnnotation(binding))
             .addSuperinterface(membersInjectorOf(binding.key().type().xprocessing().getTypeName()))
             .addFields(frameworkFields.values())
@@ -170,7 +173,10 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         methodBuilder(methodName)
             .addModifiers(PUBLIC, STATIC)
             .varargs(method.isVarArgs())
-            .addTypeVariables(typeVariableNames(enclosingType))
+            .addTypeVariables(
+                typeVariableNames(enclosingType).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()))
             .addExceptions(getThrownTypes(method));
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
@@ -195,7 +201,10 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                 AnnotationSpec.builder(TypeNames.INJECTED_FIELD_SIGNATURE)
                     .addMember("value", "$S", memberInjectedFieldSignatureForVariable(field))
                     .build())
-            .addTypeVariables(typeVariableNames(enclosingType));
+            .addTypeVariables(
+                typeVariableNames(enclosingType).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()));
 
     qualifier.map(XAnnotations::getAnnotationSpec).ifPresent(builder::addAnnotation);
 
@@ -271,12 +280,15 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     // (Otherwise they may have visibility problems referring to the types.)
     return methodBuilder("create")
         .addModifiers(PUBLIC, STATIC)
-        .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
+        .addTypeVariables(
+            bindingTypeElementTypeVariableNames(binding).stream()
+                .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                .collect(toImmutableList()))
         .returns(membersInjectorOf(binding.key().type().xprocessing().getTypeName()))
         .addParameters(params)
         .addStatement(
             "return new $T($L)",
-            parameterizedGeneratedTypeNameForBinding(binding),
+            toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)),
             parameterNames(params))
         .build();
   }
@@ -301,7 +313,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         .addCode(
             InjectionSiteMethod.invokeAll(
                 binding.injectionSites(),
-                toJavaPoet(membersInjectorNameForType(binding.membersInjectedType())),
+                membersInjectorNameForType(binding.membersInjectedType()),
                 CodeBlock.of("instance"),
                 instanceType,
                 dependencyCodeBlocks::get))
@@ -320,8 +332,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         .map(DependencyRequest::key)
         .map(Key::qualifier)
         .flatMap(presentValues())
-        .map(DaggerAnnotation::className)
-        .map(ClassName::canonicalName)
+        .map(DaggerAnnotation::xprocessing)
+        .map(XAnnotation::getQualifiedName)
         .distinct()
         .forEach(qualifier -> builder.addMember("value", "$S", qualifier));
     return builder.build();
@@ -330,8 +342,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   private static ImmutableMap<DependencyRequest, FieldSpec> frameworkFields(
       MembersInjectionBinding binding) {
     UniqueNameSet fieldNames = new UniqueNameSet();
-    ClassName membersInjectorTypeName =
-        toJavaPoet(membersInjectorNameForType(binding.membersInjectedType()));
+    XClassName membersInjectorTypeName = membersInjectorNameForType(binding.membersInjectedType());
     ImmutableMap.Builder<DependencyRequest, FieldSpec> builder = ImmutableMap.builder();
     generateBindingFieldsForDependencies(binding)
         .forEach(
@@ -340,7 +351,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
               // framework type for the field.
               boolean useRawFrameworkType =
                   !isTypeAccessibleFrom(
-                      request.key().type().xprocessing(), membersInjectorTypeName.packageName());
+                      request.key().type().xprocessing(), membersInjectorTypeName.getPackageName());
               TypeName fieldType =
                   useRawFrameworkType
                       ? toJavaPoet(bindingField.type().getRawTypeName())

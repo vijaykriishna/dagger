@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import dagger.internal.codegen.base.ClearableCache;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,12 +26,12 @@ import javax.inject.Singleton;
 /** Keeps track of modules generated in the current round by {@link MonitoringModuleGenerator}. */
 @Singleton
 public final class MonitoringModules implements ClearableCache {
-  Set<ClassName> cache = new HashSet<>();
+  Set<XClassName> cache = new HashSet<>();
 
   @Inject
   MonitoringModules() {}
 
-  public void add(ClassName module) {
+  public void add(XClassName module) {
     cache.add(module);
   }
 

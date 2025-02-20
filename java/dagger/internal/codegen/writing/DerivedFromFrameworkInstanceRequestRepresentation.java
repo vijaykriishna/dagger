@@ -19,8 +19,8 @@ package dagger.internal.codegen.writing;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.writing.DelegateRequestRepresentation.instanceRequiresCast;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -61,7 +61,7 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return getDependencyExpressionFromFrameworkExpression(
         frameworkRequestRepresentation.getDependencyExpression(requestingClass),
         requestingClass);
@@ -77,7 +77,7 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
   }
 
   private Expression getDependencyExpressionFromFrameworkExpression(
-      Expression frameworkExpression, ClassName requestingClass) {
+      Expression frameworkExpression, XClassName requestingClass) {
     Expression expression =
         frameworkType.to(
             requestKind,
@@ -117,7 +117,7 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
     throw new IllegalStateException("Unexpected request kind: " + requestKind);
   }
 
-  private boolean requiresTypeCast(Expression expression, ClassName requestingClass) {
+  private boolean requiresTypeCast(Expression expression, XClassName requestingClass) {
     return binding.kind().equals(BindingKind.DELEGATE)
         && requestKind.equals(RequestKind.INSTANCE)
         && instanceRequiresCast(

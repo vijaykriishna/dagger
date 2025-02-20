@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -30,10 +31,10 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -116,9 +117,9 @@ final class SwitchingProviders {
     // traversal, but the switch cases are assigned in post-order traversal of the binding graph.
     private final Map<Integer, CodeBlock> switchCases = new TreeMap<>();
     private final Map<Key, Integer> switchIds = new HashMap<>();
-    private final ClassName switchingProviderType;
+    private final XClassName switchingProviderType;
 
-    SwitchingProviderBuilder(ClassName switchingProviderType) {
+    SwitchingProviderBuilder(XClassName switchingProviderType) {
       this.switchingProviderType = checkNotNull(switchingProviderType);
     }
 
@@ -133,7 +134,7 @@ final class SwitchingProviders {
       }
       return CodeBlock.of(
           "new $T<$L>($L, $L)",
-          switchingProviderType,
+          toJavaPoet(switchingProviderType),
           // Add the type parameter explicitly when the binding is scoped because Java can't resolve
           // the type when wrapped. For example, the following will error:
           //   fooProvider = DoubleCheck.provider(new SwitchingProvider<>(1));
@@ -169,7 +170,7 @@ final class SwitchingProviders {
 
     private TypeSpec build() {
       TypeSpec.Builder builder =
-          classBuilder(switchingProviderType)
+          classBuilder(toJavaPoet(switchingProviderType))
               .addModifiers(PRIVATE, FINAL, STATIC)
               .addTypeVariable(T)
               .addSuperinterface(daggerProviderOf(T))

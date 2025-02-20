@@ -56,6 +56,7 @@ public final class XAnnotations {
     return annotation.getType().getTypeElement().getClassName();
   }
 
+  // TODO(b/397745985): Remove this method once the bug is fixed.
   /** Returns the class name of the given annotation */
   public static XClassName asClassName(XAnnotation annotation) {
     return annotation.getType().getTypeElement().asClassName();

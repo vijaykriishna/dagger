@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
@@ -34,9 +35,10 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XMethodElement;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -96,7 +98,7 @@ final class DependencyMethodProviderCreationExpression
             binding,
             compilerOptions,
             CodeBlock.of("$N.$N()", dependency().variableName(), provisionMethod.getJvmName()));
-    ClassName dependencyClassName = dependency().typeElement().getClassName();
+    XClassName dependencyClassName = dependency().typeElement().asClassName();
     TypeName keyType = binding.key().type().xprocessing().getTypeName();
     MethodSpec.Builder getMethod =
         methodBuilder("get")
@@ -105,20 +107,20 @@ final class DependencyMethodProviderCreationExpression
             .returns(
                 keyType.annotated(
                     binding.nullability().typeUseNullableAnnotations().stream()
+                        .map(XConverters::toJavaPoet)
                         .map(annotation -> AnnotationSpec.builder(annotation).build())
                         .collect(toImmutableList())))
             .addStatement("return $L", invocation);
 
-    binding
-        .nullability()
-        .nonTypeUseNullableAnnotations()
+    binding.nullability().nonTypeUseNullableAnnotations().stream()
+        .map(XConverters::toJavaPoet)
         .forEach(getMethod::addAnnotation);
 
     // We need to use the componentShard here since the generated type is static and shards are
     // not static classes so it can't be nested inside the shard.
     ShardImplementation componentShard =
         shardImplementation.getComponentImplementation().getComponentShard();
-    ClassName factoryClassName =
+    XClassName factoryClassName =
         componentShard
             .name()
             .nestedClass(
@@ -126,25 +128,26 @@ final class DependencyMethodProviderCreationExpression
                     LOWER_CAMEL.to(UPPER_CAMEL, getSimpleName(provisionMethod) + "Provider")));
     componentShard.addType(
         COMPONENT_PROVISION_FACTORY,
-        classBuilder(factoryClassName)
+        classBuilder(toJavaPoet(factoryClassName))
             .addSuperinterface(
                 daggerProviderOf(
                     keyType.annotated(
                         binding.nullability().typeUseNullableAnnotations().stream()
+                            .map(XConverters::toJavaPoet)
                             .map(annotation -> AnnotationSpec.builder(annotation).build())
                             .collect(toImmutableList()))))
             .addModifiers(PRIVATE, STATIC, FINAL)
-            .addField(dependencyClassName, dependency().variableName(), PRIVATE, FINAL)
+            .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
             .addMethod(
                 constructorBuilder()
-                    .addParameter(dependencyClassName, dependency().variableName())
+                    .addParameter(toJavaPoet(dependencyClassName), dependency().variableName())
                     .addStatement("this.$1L = $1L", dependency().variableName())
                     .build())
             .addMethod(getMethod.build())
             .build());
     return CodeBlock.of(
         "new $T($L)",
-        factoryClassName,
+        toJavaPoet(factoryClassName),
         componentRequirementExpressions.getExpressionDuringInitialization(
             dependency(), shardImplementation.name()));
   }

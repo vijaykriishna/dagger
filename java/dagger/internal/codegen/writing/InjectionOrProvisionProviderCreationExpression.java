@@ -24,10 +24,10 @@ import static dagger.internal.codegen.model.BindingKind.ASSISTED_FACTORY;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -67,11 +67,11 @@ final class InjectionOrProvisionProviderCreationExpression
 
   @Override
   public CodeBlock creationExpression() {
-    ClassName factoryImpl = toJavaPoet(generatedClassNameForBinding(binding));
+    XClassName factoryImpl = generatedClassNameForBinding(binding);
     CodeBlock createFactory =
         CodeBlock.of(
             "$T.$L($L)",
-            factoryImpl,
+            toJavaPoet(factoryImpl),
             // A different name is used for assisted factories due to backwards compatibility
             // issues when migrating from the javax Provider.
             binding.kind().equals(ASSISTED_FACTORY) ? "createFactoryProvider" : "create",
@@ -96,7 +96,7 @@ final class InjectionOrProvisionProviderCreationExpression
           createFactory = CodeBlock.of(
             "$T.asDaggerProvider($T.create($L))",
             TypeNames.DAGGER_PROVIDERS,
-            factoryImpl,
+            toJavaPoet(factoryImpl),
             componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
                 binding, shardImplementation.name()));
         }

@@ -34,7 +34,6 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.ExpressionType;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
@@ -49,7 +48,6 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
   private final ContributionBinding binding;
   private final BindingRequest request;
   private final RequestRepresentation wrappedRequestRepresentation;
-  private final CompilerOptions compilerOptions;
   private final XProcessingEnv processingEnv;
   private String methodName;
 
@@ -59,14 +57,12 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
       @Assisted ContributionBinding binding,
       @Assisted RequestRepresentation wrappedRequestRepresentation,
       ComponentImplementation componentImplementation,
-      XProcessingEnv processingEnv,
-      CompilerOptions compilerOptions) {
+      XProcessingEnv processingEnv) {
     super(componentImplementation.shardImplementation(binding), processingEnv);
     this.binding = checkNotNull(binding);
     this.request = checkNotNull(request);
     this.wrappedRequestRepresentation = checkNotNull(wrappedRequestRepresentation);
     this.shardImplementation = componentImplementation.shardImplementation(binding);
-    this.compilerOptions = compilerOptions;
     this.processingEnv = processingEnv;
   }
 
@@ -81,7 +77,7 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
                 && binding.contributedPrimitiveType().isPresent()
         ? binding.contributedPrimitiveType().get()
         : request.requestedType(binding.contributedType(), processingEnv);
-    String requestingPackage = shardImplementation.name().packageName();
+    String requestingPackage = shardImplementation.name().getPackageName();
     if (isTypeAccessibleFrom(type, requestingPackage)) {
       return ExpressionType.create(type);
     } else if (isDeclared(type) && isRawTypeAccessible(type, requestingPackage)) {

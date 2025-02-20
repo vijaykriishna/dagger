@@ -22,6 +22,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asVariable;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotated;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XNullability;
@@ -29,7 +30,6 @@ import androidx.room.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import java.util.Optional;
 
 /**
@@ -49,9 +49,9 @@ public abstract class Nullability {
       new AutoValue_Nullability(ImmutableSet.of(), ImmutableSet.of(), false);
 
   public static Nullability of(XElement element) {
-    ImmutableSet<ClassName> nonTypeUseNullableAnnotations = getNullableAnnotations(element);
+    ImmutableSet<XClassName> nonTypeUseNullableAnnotations = getNullableAnnotations(element);
     Optional<XType> type = getType(element);
-    ImmutableSet<ClassName> typeUseNullableAnnotations =
+    ImmutableSet<XClassName> typeUseNullableAnnotations =
     ImmutableSet.of();
     boolean isKotlinTypeNullable =
         // Note: Technically, it isn't possible for Java sources to have nullable types like in
@@ -70,10 +70,10 @@ public abstract class Nullability {
         isKotlinTypeNullable);
   }
 
-  private static ImmutableSet<ClassName> getNullableAnnotations(XAnnotated annotated) {
+  private static ImmutableSet<XClassName> getNullableAnnotations(XAnnotated annotated) {
     return annotated.getAllAnnotations().stream()
-        .map(XAnnotations::getClassName)
-        .filter(annotation -> annotation.simpleName().contentEquals("Nullable"))
+        .map(XAnnotations::asClassName)
+        .filter(annotation -> annotation.getSimpleName().contentEquals("Nullable"))
         .collect(toImmutableSet());
   }
 
@@ -86,9 +86,9 @@ public abstract class Nullability {
     return Optional.empty();
   }
 
-  public abstract ImmutableSet<ClassName> nonTypeUseNullableAnnotations();
+  public abstract ImmutableSet<XClassName> nonTypeUseNullableAnnotations();
 
-  public abstract ImmutableSet<ClassName> typeUseNullableAnnotations();
+  public abstract ImmutableSet<XClassName> typeUseNullableAnnotations();
 
   /**
    * Returns {@code true} if the element's type is a Kotlin nullable type, e.g. {@code Foo?}.
@@ -98,8 +98,8 @@ public abstract class Nullability {
    */
   public abstract boolean isKotlinTypeNullable();
 
-  public ImmutableSet<ClassName> nullableAnnotations() {
-    return ImmutableSet.<ClassName>builder()
+  public ImmutableSet<XClassName> nullableAnnotations() {
+    return ImmutableSet.<XClassName>builder()
         .addAll(nonTypeUseNullableAnnotations())
         .addAll(typeUseNullableAnnotations()).build();
   }

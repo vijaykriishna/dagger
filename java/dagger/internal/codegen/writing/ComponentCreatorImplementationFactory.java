@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -91,7 +92,7 @@ final class ComponentCreatorImplementationFactory {
   /** Base class for building a creator implementation. */
   private abstract class Builder {
     private final TypeSpec.Builder classBuilder =
-        classBuilder(componentImplementation.getCreatorName());
+        classBuilder(toJavaPoet(componentImplementation.getCreatorName()));
     private final UniqueNameSet fieldNames = new UniqueNameSet();
     private ImmutableMap<ComponentRequirement, FieldSpec> fields;
 
@@ -214,7 +215,7 @@ final class ComponentCreatorImplementationFactory {
           // is in another package. This avoids unnecessary breakages in Dagger's generated
           // due to the noop setters.
           if (isElementAccessibleFrom(
-              requirement.typeElement(), componentImplementation.name().packageName())) {
+              requirement.typeElement(), componentImplementation.name().getPackageName())) {
             return Optional.of(noopSetterMethod(requirement));
           } else {
             return Optional.empty();
@@ -298,7 +299,7 @@ final class ComponentCreatorImplementationFactory {
               });
       factoryMethod.addStatement(
           "return new $T($L)",
-          componentImplementation.name(),
+          toJavaPoet(componentImplementation.name()),
           componentConstructorArgs(factoryMethodParameters));
       return factoryMethod.build();
     }
@@ -447,7 +448,7 @@ final class ComponentCreatorImplementationFactory {
       MethodSpec.Builder method = overriding(supertypeMethod, creatorType());
       if (!isVoid(supertypeMethod.getReturnType())) {
         // Take advantage of covariant returns so that we don't have to worry about type variables
-        method.returns(componentImplementation.getCreatorName());
+        method.returns(toJavaPoet(componentImplementation.getCreatorName()));
       }
       return method;
     }
@@ -501,8 +502,8 @@ final class ComponentCreatorImplementationFactory {
       String name = simpleVariableName(requirement.typeElement().asClassName());
       return methodBuilder(name)
           .addModifiers(PUBLIC)
-          .addParameter(requirement.type().getTypeName(), name)
-          .returns(componentImplementation.getCreatorName());
+          .addParameter(toJavaPoet(requirement.type().asTypeName()), name)
+          .returns(toJavaPoet(componentImplementation.getCreatorName()));
     }
   }
 

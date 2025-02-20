@@ -16,9 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -41,11 +42,11 @@ final class SubcomponentCreatorRequestRepresentation extends RequestRepresentati
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return Expression.create(
         binding.key().type().xprocessing(),
         "new $T($L)",
-        shardImplementation.getSubcomponentCreatorSimpleName(binding.key()),
+        toJavaPoet(shardImplementation.getSubcomponentCreatorSimpleName(binding.key())),
         shardImplementation.componentFieldsByImplementation().values().stream()
             .map(field -> CodeBlock.of("$N", field))
             .collect(toParametersCodeBlock()));

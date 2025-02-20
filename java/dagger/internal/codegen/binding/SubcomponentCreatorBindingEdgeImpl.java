@@ -21,8 +21,8 @@ import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.model.BindingGraph.SubcomponentCreatorBindingEdge;
 import dagger.internal.codegen.model.DaggerTypeElement;
 
@@ -48,10 +48,10 @@ public final class SubcomponentCreatorBindingEdgeImpl implements SubcomponentCre
   public String toString() {
     return "subcomponent declared by "
         + (subcomponentDeclarations.size() == 1
-            ? getOnlyElement(declaringModules()).className().canonicalName()
+            ? getOnlyElement(declaringModules()).xprocessing().getQualifiedName()
             : declaringModules().stream()
-                .map(DaggerTypeElement::className)
-                .map(ClassName::canonicalName)
+                .map(DaggerTypeElement::xprocessing)
+                .map(XTypeElement::getQualifiedName)
                 .collect(joining(", ", "{", "}")));
   }
 }

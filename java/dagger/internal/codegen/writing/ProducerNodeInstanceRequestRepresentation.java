@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -55,7 +55,7 @@ final class ProducerNodeInstanceRequestRepresentation
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     Expression result = super.getDependencyExpression(requestingClass);
     shardImplementation.addCancellation(
         key,

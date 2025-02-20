@@ -20,10 +20,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getLast;
 import static java.util.stream.Collectors.joining;
 
+import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.ClassName;
 
 /** A path containing a component and all of its ancestor components. */
 @AutoValue
@@ -91,8 +91,8 @@ public abstract class ComponentPath {
   @Override
   public final String toString() {
     return components().stream()
-        .map(DaggerTypeElement::className)
-        .map(ClassName::canonicalName)
+        .map(DaggerTypeElement::xprocessing)
+        .map(XTypeElement::getQualifiedName)
         .collect(joining(" → "));
   }
 

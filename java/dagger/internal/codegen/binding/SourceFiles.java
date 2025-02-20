@@ -32,6 +32,7 @@ import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableName
 import static javax.lang.model.SourceVersion.isName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XFieldElement;
 import androidx.room.compiler.processing.XMethodElement;
@@ -42,12 +43,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
@@ -192,12 +189,12 @@ public final class SourceFiles {
         classFileName(enclosingClassName) + "_" + methodName + suffix);
   }
 
-  public static TypeName parameterizedGeneratedTypeNameForBinding(Binding binding) {
-    ClassName className = toJavaPoet(generatedClassNameForBinding(binding));
-    ImmutableList<TypeVariableName> typeParameters = bindingTypeElementTypeVariableNames(binding);
+  public static XTypeName parameterizedGeneratedTypeNameForBinding(Binding binding) {
+    XClassName className = generatedClassNameForBinding(binding);
+    ImmutableList<XTypeName> typeParameters = bindingTypeElementTypeVariableNames(binding);
     return typeParameters.isEmpty()
         ? className
-        : ParameterizedTypeName.get(className, Iterables.toArray(typeParameters, TypeName.class));
+        : className.parametrizedBy(Iterables.toArray(typeParameters, XTypeName.class));
   }
 
   public static XClassName membersInjectorNameForType(XTypeElement typeElement) {
@@ -288,8 +285,7 @@ public final class SourceFiles {
     }
   }
 
-  public static ImmutableList<TypeVariableName> bindingTypeElementTypeVariableNames(
-      Binding binding) {
+  public static ImmutableList<XTypeName> bindingTypeElementTypeVariableNames(Binding binding) {
     if (binding instanceof ContributionBinding) {
       ContributionBinding contributionBinding = (ContributionBinding) binding;
       if (!(contributionBinding.kind() == INJECTION

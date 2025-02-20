@@ -19,6 +19,7 @@ package dagger.internal.codegen.xprocessing;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
@@ -61,10 +62,12 @@ public final class JavaPoetExt {
     Nullability nullability = Nullability.of(parameter);
     ImmutableSet<AnnotationSpec> typeUseNullableAnnotations =
         nullability.typeUseNullableAnnotations().stream()
+            .map(XConverters::toJavaPoet)
             .map(annotation -> AnnotationSpec.builder(annotation).build())
             .collect(toImmutableSet());
     ImmutableSet<AnnotationSpec> nonTypeUseNullableAnnotations =
         nullability.nonTypeUseNullableAnnotations().stream()
+            .map(XConverters::toJavaPoet)
             .map(annotation -> AnnotationSpec.builder(annotation).build())
             .collect(toImmutableSet());
     return ParameterSpec.builder(

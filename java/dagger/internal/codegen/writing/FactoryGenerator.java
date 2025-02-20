@@ -49,6 +49,8 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.compat.XConverters;
+import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
@@ -69,6 +71,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
@@ -131,7 +134,10 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     TypeSpec.Builder factoryBuilder =
         classBuilder(toJavaPoet(generatedClassNameForBinding(binding)))
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
+            .addTypeVariables(
+               bindingTypeElementTypeVariableNames(binding).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()))
             .addAnnotation(scopeMetadataAnnotation(binding))
             .addAnnotation(qualifierMetadataAnnotation(binding));
 
@@ -216,8 +222,11 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     MethodSpec.Builder createMethodBuilder =
         methodBuilder("create")
             .addModifiers(PUBLIC, STATIC)
-            .returns(parameterizedGeneratedTypeNameForBinding(binding))
-            .addTypeVariables(bindingTypeElementTypeVariableNames(binding));
+            .returns(toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)))
+            .addTypeVariables(
+                bindingTypeElementTypeVariableNames(binding).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()));
 
     if (factoryFields.isEmpty()) {
       if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
@@ -233,7 +242,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
           .addParameters(parameters)
           .addStatement(
               "return new $T($L)",
-              parameterizedGeneratedTypeNameForBinding(binding),
+              toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)),
               parameterNames(parameters));
     }
     return createMethodBuilder.build();
@@ -281,14 +290,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                 sourceFiles.frameworkTypeUsageStatement(
                     CodeBlock.of("$N", factoryFields.get(request)), request.kind()),
             param -> assistedParameters.get(param).name,
-            toJavaPoet(generatedClassNameForBinding(binding)),
+            generatedClassNameForBinding(binding),
             factoryFields.moduleField.map(module -> CodeBlock.of("$N", module)),
             compilerOptions);
 
     if (binding.kind().equals(PROVISION)) {
-      binding
-          .nullability()
-          .nonTypeUseNullableAnnotations()
+      binding.nullability().nonTypeUseNullableAnnotations().stream()
+          .map(XConverters::toJavaPoet)
           .forEach(getMethod::addAnnotation);
       getMethod.addStatement("return $L", invokeNewInstance).returns(providedTypeName);
     } else if (!injectionSites(binding).isEmpty()) {
@@ -299,7 +307,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
           .addCode(
               InjectionSiteMethod.invokeAll(
                   injectionSites(binding),
-                  toJavaPoet(generatedClassNameForBinding(binding)),
+                  generatedClassNameForBinding(binding),
                   instance,
                   binding.key().type().xprocessing(),
                   sourceFiles.frameworkFieldUsages(
@@ -339,7 +347,10 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             .addModifiers(PUBLIC, STATIC)
             .varargs(constructor.isVarArgs())
             .returns(enclosingType.getType().getTypeName())
-            .addTypeVariables(typeVariableNames(enclosingType))
+            .addTypeVariables(
+                typeVariableNames(enclosingType).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()))
             .addExceptions(getThrownTypes(constructor));
     CodeBlock arguments = copyParameters(builder, new UniqueNameSet(), constructor.getParameters());
     return builder
@@ -370,21 +381,25 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       // See: https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#static-methods
       module = CodeBlock.of("$T.INSTANCE", enclosingType.getClassName());
     } else {
-      builder.addTypeVariables(typeVariableNames(enclosingType));
+      builder.addTypeVariables(
+          typeVariableNames(enclosingType).stream()
+              .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+              .collect(toImmutableList()));
       module = copyInstance(builder, parameterNameSet, enclosingType.getType());
     }
     CodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
     CodeBlock invocation = CodeBlock.of("$L.$L($L)", module, method.getJvmName(), arguments);
 
     Nullability nullability = Nullability.of(method);
-    nullability
-        .nonTypeUseNullableAnnotations()
+    nullability.nonTypeUseNullableAnnotations().stream()
+        .map(XConverters::toJavaPoet)
         .forEach(builder::addAnnotation);
     return builder
         .returns(
             method.getReturnType().getTypeName()
                 .annotated(
                     nullability.typeUseNullableAnnotations().stream()
+                        .map(XConverters::toJavaPoet)
                         .map(annotation -> AnnotationSpec.builder(annotation).build())
                         .collect(toImmutableList())))
         .addStatement("return $L", maybeWrapInCheckForNull(binding, invocation))
@@ -415,8 +430,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     AnnotationSpec.Builder builder = AnnotationSpec.builder(TypeNames.SCOPE_METADATA);
     binding.scope()
         .map(Scope::scopeAnnotation)
-        .map(DaggerAnnotation::className)
-        .map(ClassName::canonicalName)
+        .map(DaggerAnnotation::xprocessing)
+        .map(XAnnotation::getQualifiedName)
         .ifPresent(scopeCanonicalName -> builder.addMember("value", "$S", scopeCanonicalName));
     return builder.build();
   }
@@ -430,8 +445,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             provisionDependencies(binding).stream().map(DependencyRequest::key))
         .map(Key::qualifier)
         .flatMap(presentValues())
-        .map(DaggerAnnotation::className)
-        .map(ClassName::canonicalName)
+        .map(DaggerAnnotation::xprocessing)
+        .map(XAnnotation::getQualifiedName)
         .distinct()
         .forEach(qualifier -> builder.addMember("value", "$S", qualifier));
     return builder.build();
@@ -469,6 +484,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         .getTypeName()
         .annotated(
             binding.nullability().typeUseNullableAnnotations().stream()
+                .map(XConverters::toJavaPoet)
                 .map(annotation -> AnnotationSpec.builder(annotation).build())
                 .collect(toImmutableList()));
   }

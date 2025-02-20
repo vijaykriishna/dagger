@@ -21,6 +21,7 @@ import static dagger.internal.codegen.xprocessing.JavaPoetExt.toParameterSpec;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
@@ -42,6 +43,7 @@ public final class MethodSpecs {
             .addAnnotation(Override.class)
             .addAnnotations(
                 nullability.nonTypeUseNullableAnnotations().stream()
+                    .map(XConverters::toJavaPoet)
                     .map(AnnotationSpec::builder)
                     .map(AnnotationSpec.Builder::build)
                     .collect(toImmutableList()))
@@ -53,6 +55,7 @@ public final class MethodSpecs {
                     .getTypeName()
                     .annotated(
                         nullability.typeUseNullableAnnotations().stream()
+                            .map(XConverters::toJavaPoet)
                             .map(AnnotationSpec::builder)
                             .map(AnnotationSpec.Builder::build)
                             .collect(toImmutableList())));

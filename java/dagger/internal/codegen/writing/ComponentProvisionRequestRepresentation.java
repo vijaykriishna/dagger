@@ -18,7 +18,7 @@ package dagger.internal.codegen.writing;
 
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -51,7 +51,7 @@ final class ComponentProvisionRequestRepresentation extends RequestRepresentatio
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     CodeBlock componentDependency = getComponentRequirementExpression(requestingClass);
     CodeBlock invocation =
         CodeBlock.of(
@@ -61,7 +61,7 @@ final class ComponentProvisionRequestRepresentation extends RequestRepresentatio
         maybeCheckForNull(binding, compilerOptions, invocation));
   }
 
-  CodeBlock getComponentRequirementExpression(ClassName requestingClass) {
+  CodeBlock getComponentRequirementExpression(XClassName requestingClass) {
     return componentRequirementExpressions.getExpression(componentRequirement(), requestingClass);
   }
 

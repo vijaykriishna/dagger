@@ -18,7 +18,7 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -47,7 +47,7 @@ final class ComponentRequirementRequestRepresentation extends RequestRepresentat
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return Expression.create(
         componentRequirement.type(),
         componentRequirementExpressions.getExpression(componentRequirement, requestingClass));

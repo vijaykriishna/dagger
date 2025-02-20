@@ -26,7 +26,6 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import dagger.internal.DelegateFactory;
@@ -34,7 +33,6 @@ import dagger.internal.codegen.binding.BindingType;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkField;
 import dagger.internal.codegen.javapoet.AnnotationSpecs;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -100,7 +98,10 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
 
         if (fieldInitializationState == InitializationState.DELEGATED) {
           codeBuilder.add(
-              "$T.setDelegate($N, $L);", delegateType(), fieldSpec, fieldInitialization);
+              "$T.setDelegate($N, $L);",
+              toJavaPoet(delegateType()),
+              fieldSpec,
+              fieldInitialization);
         } else {
           codeBuilder.add(initCode);
         }
@@ -122,7 +123,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
 
         fieldInitializationState = InitializationState.DELEGATED;
         shardImplementation.addInitialization(
-            CodeBlock.of("this.$N = new $T<>();", fieldSpec, delegateType()));
+            CodeBlock.of("this.$N = new $T<>();", fieldSpec, toJavaPoet(delegateType())));
         break;
 
       case DELEGATED:
@@ -180,8 +181,8 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     return fieldSpec;
   }
 
-  private ClassName delegateType() {
-    return isProvider() ? TypeNames.DELEGATE_FACTORY : TypeNames.DELEGATE_PRODUCER;
+  private XClassName delegateType() {
+    return isProvider() ? XTypeNames.DELEGATE_FACTORY : XTypeNames.DELEGATE_PRODUCER;
   }
 
   private boolean isProvider() {

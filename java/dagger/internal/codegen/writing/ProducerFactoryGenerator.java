@@ -49,6 +49,7 @@ import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -57,7 +58,6 @@ import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -65,6 +65,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -118,7 +119,10 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                     callProducesMethodParameter(binding).type,
                     binding.contributedType().getTypeName()))
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
+            .addTypeVariables(
+                bindingTypeElementTypeVariableNames(binding).stream()
+                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                    .collect(toImmutableList()))
             .addFields(
                 factoryFields.getAll().stream()
                     // The executor and monitor fields are owned by the superclass so they are not
@@ -155,7 +159,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     constructorBuilder.addStatement(
         "super($N, $L, $N)",
         factoryFields.monitorField,
-        producerTokenConstruction(toJavaPoet(generatedClassNameForBinding(binding)), binding),
+        producerTokenConstruction(generatedClassNameForBinding(binding), binding),
         factoryFields.executorField);
     factoryFields.getAll()
         .forEach(
@@ -192,12 +196,15 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     List<ParameterSpec> params = constructorMethod(binding, factoryFields).parameters;
     return MethodSpec.methodBuilder("create")
         .addModifiers(PUBLIC, STATIC)
-        .returns(parameterizedGeneratedTypeNameForBinding(binding))
-        .addTypeVariables(bindingTypeElementTypeVariableNames(binding))
+        .returns(toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)))
+        .addTypeVariables(
+            bindingTypeElementTypeVariableNames(binding).stream()
+                .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                .collect(toImmutableList()))
         .addParameters(params)
         .addStatement(
             "return new $T($L)",
-            parameterizedGeneratedTypeNameForBinding(binding),
+            toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)),
             parameterNames(params))
         .build();
   }
@@ -370,7 +377,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   }
 
   private CodeBlock producerTokenConstruction(
-      ClassName generatedTypeName, ProductionBinding binding) {
+      XClassName generatedTypeName, ProductionBinding binding) {
     CodeBlock producerTokenArgs =
         compilerOptions.writeProducerNameInToken()
             ? CodeBlock.of(
@@ -379,7 +386,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                     "%s#%s",
                     binding.bindingTypeElement().get().getClassName(),
                     getSimpleName(binding.bindingElement().get())))
-            : CodeBlock.of("$T.class", generatedTypeName);
+            : CodeBlock.of("$T.class", toJavaPoet(generatedTypeName));
     return CodeBlock.of("$T.create($L)", PRODUCER_TOKEN, producerTokenArgs);
   }
 

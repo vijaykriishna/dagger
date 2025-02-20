@@ -51,7 +51,6 @@ import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.devtools.ksp.symbol.KSAnnotated;
-import com.squareup.javapoet.ClassName;
 import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -310,7 +309,7 @@ public final class XElements {
 
   /** Returns all annotations from {@code annotations} that annotate {@code annotated}. */
   public static ImmutableSet<XAnnotation> getAllAnnotations(
-      XAnnotated annotated, Collection<ClassName> annotations) {
+      XAnnotated annotated, Collection<XClassName> annotations) {
     return annotations.stream()
         .filter(annotated::hasAnnotation)
         .map(annotated::getAnnotation)

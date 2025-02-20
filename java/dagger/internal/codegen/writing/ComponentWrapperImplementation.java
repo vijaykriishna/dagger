@@ -24,10 +24,10 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.XClassName;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -44,7 +44,7 @@ import javax.inject.Inject;
 @PerGeneratedFile
 public final class ComponentWrapperImplementation implements GeneratedImplementation {
   private final BindingGraph graph;
-  private final ClassName name;
+  private final XClassName name;
   private final UniqueNameSet componentClassNames = new UniqueNameSet();
   private final ListMultimap<FieldSpecKind, FieldSpec> fieldSpecsMap =
       MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
@@ -57,11 +57,11 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   @Inject
   ComponentWrapperImplementation(@TopLevel BindingGraph graph) {
     this.graph = graph;
-    this.name = toJavaPoet(ComponentNames.getTopLevelClassName(graph.componentDescriptor()));
+    this.name = ComponentNames.getTopLevelClassName(graph.componentDescriptor());
   }
 
   @Override
-  public ClassName name() {
+  public XClassName name() {
     return name;
   }
 

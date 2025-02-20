@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.binding.ComponentRequirement;
 
@@ -32,7 +32,7 @@ interface ComponentRequirementExpression {
    * component method. This may add a field or method to the component in order to reference the
    * component requirement outside of the {@code initialize()} methods.
    */
-  CodeBlock getExpression(ClassName requestingClass);
+  CodeBlock getExpression(XClassName requestingClass);
 
   /**
    * Returns an expression for the {@link ComponentRequirement} to be used only within {@code
@@ -41,7 +41,7 @@ interface ComponentRequirementExpression {
    * <p>When accessing this expression from a subcomponent, this may cause a field to be initialized
    * or a method to be added in the component that owns this {@link ComponentRequirement}.
    */
-  default CodeBlock getExpressionDuringInitialization(ClassName requestingClass) {
+  default CodeBlock getExpressionDuringInitialization(XClassName requestingClass) {
     return getExpression(requestingClass);
   }
 
@@ -49,7 +49,7 @@ interface ComponentRequirementExpression {
    * Returns the expression for the {@link ComponentRequirement} to be used when reimplementing a
    * modifiable module method.
    */
-  default CodeBlock getModifiableModuleMethodExpression(ClassName requestingClass) {
+  default CodeBlock getModifiableModuleMethodExpression(XClassName requestingClass) {
     return CodeBlock.of("return $L", getExpression(requestingClass));
   }
 }

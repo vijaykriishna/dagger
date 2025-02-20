@@ -21,7 +21,7 @@ import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.javapoet.CodeBlocks.anonymousProvider;
 import static dagger.internal.codegen.model.RequestKind.INSTANCE;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -39,7 +39,7 @@ final class AnonymousProviderCreationExpression
     implements FrameworkInstanceCreationExpression {
   private final ContributionBinding binding;
   private final ComponentRequestRepresentations componentRequestRepresentations;
-  private final ClassName requestingClass;
+  private final XClassName requestingClass;
 
   @AssistedInject
   AnonymousProviderCreationExpression(

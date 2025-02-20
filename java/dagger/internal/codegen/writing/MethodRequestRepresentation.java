@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.javapoet.Expression;
@@ -36,7 +36,7 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return Expression.create(
         returnType(),
         requestingClass.equals(shardImplementation.name())

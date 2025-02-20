@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -60,7 +61,7 @@ public final class InaccessibleMapKeyProxyGenerator
         .map(
             method -> {
               TypeSpec.Builder builder =
-                  classBuilder(MapKeys.mapKeyProxyClassName(binding))
+                  classBuilder(toJavaPoet(MapKeys.mapKeyProxyClassName(binding)))
                       .addModifiers(PUBLIC, FINAL)
                       .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
                       .addMethod(method);

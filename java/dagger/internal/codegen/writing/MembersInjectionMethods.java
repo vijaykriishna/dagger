@@ -23,11 +23,11 @@ import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpec
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -71,7 +71,7 @@ final class MembersInjectionMethods {
    * Returns the members injection {@link Expression} for the given {@link Key}, creating it if
    * necessary.
    */
-  Expression getInjectExpression(Key key, CodeBlock instance, ClassName requestingClass) {
+  Expression getInjectExpression(Key key, CodeBlock instance, XClassName requestingClass) {
     Binding binding =
         graph.localMembersInjectionBinding(key).isPresent()
             ? graph.localMembersInjectionBinding(key).get()
@@ -98,7 +98,7 @@ final class MembersInjectionMethods {
     ShardImplementation shardImplementation = componentImplementation.shardImplementation(binding);
     XType keyType = binding.key().type().xprocessing();
     XType membersInjectedType =
-        isTypeAccessibleFrom(keyType, shardImplementation.name().packageName())
+        isTypeAccessibleFrom(keyType, shardImplementation.name().getPackageName())
             ? keyType
             : processingEnv.requireType(TypeName.OBJECT);
     String bindingTypeName = getSimpleName(binding.bindingTypeElement().get());

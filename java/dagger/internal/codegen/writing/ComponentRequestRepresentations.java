@@ -27,10 +27,10 @@ import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFr
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.MapType;
@@ -98,12 +98,12 @@ public final class ComponentRequestRepresentations {
    * @param requestingClass the class that will contain the expression
    * @throws IllegalStateException if there is no binding expression that satisfies the request
    */
-  public Expression getDependencyExpression(BindingRequest request, ClassName requestingClass) {
+  public Expression getDependencyExpression(BindingRequest request, XClassName requestingClass) {
     return getRequestRepresentation(request).getDependencyExpression(requestingClass);
   }
 
   /**
-   * Equivalent to {@link #getDependencyExpression(BindingRequest, ClassName)} that is used only
+   * Equivalent to {@link #getDependencyExpression(BindingRequest, XClassName)} that is used only
    * when the request is for implementation of a component method.
    *
    * @throws IllegalStateException if there is no binding expression that satisfies the request
@@ -121,12 +121,12 @@ public final class ComponentRequestRepresentations {
    * method for the given {@link ContributionBinding binding}.
    */
   CodeBlock getCreateMethodArgumentsCodeBlock(
-      ContributionBinding binding, ClassName requestingClass) {
+      ContributionBinding binding, XClassName requestingClass) {
     return makeParametersCodeBlock(getCreateMethodArgumentsCodeBlocks(binding, requestingClass));
   }
 
   private ImmutableList<CodeBlock> getCreateMethodArgumentsCodeBlocks(
-      ContributionBinding binding, ClassName requestingClass) {
+      ContributionBinding binding, XClassName requestingClass) {
     ImmutableList.Builder<CodeBlock> arguments = ImmutableList.builder();
 
     if (binding.requiresModuleInstance()) {
@@ -165,15 +165,15 @@ public final class ComponentRequestRepresentations {
    * @param requestingClass the class that will contain the expression
    */
   Expression getDependencyArgumentExpression(
-      DependencyRequest dependencyRequest, ClassName requestingClass) {
+      DependencyRequest dependencyRequest, XClassName requestingClass) {
 
     XType dependencyType = dependencyRequest.key().type().xprocessing();
     BindingRequest bindingRequest = bindingRequest(dependencyRequest);
     Expression dependencyExpression = getDependencyExpression(bindingRequest, requestingClass);
 
     if (dependencyRequest.kind().equals(RequestKind.INSTANCE)
-        && !isTypeAccessibleFrom(dependencyType, requestingClass.packageName())
-        && isRawTypeAccessible(dependencyType, requestingClass.packageName())) {
+        && !isTypeAccessibleFrom(dependencyType, requestingClass.getPackageName())
+        && isRawTypeAccessible(dependencyType, requestingClass.getPackageName())) {
       return dependencyExpression.castTo(dependencyType.getRawType());
     }
 

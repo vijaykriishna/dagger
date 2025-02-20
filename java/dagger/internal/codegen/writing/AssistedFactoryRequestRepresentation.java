@@ -23,10 +23,10 @@ import static dagger.internal.codegen.writing.AssistedInjectionParameters.assist
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -63,7 +63,7 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     // Get corresponding assisted injection binding.
     Optional<Binding> localBinding = graph.localContributionBinding(binding.assistedInjectKey());
     checkArgument(

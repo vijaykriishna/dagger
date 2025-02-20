@@ -31,9 +31,8 @@ import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.FormatMethod;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /** A validator for methods that represent binding declarations. */
@@ -266,7 +265,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
     },
 
     /** Methods may throw checked or unchecked exceptions or errors. */
-    EXCEPTION(TypeNames.EXCEPTION) {
+    EXCEPTION(XTypeNames.EXCEPTION) {
       @Override
       protected String errorMessage(BindingMethodValidator validator) {
         return validator.bindingMethods(
@@ -275,7 +274,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
     },
 
     /** Methods may throw unchecked exceptions or errors. */
-    RUNTIME_EXCEPTION(TypeNames.RUNTIME_EXCEPTION) {
+    RUNTIME_EXCEPTION(XTypeNames.RUNTIME_EXCEPTION) {
       @Override
       protected String errorMessage(BindingMethodValidator validator) {
         return validator.bindingMethods("may only throw unchecked exceptions");
@@ -284,13 +283,13 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
     ;
 
     @SuppressWarnings("Immutable")
-    private final ClassName superclass;
+    private final XClassName superclass;
 
     ExceptionSuperclass() {
       this(null);
     }
 
-    ExceptionSuperclass(ClassName superclass) {
+    ExceptionSuperclass(XClassName superclass) {
       this.superclass = superclass;
     }
 
@@ -305,7 +304,7 @@ abstract class BindingMethodValidator extends BindingElementValidator<XMethodEle
         XExecutableElement element,
         ValidationReport.Builder report) {
       XType exceptionSupertype = validator.processingEnv.findType(superclass);
-      XType errorType = validator.processingEnv.findType(TypeNames.ERROR);
+      XType errorType = validator.processingEnv.findType(XTypeNames.ERROR);
       for (XType thrownType : element.getThrownTypes()) {
         if (!isSubtype(thrownType, exceptionSupertype) && !isSubtype(thrownType, errorType)) {
           report.addError(errorMessage(validator));

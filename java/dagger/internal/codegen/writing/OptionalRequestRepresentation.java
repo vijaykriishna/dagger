@@ -21,8 +21,8 @@ import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
@@ -53,7 +53,7 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     OptionalType optionalType = OptionalType.from(binding.key());
     OptionalKind optionalKind = optionalType.kind();
     if (binding.dependencies().isEmpty()) {
@@ -64,7 +64,7 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
         // when used as an argument to some members injection proxy methods (see
         // https://github.com/google/dagger/issues/916)
         if (isTypeAccessibleFrom(
-            binding.key().type().xprocessing(), requestingClass.packageName())) {
+            binding.key().type().xprocessing(), requestingClass.getPackageName())) {
           return Expression.create(
               binding.key().type().xprocessing(),
               optionalKind.parameterizedAbsentValueExpression(optionalType));
@@ -81,7 +81,7 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
             .codeBlock();
 
     boolean needsObjectExpression = !isTypeAccessibleFrom(
-        dependency.key().type().xprocessing(), requestingClass.packageName())
+        dependency.key().type().xprocessing(), requestingClass.getPackageName())
         || (isPreJava8SourceVersion(processingEnv) && dependency.kind() == RequestKind.PROVIDER);
 
     return !needsObjectExpression

@@ -35,6 +35,8 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.erasedTypeName;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XType;
@@ -43,7 +45,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -99,7 +100,7 @@ final class InjectionMethods {
         ContributionBinding binding,
         Function<DependencyRequest, CodeBlock> dependencyUsage,
         Function<XExecutableParameterElement, String> uniqueAssistedParameterName,
-        ClassName requestingClass,
+        XClassName requestingClass,
         Optional<CodeBlock> moduleReference,
         CompilerOptions compilerOptions) {
       ImmutableList.Builder<CodeBlock> arguments = ImmutableList.builder();
@@ -107,7 +108,7 @@ final class InjectionMethods {
       invokeArguments(binding, dependencyUsage, uniqueAssistedParameterName)
           .forEach(arguments::add);
 
-      ClassName enclosingClass = toJavaPoet(generatedClassNameForBinding(binding));
+      XClassName enclosingClass = generatedClassNameForBinding(binding);
       String methodName = generatedProxyMethodName(binding);
       return invokeMethod(methodName, arguments.build(), enclosingClass, requestingClass);
     }
@@ -180,7 +181,7 @@ final class InjectionMethods {
      */
     static CodeBlock invokeAll(
         ImmutableSet<InjectionSite> injectionSites,
-        ClassName generatedTypeName,
+        XClassName generatedTypeName,
         CodeBlock instanceCodeBlock,
         XType instanceType,
         Function<DependencyRequest, CodeBlock> dependencyUsage) {
@@ -196,7 +197,8 @@ final class InjectionMethods {
                 // from within generatedTypeName
                 CodeBlock maybeCastedInstance =
                     instanceType.getTypeName().equals(TypeName.OBJECT)
-                            && isRawTypeAccessible(injectSiteType, generatedTypeName.packageName())
+                            && isRawTypeAccessible(
+                                injectSiteType, generatedTypeName.getPackageName())
                         ? CodeBlock.of("($T) $L", erasedTypeName(injectSiteType), instanceCodeBlock)
                         : instanceCodeBlock;
                 return CodeBlock.of(
@@ -212,7 +214,7 @@ final class InjectionMethods {
      */
     private static CodeBlock invoke(
         InjectionSite injectionSite,
-        ClassName generatedTypeName,
+        XClassName generatedTypeName,
         CodeBlock instanceCodeBlock,
         Function<DependencyRequest, CodeBlock> dependencyUsage) {
       ImmutableList<CodeBlock> arguments =
@@ -223,8 +225,7 @@ final class InjectionMethods {
                       .map(dependencyUsage)
                       .collect(toImmutableList()))
               .build();
-      ClassName enclosingClass =
-          toJavaPoet(membersInjectorNameForType(injectionSite.enclosingTypeElement()));
+      XClassName enclosingClass = membersInjectorNameForType(injectionSite.enclosingTypeElement());
       String methodName = membersInjectorMethodName(injectionSite);
       return invokeMethod(methodName, arguments, enclosingClass, generatedTypeName);
     }
@@ -233,12 +234,12 @@ final class InjectionMethods {
   private static CodeBlock invokeMethod(
       String methodName,
       ImmutableList<CodeBlock> parameters,
-      ClassName enclosingClass,
-      ClassName requestingClass) {
+      XClassName enclosingClass,
+      XClassName requestingClass) {
     CodeBlock parameterBlock = makeParametersCodeBlock(parameters);
     return enclosingClass.equals(requestingClass)
         ? CodeBlock.of("$L($L)", methodName, parameterBlock)
-        : CodeBlock.of("$T.$L($L)", enclosingClass, methodName, parameterBlock);
+        : CodeBlock.of("$T.$L($L)", toJavaPoet(enclosingClass), methodName, parameterBlock);
   }
 
   static CodeBlock copyParameters(
@@ -268,12 +269,14 @@ final class InjectionMethods {
       Nullability nullability) {
     TypeName typeName = useObject ? TypeName.OBJECT : type.getTypeName();
     nullability.typeUseNullableAnnotations().stream()
+        .map(XConverters::toJavaPoet)
         .map(it -> AnnotationSpec.builder(it).build())
         .forEach(typeName::annotated);
     methodBuilder.addParameter(
         ParameterSpec.builder(typeName, name)
             .addAnnotations(
                 nullability.nonTypeUseNullableAnnotations().stream()
+                    .map(XConverters::toJavaPoet)
                     .map(it -> AnnotationSpec.builder(it).build())
                     .collect(toImmutableList()))
             .build());

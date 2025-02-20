@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethods;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectedConstructors;
@@ -41,6 +41,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XFiler;
@@ -51,14 +52,12 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
@@ -275,11 +274,14 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     public ImmutableList<TypeSpec.Builder> topLevelTypes(AssistedFactoryBinding binding) {
       XTypeElement factory = asTypeElement(binding.bindingElement().get());
 
-      ClassName name = toJavaPoet(generatedClassNameForBinding(binding));
+      XClassName name = generatedClassNameForBinding(binding);
       TypeSpec.Builder builder =
-          TypeSpec.classBuilder(name)
+          TypeSpec.classBuilder(toJavaPoet(name))
               .addModifiers(PUBLIC, FINAL)
-              .addTypeVariables(typeVariableNames(factory));
+              .addTypeVariables(
+                  typeVariableNames(factory).stream()
+                      .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                      .collect(toImmutableList()));
 
       if (factory.isInterface()) {
         builder.addSuperinterface(factory.getType().getTypeName());
@@ -290,7 +292,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
       AssistedFactoryMetadata metadata = AssistedFactoryMetadata.create(factory.getType());
       ParameterSpec delegateFactoryParam =
           ParameterSpec.builder(
-                  delegateFactoryTypeName(metadata.assistedInjectType()), "delegateFactory")
+                  toJavaPoet(
+                      delegateFactoryTypeName(metadata.assistedInjectType())), "delegateFactory")
               .build();
       builder
           .addField(
@@ -322,7 +325,10 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
               MethodSpec.methodBuilder("create")
                   .addModifiers(PUBLIC, STATIC)
                   .addParameter(delegateFactoryParam)
-                  .addTypeVariables(typeVariableNames(metadata.assistedInjectElement()))
+                  .addTypeVariables(
+                      typeVariableNames(metadata.assistedInjectElement()).stream()
+                          .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                          .collect(toImmutableList()))
                   .returns(providerOf(factory.getType().getTypeName()))
                   .addStatement(
                       "return $T.$Lcreate(new $T($N))",
@@ -333,7 +339,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                               "<$T>",
                               accessibleTypeName(metadata.factoryType(), name, processingEnv))
                           : CodeBlock.of(""),
-                      name,
+                      toJavaPoet(name),
                       delegateFactoryParam)
                   .build())
           // Normally we would have called this just "create", but because of backwards
@@ -343,7 +349,10 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
               MethodSpec.methodBuilder("createFactoryProvider")
                   .addModifiers(PUBLIC, STATIC)
                   .addParameter(delegateFactoryParam)
-                  .addTypeVariables(typeVariableNames(metadata.assistedInjectElement()))
+                  .addTypeVariables(
+                      typeVariableNames(metadata.assistedInjectElement()).stream()
+                          .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
+                          .collect(toImmutableList()))
                   .returns(daggerProviderOf(factory.getType().getTypeName()))
                   .addStatement(
                       "return $T.$Lcreate(new $T($N))",
@@ -354,14 +363,14 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                               "<$T>",
                               accessibleTypeName(metadata.factoryType(), name, processingEnv))
                           : CodeBlock.of(""),
-                      name,
+                      toJavaPoet(name),
                       delegateFactoryParam)
                   .build());
       return ImmutableList.of(builder);
     }
 
-    /** Returns the generated factory {@link TypeName type} for an @AssistedInject constructor. */
-    private TypeName delegateFactoryTypeName(XType assistedInjectType) {
+    /** Returns the generated factory {@link XTypeName type} for an @AssistedInject constructor. */
+    private XTypeName delegateFactoryTypeName(XType assistedInjectType) {
       AssistedInjectionBinding binding =
           bindingFactory.assistedInjectionBinding(
               getOnlyElement(assistedInjectedConstructors(assistedInjectType.getTypeElement())),
@@ -369,17 +378,16 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
 
       // The name of the generated factory for the assisted inject type,
       // e.g. an @AssistedInject Foo(...) {...} constructor will generate a Foo_Factory class.
-      ClassName generatedFactoryClassName = toJavaPoet(generatedClassNameForBinding(binding));
+      XClassName generatedFactoryClassName = generatedClassNameForBinding(binding);
 
       // Return the factory type resolved with the same type parameters as the assisted inject type.
       return assistedInjectType.getTypeArguments().isEmpty()
           ? generatedFactoryClassName
-          : ParameterizedTypeName.get(
-              generatedFactoryClassName,
-              assistedInjectType.getTypeArguments().stream()
-                  .map(XType::getTypeName)
-                  .collect(toImmutableList())
-                  .toArray(new TypeName[0]));
+          : generatedFactoryClassName.parametrizedBy(
+                assistedInjectType.getTypeArguments().stream()
+                    .map(XType::asTypeName)
+                    .collect(toImmutableList())
+                    .toArray(new XTypeName[0]));
     }
   }
 }

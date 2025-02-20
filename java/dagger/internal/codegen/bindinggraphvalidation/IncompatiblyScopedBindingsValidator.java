@@ -102,7 +102,7 @@ final class IncompatiblyScopedBindingsValidator extends ValidationBindingGraphPl
     Diagnostic.Kind diagnosticKind = ERROR;
     StringBuilder message =
         new StringBuilder(
-            componentNode.componentPath().currentComponent().className().canonicalName());
+            componentNode.componentPath().currentComponent().xprocessing().getQualifiedName());
 
     if (!componentNode.isRealComponent()) {
       // If the "component" is really a module, it will have no scopes attached. We want to report

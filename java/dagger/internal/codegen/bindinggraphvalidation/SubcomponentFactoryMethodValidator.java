@@ -144,8 +144,8 @@ final class SubcomponentFactoryMethodValidator extends ValidationBindingGraphPlu
             .target()
             .componentPath()
             .currentComponent()
-            .className()
-            .canonicalName(),
+            .xprocessing()
+            .getQualifiedName(),
         missingModules.stream()
             .map(XTypeElement::getQualifiedName)
             .collect(joining(", ")));

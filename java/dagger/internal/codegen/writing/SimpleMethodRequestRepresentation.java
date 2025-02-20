@@ -28,6 +28,7 @@ import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -35,7 +36,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
@@ -90,13 +90,13 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return requiresInjectionMethod(requestingClass)
         ? invokeInjectionMethod(requestingClass)
         : invokeMethod(requestingClass);
   }
 
-  private Expression invokeMethod(ClassName requestingClass) {
+  private Expression invokeMethod(XClassName requestingClass) {
     // TODO(dpb): align this with the contents of InlineMethods.create
     CodeBlock arguments =
         makeParametersCodeBlock(
@@ -130,15 +130,15 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     return Expression.create(simpleMethodReturnType(), invocation);
   }
 
-  private TypeName constructorTypeName(ClassName requestingClass) {
+  private TypeName constructorTypeName(XClassName requestingClass) {
     XType type = binding.key().type().xprocessing();
     return type.getTypeArguments().stream()
-            .allMatch(t -> isTypeAccessibleFrom(t, requestingClass.packageName()))
+            .allMatch(t -> isTypeAccessibleFrom(t, requestingClass.getPackageName()))
         ? type.getTypeName()
         : rawTypeName(type.getTypeName());
   }
 
-  private Expression invokeInjectionMethod(ClassName requestingClass) {
+  private Expression invokeInjectionMethod(XClassName requestingClass) {
     return injectMembers(
         ProvisionMethod.invoke(
             binding,
@@ -150,12 +150,12 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         requestingClass);
   }
 
-  private Expression dependencyArgument(DependencyRequest dependency, ClassName requestingClass) {
+  private Expression dependencyArgument(DependencyRequest dependency, XClassName requestingClass) {
     return componentRequestRepresentations.getDependencyArgumentExpression(
         dependency, requestingClass);
   }
 
-  private Expression injectMembers(CodeBlock instance, ClassName requestingClass) {
+  private Expression injectMembers(CodeBlock instance, XClassName requestingClass) {
     if (!hasInjectionSites(binding)) {
       return Expression.create(simpleMethodReturnType(), instance);
     }
@@ -171,7 +171,7 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     return membersInjectionMethods.getInjectExpression(binding.key(), instance, requestingClass);
   }
 
-  private Optional<CodeBlock> moduleReference(ClassName requestingClass) {
+  private Optional<CodeBlock> moduleReference(XClassName requestingClass) {
     return binding.requiresModuleInstance()
         ? binding
             .contributingModule()
@@ -185,15 +185,15 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     return binding.contributedPrimitiveType().orElse(binding.key().type().xprocessing());
   }
 
-  private boolean requiresInjectionMethod(ClassName requestingClass) {
+  private boolean requiresInjectionMethod(XClassName requestingClass) {
     XExecutableElement executableElement = asExecutable(binding.bindingElement().get());
     return hasInjectionSites(binding)
         || binding.shouldCheckForNull(compilerOptions)
-        || !isElementAccessibleFrom(executableElement, requestingClass.packageName())
+        || !isElementAccessibleFrom(executableElement, requestingClass.getPackageName())
         // This check should be removable once we drop support for -source 7
         || executableElement.getParameters().stream()
             .map(XExecutableParameterElement::getType)
-            .anyMatch(type -> !isRawTypeAccessible(type, requestingClass.packageName()));
+            .anyMatch(type -> !isRawTypeAccessible(type, requestingClass.getPackageName()));
   }
 
   private static boolean hasInjectionSites(ContributionBinding binding) {

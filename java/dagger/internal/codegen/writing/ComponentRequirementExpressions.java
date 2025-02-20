@@ -24,10 +24,11 @@ import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecK
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Supplier;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
@@ -72,7 +73,7 @@ public final class ComponentRequirementExpressions {
    * component method. This may add a field or method to the component in order to reference the
    * component requirement outside of the {@code initialize()} methods.
    */
-  CodeBlock getExpression(ComponentRequirement componentRequirement, ClassName requestingClass) {
+  CodeBlock getExpression(ComponentRequirement componentRequirement, XClassName requestingClass) {
     return getExpression(componentRequirement).getExpression(requestingClass);
   }
 
@@ -97,7 +98,7 @@ public final class ComponentRequirementExpressions {
    * or a method to be added in the component that owns this {@link ComponentRequirement}.
    */
   CodeBlock getExpressionDuringInitialization(
-      ComponentRequirement componentRequirement, ClassName requestingClass) {
+      ComponentRequirement componentRequirement, XClassName requestingClass) {
     return getExpression(componentRequirement).getExpressionDuringInitialization(requestingClass);
   }
 
@@ -124,7 +125,7 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    public CodeBlock getExpression(ClassName requestingClass) {
+    public CodeBlock getExpression(XClassName requestingClass) {
       return field.get().getExpressionFor(requestingClass);
     }
 
@@ -135,6 +136,7 @@ public final class ComponentRequirementExpressions {
           FieldSpec.builder(
                   fieldType.annotated(
                       componentRequirement.getNullability().typeUseNullableAnnotations().stream()
+                          .map(XConverters::toJavaPoet)
                           .map(AnnotationSpec::builder)
                           .map(AnnotationSpec.Builder::build)
                           .collect(toImmutableList())),
@@ -143,6 +145,7 @@ public final class ComponentRequirementExpressions {
                   FINAL)
               .addAnnotations(
                   componentRequirement.getNullability().nonTypeUseNullableAnnotations().stream()
+                      .map(XConverters::toJavaPoet)
                       .map(AnnotationSpec::builder)
                       .map(AnnotationSpec.Builder::build)
                       .collect(toImmutableList()))
@@ -191,7 +194,7 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    public CodeBlock getExpressionDuringInitialization(ClassName requestingClass) {
+    public CodeBlock getExpressionDuringInitialization(XClassName requestingClass) {
       if (componentShard.name().equals(requestingClass)) {
         return CodeBlock.of("$L", parameterName);
       } else {

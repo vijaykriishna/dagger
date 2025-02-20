@@ -35,6 +35,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.nonObjectSuperclass;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XFieldElement;
 import androidx.room.compiler.processing.XMessager;
@@ -46,7 +47,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.devtools.ksp.symbol.Origin;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.ClassName;
 import dagger.Component;
 import dagger.Provides;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -60,8 +60,8 @@ import dagger.internal.codegen.binding.KeyFactory;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectorBinding;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -88,12 +88,12 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
   private final CompilerOptions compilerOptions;
 
   private final class BindingsCollection<B extends Binding> {
-    private final ClassName factoryClass;
+    private final XClassName factoryClass;
     private final Map<Key, B> bindingsByKey = Maps.newLinkedHashMap();
     private final Deque<B> bindingsRequiringGeneration = new ArrayDeque<>();
     private final Set<Key> materializedBindingKeys = Sets.newLinkedHashSet();
 
-    BindingsCollection(ClassName factoryClass) {
+    BindingsCollection(XClassName factoryClass) {
       this.factoryClass = factoryClass;
     }
 
@@ -159,7 +159,7 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
               String.format(
                   "Generating a %s for %s. "
                       + "Prefer to run the dagger processor over that class instead.",
-                  factoryClass.simpleName(),
+                  factoryClass.getSimpleName(),
                   // erasure to strip <T> from msgs.
                   erasedTypeName(binding.key().type().xprocessing())));
         }
@@ -206,9 +206,9 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
   }
 
   private final BindingsCollection<ContributionBinding> injectionBindings =
-      new BindingsCollection<>(TypeNames.PROVIDER);
+      new BindingsCollection<>(XTypeNames.PROVIDER);
   private final BindingsCollection<MembersInjectionBinding> membersInjectionBindings =
-      new BindingsCollection<>(TypeNames.MEMBERS_INJECTOR);
+      new BindingsCollection<>(XTypeNames.MEMBERS_INJECTOR);
 
   @Inject
   InjectBindingRegistryImpl(
@@ -272,7 +272,7 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
         tryRegisterMembersInjectedType(typeElement, resolvedType, isCalledFromInjectProcessor);
       }
       return Optional.of(binding);
-    } else if (constructorElement.hasAnnotation(TypeNames.ASSISTED_INJECT)) {
+    } else if (constructorElement.hasAnnotation(XTypeNames.ASSISTED_INJECT)) {
       AssistedInjectionBinding binding =
           bindingFactory.assistedInjectionBinding(constructorElement, resolvedType);
       injectionBindings.tryRegisterBinding(binding, isCalledFromInjectProcessor);

@@ -21,10 +21,10 @@ import static dagger.internal.codegen.langmodel.Accessibility.accessibleTypeName
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.util.concurrent.Futures;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -48,13 +48,13 @@ final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return Expression.create(
         wrapType(XTypeNames.LISTENABLE_FUTURE, type, processingEnv),
         CodeBlock.of("$T.immediateFuture($L)", Futures.class, instanceExpression(requestingClass)));
   }
 
-  private CodeBlock instanceExpression(ClassName requestingClass) {
+  private CodeBlock instanceExpression(XClassName requestingClass) {
     Expression expression = instanceRequestRepresentation.getDependencyExpression(requestingClass);
     if (isPreJava8SourceVersion(processingEnv)) {
       // Java 7 type inference is not as strong as in Java 8, and therefore some generated code must

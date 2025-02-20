@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -37,7 +37,7 @@ final class ComponentInstanceRequestRepresentation extends RequestRepresentation
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     return Expression.create(
         binding.key().type().xprocessing(),
         componentImplementation.name().equals(requestingClass)

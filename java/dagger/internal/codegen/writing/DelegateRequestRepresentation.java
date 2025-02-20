@@ -22,9 +22,9 @@ import static dagger.internal.codegen.base.RequestKinds.requestType;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -74,7 +74,7 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(ClassName requestingClass) {
+  Expression getDependencyExpression(XClassName requestingClass) {
     Expression delegateExpression =
         componentRequestRepresentations.getDependencyExpression(
             bindingRequest(getOnlyElement(binding.dependencies()).key(), requestKind),
@@ -101,14 +101,14 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
   static boolean instanceRequiresCast(
       DelegateBinding binding,
       Expression delegateExpression,
-      ClassName requestingClass,
+      XClassName requestingClass,
       BindsTypeChecker bindsTypeChecker) {
     // delegateExpression.type() could be Object if expression is satisfied with a raw
     // Provider's get() method.
     XType contributedType = binding.contributedType();
     return !bindsTypeChecker.isAssignable(
             delegateExpression.type(), contributedType, binding.contributionType())
-        && isTypeAccessibleFrom(contributedType, requestingClass.packageName());
+        && isTypeAccessibleFrom(contributedType, requestingClass.getPackageName());
   }
 
   /**

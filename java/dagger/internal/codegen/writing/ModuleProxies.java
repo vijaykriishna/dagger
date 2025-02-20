@@ -117,9 +117,10 @@ public final class ModuleProxies {
    * constructor if it's accessible from {@code requestingClass} or else by invoking the
    * constructor's generated proxy method.
    */
-  public static CodeBlock newModuleInstance(XTypeElement moduleElement, ClassName requestingClass) {
+  public static CodeBlock newModuleInstance(
+      XTypeElement moduleElement, XClassName requestingClass) {
     ModuleKind.checkIsModule(moduleElement);
-    String packageName = requestingClass.packageName();
+    String packageName = requestingClass.getPackageName();
     return nonPublicNullaryConstructor(moduleElement)
         .filter(constructor -> !isElementAccessibleFrom(constructor, packageName))
         .map(

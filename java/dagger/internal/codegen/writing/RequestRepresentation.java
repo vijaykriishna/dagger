@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.javapoet.Expression;
 
@@ -30,7 +30,7 @@ abstract class RequestRepresentation {
    *
    * @param requestingClass the class that will contain the expression
    */
-  abstract Expression getDependencyExpression(ClassName requestingClass);
+  abstract Expression getDependencyExpression(XClassName requestingClass);
 
   /**
    * Equivalent to {@link #getDependencyExpression} that is used only when the request is for an

@@ -17,7 +17,6 @@
 package dagger.internal.codegen.writing;
 
 import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -44,6 +43,8 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMessager;
@@ -62,7 +63,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -93,6 +93,7 @@ import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -300,8 +301,7 @@ public final class ComponentImplementation {
     this.processingEnv = processingEnv;
 
     // The first group of keys belong to the component itself. We call this the componentShard.
-    this.componentShard =
-        new ShardImplementation(toJavaPoet(componentNames.get(graph.componentPath())));
+    this.componentShard = new ShardImplementation(componentNames.get(graph.componentPath()));
 
     // Claim the method names for all local and inherited methods on the component type.
     XTypeElements.getAllNonPrivateInstanceMethods(graph.componentTypeElement()).stream()
@@ -327,7 +327,10 @@ public final class ComponentImplementation {
    */
   public ShardImplementation shardImplementation(Binding binding) {
     checkState(
-        shardsByBinding.get().containsKey(binding), "No shard in %s for: %s", name(), binding);
+        shardsByBinding.get().containsKey(binding),
+        "No shard in %s for: %s",
+        name().getCanonicalName(),
+        binding);
     return shardsByBinding.get().get(binding);
   }
 
@@ -381,17 +384,20 @@ public final class ComponentImplementation {
             toImmutableMap(
                 componentImpl -> componentImpl,
                 componentImpl -> {
-                  ClassName component =
-                      componentImpl.graph.componentPath().currentComponent().className();
-                  ClassName fieldType = componentImpl.name();
+                  XClassName component =
+                      componentImpl.graph.componentPath()
+                          .currentComponent()
+                          .xprocessing()
+                          .asClassName();
+                  XClassName fieldType = componentImpl.name();
                   String fieldName =
                       componentImpl.isNested()
-                          ? simpleVariableName(toXPoet(componentImpl.name()))
-                          : simpleVariableName(toXPoet(component));
+                          ? simpleVariableName(componentImpl.name())
+                          : simpleVariableName(component);
                   FieldSpec.Builder field =
                       FieldSpec.builder(
-                          fieldType,
-                          fieldName.equals(componentImpl.name().simpleName())
+                          toJavaPoet(fieldType),
+                          fieldName.equals(componentImpl.name().getSimpleName())
                               ? "_" + fieldName
                               : fieldName,
                           PRIVATE,
@@ -417,7 +423,7 @@ public final class ComponentImplementation {
   }
 
   /** Returns the name of the component. */
-  public ClassName name() {
+  public XClassName name() {
     return componentShard.name;
   }
 
@@ -428,15 +434,15 @@ public final class ComponentImplementation {
 
   /** Returns whether or not the implementation is nested within another class. */
   private boolean isNested() {
-    return name().enclosingClassName() != null;
+    return XTypeNames.enclosingClassName(name()) != null;
   }
 
   /**
    * Returns the name of the creator class for this component. It will be a sibling of this
    * generated class unless this is a top-level component, in which case it will be nested.
    */
-  public ClassName getCreatorName() {
-    return toJavaPoet(componentNames.getCreatorName(graph.componentPath()));
+  public XClassName getCreatorName() {
+    return componentNames.getCreatorName(graph.componentPath());
   }
 
   /** Generates the component and returns the resulting {@link TypeSpec}. */
@@ -459,7 +465,7 @@ public final class ComponentImplementation {
    * MySubcomponentImpl.Shard1}, {@code MySubcomponentImpl.Shard2}, etc).
    */
   public final class ShardImplementation implements GeneratedImplementation {
-    private final ClassName name;
+    private final XClassName name;
     private final UniqueNameSet componentFieldNames = new UniqueNameSet();
     private final UniqueNameSet componentMethodNames = new UniqueNameSet();
     private final UniqueNameSet componentClassNames = new UniqueNameSet();
@@ -479,7 +485,7 @@ public final class ComponentImplementation {
     private final List<Supplier<TypeSpec>> typeSuppliers = new ArrayList<>();
     private boolean initialized = false; // This is used for initializing assistedParamNames.
 
-    private ShardImplementation(ClassName name) {
+    private ShardImplementation(XClassName name) {
       this.name = name;
       this.switchingProviders = new SwitchingProviders(this, processingEnv);
       if (graph.componentDescriptor().isProduction()) {
@@ -503,6 +509,7 @@ public final class ComponentImplementation {
                                               .getNullability()
                                               .typeUseNullableAnnotations()
                                               .stream()
+                                              .map(XConverters::toJavaPoet)
                                               .map(AnnotationSpec::builder)
                                               .map(AnnotationSpec.Builder::build)
                                               .collect(toImmutableList())),
@@ -512,6 +519,7 @@ public final class ComponentImplementation {
                                       .getNullability()
                                       .nonTypeUseNullableAnnotations()
                                       .stream()
+                                      .map(XConverters::toJavaPoet)
                                       .map(AnnotationSpec::builder)
                                       .map(AnnotationSpec.Builder::build)
                                       .collect(toImmutableList()))
@@ -525,7 +533,7 @@ public final class ComponentImplementation {
               .name()
               .nestedClass(
                   topLevelImplementation()
-                      .getUniqueClassName(getComponentShard().name().simpleName() + "Shard")));
+                      .getUniqueClassName(getComponentShard().name().getSimpleName() + "Shard")));
     }
 
     /** Returns the {@link SwitchingProviders} class for this shard. */
@@ -556,8 +564,8 @@ public final class ComponentImplementation {
       if (!isComponentShard() && !shardFieldsByImplementation.containsKey(this)) {
         // Add the shard if this is the first time it's requested by something.
         String shardFieldName =
-            componentShard.getUniqueFieldName(UPPER_CAMEL.to(LOWER_CAMEL, name.simpleName()));
-        FieldSpec shardField = FieldSpec.builder(name, shardFieldName).build();
+            componentShard.getUniqueFieldName(UPPER_CAMEL.to(LOWER_CAMEL, name.getSimpleName()));
+        FieldSpec shardField = FieldSpec.builder(toJavaPoet(name), shardFieldName).build();
 
         shardFieldsByImplementation.put(this, shardField);
       }
@@ -582,7 +590,7 @@ public final class ComponentImplementation {
     }
 
     @Override
-    public ClassName name() {
+    public XClassName name() {
       return name;
     }
 
@@ -590,9 +598,8 @@ public final class ComponentImplementation {
      * Returns the name of the creator implementation class for the given subcomponent creator
      * {@link Key}.
      */
-    ClassName getSubcomponentCreatorSimpleName(Key creatorKey) {
-      return toJavaPoet(
-          componentNames.getSubcomponentCreatorName(graph.componentPath(), creatorKey));
+    XClassName getSubcomponentCreatorSimpleName(Key creatorKey) {
+      return componentNames.getSubcomponentCreatorName(graph.componentPath(), creatorKey);
     }
 
     /**
@@ -611,7 +618,7 @@ public final class ComponentImplementation {
      * <p>This method checks accessibility for public types and package private types.
      */
     boolean isTypeAccessible(XType type) {
-      return Accessibility.isTypeAccessibleFrom(type, name.packageName());
+      return Accessibility.isTypeAccessibleFrom(type, name.getPackageName());
     }
 
     // TODO(dpb): Consider taking FieldSpec, and returning identical FieldSpec with unique name?
@@ -732,7 +739,7 @@ public final class ComponentImplementation {
 
     @Override
     public TypeSpec generate() {
-      TypeSpec.Builder builder = classBuilder(name);
+      TypeSpec.Builder builder = classBuilder(toJavaPoet(name));
 
       // Ksp requires explicitly associating input classes that are generated with the output class,
       // otherwise, the cached generated classes won't be discoverable in an incremental build.
@@ -814,7 +821,7 @@ public final class ComponentImplementation {
       // Better yet, change things so that an autogenerated builder type has a descriptor of sorts
       // just like a user-defined creator type.
       ComponentCreatorKind creatorKind;
-      ClassName creatorType;
+      XClassName creatorType;
       String factoryMethodName;
       boolean noArgFactoryMethod;
       Optional<ComponentCreatorDescriptor> creatorDescriptor =
@@ -822,7 +829,7 @@ public final class ComponentImplementation {
       if (creatorDescriptor.isPresent()) {
         ComponentCreatorDescriptor descriptor = creatorDescriptor.get();
         creatorKind = descriptor.kind();
-        creatorType = descriptor.typeElement().getClassName();
+        creatorType = descriptor.typeElement().asClassName();
         factoryMethodName = getSimpleName(descriptor.factoryMethod());
         noArgFactoryMethod = descriptor.factoryParameters().isEmpty();
       } else {
@@ -838,8 +845,8 @@ public final class ComponentImplementation {
               MethodSpecKind.BUILDER_METHOD,
               methodBuilder(creatorKind.methodName())
                   .addModifiers(PUBLIC, STATIC)
-                  .returns(creatorType)
-                  .addStatement("return new $T()", getCreatorName())
+                  .returns(toJavaPoet(creatorType))
+                  .addStatement("return new $T()", toJavaPoet(getCreatorName()))
                   .build());
       if (noArgFactoryMethod && canInstantiateAllRequirements()) {
         validateMethodNameDoesNotOverrideGeneratedCreator("create");
@@ -891,7 +898,7 @@ public final class ComponentImplementation {
           param -> method.addStatement("$T.checkNotNull($N)", Preconditions.class, param));
       method.addStatement(
           "return new $T($L)",
-          name(),
+          toJavaPoet(name()),
           parameterNames(
               ImmutableList.<ParameterSpec>builder()
                   .addAll(
@@ -1019,7 +1026,7 @@ public final class ComponentImplementation {
             CodeBlock.of(
                 "$N = new $T($L);",
                 shardFieldsByImplementation.get(this),
-                name,
+                toJavaPoet(name),
                 componentArgs.isEmpty()
                     ? componentFields
                     : CodeBlocks.makeParametersCodeBlock(

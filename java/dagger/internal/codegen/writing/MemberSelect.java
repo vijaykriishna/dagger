@@ -18,7 +18,7 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.squareup.javapoet.ClassName;
+import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 
@@ -49,23 +49,23 @@ abstract class MemberSelect {
     }
 
     @Override
-    CodeBlock getExpressionFor(ClassName usingClass) {
+    CodeBlock getExpressionFor(XClassName usingClass) {
       return owningClass().equals(usingClass)
           ? CodeBlock.of("$N", fieldName)
           : CodeBlock.of("$L.$N", owningShard.shardFieldReference(), fieldName);
     }
   }
 
-  private final ClassName owningClass;
+  private final XClassName owningClass;
   private final boolean staticMember;
 
-  MemberSelect(ClassName owningClass, boolean staticMemeber) {
+  MemberSelect(XClassName owningClass, boolean staticMemeber) {
     this.owningClass = owningClass;
     this.staticMember = staticMemeber;
   }
 
   /** Returns the class that owns the member being selected. */
-  ClassName owningClass() {
+  XClassName owningClass() {
     return owningClass;
   }
 
@@ -81,5 +81,5 @@ abstract class MemberSelect {
    * Returns a {@link CodeBlock} suitable for accessing the member from the given {@code
    * usingClass}.
    */
-  abstract CodeBlock getExpressionFor(ClassName usingClass);
+  abstract CodeBlock getExpressionFor(XClassName usingClass);
 }
