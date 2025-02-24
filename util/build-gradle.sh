@@ -2,4 +2,5 @@
 
 set -ex
 
-./gradlew build --no-daemon --stacktrace
+# TODO: danysantiago - Re-enable after source set move.
+# ./gradlew build --no-daemon --stacktrace
