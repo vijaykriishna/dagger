@@ -13,32 +13,32 @@
 # limitations under the License.
 
 # Description:
-#   Tests for the Dagger SPI
+#   A JSR-330 compliant dependency injection system for android and java
 
+load("@rules_java//java:defs.bzl", "java_library")
 load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
-    "DOCLINT_REFERENCES",
+    "JAVA_RELEASE_MIN",
+    "POM_VERSION",
 )
-load("//:test_defs.bzl", "GenJavaTests")
 
 package(default_visibility = ["//:src"])
 
-GenJavaTests(
-    name = "spi_tests",
-    srcs = glob(["*.java"]),
-    functional = False,
-    javacopts = DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+java_library(
+    name = "core",
+    srcs = glob(["**/*.java"]),
+    javacopts = JAVA_RELEASE_MIN + DOCLINT_HTML_AND_SYNTAX,
+    tags = ["maven_coordinates=com.google.dagger:dagger:" + POM_VERSION],
+    exports = ["//third_party/java/jsr330_inject"],
     deps = [
-        "//dagger-runtime/main/java/dagger:core",
-        "//java/dagger/internal/codegen:processor",
-        "//java/dagger/spi",
-        "//third_party/java/auto:service",
-        "//third_party/java/compile_testing",
-        "//third_party/java/guava/base",
-        "//third_party/java/guava/collect",
+        "//third_party/java/jspecify_annotations",
         "//third_party/java/jsr330_inject",
-        "//third_party/java/junit",
-        "//third_party/java/truth",
+        "@maven//:jakarta_inject_jakarta_inject_api",
     ],
+)
+
+filegroup(
+    name = "javadoc-srcs",
+    srcs = glob(["**/*"]),
 )
