@@ -18,9 +18,6 @@ runs:
         key: ${{ runner.os }}-bazel-build-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-bazel-build-
-    - name: 'Java build'
-      run: bazel build //...
-      shell: bash
     - name: 'Install maven version'
       run: ./util/install-maven.sh ${{ env.USE_MAVEN_VERSION }}
       shell: bash
