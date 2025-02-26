@@ -96,7 +96,7 @@ abstract class AndroidInjectorDescriptor {
       AndroidInjectorDescriptor.Builder builder =
           new AutoValue_AndroidInjectorDescriptor.Builder().method(method);
       XTypeElement enclosingElement = XElements.asTypeElement(method.getEnclosingElement());
-      if (!enclosingElement.hasAnnotation(TypeNames.MODULE)) {
+      if (!enclosingElement.hasAnnotation(XTypeNames.MODULE)) {
         reporter.reportError("@ContributesAndroidInjector methods must be in a @Module");
       }
       builder.enclosingModule(enclosingElement.getClassName());
@@ -109,9 +109,9 @@ abstract class AndroidInjectorDescriptor {
             "@ContributesAndroidInjector methods cannot return parameterized types");
       }
 
-      XAnnotation annotation = method.getAnnotation(TypeNames.CONTRIBUTES_ANDROID_INJECTOR);
+      XAnnotation annotation = method.getAnnotation(XTypeNames.CONTRIBUTES_ANDROID_INJECTOR);
       for (XType module : getTypeList(annotation.getAnnotationValue("modules"))) {
-        if (module.getTypeElement().hasAnnotation(TypeNames.MODULE)) {
+        if (module.getTypeElement().hasAnnotation(XTypeNames.MODULE)) {
           builder.modulesBuilder().add((ClassName) module.getTypeName());
         } else {
           reporter.reportError(String.format("%s is not a @Module", module), annotation);
@@ -120,15 +120,15 @@ abstract class AndroidInjectorDescriptor {
 
       for (XAnnotation scope :
           Sets.union(
-              method.getAnnotationsAnnotatedWith(TypeNames.SCOPE),
-              method.getAnnotationsAnnotatedWith(TypeNames.SCOPE_JAVAX))) {
+              method.getAnnotationsAnnotatedWith(XTypeNames.SCOPE),
+              method.getAnnotationsAnnotatedWith(XTypeNames.SCOPE_JAVAX))) {
         builder.scopesBuilder().add(JavaPoetExtKt.toAnnotationSpec(scope));
       }
 
       for (XAnnotation qualifier :
           Sets.union(
-              method.getAnnotationsAnnotatedWith(TypeNames.QUALIFIER),
-              method.getAnnotationsAnnotatedWith(TypeNames.QUALIFIER_JAVAX))) {
+              method.getAnnotationsAnnotatedWith(XTypeNames.QUALIFIER),
+              method.getAnnotationsAnnotatedWith(XTypeNames.QUALIFIER_JAVAX))) {
         reporter.reportError(
             "@ContributesAndroidInjector methods cannot have qualifiers", qualifier);
       }

@@ -37,7 +37,7 @@ dependencies {
     files(
       project.rootProject.layout.projectDirectory
         .dir("java/dagger/internal/codegen/xprocessing")
-        .file("xprocessing.jar")
+        .file("xprocessing-internal.jar")
     )
   )
 }

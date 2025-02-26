@@ -86,7 +86,6 @@ import dagger.internal.codegen.binding.MethodSignature;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.CodeBlocks;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.javapoet.TypeSpecs;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.BindingGraph.Node;
@@ -764,7 +763,7 @@ public final class ComponentImplementation {
       if (graph.componentDescriptor().isProduction()) {
         if (isComponentShard() || !cancellations.isEmpty()) {
           TypeSpecs.addSupertype(
-              builder, processingEnv.requireTypeElement(TypeNames.CANCELLATION_LISTENER));
+              builder, processingEnv.requireTypeElement(XTypeNames.CANCELLATION_LISTENER));
           addCancellationListenerImplementation();
         }
       }

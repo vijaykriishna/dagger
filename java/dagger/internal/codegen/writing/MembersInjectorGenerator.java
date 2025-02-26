@@ -34,7 +34,6 @@ import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTY
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toConcatenatedCodeBlock;
-import static dagger.internal.codegen.javapoet.TypeNames.membersInjectorOf;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
@@ -45,6 +44,7 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
+import static dagger.internal.codegen.xprocessing.XTypeNames.membersInjectorOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -52,6 +52,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
@@ -68,7 +69,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.MembersInjector;
@@ -77,13 +77,13 @@ import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.SourceFiles;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -128,7 +128,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                     .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
                     .collect(toImmutableList()))
             .addAnnotation(qualifierMetadataAnnotation(binding))
-            .addSuperinterface(membersInjectorOf(binding.key().type().xprocessing().getTypeName()))
+            .addSuperinterface(
+                toJavaPoet(membersInjectorOf(binding.key().type().xprocessing().asTypeName())))
             .addFields(frameworkFields.values())
             .addMethod(constructor(frameworkFields))
             .addMethod(createMethod(binding, frameworkFields))
@@ -177,7 +178,10 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                 typeVariableNames(enclosingType).stream()
                     .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
                     .collect(toImmutableList()))
-            .addExceptions(getThrownTypes(method));
+            .addExceptions(
+                getThrownTypes(method).stream()
+                    .map(XConverters::toJavaPoet)
+                    .collect(toImmutableList()));
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
     CodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
@@ -198,7 +202,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         methodBuilder(methodName)
             .addModifiers(PUBLIC, STATIC)
             .addAnnotation(
-                AnnotationSpec.builder(TypeNames.INJECTED_FIELD_SIGNATURE)
+                AnnotationSpec.builder(toJavaPoet(XTypeNames.INJECTED_FIELD_SIGNATURE))
                     .addMember("value", "$S", memberInjectedFieldSignatureForVariable(field))
                     .build())
             .addTypeVariables(
@@ -214,8 +218,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     return builder.addStatement("$L.$L = $L", instance, getSimpleName(field), argument).build();
   }
 
-  private static ImmutableList<TypeName> getThrownTypes(XExecutableElement executable) {
-    return executable.getThrownTypes().stream().map(XType::getTypeName).collect(toImmutableList());
+  private static ImmutableList<XTypeName> getThrownTypes(XExecutableElement executable) {
+    return executable.getThrownTypes().stream().map(XType::asTypeName).collect(toImmutableList());
   }
 
   private static CodeBlock copyInstance(
@@ -284,7 +288,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             bindingTypeElementTypeVariableNames(binding).stream()
                 .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
                 .collect(toImmutableList()))
-        .returns(membersInjectorOf(binding.key().type().xprocessing().getTypeName()))
+        .returns(toJavaPoet(membersInjectorOf(binding.key().type().xprocessing().asTypeName())))
         .addParameters(params)
         .addStatement(
             "return new $T($L)",
@@ -321,7 +325,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   }
 
   private AnnotationSpec qualifierMetadataAnnotation(MembersInjectionBinding binding) {
-    AnnotationSpec.Builder builder = AnnotationSpec.builder(TypeNames.QUALIFIER_METADATA);
+    AnnotationSpec.Builder builder =
+        AnnotationSpec.builder(toJavaPoet(XTypeNames.QUALIFIER_METADATA));
     binding.injectionSites().stream()
         // filter out non-local injection sites. Injection sites for super types will be in their
         // own generated _MembersInjector class.
@@ -352,17 +357,17 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
               boolean useRawFrameworkType =
                   !isTypeAccessibleFrom(
                       request.key().type().xprocessing(), membersInjectorTypeName.getPackageName());
-              TypeName fieldType =
+              XTypeName fieldType =
                   useRawFrameworkType
-                      ? toJavaPoet(bindingField.type().getRawTypeName())
-                      : toJavaPoet(bindingField.type());
+                      ? bindingField.type().getRawTypeName()
+                      : bindingField.type();
               String fieldName = fieldNames.getUniqueName(bindingField.name());
               FieldSpec field =
                   useRawFrameworkType
-                      ? FieldSpec.builder(fieldType, fieldName, PRIVATE, FINAL)
+                      ? FieldSpec.builder(toJavaPoet(fieldType), fieldName, PRIVATE, FINAL)
                           .addAnnotation(suppressWarnings(RAWTYPES))
                           .build()
-                      : FieldSpec.builder(fieldType, fieldName, PRIVATE, FINAL).build();
+                      : FieldSpec.builder(toJavaPoet(fieldType), fieldName, PRIVATE, FINAL).build();
               builder.put(request, field);
             });
     return builder.buildOrThrow();

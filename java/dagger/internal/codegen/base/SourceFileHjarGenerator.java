@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.base;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
@@ -25,6 +26,7 @@ import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibl
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -40,7 +42,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.javapoet.CodeBlocks;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
@@ -118,7 +120,7 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
     if (completeMethod.isConstructor()) {
       getRequiredSuperCall(packageName, completeType)
           .ifPresent(superCall -> skeleton.addStatement("$L", superCall));
-    } else if (!completeMethod.returnType.equals(TypeName.VOID)) {
+    } else if (!completeMethod.returnType.equals(toJavaPoet(XTypeName.UNIT_VOID))) {
       skeleton.addStatement("return $L", getDefaultValueCodeBlock(completeMethod.returnType));
     }
 
@@ -133,11 +135,11 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
   }
 
   private Optional<CodeBlock> getRequiredSuperCall(String packageName, TypeSpec completeType) {
-    if (completeType.superclass.equals(TypeName.OBJECT)) {
+    if (completeType.superclass.equals(toJavaPoet(XTypeName.ANY_OBJECT))) {
       return Optional.empty();
     }
 
-    ClassName rawSuperClass = (ClassName) TypeNames.rawTypeName(completeType.superclass);
+    ClassName rawSuperClass = (ClassName) XTypeNames.rawJavaTypeName(completeType.superclass);
     XTypeElement superTypeElement =
         processingEnv.requireTypeElement(rawSuperClass.canonicalName());
 
@@ -177,21 +179,21 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
    */
   private static CodeBlock getDefaultValueCodeBlock(TypeName typeName) {
     if (typeName.isPrimitive()) {
-      if (typeName.equals(TypeName.BOOLEAN)) {
+      if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_BOOLEAN))) {
         return CodeBlock.of("false");
-      } else if (typeName.equals(TypeName.CHAR)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_CHAR))) {
         return CodeBlock.of("'\u0000'");
-      } else if (typeName.equals(TypeName.BYTE)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_BYTE))) {
         return CodeBlock.of("0");
-      } else if (typeName.equals(TypeName.SHORT)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_SHORT))) {
         return CodeBlock.of("0");
-      } else if (typeName.equals(TypeName.INT)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_INT))) {
         return CodeBlock.of("0");
-      } else if (typeName.equals(TypeName.LONG)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_LONG))) {
         return CodeBlock.of("0L");
-      } else if (typeName.equals(TypeName.FLOAT)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_FLOAT))) {
         return CodeBlock.of("0.0f");
-      } else if (typeName.equals(TypeName.DOUBLE)) {
+      } else if (typeName.equals(toJavaPoet(XTypeName.PRIMITIVE_DOUBLE))) {
         return CodeBlock.of("0.0d");
       } else {
         throw new AssertionError("Unexpected type: " + typeName);

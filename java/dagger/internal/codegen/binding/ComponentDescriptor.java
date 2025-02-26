@@ -33,10 +33,10 @@ import static dagger.internal.codegen.binding.ConfigurationAnnotations.enclosedA
 import static dagger.internal.codegen.binding.ConfigurationAnnotations.isSubcomponentCreator;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
-import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
+import static dagger.internal.codegen.xprocessing.XTypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
 import androidx.room.compiler.processing.XElement;
@@ -64,10 +64,10 @@ import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ComponentAnnotation;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ModuleAnnotation;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -300,7 +300,7 @@ public abstract class ComponentDescriptor {
   public final Optional<CancellationPolicy> cancellationPolicy() {
     return isProduction()
         // TODO(bcorso): Get values from XAnnotation instead of using CancellationPolicy directly.
-        ? Optional.ofNullable(typeElement().getAnnotation(TypeNames.CANCELLATION_POLICY))
+        ? Optional.ofNullable(typeElement().getAnnotation(XTypeNames.CANCELLATION_POLICY))
             .map(CancellationPolicy::from)
         : Optional.empty();
   }

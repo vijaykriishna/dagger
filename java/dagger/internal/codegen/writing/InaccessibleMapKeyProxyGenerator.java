@@ -32,7 +32,7 @@ import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -74,11 +74,11 @@ public final class InaccessibleMapKeyProxyGenerator
                   .mapKey()
                   .filter(
                       mapKey ->
-                          mapKey.getTypeElement().getClassName().equals(TypeNames.LAZY_CLASS_KEY))
+                          mapKey.getTypeElement().asClassName().equals(XTypeNames.LAZY_CLASS_KEY))
                   .map(
                       mapKey ->
                           FieldSpec.builder(mapKey.getAsType("value").getTypeName(), "className")
-                              .addAnnotation(TypeNames.KEEP_FIELD_TYPE)
+                              .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
                               .build())
                   .ifPresent(builder::addField);
               return builder;

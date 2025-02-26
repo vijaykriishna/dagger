@@ -45,9 +45,9 @@ import dagger.Module;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ModuleKind;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -142,25 +142,25 @@ public abstract class ModuleDescriptor {
       ImmutableSet.Builder<OptionalBindingDeclaration> optionalDeclarations =
           ImmutableSet.builder();
 
-      XTypeElements.getAllMethods(moduleElement).stream()
+      XTypeElements.getAllMethods(moduleElement)
           .forEach(
               moduleMethod -> {
-                if (moduleMethod.hasAnnotation(TypeNames.PROVIDES)) {
+                if (moduleMethod.hasAnnotation(XTypeNames.PROVIDES)) {
                   bindings.add(bindingFactory.providesMethodBinding(moduleMethod, moduleElement));
                 }
-                if (moduleMethod.hasAnnotation(TypeNames.PRODUCES)) {
+                if (moduleMethod.hasAnnotation(XTypeNames.PRODUCES)) {
                   bindings.add(bindingFactory.producesMethodBinding(moduleMethod, moduleElement));
                 }
-                if (moduleMethod.hasAnnotation(TypeNames.BINDS)) {
+                if (moduleMethod.hasAnnotation(XTypeNames.BINDS)) {
                   delegates.add(
                       bindingDelegateDeclarationFactory.create(moduleMethod, moduleElement));
                 }
-                if (moduleMethod.hasAnnotation(TypeNames.MULTIBINDS)) {
+                if (moduleMethod.hasAnnotation(XTypeNames.MULTIBINDS)) {
                   multibindingDeclarations.add(
                       multibindingDeclarationFactory.forMultibindsMethod(
                           moduleMethod, moduleElement));
                 }
-                if (moduleMethod.hasAnnotation(TypeNames.BINDS_OPTIONAL_OF)) {
+                if (moduleMethod.hasAnnotation(XTypeNames.BINDS_OPTIONAL_OF)) {
                   optionalDeclarations.add(
                       optionalBindingDeclarationFactory.forMethod(moduleMethod, moduleElement));
                 }
@@ -192,7 +192,7 @@ public abstract class ModuleDescriptor {
       XTypeElements.getAllMethods(companionModule).stream()
           // Binding methods in companion objects with @JvmStatic are mirrored in the enclosing
           // class, therefore we should ignore it or else it'll be a duplicate binding.
-          .filter(method -> !method.hasAnnotation(TypeNames.JVM_STATIC))
+          .filter(method -> !method.hasAnnotation(XTypeNames.JVM_STATIC))
           // Fallback strategy for de-duping contributing bindings in the companion module with
           // @JvmStatic by comparing descriptors. Contributing bindings are the only valid bindings
           // a companion module can declare. See: https://youtrack.jetbrains.com/issue/KT-35104
@@ -200,10 +200,10 @@ public abstract class ModuleDescriptor {
           .filter(method -> !bindingElementDescriptors.contains(method.getJvmDescriptor()))
           .forEach(
               method -> {
-                if (method.hasAnnotation(TypeNames.PROVIDES)) {
+                if (method.hasAnnotation(XTypeNames.PROVIDES)) {
                   bindings.add(bindingFactory.providesMethodBinding(method, companionModule));
                 }
-                if (method.hasAnnotation(TypeNames.PRODUCES)) {
+                if (method.hasAnnotation(XTypeNames.PRODUCES)) {
                   bindings.add(bindingFactory.producesMethodBinding(method, companionModule));
                 }
               });

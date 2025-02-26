@@ -19,7 +19,7 @@ package dagger.internal.codegen.base;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XProcessingEnv;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * Helper methods for getting types of producer annotations.
@@ -44,14 +44,14 @@ public final class ProducerAnnotations {
   //  "ProductionImplementationExecutor", rather than binding "@ProductionImplementation Executor".
   public static XAnnotation productionImplementationQualifier(XProcessingEnv processingEnv) {
     return processingEnv.findTypeElement(PRODUCTION_IMPLEMENTATION_USAGE)
-        .getAnnotation(TypeNames.PRODUCTION_IMPLEMENTATION);
+        .getAnnotation(XTypeNames.PRODUCTION_IMPLEMENTATION);
   }
 
   /** Returns a {@link dagger.producers.Production} qualifier. */
   // TODO(bcorso): We could probably remove the need for this. It's currently only used in
   //  "DependsOnProductionExecutorValidator", but we could implement that without this.
   public static XAnnotation productionQualifier(XProcessingEnv processingEnv) {
-    return processingEnv.findTypeElement(PRODUCTION_USAGE).getAnnotation(TypeNames.PRODUCTION);
+    return processingEnv.findTypeElement(PRODUCTION_USAGE).getAnnotation(XTypeNames.PRODUCTION);
   }
 
   /** Returns a {@link dagger.producers.ProductionScope} scope. */
@@ -60,7 +60,7 @@ public final class ProducerAnnotations {
   //  than an actual annotation type.
   public static XAnnotation productionScope(XProcessingEnv processingEnv) {
     return processingEnv.findTypeElement(PRODUCTION_SCOPE_USAGE)
-        .getAnnotation(TypeNames.PRODUCTION_SCOPE);
+        .getAnnotation(XTypeNames.PRODUCTION_SCOPE);
   }
 
   private ProducerAnnotations() {}

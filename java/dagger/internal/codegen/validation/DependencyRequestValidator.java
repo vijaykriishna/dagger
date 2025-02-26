@@ -45,7 +45,6 @@ import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -78,7 +77,7 @@ final class DependencyRequestValidator {
    */
   void validateDependencyRequest(
       ValidationReport.Builder report, XElement requestElement, XType requestType) {
-    if (requestElement.hasAnnotation(TypeNames.ASSISTED)) {
+    if (requestElement.hasAnnotation(XTypeNames.ASSISTED)) {
       // Don't validate assisted parameters. These are not dependency requests.
       return;
     }

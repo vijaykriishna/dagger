@@ -21,7 +21,7 @@ import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingType
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XTypeElement;
 import dagger.internal.codegen.base.ClearableCache;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -49,7 +49,7 @@ public final class KotlinMetadataFactory implements ClearableCache {
    */
   public KotlinMetadata create(XElement element) {
     XTypeElement enclosingElement = closestEnclosingTypeElement(element);
-    if (!enclosingElement.hasAnnotation(TypeNames.KOTLIN_METADATA)) {
+    if (!enclosingElement.hasAnnotation(XTypeNames.KOTLIN_METADATA)) {
       throw new IllegalStateException("Missing @Metadata for: " + enclosingElement);
     }
     return metadataCache.computeIfAbsent(enclosingElement, KotlinMetadata::from);

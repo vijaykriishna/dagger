@@ -16,6 +16,7 @@
 
 package dagger.android.processor;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.JavaPoetExtKt.addOriginatingElement;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
@@ -30,6 +31,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
@@ -58,12 +60,12 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.CONTRIBUTES_ANDROID_INJECTOR);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.CONTRIBUTES_ANDROID_INJECTOR);
   }
 
   @Override
-  public void process(XElement element, ImmutableSet<ClassName> annotationNames) {
+  public void process(XElement element, ImmutableSet<XClassName> annotationNames) {
     validator.createIfValid(XElements.asMethod(element)).ifPresent(this::generate);
   }
 
@@ -84,7 +86,7 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
     TypeSpec.Builder module =
         classBuilder(moduleName)
             .addAnnotation(
-                AnnotationSpec.builder(TypeNames.MODULE)
+                AnnotationSpec.builder(toJavaPoet(XTypeNames.MODULE))
                     .addMember("subcomponents", "$T.class", subcomponentName)
                     .build())
             .addModifiers(PUBLIC, ABSTRACT)
@@ -98,8 +100,7 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
     if (generatedAnnotation != null) {
       module.addAnnotation(
           AnnotationSpec.builder(generatedAnnotation.getClassName())
-              .addMember(
-                  "value", "$S", ClassName.get("dagger.android.processor", "AndroidProcessor"))
+              .addMember("value", "$S", XTypeNames.ANDROID_PROCESSOR.getCanonicalName())
               .build());
     }
 
@@ -136,24 +137,25 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
   private MethodSpec bindAndroidInjectorFactory(
       AndroidInjectorDescriptor descriptor, ClassName subcomponentBuilderName) {
     return methodBuilder("bindAndroidInjectorFactory")
-        .addAnnotation(TypeNames.BINDS)
-        .addAnnotation(TypeNames.INTO_MAP)
+        .addAnnotation(toJavaPoet(XTypeNames.BINDS))
+        .addAnnotation(toJavaPoet(XTypeNames.INTO_MAP))
         .addAnnotation(androidInjectorMapKey(descriptor))
         .addModifiers(ABSTRACT)
         .returns(
             ParameterizedTypeName.get(
-                TypeNames.ANDROID_INJECTOR_FACTORY, WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+                toJavaPoet(XTypeNames.ANDROID_INJECTOR_FACTORY),
+                WildcardTypeName.subtypeOf(TypeName.OBJECT)))
         .addParameter(subcomponentBuilderName, "builder")
         .build();
   }
 
   private AnnotationSpec androidInjectorMapKey(AndroidInjectorDescriptor descriptor) {
     if (useStringKeys(processingEnv)) {
-      return AnnotationSpec.builder(TypeNames.ANDROID_INJECTION_KEY)
+      return AnnotationSpec.builder(toJavaPoet(XTypeNames.ANDROID_INJECTION_KEY))
           .addMember("value", "$S", descriptor.injectedType().toString())
           .build();
     }
-    return AnnotationSpec.builder(TypeNames.CLASS_KEY)
+    return AnnotationSpec.builder(toJavaPoet(XTypeNames.CLASS_KEY))
         .addMember("value", "$T.class", descriptor.injectedType())
         .build();
   }
@@ -162,7 +164,8 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
       AndroidInjectorDescriptor descriptor,
       ClassName subcomponentName,
       ClassName subcomponentFactoryName) {
-    AnnotationSpec.Builder subcomponentAnnotation = AnnotationSpec.builder(TypeNames.SUBCOMPONENT);
+    AnnotationSpec.Builder subcomponentAnnotation =
+        AnnotationSpec.builder(toJavaPoet(XTypeNames.SUBCOMPONENT));
     for (ClassName module : descriptor.modules()) {
       subcomponentAnnotation.addMember("modules", "$T.class", module);
     }
@@ -172,7 +175,8 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
         .addAnnotation(subcomponentAnnotation.build())
         .addAnnotations(descriptor.scopes())
         .addSuperinterface(
-            ParameterizedTypeName.get(TypeNames.ANDROID_INJECTOR, descriptor.injectedType()))
+            ParameterizedTypeName.get(
+                toJavaPoet(XTypeNames.ANDROID_INJECTOR), descriptor.injectedType()))
         .addType(subcomponentFactory(descriptor, subcomponentFactoryName))
         .build();
   }
@@ -180,11 +184,11 @@ final class ContributesAndroidInjectorProcessingStep extends BaseProcessingStep 
   private TypeSpec subcomponentFactory(
       AndroidInjectorDescriptor descriptor, ClassName subcomponentFactoryName) {
     return interfaceBuilder(subcomponentFactoryName)
-        .addAnnotation(TypeNames.SUBCOMPONENT_FACTORY)
+        .addAnnotation(toJavaPoet(XTypeNames.SUBCOMPONENT_FACTORY))
         .addModifiers(PUBLIC, STATIC)
         .addSuperinterface(
             ParameterizedTypeName.get(
-                TypeNames.ANDROID_INJECTOR_FACTORY, descriptor.injectedType()))
+                toJavaPoet(XTypeNames.ANDROID_INJECTOR_FACTORY), descriptor.injectedType()))
         .build();
   }
 }

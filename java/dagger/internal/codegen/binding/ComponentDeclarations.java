@@ -16,12 +16,14 @@
 
 package dagger.internal.codegen.binding;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
@@ -32,10 +34,10 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.WildcardTypeName;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.FrameworkTypes;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Key.MultibindingContributionIdentifier;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -245,7 +247,7 @@ final class ComponentDeclarations {
                   DaggerSuperficialValidation.requireTypeElement(
                       processingEnv, generatedMonitoringModuleName(descriptor.typeElement()))),
               moduleDescriptorFactory.create(
-                  processingEnv.requireTypeElement(TypeNames.PRODUCTION_EXECTUTOR_MODULE)))
+                  processingEnv.requireTypeElement(XTypeNames.PRODUCTION_EXECTUTOR_MODULE)))
           : ImmutableSet.of();
     }
 
@@ -335,7 +337,7 @@ final class ComponentDeclarations {
       return false;
     }
     ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-    return parameterizedTypeName.rawType.equals(TypeNames.MAP)
+    return parameterizedTypeName.rawType.equals(toJavaPoet(XTypeName.MAP))
         && parameterizedTypeName.typeArguments.size() == 2
         && !(parameterizedTypeName.typeArguments.get(0) instanceof WildcardTypeName)
         && !(parameterizedTypeName.typeArguments.get(1) instanceof WildcardTypeName);
@@ -346,7 +348,7 @@ final class ComponentDeclarations {
       return false;
     }
     ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-    return parameterizedTypeName.rawType.equals(TypeNames.SET)
+    return parameterizedTypeName.rawType.equals(toJavaPoet(XTypeName.SET))
         && parameterizedTypeName.typeArguments.size() == 1
         && !(getOnlyElement(parameterizedTypeName.typeArguments) instanceof WildcardTypeName);
   }

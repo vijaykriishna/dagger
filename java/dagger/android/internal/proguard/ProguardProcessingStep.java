@@ -18,12 +18,12 @@ package dagger.android.internal.proguard;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
 import dagger.android.processor.BaseProcessingStep;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -51,16 +51,16 @@ public final class ProguardProcessingStep extends BaseProcessingStep {
     this.processingEnv = processingEnv;
   }
 
-  static final ClassName GENERATE_RULES_ANNOTATION_NAME =
-      ClassName.get("dagger.android.internal", "GenerateAndroidInjectionProguardRules");
+  static final XClassName GENERATE_RULES_ANNOTATION_NAME =
+      XClassName.get("dagger.android.internal", "GenerateAndroidInjectionProguardRules");
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
+  public ImmutableSet<XClassName> annotationClassNames() {
     return ImmutableSet.of(GENERATE_RULES_ANNOTATION_NAME);
   }
 
   @Override
-  public void process(XElement element, ImmutableSet<ClassName> annotationNames) {
+  public void process(XElement element, ImmutableSet<XClassName> annotationNames) {
     XFiler filer = processingEnv.getFiler();
 
     String errorProneRule = "-dontwarn com.google.errorprone.annotations.**\n";

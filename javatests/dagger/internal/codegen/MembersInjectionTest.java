@@ -16,13 +16,15 @@
 
 package dagger.internal.codegen;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;
 import org.junit.Rule;
@@ -581,7 +583,7 @@ public class MembersInjectionTest {
         TypeSpec.classBuilder("GeneratedInjectType")
             .addMethod(
                 MethodSpec.constructorBuilder()
-                    .addAnnotation(TypeNames.INJECT_JAVAX)
+                    .addAnnotation(toJavaPoet(XTypeNames.INJECT_JAVAX))
                     .build())
             .build();
 

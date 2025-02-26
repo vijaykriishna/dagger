@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.squareup.javapoet.CodeBlock;
@@ -53,7 +52,7 @@ abstract class MultibindingFactoryCreationExpression
             .codeBlock();
 
     return useRawType()
-        ? CodeBlocks.cast(expression, toJavaPoet(binding.frameworkType().frameworkClassName()))
+        ? CodeBlocks.cast(expression, binding.frameworkType().frameworkClassName())
         : expression;
   }
 

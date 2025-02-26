@@ -16,8 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static dagger.internal.codegen.javapoet.TypeNames.DOUBLE_CHECK;
-import static dagger.internal.codegen.javapoet.TypeNames.SINGLE_CHECK;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
@@ -29,6 +28,7 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * An object that initializes a framework-type component field for a binding using instances created
@@ -70,11 +70,12 @@ final class SwitchingProviderInstanceSupplier implements FrameworkInstanceSuppli
     return () ->
         CodeBlock.of(
             "$T.provider($L)",
-            binding.scope().isPresent()
-                ? (binding.scope().get().isReusable()
-                    ? SINGLE_CHECK
-                    : DOUBLE_CHECK)
-                : SINGLE_CHECK,
+            toJavaPoet(
+                binding.scope().isPresent()
+                    ? (binding.scope().get().isReusable()
+                        ? XTypeNames.SINGLE_CHECK
+                        : XTypeNames.DOUBLE_CHECK)
+                    : XTypeNames.SINGLE_CHECK),
             unscoped.creationExpression());
   }
 

@@ -28,8 +28,8 @@ import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.ContributionType.HasContributionType;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.multibindings.Multibinds;
 import java.util.Map;
 import java.util.Optional;
@@ -78,7 +78,7 @@ public abstract class MultibindingDeclaration extends Declaration
     /** A multibinding declaration for a {@link Multibinds @Multibinds} method. */
     MultibindingDeclaration forMultibindsMethod(
         XMethodElement moduleMethod, XTypeElement moduleElement) {
-      checkArgument(moduleMethod.hasAnnotation(TypeNames.MULTIBINDS));
+      checkArgument(moduleMethod.hasAnnotation(XTypeNames.MULTIBINDS));
       return forDeclaredMethod(
           moduleMethod, moduleMethod.asMemberOf(moduleElement.getType()), moduleElement);
     }

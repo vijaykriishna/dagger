@@ -17,7 +17,7 @@
 package dagger.internal.codegen.base;
 
 import androidx.room.compiler.processing.XElement;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Whether a binding or declaration is for a unique contribution or a map or set multibinding. */
 public enum ContributionType {
@@ -51,11 +51,11 @@ public enum ContributionType {
    * own.
    */
   public static ContributionType fromBindingElement(XElement element) {
-    if (element.hasAnnotation(TypeNames.INTO_MAP)) {
+    if (element.hasAnnotation(XTypeNames.INTO_MAP)) {
       return ContributionType.MAP;
-    } else if (element.hasAnnotation(TypeNames.INTO_SET)) {
+    } else if (element.hasAnnotation(XTypeNames.INTO_SET)) {
       return ContributionType.SET;
-    } else if (element.hasAnnotation(TypeNames.ELEMENTS_INTO_SET)) {
+    } else if (element.hasAnnotation(XTypeNames.ELEMENTS_INTO_SET)) {
       return ContributionType.SET_VALUES;
     }
     return ContributionType.UNIQUE;

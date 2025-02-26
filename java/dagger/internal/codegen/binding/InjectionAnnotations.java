@@ -49,7 +49,6 @@ import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ElementFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Scope;
@@ -176,7 +175,7 @@ public final class InjectionAnnotations {
           .filter(InjectionAnnotations::hasInjectOrAssistedInjectAnnotation)
           .findFirst()
           .map(SourceFiles::factoryNameForElement);
-    } else if (isMethod(element) && element.hasAnnotation(TypeNames.PROVIDES)) {
+    } else if (isMethod(element) && element.hasAnnotation(XTypeNames.PROVIDES)) {
       return Optional.of(factoryNameForElement(asMethod(element)));
     }
     return Optional.empty();
@@ -306,7 +305,7 @@ public final class InjectionAnnotations {
     // @Inject constructor parameters, @Provides methods, and @Provides method parameters.
     if (isField(element) && hasInjectAnnotation(element)) {
       return Optional.of(membersInjectorNameForType(closestEnclosingTypeElement(element)));
-    } else if (isMethod(element) && element.hasAnnotation(TypeNames.PROVIDES)) {
+    } else if (isMethod(element) && element.hasAnnotation(XTypeNames.PROVIDES)) {
       return Optional.of(factoryNameForElement(asMethod(element)));
     } else if (isMethodParameter(element)) {
       XExecutableElement executableElement = asMethodParameter(element).getEnclosingElement();
@@ -317,7 +316,7 @@ public final class InjectionAnnotations {
       if (isMethod(executableElement) && hasInjectAnnotation(executableElement)) {
         return Optional.of(membersInjectorNameForType(closestEnclosingTypeElement(element)));
       }
-      if (isMethod(executableElement) && executableElement.hasAnnotation(TypeNames.PROVIDES)) {
+      if (isMethod(executableElement) && executableElement.hasAnnotation(XTypeNames.PROVIDES)) {
         return Optional.of(factoryNameForElement(executableElement));
       }
     }
@@ -335,24 +334,24 @@ public final class InjectionAnnotations {
     return annotation
         .getType()
         .getTypeElement()
-        .hasAnyAnnotation(TypeNames.QUALIFIER, TypeNames.QUALIFIER_JAVAX);
+        .hasAnyAnnotation(XTypeNames.QUALIFIER, XTypeNames.QUALIFIER_JAVAX);
   }
 
   private static boolean hasScopeAnnotation(XAnnotation annotation) {
     return annotation
         .getType()
         .getTypeElement()
-        .hasAnyAnnotation(TypeNames.SCOPE, TypeNames.SCOPE_JAVAX);
+        .hasAnyAnnotation(XTypeNames.SCOPE, XTypeNames.SCOPE_JAVAX);
   }
 
   /** Returns true if the given element is annotated with {@link Inject}. */
   public static boolean hasInjectAnnotation(XElement element) {
-    return element.hasAnyAnnotation(TypeNames.INJECT, TypeNames.INJECT_JAVAX);
+    return element.hasAnyAnnotation(XTypeNames.INJECT, XTypeNames.INJECT_JAVAX);
   }
 
   private static boolean hasInjectOrAssistedInjectAnnotation(XElement element) {
     return element.hasAnyAnnotation(
-        TypeNames.INJECT, TypeNames.INJECT_JAVAX, TypeNames.ASSISTED_INJECT);
+        XTypeNames.INJECT, XTypeNames.INJECT_JAVAX, XTypeNames.ASSISTED_INJECT);
   }
 
   /**
@@ -377,7 +376,7 @@ public final class InjectionAnnotations {
         return membersInjector.getDeclaredMethods().stream()
             .filter(
                 method ->
-                    Optional.ofNullable(method.getAnnotation(TypeNames.INJECTED_FIELD_SIGNATURE))
+                    Optional.ofNullable(method.getAnnotation(XTypeNames.INJECTED_FIELD_SIGNATURE))
                         .map(annotation -> annotation.getAsString("value"))
                         .map(memberInjectedFieldSignature::equals)
                         // If a method is not an @InjectedFieldSignature method then filter it out
@@ -400,10 +399,10 @@ public final class InjectionAnnotations {
     } else {
       return Stream.concat(
               kotlinMetadataUtil
-                  .getSyntheticPropertyAnnotations(field, TypeNames.QUALIFIER)
+                  .getSyntheticPropertyAnnotations(field, XTypeNames.QUALIFIER)
                   .stream(),
               kotlinMetadataUtil
-                  .getSyntheticPropertyAnnotations(field, TypeNames.QUALIFIER_JAVAX)
+                  .getSyntheticPropertyAnnotations(field, XTypeNames.QUALIFIER_JAVAX)
                   .stream())
           .collect(toImmutableSet());
     }

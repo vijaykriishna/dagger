@@ -34,9 +34,9 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.javapoet.CodeBlocks;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Provider;
 
@@ -93,12 +93,13 @@ final class InjectionOrProvisionProviderCreationExpression
             .collect(toOptional());
         // Only convert it if the newer method doesn't exist.
         if (createMethod.isEmpty()) {
-          createFactory = CodeBlock.of(
-            "$T.asDaggerProvider($T.create($L))",
-            TypeNames.DAGGER_PROVIDERS,
-            toJavaPoet(factoryImpl),
-            componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
-                binding, shardImplementation.name()));
+          createFactory =
+              CodeBlock.of(
+                  "$T.asDaggerProvider($T.create($L))",
+                  toJavaPoet(XTypeNames.DAGGER_PROVIDERS),
+                  toJavaPoet(factoryImpl),
+                  componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
+                      binding, shardImplementation.name()));
         }
       }
     }
@@ -108,7 +109,7 @@ final class InjectionOrProvisionProviderCreationExpression
     if (binding.kind().equals(INJECTION)
         && binding.unresolved().isPresent()
         && binding.scope().isPresent()) {
-      return CodeBlocks.cast(createFactory, TypeNames.DAGGER_PROVIDER);
+      return CodeBlocks.cast(createFactory, XTypeNames.DAGGER_PROVIDER);
     } else {
       return createFactory;
     }

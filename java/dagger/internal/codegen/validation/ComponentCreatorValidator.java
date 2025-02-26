@@ -40,8 +40,8 @@ import dagger.internal.codegen.base.ComponentCreatorAnnotation;
 import dagger.internal.codegen.binding.ErrorMessages;
 import dagger.internal.codegen.binding.ErrorMessages.ComponentCreatorMessages;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -280,8 +280,8 @@ public final class ComponentCreatorValidator implements ClearableCache {
 
       XExecutableParameterElement parameter = method.getParameters().get(0);
 
-      boolean methodIsBindsInstance = method.hasAnnotation(TypeNames.BINDS_INSTANCE);
-      boolean parameterIsBindsInstance = parameter.hasAnnotation(TypeNames.BINDS_INSTANCE);
+      boolean methodIsBindsInstance = method.hasAnnotation(XTypeNames.BINDS_INSTANCE);
+      boolean parameterIsBindsInstance = parameter.hasAnnotation(XTypeNames.BINDS_INSTANCE);
       boolean bindsInstance = methodIsBindsInstance || parameterIsBindsInstance;
 
       if (methodIsBindsInstance && parameterIsBindsInstance) {
@@ -330,7 +330,7 @@ public final class ComponentCreatorValidator implements ClearableCache {
       }
 
       for (XExecutableParameterElement parameter : method.getParameters()) {
-        if (!parameter.hasAnnotation(TypeNames.BINDS_INSTANCE)
+        if (!parameter.hasAnnotation(XTypeNames.BINDS_INSTANCE)
             && isPrimitive(parameter.getType())) {
           error(
               method,
@@ -355,7 +355,7 @@ public final class ComponentCreatorValidator implements ClearableCache {
         return false;
       }
 
-      if (method.hasAnnotation(TypeNames.BINDS_INSTANCE)) {
+      if (method.hasAnnotation(XTypeNames.BINDS_INSTANCE)) {
         error(
             method,
             messages.factoryMethodMayNotBeAnnotatedWithBindsInstance(),

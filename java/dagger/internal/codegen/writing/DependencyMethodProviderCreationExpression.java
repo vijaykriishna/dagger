@@ -25,23 +25,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
-import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.TypeNames.daggerProviderOf;
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.COMPONENT_PROVISION_FACTORY;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XMethodElement;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -51,6 +49,7 @@ import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * A {@link javax.inject.Provider} creation expression for a provision method on a component's
@@ -99,17 +98,13 @@ final class DependencyMethodProviderCreationExpression
             compilerOptions,
             CodeBlock.of("$N.$N()", dependency().variableName(), provisionMethod.getJvmName()));
     XClassName dependencyClassName = dependency().typeElement().asClassName();
-    TypeName keyType = binding.key().type().xprocessing().getTypeName();
+    XTypeName keyType = binding.key().type().xprocessing().asTypeName();
     MethodSpec.Builder getMethod =
         methodBuilder("get")
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
             .returns(
-                keyType.annotated(
-                    binding.nullability().typeUseNullableAnnotations().stream()
-                        .map(XConverters::toJavaPoet)
-                        .map(annotation -> AnnotationSpec.builder(annotation).build())
-                        .collect(toImmutableList())))
+                toJavaPoet(XTypeNames.withTypeNullability(keyType, binding.nullability())))
             .addStatement("return $L", invocation);
 
     binding.nullability().nonTypeUseNullableAnnotations().stream()
@@ -130,12 +125,9 @@ final class DependencyMethodProviderCreationExpression
         COMPONENT_PROVISION_FACTORY,
         classBuilder(toJavaPoet(factoryClassName))
             .addSuperinterface(
-                daggerProviderOf(
-                    keyType.annotated(
-                        binding.nullability().typeUseNullableAnnotations().stream()
-                            .map(XConverters::toJavaPoet)
-                            .map(annotation -> AnnotationSpec.builder(annotation).build())
-                            .collect(toImmutableList()))))
+                toJavaPoet(
+                    daggerProviderOf(
+                        XTypeNames.withTypeNullability(keyType, binding.nullability()))))
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
             .addMethod(

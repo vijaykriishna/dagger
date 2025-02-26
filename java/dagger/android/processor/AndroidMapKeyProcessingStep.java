@@ -20,6 +20,7 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.android.processor.AndroidMapKeys.injectedTypeFromMapKey;
 import static dagger.internal.codegen.xprocessing.XTypes.toStableString;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XMethodElement;
@@ -28,7 +29,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XTypes;
 import javax.tools.Diagnostic.Kind;
@@ -42,21 +42,21 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
   }
 
   @Override
-  public ImmutableSet<ClassName> annotationClassNames() {
-    return ImmutableSet.of(TypeNames.ANDROID_INJECTION_KEY, TypeNames.CLASS_KEY);
+  public ImmutableSet<XClassName> annotationClassNames() {
+    return ImmutableSet.of(XTypeNames.ANDROID_INJECTION_KEY, XTypeNames.CLASS_KEY);
   }
 
   @Override
-  public void process(XElement element, ImmutableSet<ClassName> annotationNames) {
-    for (ClassName annotationName : annotationNames) {
+  public void process(XElement element, ImmutableSet<XClassName> annotationNames) {
+    for (XClassName annotationName : annotationNames) {
       validateMethod(annotationName, XElements.asMethod(element));
     }
   }
 
-  private void validateMethod(ClassName annotation, XMethodElement method) {
+  private void validateMethod(XClassName annotation, XMethodElement method) {
     if (!Sets.union(
-            method.getAnnotationsAnnotatedWith(TypeNames.QUALIFIER),
-            method.getAnnotationsAnnotatedWith(TypeNames.QUALIFIER_JAVAX))
+            method.getAnnotationsAnnotatedWith(XTypeNames.QUALIFIER),
+            method.getAnnotationsAnnotatedWith(XTypeNames.QUALIFIER_JAVAX))
         .isEmpty()) {
       return;
     }
@@ -68,15 +68,15 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
     }
 
     if (!Sets.union(
-            method.getAnnotationsAnnotatedWith(TypeNames.SCOPE),
-            method.getAnnotationsAnnotatedWith(TypeNames.SCOPE_JAVAX))
+            method.getAnnotationsAnnotatedWith(XTypeNames.SCOPE),
+            method.getAnnotationsAnnotatedWith(XTypeNames.SCOPE_JAVAX))
         .isEmpty()) {
-      XAnnotation suppressedWarnings = method.getAnnotation(ClassName.get(SuppressWarnings.class));
+      XAnnotation suppressedWarnings = method.getAnnotation(XTypeNames.SUPPRESS_WARNINGS);
       if (suppressedWarnings == null
           || !ImmutableSet.copyOf(suppressedWarnings.getAsStringList("value"))
               .contains("dagger.android.ScopedInjectorFactory")) {
         XAnnotation mapKeyAnnotation =
-            getOnlyElement(method.getAnnotationsAnnotatedWith(TypeNames.MAP_KEY));
+            getOnlyElement(method.getAnnotationsAnnotatedWith(XTypeNames.MAP_KEY));
         XTypeElement mapKeyValueElement =
             processingEnv.requireTypeElement(injectedTypeFromMapKey(mapKeyAnnotation).get());
         processingEnv
@@ -86,7 +86,7 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
                 String.format(
                     "%s bindings should not be scoped. Scoping this method may leak instances of"
                         + " %s.",
-                    TypeNames.ANDROID_INJECTOR_FACTORY.canonicalName(),
+                    XTypeNames.ANDROID_INJECTOR_FACTORY.getCanonicalName(),
                     mapKeyValueElement.getQualifiedName()),
                 method);
       }
@@ -96,7 +96,7 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
 
     // @Binds methods should only have one parameter, but we can't guarantee the order of Processors
     // in javac, so do a basic check for valid form
-    if (method.hasAnnotation(TypeNames.BINDS) && method.getParameters().size() == 1) {
+    if (method.hasAnnotation(XTypeNames.BINDS) && method.getParameters().size() == 1) {
       validateMapKeyMatchesBindsParameter(annotation, method);
     }
   }
@@ -134,7 +134,7 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
    * }</pre>
    */
   private void validateMapKeyMatchesBindsParameter(
-      ClassName annotationName, XMethodElement method) {
+      XClassName annotationName, XMethodElement method) {
     XType parameterType = getOnlyElement(method.getParameters()).getType();
     XAnnotation annotation = method.getAnnotation(annotationName);
     XType mapKeyType =
@@ -158,6 +158,6 @@ final class AndroidMapKeyProcessingStep extends BaseProcessingStep {
   }
 
   private XTypeElement factoryElement() {
-    return processingEnv.requireTypeElement(TypeNames.ANDROID_INJECTOR_FACTORY.canonicalName());
+    return processingEnv.requireTypeElement(XTypeNames.ANDROID_INJECTOR_FACTORY.getCanonicalName());
   }
 }

@@ -21,13 +21,13 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 import androidx.room.compiler.processing.XProcessingEnv;
 import dagger.internal.codegen.binding.KeyFactory;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.MaybeBinding;
 import dagger.internal.codegen.model.DiagnosticReporter;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.validation.ValidationBindingGraphPlugin;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -72,6 +72,6 @@ final class DependsOnProductionExecutorValidator extends ValidationBindingGraphP
   }
 
   private boolean usesProducers() {
-    return processingEnv.findTypeElement(TypeNames.PRODUCES) != null;
+    return processingEnv.findTypeElement(XTypeNames.PRODUCES) != null;
   }
 }

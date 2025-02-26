@@ -16,14 +16,18 @@
 #   Import for including XProcessing in Dagger.
 
 load("@rules_java//java:defs.bzl", "java_import", "java_library")
+load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
 
 package(default_visibility = ["//:src"])
 
-java_library(
+compat_kt_jvm_library(
     name = "xprocessing",
     # TODO(b/181056551): Ideally, all of the methods in these utility classes
     # will move directly into XProcessing, and we can then remove these classes.
-    srcs = glob(["*.java"]),
+    srcs = glob([
+        "*.java",
+        "*.kt",
+    ]),
     exports = [
         ":xprocessing-lib",
     ],
@@ -51,7 +55,7 @@ alias(
 
 java_import(
     name = "xprocessing-jar",
-    jars = ["xprocessing.jar"],
+    jars = ["xprocessing-internal.jar"],
     deps = [
         "//third_party/kotlin/kotlinpoet",
         "@maven//:com_google_devtools_ksp_symbol_processing_api",
@@ -81,6 +85,6 @@ alias(
 
 java_import(
     name = "xprocessing-testing-jar",
-    jars = ["xprocessing-testing.jar"],
+    jars = ["xprocessing-testing-internal.jar"],
     visibility = ["//visibility:private"],
 )

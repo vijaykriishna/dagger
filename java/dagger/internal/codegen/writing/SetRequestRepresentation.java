@@ -23,6 +23,7 @@ import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFr
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +38,6 @@ import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
 import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Collections;
@@ -150,7 +150,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
             // TODO(bcorso): Replace instanceof checks with validation on the binding.
             && (bindingExpression instanceof DerivedFromFrameworkInstanceRequestRepresentation
                 || bindingExpression instanceof DelegateRequestRepresentation))
-        ? CodeBlocks.cast(expression, TypeNames.COLLECTION)
+        ? CodeBlocks.cast(expression, XTypeName.COLLECTION)
         : expression;
   }
 

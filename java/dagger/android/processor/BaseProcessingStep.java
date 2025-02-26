@@ -21,6 +21,7 @@ import static com.google.common.collect.Sets.difference;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XProcessingStep;
@@ -28,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Maps;
-import com.squareup.javapoet.ClassName;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +39,7 @@ import java.util.Set;
 public abstract class BaseProcessingStep implements XProcessingStep {
   @Override
   public final ImmutableSet<String> annotations() {
-    return annotationClassNames().stream().map(ClassName::canonicalName).collect(toImmutableSet());
+    return annotationClassNames().stream().map(XClassName::getCanonicalName).collect(toImmutableSet());
   }
 
   // Subclass must ensure all annotated targets are of valid type.
@@ -66,20 +66,20 @@ public abstract class BaseProcessingStep implements XProcessingStep {
    * @param annotations the subset of {@link XProcessingStep#annotations()} that annotate {@code
    *     element}
    */
-  protected abstract void process(XElement element, ImmutableSet<ClassName> annotations);
+  protected abstract void process(XElement element, ImmutableSet<XClassName> annotations);
 
-  private ImmutableMap<XElement, ImmutableSet<ClassName>> inverse(
+  private ImmutableMap<XElement, ImmutableSet<XClassName>> inverse(
       Map<String, ? extends Set<? extends XElement>> elementsByAnnotation) {
-    ImmutableMap<String, ClassName> annotationClassNames =
+    ImmutableMap<String, XClassName> annotationClassNames =
         annotationClassNames().stream()
-            .collect(toImmutableMap(ClassName::canonicalName, className -> className));
+            .collect(toImmutableMap(XClassName::getCanonicalName, className -> className));
     checkState(
         annotationClassNames.keySet().containsAll(elementsByAnnotation.keySet()),
         "Unexpected annotations for %s: %s",
         this.getClass().getCanonicalName(),
         difference(elementsByAnnotation.keySet(), annotationClassNames.keySet()));
 
-    ImmutableSetMultimap.Builder<XElement, ClassName> builder = ImmutableSetMultimap.builder();
+    ImmutableSetMultimap.Builder<XElement, XClassName> builder = ImmutableSetMultimap.builder();
     elementsByAnnotation.forEach(
         (annotationName, elementSet) ->
             elementSet.forEach(
@@ -89,5 +89,5 @@ public abstract class BaseProcessingStep implements XProcessingStep {
   }
 
   /** Returns the set of annotations processed by this processing step. */
-  protected abstract Set<ClassName> annotationClassNames();
+  protected abstract Set<XClassName> annotationClassNames();
 }

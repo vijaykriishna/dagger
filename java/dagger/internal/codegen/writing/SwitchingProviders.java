@@ -25,19 +25,19 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
-import static dagger.internal.codegen.javapoet.TypeNames.daggerProviderOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.binding.ContributionBinding;
@@ -47,6 +47,7 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XProcessingEnvs;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -70,7 +71,7 @@ final class SwitchingProviders {
   private static final int MAX_CASES_PER_SWITCH = 100;
 
   private static final long MAX_CASES_PER_CLASS = MAX_CASES_PER_SWITCH * MAX_CASES_PER_SWITCH;
-  private static final TypeVariableName T = TypeVariableName.get("T");
+  private static final XTypeName typeVariable = XTypeNames.getTypeVariableName("T");
 
   /**
    * Maps a {@link Key} to an instance of a {@link SwitchingProviderBuilder}. Each group of {@code
@@ -164,7 +165,8 @@ final class SwitchingProviders {
       return CodeBlock.builder()
           // TODO(bcorso): Is there something else more useful than the key?
           .add("case $L: // $L\n", switchIds.get(key), key)
-          .addStatement("return ($T) $L", T, instanceCodeBlock)
+          .addStatement(
+              "return ($T) $L", (TypeVariableName) toJavaPoet(typeVariable), instanceCodeBlock)
           .build();
     }
 
@@ -172,8 +174,8 @@ final class SwitchingProviders {
       TypeSpec.Builder builder =
           classBuilder(toJavaPoet(switchingProviderType))
               .addModifiers(PRIVATE, FINAL, STATIC)
-              .addTypeVariable(T)
-              .addSuperinterface(daggerProviderOf(T))
+              .addTypeVariable((TypeVariableName) toJavaPoet(typeVariable))
+              .addSuperinterface(toJavaPoet(daggerProviderOf(typeVariable)))
               .addMethods(getMethods());
 
       // The SwitchingProvider constructor lists all component parameters first and switch id last.
@@ -187,8 +189,9 @@ final class SwitchingProviders {
                 constructor.addParameter(field.type, field.name);
                 constructor.addStatement("this.$1N = $1N", field);
               });
-      builder.addField(TypeName.INT, "id", PRIVATE, FINAL);
-      constructor.addParameter(TypeName.INT, "id").addStatement("this.id = id");
+      builder.addField(toJavaPoet(XTypeName.PRIMITIVE_INT), "id", PRIVATE, FINAL);
+      constructor.addParameter(toJavaPoet(XTypeName.PRIMITIVE_INT), "id")
+          .addStatement("this.id = id");
 
       return builder.addMethod(constructor.build()).build();
     }
@@ -202,7 +205,7 @@ final class SwitchingProviders {
                 .addModifiers(PUBLIC)
                 .addAnnotation(suppressWarnings(UNCHECKED))
                 .addAnnotation(Override.class)
-                .returns(T)
+                .returns(toJavaPoet(typeVariable))
                 .addCode(getOnlyElement(switchCodeBlockPartitions))
                 .build());
       }
@@ -212,7 +215,7 @@ final class SwitchingProviders {
           methodBuilder("get")
               .addModifiers(PUBLIC)
               .addAnnotation(Override.class)
-              .returns(T)
+              .returns(toJavaPoet(typeVariable))
               .beginControlFlow("switch (id / $L)", MAX_CASES_PER_SWITCH);
 
       ImmutableList.Builder<MethodSpec> getMethods = ImmutableList.builder();
@@ -221,7 +224,7 @@ final class SwitchingProviders {
             methodBuilder("get" + i)
                 .addModifiers(PRIVATE)
                 .addAnnotation(suppressWarnings(UNCHECKED))
-                .returns(T)
+                .returns(toJavaPoet(typeVariable))
                 .addCode(switchCodeBlockPartitions.get(i))
                 .build();
         getMethods.add(method);

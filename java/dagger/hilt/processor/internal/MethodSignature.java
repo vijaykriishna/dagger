@@ -38,7 +38,7 @@ public abstract class MethodSignature {
 
   abstract ImmutableList<TypeName> parameters();
 
-  /** Creates a {@link MethodSignature} from a method name and parameter {@link TypeNames} */
+  /** Creates a {@link MethodSignature} from a method name and parameter {@link TypeName}s */
   public static MethodSignature of(String methodName, TypeName... typeNames) {
     return new AutoValue_MethodSignature(methodName, ImmutableList.copyOf(typeNames));
   }

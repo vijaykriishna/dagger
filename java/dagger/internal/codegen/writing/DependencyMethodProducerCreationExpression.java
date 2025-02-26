@@ -16,19 +16,20 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
-import static dagger.internal.codegen.javapoet.TypeNames.dependencyMethodProducerOf;
-import static dagger.internal.codegen.javapoet.TypeNames.listenableFutureOf;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
+import static dagger.internal.codegen.xprocessing.XTypeNames.dependencyMethodProducerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.XTypeName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -83,17 +84,17 @@ final class DependencyMethodProducerCreationExpression
                     componentImplementation.name().nestedClass("Anonymous")))
             .build();
     // TODO(b/70395982): Explore using a private static type instead of an anonymous class.
-    TypeName keyType = binding.key().type().xprocessing().getTypeName();
+    XTypeName keyType = binding.key().type().xprocessing().asTypeName();
     return CodeBlock.of(
         "$L",
         anonymousClassBuilder("")
-            .superclass(dependencyMethodProducerOf(keyType))
+            .superclass(toJavaPoet(dependencyMethodProducerOf(keyType)))
             .addField(dependencyField)
             .addMethod(
                 methodBuilder("callDependencyMethod")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .returns(listenableFutureOf(keyType))
+                    .returns(toJavaPoet(listenableFutureOf(keyType)))
                     .addStatement(
                         "return $N.$L()",
                         dependencyField,

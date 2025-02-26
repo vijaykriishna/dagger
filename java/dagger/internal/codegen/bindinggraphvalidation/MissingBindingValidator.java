@@ -131,8 +131,8 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
   }
 
   /**
-   * Unwraps a parameterized type to a list of TypeNames. e.g. {@code Map<Foo, List<Bar>>} to {@code
-   * [Map, Foo, List, Bar]}.
+   * Unwraps a parameterized type to a list of {@link TypeName}s. e.g. {@code Map<Foo, List<Bar>>}
+   * to {@code [Map, Foo, List, Bar]}.
    */
   private static ImmutableList<TypeName> flattenBindingType(DaggerType type) {
     return ImmutableList.copyOf(new TypeDfsIterator(type));
@@ -255,8 +255,8 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
   }
 
   /**
-   * An iterator over a list of TypeNames produced by flattening a parameterized type. e.g. {@code
-   * Map<Foo, List<Bar>>} to {@code [Map, Foo, List, Bar]}.
+   * An iterator over a list of {@link TypeName}s produced by flattening a parameterized type. e.g.
+   * {@code Map<Foo, List<Bar>>} to {@code [Map, Foo, List, Bar]}.
    *
    * <p>The iterator returns the bound when encounters a wildcard type.
    */

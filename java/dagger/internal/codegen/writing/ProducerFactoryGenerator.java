@@ -16,10 +16,9 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.squareup.javapoet.ClassName.OBJECT;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
@@ -32,17 +31,13 @@ import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.FUTUR
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
-import static dagger.internal.codegen.javapoet.TypeNames.FUTURES;
-import static dagger.internal.codegen.javapoet.TypeNames.PRODUCERS;
-import static dagger.internal.codegen.javapoet.TypeNames.PRODUCER_TOKEN;
-import static dagger.internal.codegen.javapoet.TypeNames.VOID_CLASS;
-import static dagger.internal.codegen.javapoet.TypeNames.isFutureType;
-import static dagger.internal.codegen.javapoet.TypeNames.listOf;
-import static dagger.internal.codegen.javapoet.TypeNames.listenableFutureOf;
-import static dagger.internal.codegen.javapoet.TypeNames.producedOf;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XTypeNames.isFutureType;
+import static dagger.internal.codegen.xprocessing.XTypeNames.listOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.producedOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PROTECTED;
@@ -50,6 +45,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -63,7 +59,6 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.ContributionType;
@@ -75,9 +70,9 @@ import dagger.internal.codegen.binding.SourceFiles;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javapoet.AnnotationSpecs;
 import dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -115,9 +110,9 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         classBuilder(toJavaPoet(generatedClassNameForBinding(binding)))
             .superclass(
                 ParameterizedTypeName.get(
-                    TypeNames.ABSTRACT_PRODUCES_METHOD_PRODUCER,
+                    toJavaPoet(XTypeNames.ABSTRACT_PRODUCES_METHOD_PRODUCER),
                     callProducesMethodParameter(binding).type,
-                    binding.contributedType().getTypeName()))
+                    toJavaPoet(binding.contributedType().asTypeName())))
             .addModifiers(PUBLIC, FINAL)
             .addTypeVariables(
                 bindingTypeElementTypeVariableNames(binding).stream()
@@ -169,11 +164,12 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
               // field assignment here.
               if (!field.equals(factoryFields.executorField)
                       && !field.equals(factoryFields.monitorField)) {
-                if (TypeNames.rawTypeName(field.type).equals(TypeNames.PRODUCER)) {
+                if (XTypeNames.rawJavaTypeName(field.type)
+                        .equals(toJavaPoet(XTypeNames.PRODUCER))) {
                   constructorBuilder.addStatement(
                       "this.$1N = $2T.nonCancellationPropagatingViewOf($1N)",
                       field,
-                      TypeNames.PRODUCERS);
+                      toJavaPoet(XTypeNames.PRODUCERS));
                 } else {
                   constructorBuilder.addStatement("this.$1N = $1N", field);
                 }
@@ -235,14 +231,17 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     switch (asyncDependencies.size()) {
       case 0:
         return methodBuilder
-            .returns(listenableFutureOf(VOID_CLASS))
-            .addStatement("return $T.<$T>immediateFuture(null)", FUTURES, VOID_CLASS)
+            .returns(toJavaPoet(listenableFutureOf(XTypeNames.UNIT_VOID_CLASS)))
+            .addStatement(
+                "return $T.<$T>immediateFuture(null)",
+                toJavaPoet(XTypeNames.FUTURES),
+                toJavaPoet(XTypeNames.UNIT_VOID_CLASS))
             .build();
       case 1: {
         DependencyRequest asyncDependency = getOnlyElement(asyncDependencies);
         FieldSpec asyncDependencyField = factoryFields.get(asyncDependency);
         return methodBuilder
-            .returns(listenableFutureOf(asyncDependencyType(asyncDependency)))
+            .returns(toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))))
             .addStatement("return $L", producedCodeBlock(asyncDependency, asyncDependencyField))
             .build();
       }
@@ -254,17 +253,17 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
           argNames.add(CodeBlock.of("$L", dependencyFutureName(asyncDependency)));
           argAssignments.addStatement(
               "$T $L = $L",
-              listenableFutureOf(asyncDependencyType(asyncDependency)),
+              toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))),
               dependencyFutureName(asyncDependency),
               producedCodeBlock(asyncDependency, asyncDependencyField));
         }
         return methodBuilder
-            .returns(listenableFutureOf(listOf(OBJECT)))
+            .returns(toJavaPoet(listenableFutureOf(listOf(XTypeName.ANY_OBJECT))))
             .addCode(argAssignments.build())
             .addStatement(
                 "return $T.<$T>allAsList($L)",
-                FUTURES,
-                OBJECT,
+                toJavaPoet(XTypeNames.FUTURES),
+                toJavaPoet(XTypeName.ANY_OBJECT),
                 makeParametersCodeBlock(argNames.build()))
             .build();
     }
@@ -272,7 +271,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
 
   private CodeBlock producedCodeBlock(DependencyRequest request, FieldSpec field) {
     return request.kind() == RequestKind.PRODUCED
-        ? CodeBlock.of("$T.createFutureProduced($N.get())", PRODUCERS, field)
+        ? CodeBlock.of("$T.createFutureProduced($N.get())", toJavaPoet(XTypeNames.PRODUCERS), field)
         : CodeBlock.of("$N.get()", field);
   }
 
@@ -295,11 +294,11 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   //   return module.producesFoo((Bar) args.get(0), (Baz) args.get(1));
   // }
   private MethodSpec callProducesMethod(ProductionBinding binding, FactoryFields factoryFields) {
-    TypeName contributedTypeName = binding.contributedType().getTypeName();
+    XTypeName contributedTypeName = binding.contributedType().asTypeName();
     ParameterSpec parameter = callProducesMethodParameter(binding);
     MethodSpec.Builder methodBuilder =
         methodBuilder("callProducesMethod")
-            .returns(listenableFutureOf(contributedTypeName))
+            .returns(toJavaPoet(listenableFutureOf(contributedTypeName)))
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
             .addExceptions(
@@ -312,10 +311,10 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     for (DependencyRequest dependency : binding.explicitDependencies()) {
       if (isAsyncDependency(dependency)) {
         if (asyncDependencies.size() > 1) {
-          TypeName dependencyType = asyncDependencyType(dependency);
+          XTypeName dependencyType = asyncDependencyType(dependency);
           int argIndex = asyncDependencies.indexOf(dependency);
           parameterCodeBlocks.add(
-              CodeBlock.of("($T) $N.get($L)", dependencyType, parameter, argIndex));
+              CodeBlock.of("($T) $N.get($L)", toJavaPoet(dependencyType), parameter, argIndex));
         } else {
           parameterCodeBlocks.add(CodeBlock.of("$N", parameter));
         }
@@ -334,20 +333,26 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             "$L.$L($L)",
             factoryFields.moduleField.isPresent()
                 ? factoryFields.moduleField.get().name
-                : CodeBlock.of("$T", binding.bindingTypeElement().get().getClassName()),
+                : CodeBlock.of("$T", toJavaPoet(binding.bindingTypeElement().get().asClassName())),
             getSimpleName(binding.bindingElement().get()),
             makeParametersCodeBlock(parameterCodeBlocks.build()));
 
     switch (ProductionKind.fromProducesMethod(asMethod(binding.bindingElement().get()))) {
       case IMMEDIATE:
         methodBuilder.addStatement(
-            "return $T.<$T>immediateFuture($L)", FUTURES, contributedTypeName, moduleCodeBlock);
+            "return $T.<$T>immediateFuture($L)",
+            toJavaPoet(XTypeNames.FUTURES),
+            toJavaPoet(contributedTypeName),
+            moduleCodeBlock);
         break;
       case FUTURE:
         methodBuilder.addStatement("return $L", moduleCodeBlock);
         break;
       case SET_OF_FUTURE:
-        methodBuilder.addStatement("return $T.allAsSet($L)", PRODUCERS, moduleCodeBlock);
+        methodBuilder.addStatement(
+            "return $T.allAsSet($L)",
+            toJavaPoet(XTypeNames.PRODUCERS),
+            moduleCodeBlock);
         break;
     }
     return methodBuilder.build();
@@ -357,16 +362,20 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     ImmutableList<DependencyRequest> asyncDependencies = asyncDependencies(binding);
     switch (asyncDependencies.size()) {
       case 0:
-        return ParameterSpec.builder(VOID_CLASS, "ignoredVoidArg").build();
+        return ParameterSpec.builder(toJavaPoet(XTypeNames.UNIT_VOID_CLASS), "ignoredVoidArg")
+            .build();
       case 1:
         DependencyRequest asyncDependency = getOnlyElement(asyncDependencies);
         String argName = getSimpleName(asyncDependency.requestElement().get().xprocessing());
         return ParameterSpec.builder(
-                asyncDependencyType(asyncDependency),
+                toJavaPoet(asyncDependencyType(asyncDependency)),
                 argName.equals("module") ? "moduleArg" : argName)
             .build();
       default:
-        return ParameterSpec.builder(listOf(OBJECT), "args").build();
+        return ParameterSpec.builder(
+                toJavaPoet(listOf(XTypeName.ANY_OBJECT)),
+                "args")
+            .build();
     }
   }
 
@@ -387,7 +396,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                     binding.bindingTypeElement().get().getClassName(),
                     getSimpleName(binding.bindingElement().get())))
             : CodeBlock.of("$T.class", toJavaPoet(generatedTypeName));
-    return CodeBlock.of("$T.create($L)", PRODUCER_TOKEN, producerTokenArgs);
+    return CodeBlock.of("$T.create($L)", toJavaPoet(XTypeNames.PRODUCER_TOKEN), producerTokenArgs);
   }
 
   /** Returns a name of the variable representing this dependency's future. */
@@ -405,8 +414,8 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     }
   }
 
-  private static TypeName asyncDependencyType(DependencyRequest dependency) {
-    TypeName keyName = dependency.key().type().xprocessing().getTypeName();
+  private static XTypeName asyncDependencyType(DependencyRequest dependency) {
+    XTypeName keyName = dependency.key().type().xprocessing().asTypeName();
     switch (dependency.kind()) {
       case INSTANCE:
         return keyName;
@@ -426,7 +435,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
           binding.requiresModuleInstance()
               ? Optional.of(
                   createField(
-                      binding.bindingTypeElement().get().getType().getTypeName(),
+                      binding.bindingTypeElement().get().getType().asTypeName(),
                       nameSet.getUniqueName("module")))
               : Optional.empty();
 
@@ -437,12 +446,12 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
               (dependency, field) ->
                   builder.put(
                       dependency,
-                      createField(toJavaPoet(field.type()), nameSet.getUniqueName(field.name()))));
+                      createField(field.type(), nameSet.getUniqueName(field.name()))));
       return new FactoryFields(binding, moduleField, builder.buildOrThrow());
     }
 
-    private static FieldSpec createField(TypeName type, String name) {
-      return FieldSpec.builder(type, name, PRIVATE, FINAL).build();
+    private static FieldSpec createField(XTypeName type, String name) {
+      return FieldSpec.builder(toJavaPoet(type), name, PRIVATE, FINAL).build();
     }
 
     private final Optional<FieldSpec> moduleField;

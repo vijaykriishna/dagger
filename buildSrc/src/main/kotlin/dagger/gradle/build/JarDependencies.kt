@@ -27,9 +27,9 @@ fun Project.findBootstrapCompilerJar(): RegularFile =
 fun Project.findXProcessingJar(): RegularFile =
   rootProject.layout.projectDirectory
     .dir("java/dagger/internal/codegen/xprocessing")
-    .file("xprocessing.jar")
+    .file("xprocessing-internal.jar")
 
 fun Project.findXProcessingTestingJar(): RegularFile =
   rootProject.layout.projectDirectory
     .dir("java/dagger/internal/codegen/xprocessing")
-    .file("xprocessing-testing.jar")
+    .file("xprocessing-testing-internal.jar")

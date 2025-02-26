@@ -29,9 +29,9 @@ import com.google.common.collect.Iterables;
 import dagger.Binds;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.ContributionType.HasContributionType;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -65,7 +65,7 @@ public abstract class DelegateDeclaration extends Declaration
     }
 
     public DelegateDeclaration create(XMethodElement bindsMethod, XTypeElement contributingModule) {
-      checkArgument(bindsMethod.hasAnnotation(TypeNames.BINDS));
+      checkArgument(bindsMethod.hasAnnotation(XTypeNames.BINDS));
       XMethodType resolvedMethod = bindsMethod.asMemberOf(contributingModule.getType());
       DependencyRequest delegateRequest =
           dependencyRequestFactory.forRequiredResolvedVariable(

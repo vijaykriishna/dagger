@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
@@ -27,6 +28,7 @@ import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
@@ -42,7 +44,6 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -86,7 +87,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
           dependencyExpression.type(),
           CodeBlock.of(
               "$T.<$T>of($L)",
-              TypeNames.LAZY_CLASS_KEY_MAP,
+              toJavaPoet(XTypeNames.LAZY_CLASS_KEY_MAP),
               mapType.valueType().getTypeName(),
               dependencyExpression.codeBlock()));
     }
@@ -143,7 +144,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
   private XType immutableMapType() {
     MapType mapType = MapType.from(binding.key());
     return processingEnv.getDeclaredType(
-        processingEnv.requireTypeElement(TypeNames.IMMUTABLE_MAP),
+        processingEnv.requireTypeElement(XTypeNames.IMMUTABLE_MAP),
         mapType.keyType(),
         mapType.valueType());
   }
@@ -177,7 +178,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
     return isTypeAccessibleFrom(bindingKeyType, requestingClass.getPackageName())
         ? CodeBlock.of(
             "<$T, $T>",
-            useLazyClassKey ? TypeNames.STRING : mapType.keyType().getTypeName(),
+            toJavaPoet(useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName()),
             mapType.valueType().getTypeName())
         : CodeBlock.of("");
   }

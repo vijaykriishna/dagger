@@ -16,12 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
-import static dagger.internal.codegen.javapoet.TypeNames.INSTANCE_FACTORY;
-import static dagger.internal.codegen.javapoet.TypeNames.MEMBERS_INJECTORS;
 
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
@@ -33,6 +31,7 @@ import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.MembersInjectorBinding;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A {@code Provider<MembersInjector<Foo>>} creation expression. */
 final class MembersInjectorProviderCreationExpression
@@ -61,7 +60,10 @@ final class MembersInjectorProviderCreationExpression
     CodeBlock membersInjector;
     if (binding.injectionSites().isEmpty()) {
       membersInjector =
-          CodeBlock.of("$T.<$T>noOp()", MEMBERS_INJECTORS, membersInjectedType.getTypeName());
+          CodeBlock.of(
+              "$T.<$T>noOp()",
+              toJavaPoet(XTypeNames.MEMBERS_INJECTORS),
+              toJavaPoet(membersInjectedType.asTypeName()));
     } else {
       XTypeElement injectedTypeElement = membersInjectedType.getTypeElement();
       while (!hasLocalInjectionSites(injectedTypeElement)) {
@@ -82,14 +84,21 @@ final class MembersInjectorProviderCreationExpression
     // TODO(ronshapiro): consider adding a MembersInjectorRequestRepresentation to return this
     // directly
     // (as it's rarely requested as a Provider).
-    CodeBlock providerExpression = CodeBlock.of("$T.create($L)", INSTANCE_FACTORY, membersInjector);
+    CodeBlock providerExpression =
+        CodeBlock.of(
+            "$T.create($L)",
+            toJavaPoet(XTypeNames.INSTANCE_FACTORY),
+            membersInjector);
     // If needed we cast through raw type around the InstanceFactory type as opposed to the
     // MembersInjector since we end up with an InstanceFactory<MembersInjector> as opposed to a
     // InstanceFactory<MembersInjector<Foo>> and that becomes unassignable. To fix it would require
     // a second cast. If we just cast to the raw type InstanceFactory though, that becomes
     // assignable.
     return castThroughRawType
-        ? CodeBlock.of("($T) $L", INSTANCE_FACTORY, providerExpression)
+        ? CodeBlock.of(
+            "($T) $L",
+            toJavaPoet(XTypeNames.INSTANCE_FACTORY),
+            providerExpression)
         : providerExpression;
   }
 

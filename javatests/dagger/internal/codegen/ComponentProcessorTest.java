@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -27,7 +28,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dagger.MembersInjector;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;
 import java.util.Collection;
@@ -57,17 +58,17 @@ public class ComponentProcessorTest {
       TypeSpec.classBuilder("GeneratedInjectType")
           .addMethod(
               MethodSpec.constructorBuilder()
-                  .addAnnotation(TypeNames.INJECT_JAVAX)
+                  .addAnnotation(toJavaPoet(XTypeNames.INJECT_JAVAX))
                   .build())
           .build();
 
   private static final TypeSpec GENERATED_QUALIFIER =
       TypeSpec.annotationBuilder("GeneratedQualifier")
-          .addAnnotation(AnnotationSpec.builder(TypeNames.QUALIFIER_JAVAX).build())
+          .addAnnotation(AnnotationSpec.builder(toJavaPoet(XTypeNames.QUALIFIER_JAVAX)).build())
           .build();
 
   private static final TypeSpec GENERATED_MODULE =
-      TypeSpec.classBuilder("GeneratedModule").addAnnotation(TypeNames.MODULE).build();
+      TypeSpec.classBuilder("GeneratedModule").addAnnotation(toJavaPoet(XTypeNames.MODULE)).build();
 
 
   @Rule public GoldenFileRule goldenFileRule = new GoldenFileRule();

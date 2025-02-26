@@ -31,9 +31,9 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A binding expression that depends on a framework instance. */
 final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRepresentation {
@@ -103,14 +103,14 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
         return expression.castTo(binding.contributedType());
       case PROVIDER:
       case PROVIDER_OF_LAZY:
-        return expression.castTo(processingEnv.requireType(TypeNames.DAGGER_PROVIDER).getRawType());
+        return expression.castTo(processingEnv.requireType(XTypeNames.DAGGER_PROVIDER).getRawType());
       case LAZY:
-        return expression.castTo(processingEnv.requireType(TypeNames.LAZY).getRawType());
+        return expression.castTo(processingEnv.requireType(XTypeNames.LAZY).getRawType());
       case PRODUCER:
       case FUTURE:
-        return expression.castTo(processingEnv.requireType(TypeNames.PRODUCER).getRawType());
+        return expression.castTo(processingEnv.requireType(XTypeNames.PRODUCER).getRawType());
       case PRODUCED:
-        return expression.castTo(processingEnv.requireType(TypeNames.PRODUCED).getRawType());
+        return expression.castTo(processingEnv.requireType(XTypeNames.PRODUCED).getRawType());
 
       case MEMBERS_INJECTION: // fall through
     }

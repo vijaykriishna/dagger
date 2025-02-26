@@ -60,11 +60,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.Reusable;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.XAnnotationValues;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XExecutableTypes;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -278,7 +278,7 @@ public final class DaggerSuperficialValidation {
         // split into individual validators to satisfy different needs.
         // Dagger doesn't use components' static method, therefore, they shouldn't be validated to
         // be able to stop component generation.
-        if (typeElement.hasAnnotation(TypeNames.COMPONENT)) {
+        if (typeElement.hasAnnotation(XTypeNames.COMPONENT)) {
           validateElements(
               typeElement.getEnclosedElements().stream()
                   .filter(member -> !XElements.isStatic(member))

@@ -26,6 +26,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -34,7 +35,7 @@ import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;
 
 /**
@@ -61,7 +62,7 @@ public final class LazyMapKeyProxyGenerator extends SourceFileGenerator<XMethodE
   private TypeSpec lazyClassKeyProxyTypeSpec(XMethodElement element) {
     return classBuilder(toJavaPoet(lazyClassKeyProxyClassName(element)))
         .addModifiers(PUBLIC, FINAL)
-        .addAnnotation(TypeNames.IDENTIFIER_NAME_STRING)
+        .addAnnotation(toJavaPoet(XTypeNames.IDENTIFIER_NAME_STRING))
         .addFields(lazyClassKeyFields(element))
         .build();
   }
@@ -69,14 +70,14 @@ public final class LazyMapKeyProxyGenerator extends SourceFileGenerator<XMethodE
   private static ImmutableList<FieldSpec> lazyClassKeyFields(XMethodElement element) {
     XClassName lazyClassMapKeyClassName =
         element
-            .getAnnotation(TypeNames.LAZY_CLASS_KEY)
+            .getAnnotation(toJavaPoet(XTypeNames.LAZY_CLASS_KEY))
             .getAsType("value")
             .getTypeElement()
             .asClassName();
     // Generate a string referencing the map key class name, and dagger will apply
     // identifierrnamestring rule to it to make sure it is correctly obfuscated.
     FieldSpec lazyClassKeyField =
-        FieldSpec.builder(TypeNames.STRING, LAZY_CLASS_KEY_NAME_FIELD)
+        FieldSpec.builder(toJavaPoet(XTypeName.STRING), LAZY_CLASS_KEY_NAME_FIELD)
             // TODO(b/217435141): Leave the field as non-final. We will apply
             // @IdentifierNameString on the field, which doesn't work well with static final
             // fields.
@@ -91,7 +92,7 @@ public final class LazyMapKeyProxyGenerator extends SourceFileGenerator<XMethodE
     FieldSpec keepFieldTypeField =
         FieldSpec.builder(toJavaPoet(lazyClassMapKeyClassName), KEEP_FIELD_TYPE_FIELD)
             .addModifiers(STATIC)
-            .addAnnotation(TypeNames.KEEP_FIELD_TYPE)
+            .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
             .build();
     return ImmutableList.of(keepFieldTypeField, lazyClassKeyField);
   }

@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
-import static dagger.internal.codegen.javapoet.TypeNames.rawTypeName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
@@ -29,6 +29,7 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -37,7 +38,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -108,7 +108,11 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     XTypeElement bindingTypeElement = binding.bindingTypeElement().get();
     CodeBlock invocation;
     if (isConstructor(bindingElement)) {
-      invocation = CodeBlock.of("new $T($L)", constructorTypeName(requestingClass), arguments);
+      invocation =
+          CodeBlock.of(
+              "new $T($L)",
+              toJavaPoet(constructorTypeName(requestingClass)),
+              arguments);
     } else if (isMethod(bindingElement)) {
       CodeBlock module;
       Optional<CodeBlock> requiredModuleInstance = moduleReference(requestingClass);
@@ -130,12 +134,12 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     return Expression.create(simpleMethodReturnType(), invocation);
   }
 
-  private TypeName constructorTypeName(XClassName requestingClass) {
+  private XTypeName constructorTypeName(XClassName requestingClass) {
     XType type = binding.key().type().xprocessing();
     return type.getTypeArguments().stream()
             .allMatch(t -> isTypeAccessibleFrom(t, requestingClass.getPackageName()))
-        ? type.getTypeName()
-        : rawTypeName(type.getTypeName());
+        ? type.asTypeName()
+        : type.getRawType().asTypeName();
   }
 
   private Expression invokeInjectionMethod(XClassName requestingClass) {
@@ -164,8 +168,14 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
       // injectParameterized(Parameterized_Factory.newParameterized()) is Parameterized<T> and not
       // Parameterized<Object>
       if (!binding.key().type().xprocessing().getTypeArguments().isEmpty()) {
-        TypeName keyType = binding.key().type().xprocessing().getTypeName();
-        instance = CodeBlock.of("($T) ($T) $L", keyType, rawTypeName(keyType), instance);
+        XType keyType = binding.key().type().xprocessing();
+        XTypeName keyTypeName = keyType.asTypeName();
+        XTypeName rawKeyTypeName = keyType.getRawType().asTypeName();
+        instance = CodeBlock.of(
+            "($T) ($T) $L",
+            toJavaPoet(keyTypeName),
+            toJavaPoet(rawKeyTypeName),
+            instance);
       }
     }
     return membersInjectionMethods.getInjectExpression(binding.key(), instance, requestingClass);

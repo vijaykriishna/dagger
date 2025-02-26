@@ -42,9 +42,9 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.List;
 import java.util.Optional;
@@ -67,12 +67,12 @@ public final class AssistedInjectionAnnotations {
   /** Returns {@code true} if the element uses assisted injection. */
   public static boolean isAssistedInjectionType(XTypeElement typeElement) {
     return assistedInjectedConstructors(typeElement).stream()
-        .anyMatch(constructor -> constructor.hasAnnotation(TypeNames.ASSISTED_INJECT));
+        .anyMatch(constructor -> constructor.hasAnnotation(XTypeNames.ASSISTED_INJECT));
   }
 
   /** Returns {@code true} if this binding is an assisted factory. */
   public static boolean isAssistedFactoryType(XElement element) {
-    return element.hasAnnotation(TypeNames.ASSISTED_FACTORY);
+    return element.hasAnnotation(XTypeNames.ASSISTED_FACTORY);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class AssistedInjectionAnnotations {
   /** Returns the constructors in {@code type} that are annotated with {@link AssistedInject}. */
   public static ImmutableSet<XConstructorElement> assistedInjectedConstructors(XTypeElement type) {
     return type.getConstructors().stream()
-        .filter(constructor -> constructor.hasAnnotation(TypeNames.ASSISTED_INJECT))
+        .filter(constructor -> constructor.hasAnnotation(XTypeNames.ASSISTED_INJECT))
         .collect(toImmutableSet());
   }
 
@@ -144,7 +144,7 @@ public final class AssistedInjectionAnnotations {
 
   /** Returns {@code true} if this binding is uses assisted injection. */
   public static boolean isAssistedParameter(XVariableElement param) {
-    return param.hasAnnotation(TypeNames.ASSISTED);
+    return param.hasAnnotation(XTypeNames.ASSISTED);
   }
 
   /** Metadata about an {@link dagger.assisted.AssistedFactory} annotated type. */
@@ -219,7 +219,7 @@ public final class AssistedInjectionAnnotations {
         XExecutableParameterElement parameter, XType parameterType) {
       AssistedParameter assistedParameter =
           new AutoValue_AssistedInjectionAnnotations_AssistedParameter(
-              Optional.ofNullable(parameter.getAnnotation(TypeNames.ASSISTED))
+              Optional.ofNullable(parameter.getAnnotation(XTypeNames.ASSISTED))
                   .map(assisted -> assisted.getAsString("value"))
                   .orElse(""),
               parameterType.getTypeName());
@@ -267,7 +267,7 @@ public final class AssistedInjectionAnnotations {
     for (int i = 0; i < assistedInjectConstructor.getParameters().size(); i++) {
       XExecutableParameterElement parameter = assistedInjectConstructor.getParameters().get(i);
       XType parameterType = assistedInjectConstructorType.getParameterTypes().get(i);
-      if (parameter.hasAnnotation(TypeNames.ASSISTED)) {
+      if (parameter.hasAnnotation(XTypeNames.ASSISTED)) {
         builder.add(AssistedParameter.create(parameter, parameterType));
       }
     }

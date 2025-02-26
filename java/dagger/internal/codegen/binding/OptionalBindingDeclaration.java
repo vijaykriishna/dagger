@@ -23,8 +23,8 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import dagger.BindsOptionalOf;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -57,7 +57,7 @@ abstract class OptionalBindingDeclaration extends Declaration {
     }
 
     OptionalBindingDeclaration forMethod(XMethodElement method, XTypeElement contributingModule) {
-      checkArgument(method.hasAnnotation(TypeNames.BINDS_OPTIONAL_OF));
+      checkArgument(method.hasAnnotation(XTypeNames.BINDS_OPTIONAL_OF));
       return new AutoValue_OptionalBindingDeclaration(
           Optional.of(method),
           Optional.of(contributingModule),

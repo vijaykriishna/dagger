@@ -19,6 +19,7 @@ package dagger.internal.codegen.javapoet;
 import static com.google.common.base.Preconditions.checkState;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XRawType;
 import androidx.room.compiler.processing.XType;
@@ -88,6 +89,12 @@ public final class ExpressionType {
     return optionalType.isPresent()
         ? optionalType.get().getTypeName()
         : optionalRawType.get().getTypeName();
+  }
+
+  public XTypeName asTypeName() {
+    return optionalType.isPresent()
+        ? optionalType.get().asTypeName()
+        : optionalRawType.get().asTypeName();
   }
 
   public boolean isSameType(XType type) {

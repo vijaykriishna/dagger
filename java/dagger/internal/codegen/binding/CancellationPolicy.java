@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.processing.XAnnotation;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.XAnnotations;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
  * The cancellation policy for a {@link dagger.producers.ProductionComponent}.
@@ -33,7 +33,7 @@ public enum CancellationPolicy {
   IGNORE;
 
   static CancellationPolicy from(XAnnotation annotation) {
-    checkArgument(XAnnotations.getClassName(annotation).equals(TypeNames.CANCELLATION_POLICY));
+    checkArgument(XAnnotations.asClassName(annotation).equals(XTypeNames.CANCELLATION_POLICY));
     return valueOf(getSimpleName(annotation.getAsEnum("fromSubcomponents")));
   }
 }

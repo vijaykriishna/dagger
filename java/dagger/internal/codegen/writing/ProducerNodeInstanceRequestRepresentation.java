@@ -16,6 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.CodeBlock;
@@ -26,9 +28,9 @@ import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescri
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Binding expression for producer node instances. */
 final class ProducerNodeInstanceRequestRepresentation
@@ -61,7 +63,7 @@ final class ProducerNodeInstanceRequestRepresentation
         key,
         CodeBlock.of(
             "$T.cancel($L, $N);",
-            TypeNames.PRODUCERS,
+            toJavaPoet(XTypeNames.PRODUCERS),
             result.codeBlock(),
             ComponentImplementation.MAY_INTERRUPT_IF_RUNNING_PARAM));
     return result;

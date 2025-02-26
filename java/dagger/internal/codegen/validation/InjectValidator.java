@@ -46,7 +46,6 @@ import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XAnnotations;
@@ -192,7 +191,7 @@ public final class InjectValidator implements ClearableCache {
           ValidationReport.about(constructorElement.getEnclosingElement());
 
       if (InjectionAnnotations.hasInjectAnnotation(constructorElement)
-          && constructorElement.hasAnnotation(TypeNames.ASSISTED_INJECT)) {
+          && constructorElement.hasAnnotation(XTypeNames.ASSISTED_INJECT)) {
         builder.addError("Constructors cannot be annotated with both @Inject and @AssistedInject");
       }
 
@@ -435,8 +434,8 @@ public final class InjectValidator implements ClearableCache {
 
     /** Returns true if the given method element declares a checked exception. */
     private boolean throwsCheckedExceptions(XConstructorElement constructorElement) {
-      XType runtimeException = processingEnv.findType(TypeNames.RUNTIME_EXCEPTION);
-      XType error = processingEnv.findType(TypeNames.ERROR);
+      XType runtimeException = processingEnv.findType(XTypeNames.RUNTIME_EXCEPTION);
+      XType error = processingEnv.findType(XTypeNames.ERROR);
       superficialValidation.validateThrownTypesOf(constructorElement);
       return !constructorElement.getThrownTypes().stream()
           .allMatch(type -> isSubtype(type, runtimeException) || isSubtype(type, error));

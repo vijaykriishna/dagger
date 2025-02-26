@@ -43,13 +43,13 @@ import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.Declaration;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.javac.JavacPluginModule;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.Edge;
 import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.validation.InjectBindingRegistryModule;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ public class DaggerKythePlugin extends Plugin.Scanner<Void, Void> {
   public Void visitClassDef(JCClassDecl tree, Void p) {
     if (tree.sym != null) {
       XTypeElement type = toXProcessing(tree.sym, xProcessingEnv);
-      if (type.hasAnyAnnotation(TypeNames.COMPONENT, TypeNames.PRODUCTION_COMPONENT)) {
+      if (type.hasAnyAnnotation(XTypeNames.COMPONENT, XTypeNames.PRODUCTION_COMPONENT)) {
         addNodesForGraph(
             bindingGraphFactory.create(
                 componentDescriptorFactory.rootComponentDescriptor(type), false));

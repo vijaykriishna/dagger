@@ -23,9 +23,6 @@ import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assis
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
-import static dagger.internal.codegen.javapoet.TypeNames.INSTANCE_FACTORY;
-import static dagger.internal.codegen.javapoet.TypeNames.daggerProviderOf;
-import static dagger.internal.codegen.javapoet.TypeNames.providerOf;
 import static dagger.internal.codegen.langmodel.Accessibility.accessibleTypeName;
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
@@ -33,6 +30,8 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
+import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -329,10 +328,10 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       typeVariableNames(metadata.assistedInjectElement()).stream()
                           .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
                           .collect(toImmutableList()))
-                  .returns(providerOf(factory.getType().getTypeName()))
+                  .returns(toJavaPoet(providerOf(factory.getType().asTypeName())))
                   .addStatement(
                       "return $T.$Lcreate(new $T($N))",
-                      INSTANCE_FACTORY,
+                      toJavaPoet(XTypeNames.INSTANCE_FACTORY),
                       // Java 7 type inference requires the method call provide the exact type here.
                       isPreJava8SourceVersion(processingEnv)
                           ? CodeBlock.of(
@@ -353,10 +352,10 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       typeVariableNames(metadata.assistedInjectElement()).stream()
                           .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
                           .collect(toImmutableList()))
-                  .returns(daggerProviderOf(factory.getType().getTypeName()))
+                  .returns(toJavaPoet(daggerProviderOf(factory.getType().asTypeName())))
                   .addStatement(
                       "return $T.$Lcreate(new $T($N))",
-                      INSTANCE_FACTORY,
+                      toJavaPoet(XTypeNames.INSTANCE_FACTORY),
                       // Java 7 type inference requires the method call provide the exact type here.
                       isPreJava8SourceVersion(processingEnv)
                           ? CodeBlock.of(

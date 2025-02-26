@@ -61,7 +61,6 @@ import dagger.internal.codegen.binding.BindingGraphFactory;
 import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XElements;
@@ -630,7 +629,7 @@ public final class ModuleValidator {
       // On normal modules only overriding other binding methods is disallowed, but for companion
       // objects we are prohibiting any override. For this can rely on checking the @Override
       // annotation since the Kotlin compiler will always produce them for overriding methods.
-      if (companionMethod.hasAnnotation(TypeNames.OVERRIDE)) {
+      if (companionMethod.hasAnnotation(XTypeNames.OVERRIDE)) {
         builder.addError(
             "Binding method in companion object may not override another method.", companionMethod);
       }

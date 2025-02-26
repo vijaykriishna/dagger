@@ -21,9 +21,8 @@ import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
-import static dagger.internal.codegen.javapoet.TypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY;
-import static dagger.internal.codegen.javapoet.TypeNames.providerOf;
-import static dagger.internal.codegen.javapoet.TypeNames.setOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.setOf;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
@@ -39,7 +38,7 @@ import com.squareup.javapoet.TypeSpec;
 import dagger.Module;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.MonitoringModules;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.multibindings.Multibinds;
 import javax.inject.Inject;
 
@@ -82,20 +81,23 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
     return methodBuilder("setOfFactories")
         .addAnnotation(Multibinds.class)
         .addModifiers(ABSTRACT)
-        .returns(setOf(PRODUCTION_COMPONENT_MONITOR_FACTORY))
+        .returns(toJavaPoet(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY)))
         .build();
   }
 
   private MethodSpec monitor(XTypeElement componentElement) {
     return methodBuilder("monitor")
-        .returns(TypeNames.PRODUCTION_COMPONENT_MONITOR)
+        .returns(toJavaPoet(XTypeNames.PRODUCTION_COMPONENT_MONITOR))
         .addModifiers(STATIC)
-        .addAnnotation(TypeNames.PROVIDES)
-        .addAnnotation(TypeNames.PRODUCTION_SCOPE)
-        .addParameter(providerOf(componentElement.getType().getTypeName()), "component")
-        .addParameter(providerOf(setOf(PRODUCTION_COMPONENT_MONITOR_FACTORY)), "factories")
+        .addAnnotation(toJavaPoet(XTypeNames.PROVIDES))
+        .addAnnotation(toJavaPoet(XTypeNames.PRODUCTION_SCOPE))
+        .addParameter(toJavaPoet(providerOf(componentElement.getType().asTypeName())), "component")
+        .addParameter(
+            toJavaPoet(providerOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY))),
+            "factories")
         .addStatement(
-            "return $T.createMonitorForComponent(component, factories)", TypeNames.MONITORS)
+            "return $T.createMonitorForComponent(component, factories)",
+            toJavaPoet(XTypeNames.MONITORS))
         .build();
   }
 }

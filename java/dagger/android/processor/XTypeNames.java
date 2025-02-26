@@ -32,6 +32,8 @@ public final class XTypeNames {
   public static final XClassName SUBCOMPONENT_FACTORY = SUBCOMPONENT.nestedClass("Factory");
 
   // Dagger.android classnames
+  public static final XClassName ANDROID_PROCESSOR =
+      XClassName.get("dagger.android.processor", "AndroidProcessor");
   public static final XClassName ANDROID_INJECTION_KEY =
       XClassName.get("dagger.android", "AndroidInjectionKey");
   public static final XClassName ANDROID_INJECTOR =
@@ -48,6 +50,8 @@ public final class XTypeNames {
   public static final XClassName QUALIFIER_JAVAX = XClassName.get("javax.inject", "Qualifier");
   public static final XClassName SCOPE = XClassName.get("jakarta.inject", "Scope");
   public static final XClassName SCOPE_JAVAX = XClassName.get("javax.inject", "Scope");
+  public static final XClassName SUPPRESS_WARNINGS =
+      XClassName.get("java.lang", "SuppressWarnings");
 
   private XTypeNames() {}
 }

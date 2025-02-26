@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.componentgenerator;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -53,8 +53,8 @@ import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.MethodSignature;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.MethodSpecs;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -159,7 +159,7 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
 
       if (componentDescriptor.isProduction()) {
         generatedComponent
-            .addSuperinterface(TypeNames.CANCELLATION_LISTENER)
+            .addSuperinterface(toJavaPoet(XTypeNames.CANCELLATION_LISTENER))
             .addMethod(onProducerFutureCancelledMethod());
       }
     }
@@ -211,9 +211,9 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
   }
 
   private static boolean isBindsInstance(XMethodElement method) {
-    return method.hasAnnotation(TypeNames.BINDS_INSTANCE)
+    return method.hasAnnotation(XTypeNames.BINDS_INSTANCE)
         || (method.getParameters().size() == 1
-            && getOnlyElement(method.getParameters()).hasAnnotation(TypeNames.BINDS_INSTANCE));
+            && getOnlyElement(method.getParameters()).hasAnnotation(XTypeNames.BINDS_INSTANCE));
   }
 
   private static MethodSpec builderSetterMethod(

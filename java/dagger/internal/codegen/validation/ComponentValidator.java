@@ -68,11 +68,11 @@ import dagger.internal.codegen.base.ModuleKind;
 import dagger.internal.codegen.binding.DependencyRequestFactory;
 import dagger.internal.codegen.binding.ErrorMessages;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypeElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -191,7 +191,7 @@ public final class ComponentValidator implements ClearableCache {
     }
 
     private void validateUseOfCancellationPolicy() {
-      if (component.hasAnnotation(TypeNames.CANCELLATION_POLICY) && !componentKind().isProducer()) {
+      if (component.hasAnnotation(XTypeNames.CANCELLATION_POLICY) && !componentKind().isProducer()) {
         report.addError(
             "@CancellationPolicy may only be applied to production components and subcomponents",
             component);
@@ -236,11 +236,11 @@ public final class ComponentValidator implements ClearableCache {
     }
 
     private void validateNoReusableAnnotation() {
-      if (component.hasAnnotation(TypeNames.REUSABLE)) {
+      if (component.hasAnnotation(XTypeNames.REUSABLE)) {
         report.addError(
             "@Reusable cannot be applied to components or subcomponents",
             component,
-            component.getAnnotation(TypeNames.REUSABLE));
+            component.getAnnotation(XTypeNames.REUSABLE));
       }
     }
 
@@ -412,7 +412,7 @@ public final class ComponentValidator implements ClearableCache {
       private ImmutableSet<XTypeElement> includesFromSuperclasses(XTypeElement element) {
         ImmutableSet.Builder<XTypeElement> builder = ImmutableSet.builder();
         XType superclass = element.getSuperType();
-        while (superclass != null && !TypeName.OBJECT.equals(superclass.getTypeName())) {
+        while (superclass != null && !superclass.getTypeName().equals(TypeName.OBJECT)) {
           element = superclass.getTypeElement();
           moduleAnnotation(element, superficialValidation)
               .ifPresent(moduleAnnotation -> builder.addAll(moduleAnnotation.includes()));

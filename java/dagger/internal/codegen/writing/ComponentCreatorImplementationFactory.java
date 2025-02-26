@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -52,8 +52,8 @@ import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.ComponentRequirement.NullPolicy;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -257,7 +257,7 @@ final class ComponentCreatorImplementationFactory {
               UnsupportedOperationException.class,
               String.class,
               "%s cannot be set because it is inherited from the enclosing component",
-              TypeNames.rawTypeName(requirement.type().getTypeName()))
+              XTypeNames.rawJavaTypeName(toJavaPoet(requirement.type().asTypeName())))
           .build();
     }
 
@@ -321,7 +321,7 @@ final class ComponentCreatorImplementationFactory {
               "$T.checkBuilderRequirement($N, $T.class)",
               Preconditions.class,
               field,
-              TypeNames.rawTypeName(field.type.withoutAnnotations()));
+              XTypeNames.rawJavaTypeName(field.type.withoutAnnotations()));
           break;
         case ALLOW:
           break;

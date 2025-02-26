@@ -16,18 +16,19 @@
 
 package dagger.internal.codegen.javapoet;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
-import static dagger.internal.codegen.javapoet.TypeNames.daggerProviderOf;
-import static dagger.internal.codegen.javapoet.TypeNames.lazyOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.lazyOf;
 import static java.util.stream.StreamSupport.stream;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
 import java.util.stream.Collector;
 
 /** Convenience methods for creating {@link CodeBlock}s. */
@@ -77,46 +78,50 @@ public final class CodeBlocks {
    */
   public static CodeBlock anonymousProvider(Expression expression) {
     return anonymousProvider(
-        expression.type().getTypeName(), CodeBlock.of("return $L;", expression.codeBlock()));
+        expression.type().asTypeName(), CodeBlock.of("return $L;", expression.codeBlock()));
   }
 
   /**
    * Returns an anonymous {@link javax.inject.Provider} class with the single {@link
    * javax.inject.Provider#get()} method implemented by {@code body}.
    */
-  public static CodeBlock anonymousProvider(TypeName providedType, CodeBlock body) {
+  public static CodeBlock anonymousProvider(XTypeName providedType, CodeBlock body) {
     return CodeBlock.of(
         "$L",
         anonymousClassBuilder("")
-            .superclass(daggerProviderOf(providedType))
+            .superclass(toJavaPoet(daggerProviderOf(providedType)))
             .addMethod(
                 methodBuilder("get")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .returns(providedType)
+                    .returns(toJavaPoet(providedType))
                     .addCode(body)
                     .build())
             .build());
   }
 
-  public static CodeBlock anonymousLazy(TypeName providedType, CodeBlock body) {
+  /**
+   * Returns an anonymous {@link dagger.Lazy} class with the single {@link dagger.Lazy#get()} method
+   * implemented by {@code body}.
+   */
+  public static CodeBlock anonymousLazy(XTypeName providedType, CodeBlock body) {
     return CodeBlock.of(
         "$L",
         anonymousClassBuilder("")
-            .superclass(lazyOf(providedType))
+            .superclass(toJavaPoet(lazyOf(providedType)))
             .addMethod(
                 methodBuilder("get")
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
-                    .returns(providedType)
+                    .returns(toJavaPoet(providedType))
                     .addCode(body)
                     .build())
             .build());
   }
 
   /** Returns {@code expression} cast to a type. */
-  public static CodeBlock cast(CodeBlock expression, ClassName castTo) {
-    return CodeBlock.of("($T) $L", castTo, expression);
+  public static CodeBlock cast(CodeBlock expression, XClassName castTo) {
+    return CodeBlock.of("($T) $L", toJavaPoet(castTo), expression);
   }
 
   /** Returns {@code expression} cast to a type. */
@@ -125,7 +130,7 @@ public final class CodeBlocks {
   }
 
   public static CodeBlock type(XType type) {
-    return CodeBlock.of("$T", type.getTypeName());
+    return CodeBlock.of("$T", toJavaPoet(type.asTypeName()));
   }
 
   public static CodeBlock stringLiteral(String toWrap) {

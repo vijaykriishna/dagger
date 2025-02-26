@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFieldElement;
@@ -27,8 +28,7 @@ import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ClassName;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -46,7 +46,7 @@ public final class KotlinMetadataUtil {
    * an element that does.
    */
   public boolean hasMetadata(XElement element) {
-    return closestEnclosingTypeElement(element).hasAnnotation(TypeNames.KOTLIN_METADATA);
+    return closestEnclosingTypeElement(element).hasAnnotation(XTypeNames.KOTLIN_METADATA);
   }
 
   /**
@@ -56,7 +56,7 @@ public final class KotlinMetadataUtil {
    * method, if any, of a Kotlin property and not for annotations in its backing field.
    */
   public ImmutableSet<XAnnotation> getSyntheticPropertyAnnotations(
-      XFieldElement fieldElement, ClassName annotationType) {
+      XFieldElement fieldElement, XClassName annotationType) {
     return metadataFactory
         .create(fieldElement)
         .getSyntheticAnnotationMethod(fieldElement)

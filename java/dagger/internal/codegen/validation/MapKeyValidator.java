@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XTypeKt;
 import dagger.MapKey;
-import dagger.internal.codegen.javapoet.TypeNames;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -42,7 +42,7 @@ public final class MapKeyValidator {
     if (members.isEmpty()) {
       builder.addError("Map key annotations must have members", element);
     } else if (XAnnotationKt.get(
-        element.getAnnotation(TypeNames.MAP_KEY), "unwrapValue", Boolean.class)) {
+        element.getAnnotation(XTypeNames.MAP_KEY), "unwrapValue", Boolean.class)) {
       if (members.size() > 1) {
         builder.addError(
             "Map key annotations with unwrapped values must have exactly one member", element);

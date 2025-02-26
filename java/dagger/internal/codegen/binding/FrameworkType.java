@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
@@ -27,7 +27,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.TypeNames;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -48,22 +47,29 @@ public enum FrameworkType {
         case LAZY:
           return CodeBlock.of(
               "$T.lazy($L)",
-              TypeNames.DOUBLE_CHECK,
+              toJavaPoet(
+                  XTypeNames.DOUBLE_CHECK),
               from);
 
         case PROVIDER:
           return from;
 
         case PROVIDER_OF_LAZY:
-          return CodeBlock.of("$T.create($L)", TypeNames.PROVIDER_OF_LAZY, from);
+          return CodeBlock.of(
+              "$T.create($L)",
+              toJavaPoet(XTypeNames.PROVIDER_OF_LAZY),
+              from);
 
         case PRODUCER:
-          return CodeBlock.of("$T.producerFromProvider($L)", TypeNames.PRODUCERS, from);
+          return CodeBlock.of(
+              "$T.producerFromProvider($L)",
+              toJavaPoet(XTypeNames.PRODUCERS),
+              from);
 
         case FUTURE:
           return CodeBlock.of(
               "$T.immediateFuture($L)",
-              TypeNames.FUTURES,
+              toJavaPoet(XTypeNames.FUTURES),
               to(
                   RequestKind.INSTANCE,
                   from));
@@ -71,7 +77,7 @@ public enum FrameworkType {
         case PRODUCED:
           return CodeBlock.of(
               "$T.successful($L)",
-              TypeNames.PRODUCED,
+              toJavaPoet(XTypeNames.PRODUCED),
               to(
                   RequestKind.INSTANCE, from));
 
