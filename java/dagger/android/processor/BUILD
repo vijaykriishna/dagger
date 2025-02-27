@@ -35,7 +35,7 @@ java_library(
     name = "base_processing_step",
     srcs = ["BaseProcessingStep.java"],
     deps = [
-        "//java/dagger/internal/codegen/extension",
+        "//dagger-spi",
         "//java/dagger/internal/codegen/xprocessing",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
@@ -54,8 +54,8 @@ java_library(
     deps = [
         ":base_processing_step",
         "//dagger-runtime/main/java/dagger:core",
+        "//dagger-spi",
         "//java/dagger/internal/codegen/xprocessing",
-        "//java/dagger/spi",
         "//third_party/java/auto:service",
         "//third_party/java/auto:value",
         "//third_party/java/guava/base",

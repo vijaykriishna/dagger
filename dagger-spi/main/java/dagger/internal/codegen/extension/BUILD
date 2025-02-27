@@ -13,33 +13,21 @@
 # limitations under the License.
 
 # Description:
-#   Sources related to Kotlin metadata.
+#   Extra features for the JDK and Guava. This code is merged into both
+#   the dagger-compiler and dagger-spi artifacts that are sent to Maven
 
-load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
+load("@rules_java//java:defs.bzl", "java_library")
 
-package(default_visibility = ["//:src"])
+package(default_visibility = ["//dagger-spi:internal"])
 
-compat_kt_jvm_library(
-    name = "kotlin",
-    srcs = glob([
-        "*.java",
-        "*.kt",
-    ]),
-    plugins = ["//java/dagger/internal/codegen/bootstrap"],
+java_library(
+    name = "extension",
+    srcs = glob(["*.java"]),
     tags = ["maven:merged"],
     deps = [
-        "//dagger-runtime/main/java/dagger:core",
-        "//dagger-spi",
-        "//java/dagger/internal/codegen/base:shared",
-        "//java/dagger/internal/codegen/javapoet",
-        "//java/dagger/internal/codegen/xprocessing",
-        "//third_party/java/auto:value",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
-        "//third_party/java/javapoet",
+        "//third_party/java/guava/graph",
         "//third_party/java/jsr305_annotations",
-        "//third_party/java/jsr330_inject",
-        "//third_party/kotlin/kotlin_metadata_jvm",
-        "@maven//:org_jetbrains_kotlin_kotlin_stdlib",
     ],
 )
