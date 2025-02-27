@@ -58,7 +58,7 @@ java_library(
 
 android_library(
     name = "android",
-    exported_plugins = ["//java/dagger/android/processor:plugin"],
+    exported_plugins = ["//dagger-android-processor:plugin"],
     exports = ["//java/dagger/android"],
 )
 
