@@ -292,6 +292,7 @@ def _gen_maven_artifact(
         # https://central.sonatype.org/pages/requirements.html#supply-javadoc-and-sources
         java_binary(
             name = name + "-javadoc",
+            create_executable = False,
         )
 
 def _src_jar(target):

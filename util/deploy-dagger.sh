@@ -141,16 +141,16 @@ _deploy \
 
 _deploy \
   "" \
-  java/dagger/lint/lint-artifact.jar \
-  java/dagger/lint/lint-pom.xml \
-  java/dagger/lint/lint-artifact-src.jar \
-  java/dagger/lint/lint-artifact-javadoc.jar \
+  dagger-lint/lint-artifact.jar \
+  dagger-lint/lint-pom.xml \
+  dagger-lint/lint-artifact-src.jar \
+  dagger-lint/lint-artifact-javadoc.jar \
   ""
 
 _deploy \
   "" \
-  java/dagger/lint/lint-android-artifact.aar \
-  java/dagger/lint/lint-android-pom.xml \
+  dagger-lint/lint-android-artifact.aar \
+  dagger-lint/lint-android-pom.xml \
   "" \
   "" \
   ""

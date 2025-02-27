@@ -23,7 +23,7 @@ kt_jvm_test(
     name = "DaggerKotlinIssueDetectorTest",
     srcs = ["DaggerKotlinIssueDetectorTest.kt"],
     deps = [
-        "//java/dagger/lint:lint-artifact-lib",
+        "//dagger-lint/main/java/dagger/lint:lint-artifact-lib",
         "@maven_lint//:com_android_tools_lint_lint_checks",
         "@maven_lint//:com_android_tools_lint_lint_tests",
         "@maven_lint//:com_android_tools_testutils",

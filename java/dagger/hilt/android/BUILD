@@ -178,10 +178,10 @@ android_library(
         ":hilt_android_app",
         ":package_info",
         ":unstable_api",
+        "//dagger-lint:lint-android-artifact-lib",
         "//java/dagger/hilt:artifact-core-lib",
         "//java/dagger/hilt/android/migration:custom_inject",
         "//java/dagger/hilt/android/migration:optional_inject",
-        "//java/dagger/lint:lint-android-artifact-lib",
     ],
 )
 

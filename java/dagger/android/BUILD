@@ -52,7 +52,7 @@ android_library(
     ],
     tags = ["maven_coordinates=com.google.dagger:dagger-android:" + POM_VERSION],
     exports = [
-        "//java/dagger/lint:lint-android-artifact-lib",
+        "//dagger-lint:lint-android-artifact-lib",
     ],
     deps = [
         "//:dagger_with_compiler",

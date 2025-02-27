@@ -16,9 +16,7 @@
 #   Dagger Lint Rules
 
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load("@rules_android//rules:rules.bzl", "android_library")
 load("//:build_defs.bzl", "POM_VERSION")
-load("//tools/maven:maven.bzl", "gen_maven_artifact")
 
 package(default_visibility = ["//:src"])
 
@@ -71,37 +69,4 @@ genrule(
         done
         jar cf $@ -C $$TEMP .
     """,
-)
-
-gen_maven_artifact(
-    name = "lint-artifact",
-    artifact_coordinates = "com.google.dagger:dagger-lint:" + POM_VERSION,
-    artifact_name = "Dagger Lint Rules",
-    artifact_target = ":lint-artifact-lib",
-    artifact_target_maven_deps = [
-        "com.android.tools.external.com-intellij:intellij-core",
-        "com.android.tools.external.com-intellij:kotlin-compiler",
-        "com.android.tools.external.org-jetbrains:uast",
-        "com.android.tools.lint:lint",
-        "com.android.tools.lint:lint-api",
-    ],
-    pom_name = "lint-pom",
-)
-
-# An empty android artifact to distribute and share the Dagger lint rules for
-# the Android sub-projects.
-android_library(
-    name = "lint-android-artifact-lib",
-    tags = ["maven_coordinates=com.google.dagger:dagger-lint-aar:" + POM_VERSION],
-)
-
-gen_maven_artifact(
-    name = "lint-android-artifact",
-    artifact_coordinates = "com.google.dagger:dagger-lint-aar:" + POM_VERSION,
-    artifact_name = "Dagger Lint Rules AAR Distribution",
-    artifact_target = ":lint-android-artifact-lib",
-    lint_deps = [":lint-artifact-lib"],
-    manifest = "AndroidManifest.xml",
-    packaging = "aar",
-    pom_name = "lint-android-pom",
 )
