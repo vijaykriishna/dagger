@@ -11,38 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # Description:
-#   Libraries for migration.
+#   Hilt components
 
 load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//:src"])
 
 java_library(
-    name = "alias_of",
-    srcs = ["AliasOf.java"],
-    exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aliasof:processor",
-    ],
-    exports = [
-        "//java/dagger/hilt/internal/aliasof",
+    name = "components",
+    srcs = [
+        "SingletonComponent.java",
     ],
     deps = [
         ":package_info",
-        "//java/dagger/hilt:generates_root_input",
-    ],
-)
-
-java_library(
-    name = "disable_install_in_check",
-    srcs = ["DisableInstallInCheck.java"],
-    exported_plugins = [
-        "//java/dagger/hilt/processor/internal/disableinstallincheck:processor",
-    ],
-    exports = [
-    ],
-    deps = [
-        ":package_info",
+        "//hilt-core/main/java/dagger/hilt:define_component",
+        "//third_party/java/jsr330_inject",
     ],
 )
 

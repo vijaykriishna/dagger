@@ -23,14 +23,14 @@ compiler_test(
     name = "GeneratesRootInputProcessorTest",
     srcs = ["GeneratesRootInputProcessorTest.java"],
     compiler_deps = [
-        "//java/dagger/hilt:generates_root_input",
+        "//hilt-core/main/java/dagger/hilt:generates_root_input",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
     ],
     deps = [
         "//dagger-spi",
-        "//java/dagger/hilt:generates_root_input",
+        "//hilt-core/main/java/dagger/hilt:generates_root_input",
         "//java/dagger/hilt/android/testing/compile",
         "//java/dagger/hilt/processor/internal:base_processor",
         "//java/dagger/hilt/processor/internal/generatesrootinput:generates_root_inputs",

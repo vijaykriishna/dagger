@@ -19,15 +19,6 @@ load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
 
 package(default_visibility = ["//:src"])
 
-# TODO(bcorso): Remove all AggregatedDeps usage from the processor class path.
-java_library(
-    name = "annotation",
-    srcs = ["AggregatedDeps.java"],
-    exports = [
-        "//java/dagger/hilt/codegen:originating_element",
-    ],
-)
-
 java_plugin(
     name = "plugin",
     generates_api = 1,

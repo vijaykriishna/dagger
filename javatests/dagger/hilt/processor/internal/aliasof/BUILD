@@ -28,8 +28,8 @@ compiler_test(
         "//third_party/java/jsr330_inject",
         "//java/dagger/hilt/android:hilt_android_app",
         "//java/dagger/hilt/android/components",
-        "//java/dagger/hilt:define_component",
-        "//java/dagger/hilt/migration:alias_of",
+        "//hilt-core/main/java/dagger/hilt:define_component",
+        "//hilt-core/main/java/dagger/hilt/migration:alias_of",
     ],
     deps = [
         "//java/dagger/hilt/android/testing/compile",

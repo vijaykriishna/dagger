@@ -24,7 +24,7 @@ java_plugin(
     generates_api = 1,
     processor_class = "dagger.hilt.processor.internal.disableinstallincheck.DisableInstallInCheckProcessor",
     visibility = [
-        "//java/dagger/hilt/migration:__pkg__",
+        "//hilt-core/main/java/dagger/hilt/migration:__pkg__",
     ],
     deps = [":processor_lib"],
 )

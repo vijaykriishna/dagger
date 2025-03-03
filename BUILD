@@ -105,6 +105,7 @@ javadoc_library(
     srcs = [
         "//dagger-runtime/main/java/dagger:javadoc-srcs",
         "//dagger-spi:srcs",
+        "//hilt-core:javadoc-srcs",
         "//java/dagger/android:android-srcs",
         "//java/dagger/android/support:support-srcs",
         "//java/dagger/grpc/server:javadoc-srcs",

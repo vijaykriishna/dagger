@@ -13,27 +13,47 @@
 # limitations under the License.
 
 # Description:
-#   Hilt components
+#   Internal Hilt libraries
 
 load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//:src"])
 
 java_library(
-    name = "components",
+    name = "test_singleton_component",
+    srcs = ["TestSingletonComponent.java"],
+    deps = [":generated_component"],
+)
+
+java_library(
+    name = "generated_component",
+    srcs = ["GeneratedComponent.java"],
+)
+
+java_library(
+    name = "component_manager",
     srcs = [
-        "SingletonComponent.java",
+        "GeneratedComponentManager.java",
+        "GeneratedComponentManagerHolder.java",
     ],
-    deps = [
-        ":package_info",
-        "//java/dagger/hilt:define_component",
-        "//third_party/java/jsr330_inject",
+    exports = [
+        "//hilt-core/main/java/dagger/hilt/internal:preconditions",
+        "//hilt-core/main/java/dagger/hilt/internal:unsafe_casts",
     ],
 )
 
 java_library(
-    name = "package_info",
-    srcs = ["package-info.java"],
+    name = "preconditions",
+    srcs = [
+        "Preconditions.java",
+    ],
+)
+
+java_library(
+    name = "unsafe_casts",
+    srcs = [
+        "UnsafeCasts.java",
+    ],
 )
 
 filegroup(

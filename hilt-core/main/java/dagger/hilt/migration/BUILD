@@ -11,36 +11,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 # Description:
-#   Testing libraries for Hilt.
+#   Libraries for migration.
 
 load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//:src"])
 
 java_library(
-    name = "package_info",
-    srcs = ["package-info.java"],
-    deps = [
-        "//third_party/java/jsr305_annotations",
-    ],
-)
-
-java_library(
-    name = "test_install_in",
-    testonly = 1,
-    srcs = ["TestInstallIn.java"],
+    name = "alias_of",
+    srcs = ["AliasOf.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aggregateddeps:plugin",
+        "//java/dagger/hilt/processor/internal/aliasof:processor",
     ],
     exports = [
-        "//hilt-core/main/java/dagger/hilt/processor/internal/aggregateddeps:annotation",
+        "//hilt-core/main/java/dagger/hilt/internal/aliasof",
     ],
     deps = [
         ":package_info",
         "//hilt-core/main/java/dagger/hilt:generates_root_input",
     ],
+)
+
+java_library(
+    name = "disable_install_in_check",
+    srcs = ["DisableInstallInCheck.java"],
+    exported_plugins = [
+        "//java/dagger/hilt/processor/internal/disableinstallincheck:processor",
+    ],
+    exports = [
+    ],
+    deps = [
+        ":package_info",
+    ],
+)
+
+java_library(
+    name = "package_info",
+    srcs = ["package-info.java"],
 )
 
 filegroup(
