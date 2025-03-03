@@ -77,32 +77,32 @@ _deploy \
 
 _deploy \
   "" \
-  java/dagger/android/artifact.aar \
-  java/dagger/android/pom.xml \
-  java/dagger/android/artifact-src.jar \
-  java/dagger/android/artifact-javadoc.jar \
+  dagger-android/artifact.aar \
+  dagger-android/pom.xml \
+  dagger-android/artifact-src.jar \
+  dagger-android/artifact-javadoc.jar \
   ""
 
 _deploy \
   "" \
-  java/dagger/android/android-legacy.aar \
-  java/dagger/android/legacy-pom.xml \
+  dagger-android/android-legacy.aar \
+  dagger-android/legacy-pom.xml \
   "" \
   "" \
   ""
 
 _deploy \
   "" \
-  java/dagger/android/support/artifact.aar \
-  java/dagger/android/support/pom.xml \
-  java/dagger/android/support/artifact-src.jar \
-  java/dagger/android/support/artifact-javadoc.jar \
+  dagger-android-support/artifact.aar \
+  dagger-android-support/pom.xml \
+  dagger-android-support/artifact-src.jar \
+  dagger-android-support/artifact-javadoc.jar \
   ""
 
 _deploy \
   "" \
-  java/dagger/android/support/support-legacy.aar \
-  java/dagger/android/support/legacy-pom.xml \
+  dagger-android-support/support-legacy.aar \
+  dagger-android-support/legacy-pom.xml \
   "" \
   "" \
   ""

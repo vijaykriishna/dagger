@@ -13,31 +13,36 @@
 # limitations under the License.
 #
 # Description:
-#   Tests for Dagger's Android integrations
+#   Public Dagger API for Android that interacts with the Android support libraries
 
-load("//:build_defs.bzl", "DOCLINT_HTML_AND_SYNTAX")
-load("//:test_defs.bzl", "GenJavaTests")
+load("@rules_android//rules:rules.bzl", "android_library")
+load(
+    "//:build_defs.bzl",
+    "DOCLINT_HTML_AND_SYNTAX",
+    "JAVA_RELEASE_MIN",
+    "POM_VERSION",
+)
 
 package(default_visibility = ["//:src"])
 
-GenJavaTests(
-    name = "android_processor_tests",
+filegroup(
+    name = "support-srcs",
     srcs = glob(["*.java"]),
-    functional = False,
-    javacopts = DOCLINT_HTML_AND_SYNTAX,
+)
+
+android_library(
+    name = "support",
+    srcs = glob(["*.java"]),
+    javacopts = JAVA_RELEASE_MIN + DOCLINT_HTML_AND_SYNTAX,
+    tags = ["maven_coordinates=com.google.dagger:dagger-android-support:" + POM_VERSION],
     deps = [
         "//:dagger_with_compiler",
-        "//dagger-android-processor/main/java/dagger/android/processor",
         "//dagger-android/main/java/dagger/android",
-        "//java/dagger/internal/codegen:processor",
-        "//java/dagger/testing/compile",
-        "//third_party/java/compile_testing",
-        "//third_party/java/guava/base",
-        "//third_party/java/guava/collect",
-        "//third_party/java/junit",
-        "//third_party/java/truth",
-        "@androidsdk//:platforms/android-34/android.jar",
+        "//third_party/java/error_prone:annotations",
         "@maven//:androidx_activity_activity",
+        "@maven//:androidx_annotation_annotation",
+        "@maven//:androidx_annotation_annotation_jvm",
+        "@maven//:androidx_appcompat_appcompat",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",

@@ -11,17 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
 # Description:
-#   Public Dagger API for Android
+#   Public Dagger API for Android that interacts with the Android support libraries
 
 load("@rules_android//rules:rules.bzl", "android_library")
-load(
-    "//:build_defs.bzl",
-    "DOCLINT_HTML_AND_SYNTAX",
-    "JAVA_RELEASE_MIN",
-    "POM_VERSION",
-)
+load("//:build_defs.bzl", "POM_VERSION")
 load("//tools:dejetify.bzl", "dejetified_library")
 load(
     "//tools/maven:maven.bzl",
@@ -31,79 +26,55 @@ load(
 
 package(default_visibility = ["//:src"])
 
-# Work around b/70476182 which prevents Kythe from connecting :producers to the .java files it
-# contains.
-SRCS = glob([
-    "*.java",
-    "internal/*.java",
-])
-
-filegroup(
-    name = "android-srcs",
-    srcs = SRCS,
-)
-
-android_library(
-    name = "android",
-    srcs = SRCS,
-    javacopts = JAVA_RELEASE_MIN + DOCLINT_HTML_AND_SYNTAX,
-    plugins = [
-        "//java/dagger/android/internal/proguard:plugin",
-    ],
-    tags = ["maven_coordinates=com.google.dagger:dagger-android:" + POM_VERSION],
-    exports = [
-        "//dagger-lint:lint-android-artifact-lib",
-    ],
-    deps = [
-        "//:dagger_with_compiler",
-        "//third_party/java/auto:value",
-        "//third_party/java/error_prone:annotations",
-        "@maven//:androidx_annotation_annotation",
-        "@maven//:androidx_annotation_annotation_jvm",
-    ],
-)
-
 gen_maven_artifact(
     name = "artifact",
-    artifact_coordinates = "com.google.dagger:dagger-android:" + POM_VERSION,
-    artifact_name = "Dagger Android",
-    artifact_target = ":android",
+    artifact_coordinates = "com.google.dagger:dagger-android-support:" + POM_VERSION,
+    artifact_name = "Dagger Android Support",
+    artifact_target = "//dagger-android-support/main/java/dagger/android/support:support",
     artifact_target_maven_deps = [
+        "androidx.activity:activity:aar",
         "androidx.annotation:annotation",
         "androidx.annotation:annotation-jvm",
+        "androidx.appcompat:appcompat:aar",
+        "androidx.fragment:fragment:aar",
+        "androidx.lifecycle:lifecycle-common",
+        "androidx.lifecycle:lifecycle-viewmodel:aar",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
         "com.google.dagger:dagger",
-        "com.google.dagger:dagger-lint-aar",
+        "com.google.dagger:dagger-android",
     ],
     javadoc_android_api_level = 34,
     javadoc_root_packages = [
-        "dagger.android",
+        "dagger.android.support",
     ],
-    javadoc_srcs = [":android-srcs"],
+    javadoc_srcs = ["//dagger-android-support/main/java/dagger/android/support:support-srcs"],
     manifest = "AndroidManifest.xml",
     packaging = "aar",
 )
 
 dejetified_library(
-    name = "dejetified-android",
+    name = "dejetified-support",
     input = ":artifact.aar",
-    output = "android-legacy.aar",
+    output = "support-legacy.aar",
 )
 
 android_library(
     name = "legacy-deps",
-    tags = ["maven_coordinates=com.google.dagger:dagger-android-legacy:" + POM_VERSION],
+    tags = ["maven_coordinates=com.google.dagger:dagger-android-support-legacy:" + POM_VERSION],
     exports = [
         "//:dagger_with_compiler",
-        "//third_party/java/auto:value",
+        "//dagger-android:legacy-deps",
         "//third_party/java/error_prone:annotations",
+        "@maven//:com_android_support_appcompat_v7",
         "@maven//:com_android_support_support_annotations",
+        "@maven//:com_android_support_support_fragment",
     ],
 )
 
 dagger_pom_file(
     name = "legacy-pom",
-    artifact_id = "dagger-android-legacy",
-    artifact_name = "Dagger Android Legacy",
+    artifact_id = "dagger-android-support-legacy",
+    artifact_name = "Dagger Android Legacy Support",
     packaging = "aar",
     targets = [":legacy-deps"],
 )

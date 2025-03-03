@@ -59,14 +59,14 @@ java_library(
 android_library(
     name = "android",
     exported_plugins = ["//dagger-android-processor:plugin"],
-    exports = ["//java/dagger/android"],
+    exports = ["//dagger-android/main/java/dagger/android"],
 )
 
 android_library(
     name = "android-support",
     exports = [
         ":android",
-        "//java/dagger/android/support",
+        "//dagger-android-support/main/java/dagger/android/support",
     ],
 )
 
@@ -103,11 +103,11 @@ javadoc_library(
     name = "user-docs",
     testonly = 1,
     srcs = [
+        "//dagger-android-support/main/java/dagger/android/support:support-srcs",
+        "//dagger-android/main/java/dagger/android:android-srcs",
         "//dagger-runtime/main/java/dagger:javadoc-srcs",
         "//dagger-spi:srcs",
         "//hilt-core:javadoc-srcs",
-        "//java/dagger/android:android-srcs",
-        "//java/dagger/android/support:support-srcs",
         "//java/dagger/grpc/server:javadoc-srcs",
         "//java/dagger/grpc/server/processor:javadoc-srcs",
         "//java/dagger/hilt:javadoc-srcs",
@@ -125,10 +125,10 @@ javadoc_library(
     ],
     root_packages = ["dagger"],
     deps = [
+        "//dagger-android-support/main/java/dagger/android/support",
+        "//dagger-android/main/java/dagger/android",
         "//dagger-runtime/main/java/dagger:core",
         "//dagger-spi",
-        "//java/dagger/android",
-        "//java/dagger/android/support",
         "//java/dagger/grpc/server",
         "//java/dagger/grpc/server/processor",
         "//java/dagger/hilt/android:artifact-lib",

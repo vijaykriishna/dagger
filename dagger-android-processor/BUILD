@@ -63,7 +63,7 @@ alias(
     name = "base_processing_step",
     actual = "//dagger-android-processor/main/java/dagger/android/processor:base_processing_step",
     visibility = [
-        "//java/dagger/android/internal/proguard:__pkg__",
+        "//dagger-android-proguard-processor/main/java/dagger/android/internal/proguard:__pkg__",
     ],
 )
 
