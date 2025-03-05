@@ -7,36 +7,23 @@ That ensures that the dependencies are present when the object is fully
 constructed, as is normal Java best practice. There are, however, a few other
 options.
 
-The `@Inject` annotation is also valid on fields and methods. Dagger will set
-`@Inject` fields after the constructor is invoked. Similarly, it will call
-`@Inject` methods, supplying the parameters as if they were dependencies
-specified in the constructor.
-
-Here's a simple example:
+The `@Inject` annotation is also valid on fields and methods and sets up another
+way for Dagger to inject dependencies into an object. Fields and methods marked
+with `@Inject` allow Dagger to supply dependencies to a class and support
+qualifiers just like parameters in the constructor.
 
 ```java
 class Foo {
-  @Inject Bar bar;
+  @Inject @MyQualifier Bar bar;
   private Baz baz;
 
-  @Inject Foo() {}
+  Foo() {}
 
   @Inject
-  void setBaz(Baz baz) {
+  void setBaz(@MyQualifier Baz baz) {
     this.baz = baz;
   }
 }
-```
-
-When Dagger creates a `Foo`, it will do something like this:
-
-```java
-Bar bar = …;
-Baz baz = …;
-
-Foo foo = new Foo();
-foo.bar = bar;
-foo.setBaz(baz);
 ```
 
 > **CONCEPTS**
@@ -50,14 +37,12 @@ foo.setBaz(baz);
 
 ## Injecting objects Dagger can't create
 
-While there are cases where you might want to use field or method injection in
-addition to an `@Inject` constructor, one reason you might _need_ to use field
-or method injection is because Dagger can't instantiate the class you want to
-inject, for example because the class is being instantiated by another
-framework.
+The main reason you may want to use field or method injection is for cases where
+Dagger can't instantiate the class you want to inject, for example because the
+class is being instantiated by another framework.
 
-In this case, you obviously can't rely on Dagger injecting those fields or
-methods after it creates the object, because it isn't creating it.
+In this case, you obviously can't rely on Dagger injecting into the constructor
+because it isn't creating it.
 
 To solve this problem, Dagger allows you to pass it an instance of a class that
 has `@Inject` members (fields and methods), and Dagger will set those fields and
