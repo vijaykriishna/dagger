@@ -261,7 +261,7 @@ public final class AssistedInjectionAnnotations {
     XConstructorElement assistedInjectConstructor =
         getOnlyElement(assistedInjectedConstructors(assistedInjectType.getTypeElement()));
     XConstructorType assistedInjectConstructorType =
-        assistedInjectConstructor.asMemberOf(assistedInjectType);
+        assistedInjectConstructor.asMemberOf(assistedInjectType.makeNonNullable());
 
     ImmutableList.Builder<AssistedParameter> builder = ImmutableList.builder();
     for (int i = 0; i < assistedInjectConstructor.getParameters().size(); i++) {
