@@ -61,10 +61,10 @@ _deploy \
 
 _deploy \
   "" \
-  java/dagger/producers/artifact.jar \
-  java/dagger/producers/pom.xml \
-  java/dagger/producers/artifact-src.jar \
-  java/dagger/producers/artifact-javadoc.jar \
+  dagger-producers/artifact.jar \
+  dagger-producers/pom.xml \
+  dagger-producers/artifact-src.jar \
+  dagger-producers/artifact-javadoc.jar \
   ""
 
 _deploy \

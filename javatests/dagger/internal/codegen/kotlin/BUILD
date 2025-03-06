@@ -23,7 +23,6 @@ kt_compiler_test(
     name = "KspComponentProcessorTest",
     srcs = ["KspComponentProcessorTest.java"],
     compiler_deps = [
-        "//dagger-runtime/main/java/dagger:core",
         "//dagger-compiler/main/java/dagger/internal/codegen:package_info",
         "//dagger-compiler/main/java/dagger/internal/codegen:processor",
         "//dagger-compiler/main/java/dagger/internal/codegen/base",
@@ -34,8 +33,9 @@ kt_compiler_test(
         "//dagger-compiler/main/java/dagger/internal/codegen/langmodel",
         "//dagger-compiler/main/java/dagger/internal/codegen/validation",
         "//dagger-compiler/main/java/dagger/internal/codegen/writing",
+        "//dagger-producers/main/java/dagger/producers",
+        "//dagger-runtime/main/java/dagger:core",
         "//dagger-testing/main/java/dagger/model/testing",
-        "//java/dagger/producers",
         "//dagger-spi",
     ],
     deps = [
@@ -51,7 +51,6 @@ kt_compiler_test(
     name = "ComponentValidationKtTest",
     srcs = ["ComponentValidationKtTest.java"],
     compiler_deps = [
-        "//dagger-runtime/main/java/dagger:core",
         "//dagger-compiler/main/java/dagger/internal/codegen:package_info",
         "//dagger-compiler/main/java/dagger/internal/codegen:processor",
         "//dagger-compiler/main/java/dagger/internal/codegen/base",
@@ -62,8 +61,9 @@ kt_compiler_test(
         "//dagger-compiler/main/java/dagger/internal/codegen/langmodel",
         "//dagger-compiler/main/java/dagger/internal/codegen/validation",
         "//dagger-compiler/main/java/dagger/internal/codegen/writing",
+        "//dagger-producers/main/java/dagger/producers",
+        "//dagger-runtime/main/java/dagger:core",
         "//dagger-testing/main/java/dagger/model/testing",
-        "//java/dagger/producers",
         "//dagger-spi",
     ],
     deps = [

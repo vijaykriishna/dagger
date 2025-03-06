@@ -13,31 +13,45 @@
 # limitations under the License.
 
 # Description:
-#   Tests for dagger.producers
+#   An asynchronous dependency injection system that extends JSR-330.
 
+load("@rules_java//java:defs.bzl", "java_library")
 load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
     "DOCLINT_REFERENCES",
     "JAVA_RELEASE_MIN",
+    "POM_VERSION",
 )
-load("//:test_defs.bzl", "GenJavaTests")
 
 package(default_visibility = ["//:src"])
 
-GenJavaTests(
-    name = "producers_tests",
-    srcs = glob(["**/*.java"]),
-    functional = 0,
-    javacopts = JAVA_RELEASE_MIN + DOCLINT_REFERENCES + DOCLINT_HTML_AND_SYNTAX,
+# Work around b/70476182 which prevents Kythe from connecting :producers to the .java files it
+# contains.
+SRCS = glob(["**/*.java"])
+
+filegroup(
+    name = "producers-srcs",
+    srcs = SRCS,
+)
+
+java_library(
+    name = "producers",
+    srcs = SRCS,
+    javacopts = JAVA_RELEASE_MIN + DOCLINT_HTML_AND_SYNTAX + DOCLINT_REFERENCES,
+    tags = ["maven_coordinates=com.google.dagger:dagger-producers:" + POM_VERSION],
+    exports = [
+        "//third_party/java/guava/base",
+        "//third_party/java/guava/util/concurrent",
+        "//third_party/java/jsr330_inject",
+    ],
     deps = [
-        "//dagger-producers/main/java/dagger/producers",
         "//dagger-runtime/main/java/dagger:core",
-        "//third_party/java/guava:testlib",
+        "//third_party/java/checker_framework_annotations",
+        "//third_party/java/error_prone:annotations",
+        "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/guava/util/concurrent",
-        "//third_party/java/junit",
-        "//third_party/java/mockito",
-        "//third_party/java/truth",
+        "//third_party/java/jsr330_inject",
     ],
 )
