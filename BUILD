@@ -93,12 +93,13 @@ javadoc_library(
     srcs = [
         "//dagger-android-support/main/java/dagger/android/support:support-srcs",
         "//dagger-android/main/java/dagger/android:android-srcs",
+        "//dagger-grpc-server-annotations/main/java/dagger/grpc/server:javadoc-srcs",
+        "//dagger-grpc-server/main/java/dagger/grpc/server:javadoc-srcs",
         "//dagger-producers/main/java/dagger/producers:producers-srcs",
         "//dagger-runtime/main/java/dagger:javadoc-srcs",
         "//dagger-spi:srcs",
         "//hilt-android:javadoc-srcs",
         "//hilt-core:javadoc-srcs",
-        "//java/dagger/grpc/server:javadoc-srcs",
         "//java/dagger/hilt:javadoc-srcs",
         "//java/dagger/hilt/android/plugin/main:srcs_filegroup",
     ],
@@ -116,11 +117,11 @@ javadoc_library(
     deps = [
         "//dagger-android-support/main/java/dagger/android/support",
         "//dagger-android/main/java/dagger/android",
+        "//dagger-grpc-server:artifact-lib",
         "//dagger-producers/main/java/dagger/producers",
         "//dagger-runtime/main/java/dagger:core",
         "//dagger-spi",
         "//hilt-android:artifact-lib",
-        "//java/dagger/grpc/server",
         "//java/dagger/hilt/android/testing:artifact-lib",
     ],
 )

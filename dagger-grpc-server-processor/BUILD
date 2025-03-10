@@ -53,6 +53,6 @@ alias(
     name = "plugin",
     actual = "//dagger-grpc-server-processor/main/java/dagger/grpc/server/processor:plugin",
     visibility = [
-        "//java/dagger/grpc/server:__pkg__",
+        "//dagger-grpc-server/main/java/dagger/grpc/server:__pkg__",
     ],
 )

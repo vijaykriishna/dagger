@@ -16,7 +16,7 @@ java_library(
     javacopts = DOCLINT_HTML_AND_SYNTAX,
     deps = [
         "//:dagger_with_compiler",
-        "//java/dagger/grpc/server:annotations",
+        "//dagger-grpc-server-annotations:artifact-lib",
         "//third_party/java/auto:common",
         "//third_party/java/auto:service",
         "//third_party/java/google_java_format",

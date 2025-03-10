@@ -118,18 +118,18 @@ _deploy \
 
 _deploy \
   "" \
-  java/dagger/grpc/server/libserver.jar \
-  java/dagger/grpc/server/server-pom.xml \
-  java/dagger/grpc/server/libserver-src.jar \
-  java/dagger/grpc/server/javadoc.jar \
+  dagger-grpc-server/artifact.jar \
+  dagger-grpc-server/pom.xml \
+  dagger-grpc-server/artifact-src.jar \
+  dagger-grpc-server/artifact-javadoc.jar \
   ""
 
 _deploy \
   "" \
-  java/dagger/grpc/server/libannotations.jar \
-  java/dagger/grpc/server/annotations-pom.xml \
-  java/dagger/grpc/server/libannotations-src.jar \
-  java/dagger/grpc/server/javadoc.jar \
+  dagger-grpc-server-annotations/artifact.jar \
+  dagger-grpc-server-annotations/pom.xml \
+  dagger-grpc-server-annotations/artifact-src.jar \
+  dagger-grpc-server-annotations/artifact-javadoc.jar \
   ""
 
 _deploy \
