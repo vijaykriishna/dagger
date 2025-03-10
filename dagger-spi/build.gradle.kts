@@ -1,20 +1,9 @@
-import dagger.gradle.build.daggerSources
+import dagger.gradle.build.findXProcessingJar
 
 plugins {
   alias(libs.plugins.dagger.kotlinJvm)
   alias(libs.plugins.dagger.publish)
   alias(libs.plugins.dagger.shadow)
-}
-
-daggerSources {
-  main.setPackages(
-    listOf(
-      "java/dagger/internal/codegen/extension",
-      "java/dagger/model",
-      "java/dagger/spi",
-      "java/dagger/spi/model",
-    )
-  )
 }
 
 dependencies {
@@ -33,13 +22,7 @@ dependencies {
   // shared with other processors, such as dagger-compiler.
   val shaded by configurations.getting
   shaded(libs.auto.common)
-  shaded(
-    files(
-      project.rootProject.layout.projectDirectory
-        .dir("java/dagger/internal/codegen/xprocessing")
-        .file("xprocessing-internal.jar")
-    )
-  )
+  shaded(files(project.findXProcessingJar()))
 }
 
 shading {
