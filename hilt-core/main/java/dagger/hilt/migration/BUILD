@@ -22,7 +22,7 @@ java_library(
     name = "alias_of",
     srcs = ["AliasOf.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aliasof:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/aliasof:processor",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/internal/aliasof",
@@ -37,7 +37,7 @@ java_library(
     name = "disable_install_in_check",
     srcs = ["DisableInstallInCheck.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/disableinstallincheck:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/disableinstallincheck:processor",
     ],
     exports = [
     ],

@@ -26,7 +26,7 @@ android_library(
     testonly = 1,
     srcs = ["CustomTestApplication.java"],
     exported_plugins = [
-        "//java/dagger/hilt/android/processor/internal/customtestapplication:processor",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/customtestapplication:processor",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/internal:component_manager",
@@ -44,10 +44,10 @@ android_library(
     testonly = 1,
     srcs = ["HiltAndroidTest.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/root:component_tree_deps_plugin",
-        "//java/dagger/hilt/processor/internal/root:root_plugin",
-        "//java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
-        "//java/dagger/hilt/android/processor/internal/viewmodel:validation_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/root:component_tree_deps_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/root:root_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/viewmodel:validation_plugin",
     ],
     exports = [
         ":hilt_android_rule",
@@ -138,7 +138,7 @@ android_library(
     testonly = 1,
     srcs = ["UninstallModules.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/uninstallmodules:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/uninstallmodules:processor",
     ],
     exports = [
         "//java/dagger/hilt/android/internal/uninstallmodules",
@@ -159,7 +159,7 @@ android_library(
         "BindValueIntoSet.java",
     ],
     exported_plugins = [
-        "//java/dagger/hilt/android/processor/internal/bindvalue:bind_value_processor",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/bindvalue:bind_value_processor",
     ],
     exports = [
         "//hilt-android/main/java/dagger/hilt/android/qualifiers",

@@ -34,6 +34,7 @@ compiler_test(
         "//hilt-android/main/java/dagger/hilt/android/components",
         "@androidsdk//:platforms/android-34/android.jar",
     ],
+    shard_count = 3,
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
         "//java/dagger/hilt/android/testing/compile",

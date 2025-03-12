@@ -32,7 +32,7 @@ java_library(
     testonly = 1,
     srcs = ["TestInstallIn.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aggregateddeps:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/aggregateddeps:plugin",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/processor/internal/aggregateddeps:annotation",

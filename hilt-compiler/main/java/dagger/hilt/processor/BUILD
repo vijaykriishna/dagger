@@ -13,27 +13,9 @@
 # limitations under the License.
 
 # Description:
-#   This package contains sources used within code generated sources.
-
-load("@rules_java//java:defs.bzl", "java_library")
+#   Hilt android processors.
 
 package(default_visibility = ["//:src"])
-
-java_library(
-    name = "originating_element",
-    srcs = ["OriginatingElement.java"],
-    exported_plugins = [
-        "//hilt-compiler/main/java/dagger/hilt/processor/internal/originatingelement:processor",
-    ],
-    deps = [
-        ":package_info",
-    ],
-)
-
-java_library(
-    name = "package_info",
-    srcs = ["package-info.java"],
-)
 
 filegroup(
     name = "srcs_filegroup",

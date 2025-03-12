@@ -54,18 +54,18 @@ _deploy \
 
 _deploy \
   "$_SHADED_RULES" \
-  java/dagger/hilt/processor/artifact.jar \
-  java/dagger/hilt/processor/pom.xml \
-  java/dagger/hilt/processor/artifact-src.jar \
-  java/dagger/hilt/processor/artifact-javadoc.jar \
+  hilt-compiler/artifact.jar \
+  hilt-compiler/pom.xml \
+  hilt-compiler/artifact-src.jar \
+  hilt-compiler/artifact-javadoc.jar \
   ""
 
 _deploy \
   "$_SHADED_RULES" \
-  java/dagger/hilt/android/processor/artifact.jar \
-  java/dagger/hilt/android/processor/pom.xml \
-  java/dagger/hilt/android/processor/artifact-src.jar \
-  java/dagger/hilt/android/processor/artifact-javadoc.jar \
+  hilt-compiler/legacy-artifact.jar \
+  hilt-compiler/legacy-pom.xml \
+  hilt-compiler/legacy-artifact-src.jar \
+  hilt-compiler/legacy-artifact-javadoc.jar \
   ""
 
 _deploy \

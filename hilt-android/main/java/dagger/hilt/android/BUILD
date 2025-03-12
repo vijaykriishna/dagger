@@ -28,7 +28,7 @@ android_library(
         "WithFragmentBindings.java",
     ],
     exported_plugins = [
-        "//java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
     ],
     exports = [
         "//hilt-android/main/java/dagger/hilt/android/components",
@@ -64,10 +64,10 @@ android_library(
     name = "hilt_android_app",
     srcs = ["HiltAndroidApp.java"],
     exported_plugins = [
-        "//java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
-        "//java/dagger/hilt/android/processor/internal/viewmodel:validation_plugin",
-        "//java/dagger/hilt/processor/internal/root:component_tree_deps_plugin",
-        "//java/dagger/hilt/processor/internal/root:root_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/androidentrypoint:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/viewmodel:validation_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/root:component_tree_deps_plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/root:root_plugin",
     ],
     exports = [
         "//:dagger_with_compiler",
@@ -131,8 +131,8 @@ android_library(
         "EarlyEntryPoints.java",
     ],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aggregateddeps:plugin",
-        "//java/dagger/hilt/processor/internal/earlyentrypoint:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/aggregateddeps:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/earlyentrypoint:processor",
     ],
     proguard_specs = ["proguard-rules.pro"],
     exports = [

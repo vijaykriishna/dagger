@@ -33,7 +33,7 @@ android_library(
     name = "hilt_view_model",
     srcs = ["HiltViewModel.java"],
     exported_plugins = [
-        "//java/dagger/hilt/android/processor/internal/viewmodel:processor",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/viewmodel:processor",
     ],
     exports = [
         "//:dagger_with_compiler",

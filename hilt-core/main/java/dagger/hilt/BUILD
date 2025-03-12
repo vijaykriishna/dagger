@@ -23,7 +23,7 @@ java_library(
     name = "install_in",
     srcs = ["InstallIn.java"],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/aggregateddeps:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/aggregateddeps:plugin",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/processor/internal/aggregateddeps:annotation",
@@ -43,7 +43,7 @@ java_library(
     exported_plugins = [
         # This is required so that we can fail if @InstallIn is missing.
         # TODO(bcorso): Consider using a separate processor to validate @EntryPoint.
-        "//java/dagger/hilt/processor/internal/aggregateddeps:plugin",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/aggregateddeps:plugin",
     ],
     proguard_specs = ["proguard-rules.pro"],
     deps = [
@@ -63,7 +63,7 @@ java_library(
         "GeneratesRootInput.java",
     ],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/generatesrootinput:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/generatesrootinput:processor",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/internal/generatesrootinput",
@@ -79,7 +79,7 @@ java_library(
         "DefineComponent.java",
     ],
     exported_plugins = [
-        "//java/dagger/hilt/processor/internal/definecomponent:processor",
+        "//hilt-compiler/main/java/dagger/hilt/processor/internal/definecomponent:processor",
     ],
     exports = [
         "//hilt-core/main/java/dagger/hilt/internal/definecomponent",
