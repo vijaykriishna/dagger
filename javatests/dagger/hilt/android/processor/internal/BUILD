@@ -31,7 +31,7 @@ compiler_test(
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/base",
         "//third_party/java/junit",
         "//third_party/java/truth",

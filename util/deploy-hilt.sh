@@ -46,10 +46,10 @@ _deploy \
 
 _deploy \
   "" \
-  java/dagger/hilt/android/testing/artifact.aar \
-  java/dagger/hilt/android/testing/pom.xml \
-  java/dagger/hilt/android/testing/artifact-src.jar \
-  java/dagger/hilt/android/testing/artifact-javadoc.jar \
+  hilt-android-testing/artifact.aar \
+  hilt-android-testing/pom.xml \
+  hilt-android-testing/artifact-src.jar \
+  hilt-android-testing/artifact-javadoc.jar \
   ""
 
 _deploy \

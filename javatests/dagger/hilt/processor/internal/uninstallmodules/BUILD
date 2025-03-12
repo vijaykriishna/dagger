@@ -24,15 +24,15 @@ compiler_test(
     srcs = ["UninstallModulesProcessorTest.java"],
     compiler_deps = [
         "//hilt-android/main/java/dagger/hilt/android:android_entry_point",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
-        "//java/dagger/hilt/android/testing:uninstall_modules",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:uninstall_modules",
         "//hilt-core/main/java/dagger/hilt/migration:disable_install_in_check",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
     ],
     deps = [
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/junit",
     ],
 )

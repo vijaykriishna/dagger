@@ -24,3 +24,8 @@ java_library(
     testonly = 1,
     srcs = ["AggregatedUninstallModules.java"],
 )
+
+filegroup(
+    name = "srcs_filegroup",
+    srcs = glob(["*"]),
+)

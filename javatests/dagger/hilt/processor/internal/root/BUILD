@@ -34,7 +34,7 @@ compiler_test(
     compiler_deps = [
         ":MyAppPreviousCompilation",
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
@@ -44,7 +44,7 @@ compiler_test(
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",
         "//third_party/java/truth",
@@ -56,7 +56,7 @@ android_library(
     srcs = ["MyTestPreviousCompilation.java"],
     deps = [
         "//:android_local_test_exports",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
     ],
 )
 
@@ -66,7 +66,7 @@ compiler_test(
     compiler_deps = [
         ":MyTestPreviousCompilation",
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
@@ -76,7 +76,7 @@ compiler_test(
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",
         "//third_party/java/truth",
@@ -88,7 +88,7 @@ compiler_test(
     srcs = ["RootProcessorErrorsTest.java"],
     compiler_deps = [
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
@@ -98,7 +98,7 @@ compiler_test(
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",
     ],
@@ -109,7 +109,7 @@ compiler_test(
     srcs = ["RootFileFormatterTest.java"],
     compiler_deps = [
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
-        "//java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:androidx_annotation_annotation",
         "@maven//:androidx_annotation_annotation_jvm",
@@ -119,7 +119,7 @@ compiler_test(
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//java/dagger/hilt/android/testing/compile",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",

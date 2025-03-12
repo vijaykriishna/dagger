@@ -18,29 +18,6 @@
 package(default_visibility = ["//:src"])
 
 filegroup(
-    name = "javadoc-srcs",
-    srcs = [
-        ":hilt_android_testing_filegroup",
-        ":hilt_testing_filegroup",
-    ],
-)
-
-filegroup(
-    name = "hilt_testing_filegroup",
-    srcs = [
-        "//java/dagger/hilt/testing:srcs_filegroup",
-    ],
-)
-
-filegroup(
-    name = "hilt_android_testing_filegroup",
-    srcs = [
-        "//java/dagger/hilt/android/internal/testing:srcs_filegroup",
-        "//java/dagger/hilt/android/testing:srcs_filegroup",
-    ],
-)
-
-filegroup(
     name = "hilt_processing_filegroup",
     srcs = [
         "//hilt-compiler/main/java/dagger/hilt/android/processor:srcs_filegroup",

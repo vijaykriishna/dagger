@@ -99,8 +99,8 @@ javadoc_library(
         "//dagger-runtime/main/java/dagger:javadoc-srcs",
         "//dagger-spi:srcs",
         "//hilt-android:javadoc-srcs",
+        "//hilt-android-testing:javadoc-srcs",
         "//hilt-core:javadoc-srcs",
-        "//java/dagger/hilt:javadoc-srcs",
         "//java/dagger/hilt/android/plugin/main:srcs_filegroup",
     ],
     android_api_level = 34,
@@ -122,6 +122,6 @@ javadoc_library(
         "//dagger-runtime/main/java/dagger:core",
         "//dagger-spi",
         "//hilt-android:artifact-lib",
-        "//java/dagger/hilt/android/testing:artifact-lib",
+        "//hilt-android-testing:artifact-lib",
     ],
 )

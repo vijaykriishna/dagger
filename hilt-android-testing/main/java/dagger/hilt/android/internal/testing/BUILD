@@ -52,10 +52,10 @@ android_library(
         ":early_test_singleton_component_creator",
         ":test_component_data",
         ":test_injector",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:on_component_ready_runner",
         "//hilt-android/main/java/dagger/hilt/internal:test_singleton_component_manager",
         "//hilt-core/main/java/dagger/hilt/internal:component_manager",
         "//hilt-core/main/java/dagger/hilt/internal:preconditions",
-        "//java/dagger/hilt/android/testing:on_component_ready_runner",
         "@maven//:junit_junit",
     ],
 )
