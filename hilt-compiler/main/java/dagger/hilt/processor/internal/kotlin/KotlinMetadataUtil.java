@@ -70,6 +70,20 @@ public final class KotlinMetadataUtil {
   }
 
   /**
+   * Returns the annotations on the given {@code element} annotated with any annotation in
+   * {@code annotationNames}.
+   *
+   * <p>Note: If the given {@code element} is a non-static field this method will return annotations
+   * on both the backing field and the associated synthetic property (if one exists).
+   */
+  public ImmutableList<XAnnotation> getAnnotationsAnnotatedWithAnyOf(
+      XElement element, ClassName... annotationNames) {
+    return getAnnotations(element).stream()
+        .filter(annotation -> annotation.getTypeElement().hasAnyAnnotation(annotationNames))
+        .collect(toImmutableList());
+  }
+
+  /**
    * Returns the annotations on the given {@code element} that match the {@code annotationName}.
    *
    * <p>Note: If the given {@code element} is a non-static field this method will return annotations

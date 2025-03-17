@@ -1,4 +1,4 @@
-# Copyright (C) 2021 The Dagger Authors.
+# Copyright (C) 2025 The Dagger Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,20 +20,19 @@ load("//java/dagger/testing/compile:macros.bzl", "compiler_test")
 package(default_visibility = ["//:src"])
 
 compiler_test(
-    name = "AliasOfProcessorTest",
-    srcs = ["AliasOfProcessorTest.java"],
+    name = "BindValueErrorsTest",
+    srcs = ["BindValueErrorsTest.java"],
     compiler_deps = [
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:hilt_android_test",
+        "//hilt-android-testing/main/java/dagger/hilt/android/testing:bind_value",
         "@androidsdk//:platforms/android-34/android.jar",
         "@maven//:jakarta_inject_jakarta_inject_api",
-        "//third_party/java/jsr330_inject",
-        "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
-        "//hilt-android/main/java/dagger/hilt/android/components",
-        "//hilt-core/main/java/dagger/hilt:define_component",
-        "//hilt-core/main/java/dagger/hilt/migration:alias_of",
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
         "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
+        "//hilt-compiler/main/java/dagger/hilt/android/processor/internal/bindvalue:bind_value_processor_lib",
+        "//third_party/java/compile_testing",
         "//third_party/java/junit",
     ],
 )

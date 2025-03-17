@@ -103,13 +103,14 @@ public final class ClassNames {
   public static final ClassName CONTRIBUTES_ANDROID_INJECTOR =
       get("dagger.android", "ContributesAndroidInjector");
 
-  public static final ClassName INJECT =
-      get("javax.inject", "Inject");
-  public static final ClassName QUALIFIER =
-      get("javax.inject", "Qualifier");
-  public static final ClassName SCOPE =
-      get("javax.inject", "Scope");
-  public static final ClassName PROVIDER = get("javax.inject", "Provider");
+  // Intentionally package-private to promote usage of helper methods in Processors.java
+  static final ClassName INJECT = get("javax.inject", "Inject");
+  static final ClassName QUALIFIER = get("javax.inject", "Qualifier");
+  static final ClassName SCOPE = get("javax.inject", "Scope");
+  static final ClassName JAKARTA_INJECT = get("jakarta.inject", "Inject");
+  static final ClassName JAKARTA_QUALIFIER = get("jakarta.inject", "Qualifier");
+  static final ClassName JAKARTA_SCOPE = get("jakarta.inject", "Scope");
+
   public static final ClassName DISABLE_INSTALL_IN_CHECK =
       get("dagger.hilt.migration", "DisableInstallInCheck");
   public static final ClassName ALIAS_OF = get("dagger.hilt.migration", "AliasOf");

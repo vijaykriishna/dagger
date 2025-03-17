@@ -27,6 +27,7 @@ kt_compiler_test(
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
         "@androidsdk//:platforms/android-34/android.jar",
         "//hilt-android/main/java/dagger/hilt/android/lifecycle:hilt_view_model",
+        "@maven//:jakarta_inject_jakarta_inject_api",
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",

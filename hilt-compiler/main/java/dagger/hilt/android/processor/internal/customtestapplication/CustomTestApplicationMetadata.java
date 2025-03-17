@@ -85,7 +85,7 @@ abstract class CustomTestApplicationMetadata {
 
       ImmutableList<XFieldElement> injectFields =
           baseSuperclassElement.getDeclaredFields().stream()
-              .filter(field -> field.hasAnnotation(ClassNames.INJECT))
+              .filter(Processors::isAnnotatedWithInject)
               .collect(toImmutableList());
       ProcessorErrors.checkState(
           injectFields.isEmpty(),
@@ -98,7 +98,7 @@ abstract class CustomTestApplicationMetadata {
 
       ImmutableList<XExecutableElement> injectMethods =
           baseSuperclassElement.getDeclaredMethods().stream()
-              .filter(method -> method.hasAnnotation(ClassNames.INJECT))
+              .filter(Processors::isAnnotatedWithInject)
               .collect(toImmutableList());
       ProcessorErrors.checkState(
           injectMethods.isEmpty(),
@@ -111,7 +111,7 @@ abstract class CustomTestApplicationMetadata {
 
       ImmutableList<XExecutableElement> injectConstructors =
           baseSuperclassElement.getConstructors().stream()
-              .filter(method -> method.hasAnnotation(ClassNames.INJECT))
+              .filter(Processors::isAnnotatedWithInject)
               .collect(toImmutableList());
       ProcessorErrors.checkState(
           injectConstructors.isEmpty(),

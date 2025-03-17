@@ -127,7 +127,7 @@ abstract class BindValueMetadata {
       }
 
       ProcessorErrors.checkState(
-          !field.hasAnnotation(ClassNames.INJECT),
+          !Processors.isAnnotatedWithInject(field),
           field,
           "@%s fields cannot be used with @Inject annotation. Found %s",
           annotationClassName.simpleName(),

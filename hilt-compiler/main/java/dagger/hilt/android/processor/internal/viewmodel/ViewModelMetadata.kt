@@ -124,7 +124,7 @@ private constructor(val viewModelElement: XTypeElement, val assistedFactory: XTy
       val injectConstructors =
         viewModelElement.getConstructors().filter { constructor ->
           if (isAssistedInjectFeatureEnabled) {
-            constructor.hasAnnotation(ClassNames.INJECT) ||
+            Processors.isAnnotatedWithInject(constructor) ||
               constructor.hasAnnotation(ClassNames.ASSISTED_INJECT)
           } else {
             ProcessorErrors.checkState(
@@ -132,7 +132,7 @@ private constructor(val viewModelElement: XTypeElement, val assistedFactory: XTy
               constructor,
               "ViewModel constructor should be annotated with @Inject instead of @AssistedInject."
             )
-            constructor.hasAnnotation(ClassNames.INJECT)
+	    Processors.isAnnotatedWithInject(constructor)
           }
         }
 

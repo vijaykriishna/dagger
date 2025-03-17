@@ -27,6 +27,7 @@ import com.squareup.javapoet.ClassName;
 import dagger.hilt.processor.internal.BaseProcessingStep;
 import dagger.hilt.processor.internal.ClassNames;
 import dagger.hilt.processor.internal.ProcessorErrors;
+import dagger.hilt.processor.internal.Processors;
 import dagger.internal.codegen.extension.DaggerStreams;
 import dagger.internal.codegen.xprocessing.XElements;
 
@@ -45,7 +46,7 @@ public final class AliasOfProcessingStep extends BaseProcessingStep {
   @Override
   public void processEach(ClassName annotation, XElement element) {
     ProcessorErrors.checkState(
-        element.hasAnnotation(ClassNames.SCOPE),
+        Processors.isAnnotatedWithScope(element),
         element,
         "%s should only be used on scopes." + " However, it was found annotating %s",
         annotation.simpleName(),

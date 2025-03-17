@@ -325,15 +325,28 @@ public final class Processors {
     return getMetadataUtil().getAnnotationsAnnotatedWith(element, ClassNames.MAP_KEY);
   }
 
+  /** Returns true if an element is annotated with {@literal @}Inject. */
+  public static boolean isAnnotatedWithInject(XElement element) {
+    return element.hasAnyAnnotation(ClassNames.INJECT, ClassNames.JAKARTA_INJECT);
+  }
+
   /** Returns Qualifier annotated annotations found on an element. */
   public static ImmutableList<XAnnotation> getQualifierAnnotations(XElement element) {
-    return getMetadataUtil().getAnnotationsAnnotatedWith(element, ClassNames.QUALIFIER);
+    return getMetadataUtil().getAnnotationsAnnotatedWithAnyOf(
+        element, ClassNames.QUALIFIER, ClassNames.JAKARTA_QUALIFIER);
+  }
+
+  /** Returns true if an element is annotated with {@literal @}Scope. */
+  public static boolean isAnnotatedWithScope(XElement element) {
+    return element.hasAnyAnnotation(ClassNames.SCOPE, ClassNames.JAKARTA_SCOPE);
   }
 
   /** Returns Scope annotated annotations found on an element. */
   public static ImmutableList<XAnnotation> getScopeAnnotations(XElement element) {
-    return ImmutableList.copyOf(
-        element.getAnnotationsAnnotatedWith(ClassNames.SCOPE));
+    return ImmutableList.<XAnnotation>builder()
+        .addAll(element.getAnnotationsAnnotatedWith(ClassNames.SCOPE))
+        .addAll(element.getAnnotationsAnnotatedWith(ClassNames.JAKARTA_SCOPE))
+        .build();
   }
 
   /**
