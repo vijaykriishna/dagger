@@ -117,6 +117,8 @@ jobs:
     ]
     if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
         uses: actions/setup-java@v4

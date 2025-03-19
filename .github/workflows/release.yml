@@ -90,6 +90,8 @@ jobs:
       test-gradle-plugin
     ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
         uses: actions/setup-java@v4
