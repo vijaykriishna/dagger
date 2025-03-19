@@ -58,7 +58,6 @@ loadScripts(document, 'script');</script>
 <li><a href="dagger/android/support/package-tree.html">dagger.android.support</a>, </li>
 <li><a href="dagger/assisted/package-tree.html">dagger.assisted</a>, </li>
 <li><a href="dagger/grpc/server/package-tree.html">dagger.grpc.server</a>, </li>
-<li><a href="dagger/grpc/server/processor/package-tree.html">dagger.grpc.server.processor</a>, </li>
 <li><a href="dagger/hilt/package-tree.html">dagger.hilt</a>, </li>
 <li><a href="dagger/hilt/android/package-tree.html">dagger.hilt.android</a>, </li>
 <li><a href="dagger/hilt/android/components/package-tree.html">dagger.hilt.android.components</a>, </li>
@@ -69,6 +68,7 @@ loadScripts(document, 'script');</script>
 <li><a href="dagger/hilt/android/internal/migration/package-tree.html">dagger.hilt.android.internal.migration</a>, </li>
 <li><a href="dagger/hilt/android/internal/modules/package-tree.html">dagger.hilt.android.internal.modules</a>, </li>
 <li><a href="dagger/hilt/android/internal/testing/package-tree.html">dagger.hilt.android.internal.testing</a>, </li>
+<li><a href="dagger/hilt/android/internal/uninstallmodules/package-tree.html">dagger.hilt.android.internal.uninstallmodules</a>, </li>
 <li><a href="dagger/hilt/android/lifecycle/package-tree.html">dagger.hilt.android.lifecycle</a>, </li>
 <li><a href="dagger/hilt/android/migration/package-tree.html">dagger.hilt.android.migration</a>, </li>
 <li><a href="dagger/hilt/android/qualifiers/package-tree.html">dagger.hilt.android.qualifiers</a>, </li>
@@ -80,6 +80,7 @@ loadScripts(document, 'script');</script>
 <li><a href="dagger/hilt/internal/definecomponent/package-tree.html">dagger.hilt.internal.definecomponent</a>, </li>
 <li><a href="dagger/hilt/internal/generatesrootinput/package-tree.html">dagger.hilt.internal.generatesrootinput</a>, </li>
 <li><a href="dagger/hilt/migration/package-tree.html">dagger.hilt.migration</a>, </li>
+<li><a href="dagger/hilt/processor/internal/aggregateddeps/package-tree.html">dagger.hilt.processor.internal.aggregateddeps</a>, </li>
 <li><a href="dagger/hilt/testing/package-tree.html">dagger.hilt.testing</a>, </li>
 <li><a href="dagger/model/package-tree.html">dagger.model</a>, </li>
 <li><a href="dagger/multibindings/package-tree.html">dagger.multibindings</a>, </li>
@@ -94,15 +95,6 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
-<li class="circle">javax.annotation.processing.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.compiler/javax/annotation/processing/AbstractProcessor.html" class="type-name-link external-link" title="class or interface in javax.annotation.processing">AbstractProcessor</a> (implements javax.annotation.processing.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.compiler/javax/annotation/processing/Processor.html" title="class or interface in javax.annotation.processing" class="external-link">Processor</a>)
-<ul>
-<li class="circle">com.google.auto.common.BasicAnnotationProcessor
-<ul>
-<li class="circle">dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" class="type-name-link" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a> (implements com.google.auto.common.BasicAnnotationProcessor.ProcessingStep)</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="circle">dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/ActivityComponentManager.html" class="type-name-link" title="class in dagger.hilt.android.internal.managers">ActivityComponentManager</a> (implements dagger.hilt.internal.GeneratedComponentManager&lt;T&gt;)</li>
 <li class="circle">dagger.android.<a href="dagger/android/AndroidInjection.html" class="type-name-link" title="class in dagger.android">AndroidInjection</a></li>
 <li class="circle">dagger.android.internal.<a href="dagger/android/internal/AndroidInjectionKeys.html" class="type-name-link" title="class in dagger.android.internal">AndroidInjectionKeys</a></li>
@@ -402,6 +394,8 @@ loadScripts(document, 'script');</script>
 <li class="circle">dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/ActivityRetainedSavedState.html" class="type-name-link" title="annotation interface in dagger.hilt.android.lifecycle">ActivityRetainedSavedState</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">dagger.hilt.android.scopes.<a href="dagger/hilt/android/scopes/ActivityRetainedScoped.html" class="type-name-link" title="annotation interface in dagger.hilt.android.scopes">ActivityRetainedScoped</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">dagger.hilt.android.scopes.<a href="dagger/hilt/android/scopes/ActivityScoped.html" class="type-name-link" title="annotation interface in dagger.hilt.android.scopes">ActivityScoped</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" class="type-name-link" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">dagger.hilt.android.internal.uninstallmodules.<a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html" class="type-name-link" title="annotation interface in dagger.hilt.android.internal.uninstallmodules">AggregatedUninstallModules</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">dagger.hilt.migration.<a href="dagger/hilt/migration/AliasOf.html" class="type-name-link" title="annotation interface in dagger.hilt.migration">AliasOf</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">dagger.hilt.internal.aliasof.<a href="dagger/hilt/internal/aliasof/AliasOfPropagatedData.html" class="type-name-link" title="annotation interface in dagger.hilt.internal.aliasof">AliasOfPropagatedData</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">dagger.hilt.android.<a href="dagger/hilt/android/AndroidEntryPoint.html" class="type-name-link" title="annotation interface in dagger.hilt.android">AndroidEntryPoint</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>

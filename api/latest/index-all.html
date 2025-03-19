@@ -125,6 +125,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds a new <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle"><code>RetainedLifecycle.OnClearedListener</code></a> for receiving a callback when the lifecycle is cleared.</div>
 </dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" class="type-name-link" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a> - Annotation Interface in <a href="dagger/hilt/processor/internal/aggregateddeps/package-summary.html">dagger.hilt.processor.internal.aggregateddeps</a></dt>
+<dd>
+<div class="block">Annotation for propagating dependency information through javac runs.</div>
+</dd>
+<dt><a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html" class="type-name-link" title="annotation interface in dagger.hilt.android.internal.uninstallmodules">AggregatedUninstallModules</a> - Annotation Interface in <a href="dagger/hilt/android/internal/uninstallmodules/package-summary.html">dagger.hilt.android.internal.uninstallmodules</a></dt>
+<dd>
+<div class="block">Holds aggregated data about <a href="dagger/hilt/android/testing/UninstallModules.html" title="annotation interface in dagger.hilt.android.testing"><code>UninstallModules</code></a> elements.</div>
+</dd>
 <dt><a href="dagger/hilt/internal/aliasof/AliasOfPropagatedData.html#alias()" class="member-name-link">alias()</a> - Element in annotation interface dagger.hilt.internal.aliasof.<a href="dagger/hilt/internal/aliasof/AliasOfPropagatedData.html" title="annotation interface in dagger.hilt.internal.aliasof">AliasOfPropagatedData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/migration/AliasOf.html" class="type-name-link" title="annotation interface in dagger.hilt.migration">AliasOf</a> - Annotation Interface in <a href="dagger/hilt/migration/package-summary.html">dagger.hilt.migration</a></dt>
@@ -202,8 +210,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">This module no longer provides any value beyond what is provided in <a href="dagger/android/AndroidInjectionModule.html" title="class in dagger.android"><code>AndroidInjectionModule</code></a> and is just an alias.</div>
 </dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#annotations()" class="member-name-link">annotations()</a> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="dagger/spi/model/DaggerAnnotation.html#annotationTypeElement()" class="member-name-link">annotationTypeElement()</a> - Method in class dagger.spi.model.<a href="dagger/spi/model/DaggerAnnotation.html" title="class in dagger.spi.model">DaggerAnnotation</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/internal/testing/InternalTestRoot.html#applicationBaseClass()" class="member-name-link">applicationBaseClass()</a> - Element in annotation interface dagger.hilt.android.internal.testing.<a href="dagger/hilt/android/internal/testing/InternalTestRoot.html" title="annotation interface in dagger.hilt.android.internal.testing">InternalTestRoot</a></dt>
@@ -679,6 +685,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">A factory for a component.</div>
 </dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#componentEntryPoints()" class="member-name-link">componentEntryPoints()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/testing/HiltTestApplication.html#componentManager()" class="member-name-link">componentManager()</a> - Method in class dagger.hilt.android.testing.<a href="dagger/hilt/android/testing/HiltTestApplication.html" title="class in dagger.hilt.android.testing">HiltTestApplication</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/model/BindingGraph.html#componentNode(dagger.model.ComponentPath)" class="member-name-link">componentNode(ComponentPath)</a> - Method in class dagger.model.<a href="dagger/model/BindingGraph.html" title="class in dagger.model">BindingGraph</a></dt>
@@ -758,6 +766,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="dagger/hilt/android/testing/HiltAndroidRule.html#componentReady()" class="member-name-link">componentReady()</a> - Method in class dagger.hilt.android.testing.<a href="dagger/hilt/android/testing/HiltAndroidRule.html" title="class in dagger.hilt.android.testing">HiltAndroidRule</a></dt>
 <dd>
 <div class="block">Completes Dagger component creation if <a href="dagger/hilt/android/testing/HiltAndroidRule.html#delayComponentReady()"><code>HiltAndroidRule.delayComponentReady()</code></a> was used.</div>
+</dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#components()" class="member-name-link">components()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>
+<div class="block">Returns the components that this dependency will be installed in.</div>
 </dd>
 <dt><a href="dagger/hilt/testing/TestInstallIn.html#components()" class="member-name-link">components()</a> - Element in annotation interface dagger.hilt.testing.<a href="dagger/hilt/testing/TestInstallIn.html" title="annotation interface in dagger.hilt.testing">TestInstallIn</a></dt>
 <dd>
@@ -902,8 +914,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="dagger/grpc/server/package-summary.html">dagger.grpc.server</a> - package dagger.grpc.server</dt>
 <dd>&nbsp;</dd>
-<dt><a href="dagger/grpc/server/processor/package-summary.html">dagger.grpc.server.processor</a> - package dagger.grpc.server.processor</dt>
-<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/package-summary.html">dagger.hilt</a> - package dagger.hilt</dt>
 <dd>
 <div class="block">This package contains the core APIs for Hilt.</div>
@@ -931,6 +941,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="dagger/hilt/android/internal/modules/package-summary.html">dagger.hilt.android.internal.modules</a> - package dagger.hilt.android.internal.modules</dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/internal/testing/package-summary.html">dagger.hilt.android.internal.testing</a> - package dagger.hilt.android.internal.testing</dt>
+<dd>&nbsp;</dd>
+<dt><a href="dagger/hilt/android/internal/uninstallmodules/package-summary.html">dagger.hilt.android.internal.uninstallmodules</a> - package dagger.hilt.android.internal.uninstallmodules</dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/lifecycle/package-summary.html">dagger.hilt.android.lifecycle</a> - package dagger.hilt.android.lifecycle</dt>
 <dd>
@@ -970,6 +982,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">This package contains APIs to help migrating a codebase to Hilt.</div>
 </dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/package-summary.html">dagger.hilt.processor.internal.aggregateddeps</a> - package dagger.hilt.processor.internal.aggregateddeps</dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/testing/package-summary.html">dagger.hilt.testing</a> - package dagger.hilt.testing</dt>
 <dd>
 <div class="block">This package contains APIs for writing tests with Hilt.</div>
@@ -1369,6 +1383,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the edges for entry points that transitively depend on a binding or missing binding for
  a key.</div>
 </dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#entryPoints()" class="member-name-link">entryPoints()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/model/BindingGraph.ComponentNode.html#entryPoints()" class="member-name-link">entryPoints()</a> - Method in interface dagger.model.<a href="dagger/model/BindingGraph.ComponentNode.html" title="interface in dagger.model">BindingGraph.ComponentNode</a></dt>
 <dd>
 <div class="block">The entry points on this component.</div>
@@ -1576,8 +1592,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns a service definition that contains a <code>ServerCallHandler</code> for the
  <a href="dagger/grpc/server/ProxyServerCallHandler.html" title="class in dagger.grpc.server"><code>ProxyServerCallHandler</code></a>'s method.</div>
 </dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#getSupportedSourceVersion()" class="member-name-link">getSupportedSourceVersion()</a> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/internal/managers/ViewComponentManager.FragmentContextWrapper.html#getSystemService(java.lang.String)" class="member-name-link">getSystemService(String)</a> - Method in class dagger.hilt.android.internal.managers.<a href="dagger/hilt/android/internal/managers/ViewComponentManager.FragmentContextWrapper.html" title="class in dagger.hilt.android.internal.managers">ViewComponentManager.FragmentContextWrapper</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="dagger/hilt/android/internal/testing/TestApplicationComponentManager.html#getTestInstance()" class="member-name-link">getTestInstance()</a> - Method in class dagger.hilt.android.internal.testing.<a href="dagger/hilt/android/internal/testing/TestApplicationComponentManager.html" title="class in dagger.hilt.android.internal.testing">TestApplicationComponentManager</a></dt>
@@ -1596,12 +1610,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Annotates a class that implements a gRPC service.</div>
 </dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" class="type-name-link" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a> - Class in <a href="dagger/grpc/server/processor/package-summary.html">dagger.grpc.server.processor</a></dt>
-<dd>
-<div class="block">Generates code from types annotated with <a href="dagger/grpc/server/GrpcService.html" title="annotation interface in dagger.grpc.server"><code>@GrpcService</code></a>.</div>
-</dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#%3Cinit%3E()" class="member-name-link">GrpcServiceProcessor()</a> - Constructor for class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
-<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:H">H</h2>
 <dl class="index">
@@ -1732,8 +1740,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Initializes this plugin with a filtered view of the options passed on the <code>javac</code>
  command-line for all keys from <a href="dagger/spi/BindingGraphPlugin.html#supportedOptions()"><code>BindingGraphPlugin.supportedOptions()</code></a>.</div>
 </dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#initSteps()" class="member-name-link">initSteps()</a> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="dagger/spi/BindingGraphPlugin.html#initTypes(javax.lang.model.util.Types)" class="member-name-link">initTypes(Types)</a> - Method in interface dagger.spi.<a href="dagger/spi/BindingGraphPlugin.html" title="interface in dagger.spi">BindingGraphPlugin</a></dt>
 <dd>
 <div class="block">Initializes this plugin with a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.compiler/javax/lang/model/util/Types.html" title="class or interface in javax.lang.model.util" class="external-link"><code>Types</code></a> instance.</div>
@@ -2138,7 +2144,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:L">L</h2>
 <dl class="index">
-<dt><a href="dagger/Lazy.html" class="type-name-link" title="interface in dagger">Lazy</a>&lt;<a href="dagger/Lazy.html" title="type parameter in Lazy">T</a>&gt; - Interface in <a href="dagger/package-summary.html">dagger</a></dt>
+<dt><a href="dagger/Lazy.html" class="type-name-link" title="interface in dagger">Lazy</a>&lt;<a href="dagger/Lazy.html" title="type parameter in Lazy">T</a> extends @Nullable <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt; - Interface in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">A handle to a lazily-computed value.</div>
 </dd>
@@ -2202,7 +2208,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">A binding for a <a href="dagger/MembersInjector.html" title="interface in dagger"><code>MembersInjector</code></a> of a type.</div>
 </dd>
-<dt><a href="dagger/MembersInjector.html" class="type-name-link" title="interface in dagger">MembersInjector</a>&lt;<a href="dagger/MembersInjector.html" title="type parameter in MembersInjector">T</a>&gt; - Interface in <a href="dagger/package-summary.html">dagger</a></dt>
+<dt><a href="dagger/MembersInjector.html" class="type-name-link" title="interface in dagger">MembersInjector</a>&lt;<a href="dagger/MembersInjector.html" title="type parameter in MembersInjector">T</a> extends @Nullable <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt; - Interface in <a href="dagger/package-summary.html">dagger</a></dt>
 <dd>
 <div class="block">Injects dependencies into the fields and methods on instances of type <code>T</code>.</div>
 </dd>
@@ -2246,6 +2252,8 @@ loadScripts(document, 'script');</script>
 <div class="block">A list of classes annotated with <a href="dagger/Module.html" title="annotation interface in dagger"><code>Module</code></a> whose bindings are used to generate the
  component implementation.</div>
 </dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#modules()" class="member-name-link">modules()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="dagger/producers/ProductionComponent.html#modules()" class="member-name-link">modules()</a> - Element in annotation interface dagger.producers.<a href="dagger/producers/ProductionComponent.html" title="annotation interface in dagger.producers">ProductionComponent</a></dt>
 <dd>
 <div class="block">A list of classes annotated with <a href="dagger/Module.html" title="annotation interface in dagger"><code>Module</code></a> or <a href="dagger/producers/ProducerModule.html" title="annotation interface in dagger.producers"><code>ProducerModule</code></a> whose bindings are
@@ -2473,8 +2481,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">A distinguishing name of the plugin that will be used in diagnostics printed to the messager.</div>
 </dd>
-<dt><a href="dagger/grpc/server/processor/GrpcServiceProcessor.html#process(com.google.common.collect.SetMultimap)" class="member-name-link">process(SetMultimap&lt;Class&lt;? extends Annotation&gt;, Element&gt;)</a> - Method in class dagger.grpc.server.processor.<a href="dagger/grpc/server/processor/GrpcServiceProcessor.html" title="class in dagger.grpc.server.processor">GrpcServiceProcessor</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="dagger/producers/Produced.html" class="type-name-link" title="class in dagger.producers">Produced</a>&lt;<a href="dagger/producers/Produced.html" title="type parameter in Produced">T</a>&gt; - Class in <a href="dagger/producers/package-summary.html">dagger.producers</a></dt>
 <dd>
 <div class="block">An interface that represents the result of a <a href="dagger/producers/Producer.html" title="interface in dagger.producers">production</a> of type <code>T</code>,
@@ -2696,6 +2702,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html#removeOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)" class="member-name-link">removeOnClearedListener(RetainedLifecycle.OnClearedListener)</a> - Method in interface dagger.hilt.android.lifecycle.<a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html" title="interface in dagger.hilt.android.lifecycle">RetainedLifecycle</a></dt>
 <dd>
 <div class="block">Removes a <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.OnClearedListener.html" title="interface in dagger.hilt.android.lifecycle"><code>RetainedLifecycle.OnClearedListener</code></a> previously added via <a href="dagger/hilt/android/lifecycle/RetainedLifecycle.html#addOnClearedListener(dagger.hilt.android.lifecycle.RetainedLifecycle.OnClearedListener)"><code>RetainedLifecycle.addOnClearedListener(OnClearedListener)</code></a>.</div>
+</dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#replaces()" class="member-name-link">replaces()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>
+<div class="block">Returns the deps that this dep replaces.</div>
 </dd>
 <dt><a href="dagger/hilt/testing/TestInstallIn.html#replaces()" class="member-name-link">replaces()</a> - Element in annotation interface dagger.hilt.testing.<a href="dagger/hilt/testing/TestInstallIn.html" title="annotation interface in dagger.hilt.testing">TestInstallIn</a></dt>
 <dd>
@@ -3036,6 +3046,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html#test()" class="member-name-link">test()</a> - Element in annotation interface dagger.hilt.android.internal.uninstallmodules.<a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html" title="annotation interface in dagger.hilt.android.internal.uninstallmodules">AggregatedUninstallModules</a></dt>
+<dd>
+<div class="block">Returns the test annotated with <a href="dagger/hilt/android/testing/UninstallModules.html" title="annotation interface in dagger.hilt.android.testing"><code>UninstallModules</code></a>.</div>
+</dd>
+<dt><a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html#test()" class="member-name-link">test()</a> - Element in annotation interface dagger.hilt.processor.internal.aggregateddeps.<a href="dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.html" title="annotation interface in dagger.hilt.processor.internal.aggregateddeps">AggregatedDeps</a></dt>
+<dd>
+<div class="block">Returns the test this dependency is associated with, otherwise an empty string.</div>
+</dd>
 <dt><a href="dagger/hilt/android/internal/testing/TestApplicationComponentManager.html" class="type-name-link" title="class in dagger.hilt.android.internal.testing">TestApplicationComponentManager</a> - Class in <a href="dagger/hilt/android/internal/testing/package-summary.html">dagger.hilt.android.internal.testing</a></dt>
 <dd>
 <div class="block">Do not use except in Hilt generated code!</div>
@@ -3143,6 +3161,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:U">U</h2>
 <dl class="index">
+<dt><a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html#uninstallModules()" class="member-name-link">uninstallModules()</a> - Element in annotation interface dagger.hilt.android.internal.uninstallmodules.<a href="dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules.html" title="annotation interface in dagger.hilt.android.internal.uninstallmodules">AggregatedUninstallModules</a></dt>
+<dd>
+<div class="block">Returns the list of modules to uninstall.</div>
+</dd>
 <dt><a href="dagger/hilt/android/testing/UninstallModules.html" class="type-name-link" title="annotation interface in dagger.hilt.android.testing">UninstallModules</a> - Annotation Interface in <a href="dagger/hilt/android/testing/package-summary.html">dagger.hilt.android.testing</a></dt>
 <dd>
 <div class="block">An annotation used to uninstall modules that have previously been installed with <a href="dagger/hilt/InstallIn.html" title="annotation interface in dagger.hilt"><code>InstallIn</code></a>.</div>

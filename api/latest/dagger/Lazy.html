@@ -70,22 +70,23 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">dagger</a></div>
-<h1 title="Interface Lazy" class="title">Interface Lazy&lt;T&gt;</h1>
+<h1 title="Interface Lazy" class="title">Interface Lazy&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</h1>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">Lazy&lt;T&gt;</span></div>
-<div class="block">A handle to a lazily-computed value. Each <code>Lazy</code> computes its value on
- the first call to <a href="#get()"><code>get()</code></a> and remembers that same value for all
- subsequent calls to <code>get()</code>.
+<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">Lazy&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span></div>
+<div class="block">A handle to a lazily-computed value. Each <code>Lazy</code> computes its value on the first call to
+ <a href="#get()"><code>get()</code></a> and remembers that same value for all subsequent calls to <code>get()</code>.
 
  <p>All implementations are expected to be thread-safe and compute their value at most once.
 
  <h2>Example</h2>
- The differences between <strong>direct injection</strong>, <strong>provider
- injection</strong> and <strong>lazy injection</strong> are best demonstrated
- with an example. Start with a module that computes a different integer for
- each use:<pre><code>
+
+ The differences between <strong>direct injection</strong>, <strong>provider injection</strong>
+ and <strong>lazy injection</strong> are best demonstrated with an example. Start with a module
+ that computes a different integer for each use:
+
+ <pre><code>
    @Module
    final class CounterModule {
      int next = 100;
@@ -98,7 +99,10 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  <h3>Direct Injection</h3>
- This class injects that integer and prints it 3 times:<pre><code>
+
+ This class injects that integer and prints it 3 times:
+
+ <pre><code>
    final class DirectCounter {
      @Inject Integer value;
 
@@ -110,8 +114,11 @@ loadScripts(document, 'script');</script>
      }
    }
  </code></pre>
- Injecting a <code>DirectCounter</code> and invoking <code>print()</code> reveals that
- the value is computed <i>before</i> it is required:<pre><code>
+
+ Injecting a <code>DirectCounter</code> and invoking <code>print()</code> reveals that the value is computed
+ <i>before</i> it is required:
+
+ <pre><code>
    computing...
    printing...
    100
@@ -120,8 +127,10 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  <h3>Provider Injection</h3>
- This class injects a provider for the
- integer. It calls <code>Provider.get()</code> 3 times and prints each result:
+
+ This class injects a provider for the integer. It calls <code>
+ Provider.get()</code> 3 times and prints each result:
+
  <pre><code>
    final class ProviderCounter {
      @Inject Provider&lt;Integer&gt; provider;
@@ -134,8 +143,11 @@ loadScripts(document, 'script');</script>
      }
    }
  </code></pre>
- Injecting a <code>ProviderCounter</code> and invoking <code>print()</code> shows that
- a new value is computed each time <code>Provider.get()</code> is used:<pre><code>
+
+ Injecting a <code>ProviderCounter</code> and invoking <code>print()</code> shows that a new value is
+ computed each time <code>Provider.get()</code> is used:
+
+ <pre><code>
    printing...
    computing...
    100
@@ -146,8 +158,11 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  <h3>Lazy Injection</h3>
- This class injects a <code>Lazy</code> for the integer. Like the provider above,
- it calls <code>Lazy.get()</code> 3 times and prints each result:<pre><code>
+
+ This class injects a <code>Lazy</code> for the integer. Like the provider above, it calls <code>
+ Lazy.get()</code> 3 times and prints each result:
+
+ <pre><code>
    final class LazyCounter {
      @Inject Lazy&lt;Integer&gt; lazy;
 
@@ -159,9 +174,11 @@ loadScripts(document, 'script');</script>
      }
    }
  </code></pre>
- Injecting a <code>LazyCounter</code> and invoking <code>print()</code> shows that a new
- value is computed immediately before it is needed. The same value is returned
- for all subsequent uses:<pre><code>
+
+ Injecting a <code>LazyCounter</code> and invoking <code>print()</code> shows that a new value is computed
+ immediately before it is needed. The same value is returned for all subsequent uses:
+
+ <pre><code>
    printing...
    computing...
    100
@@ -170,9 +187,11 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  <h3>Lazy != Singleton</h3>
- Note that each injected <code>Lazy</code> is independent, and remembers its value
- in isolation of other <code>Lazy</code> instances. In this example, two <code>
- LazyCounter</code> objects are created and <code>print()</code> is called on each:
+
+ Note that each injected <code>Lazy</code> is independent, and remembers its value in isolation of
+ other <code>Lazy</code> instances. In this example, two <code>LazyCounter</code> objects are created and
+ <code>print()</code> is called on each:
+
  <pre><code>
    final class LazyCounters {
      @Inject LazyCounter counter1;
@@ -184,7 +203,9 @@ loadScripts(document, 'script');</script>
      }
    }
  </code></pre>
+
  The output demonstrates that each <code>Lazy</code> works independently:
+
  <pre><code>
    printing...
    computing...
@@ -197,8 +218,9 @@ loadScripts(document, 'script');</script>
    101
    101
  </code></pre>
- Use <code>@Singleton</code> to share one instance among all
- clients, and <code>Lazy</code> for lazy computation in a single client.</div>
+
+ Use <code>@Singleton</code> to share one instance among all clients, and <code>
+ Lazy</code> for lazy computation in a single client.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
