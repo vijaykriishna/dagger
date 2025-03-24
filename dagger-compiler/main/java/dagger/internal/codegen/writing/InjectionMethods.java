@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedParameter;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
@@ -25,17 +25,18 @@ import static dagger.internal.codegen.binding.SourceFiles.membersInjectorMethodN
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toConcatenatedCodeBlock;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toConcatenatedCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.erasedTypeName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -45,7 +46,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
@@ -96,14 +96,14 @@ final class InjectionMethods {
      * Invokes the injection method for {@code binding}, with the dependencies transformed with the
      * {@code dependencyUsage} function.
      */
-    static CodeBlock invoke(
+    static XCodeBlock invoke(
         ContributionBinding binding,
-        Function<DependencyRequest, CodeBlock> dependencyUsage,
+        Function<DependencyRequest, XCodeBlock> dependencyUsage,
         Function<XExecutableParameterElement, String> uniqueAssistedParameterName,
         XClassName requestingClass,
-        Optional<CodeBlock> moduleReference,
+        Optional<XCodeBlock> moduleReference,
         CompilerOptions compilerOptions) {
-      ImmutableList.Builder<CodeBlock> arguments = ImmutableList.builder();
+      ImmutableList.Builder<XCodeBlock> arguments = ImmutableList.builder();
       moduleReference.ifPresent(arguments::add);
       invokeArguments(binding, dependencyUsage, uniqueAssistedParameterName)
           .forEach(arguments::add);
@@ -113,9 +113,9 @@ final class InjectionMethods {
       return invokeMethod(methodName, arguments.build(), enclosingClass, requestingClass);
     }
 
-    static ImmutableList<CodeBlock> invokeArguments(
+    static ImmutableList<XCodeBlock> invokeArguments(
         ContributionBinding binding,
-        Function<DependencyRequest, CodeBlock> dependencyUsage,
+        Function<DependencyRequest, XCodeBlock> dependencyUsage,
         Function<XExecutableParameterElement, String> uniqueAssistedParameterName) {
       ImmutableMap<XExecutableParameterElement, DependencyRequest> dependencyRequestMap =
           provisionDependencies(binding).stream()
@@ -124,11 +124,11 @@ final class InjectionMethods {
                       request -> asMethodParameter(request.requestElement().get().xprocessing()),
                       request -> request));
 
-      ImmutableList.Builder<CodeBlock> arguments = ImmutableList.builder();
+      ImmutableList.Builder<XCodeBlock> arguments = ImmutableList.builder();
       XExecutableElement method = asExecutable(binding.bindingElement().get());
       for (XExecutableParameterElement parameter : method.getParameters()) {
         if (isAssistedParameter(parameter)) {
-          arguments.add(CodeBlock.of("$L", uniqueAssistedParameterName.apply(parameter)));
+          arguments.add(XCodeBlock.of("%L", uniqueAssistedParameterName.apply(parameter)));
         } else if (dependencyRequestMap.containsKey(parameter)) {
           DependencyRequest request = dependencyRequestMap.get(parameter);
           arguments.add(dependencyUsage.apply(request));
@@ -179,12 +179,12 @@ final class InjectionMethods {
      *
      * @param instanceType the type of the {@code instance} parameter
      */
-    static CodeBlock invokeAll(
+    static XCodeBlock invokeAll(
         ImmutableSet<InjectionSite> injectionSites,
         XClassName generatedTypeName,
-        CodeBlock instanceCodeBlock,
+        XCodeBlock instanceCodeBlock,
         XType instanceType,
-        Function<DependencyRequest, CodeBlock> dependencyUsage) {
+        Function<DependencyRequest, XCodeBlock> dependencyUsage) {
       return injectionSites.stream()
           .map(
               injectionSite -> {
@@ -195,14 +195,15 @@ final class InjectionMethods {
                 // publicly accessible, the InjectionSiteMethod will request the actual type and not
                 // Object as the first parameter. If so, cast to the supertype which is accessible
                 // from within generatedTypeName
-                CodeBlock maybeCastedInstance =
+                XCodeBlock maybeCastedInstance =
                     instanceType.getTypeName().equals(TypeName.OBJECT)
                             && isRawTypeAccessible(
                                 injectSiteType, generatedTypeName.getPackageName())
-                        ? CodeBlock.of("($T) $L", erasedTypeName(injectSiteType), instanceCodeBlock)
+                        ? XCodeBlock.ofCast(
+                            toXPoet(erasedTypeName(injectSiteType)), instanceCodeBlock)
                         : instanceCodeBlock;
-                return CodeBlock.of(
-                    "$L;",
+                return XCodeBlock.of(
+                    "%L;",
                     invoke(injectionSite, generatedTypeName, maybeCastedInstance, dependencyUsage));
               })
           .collect(toConcatenatedCodeBlock());
@@ -212,13 +213,13 @@ final class InjectionMethods {
      * Invokes the injection method for {@code injectionSite}, with the dependencies transformed
      * using the {@code dependencyUsage} function.
      */
-    private static CodeBlock invoke(
+    private static XCodeBlock invoke(
         InjectionSite injectionSite,
         XClassName generatedTypeName,
-        CodeBlock instanceCodeBlock,
-        Function<DependencyRequest, CodeBlock> dependencyUsage) {
-      ImmutableList<CodeBlock> arguments =
-          ImmutableList.<CodeBlock>builder()
+        XCodeBlock instanceCodeBlock,
+        Function<DependencyRequest, XCodeBlock> dependencyUsage) {
+      ImmutableList<XCodeBlock> arguments =
+          ImmutableList.<XCodeBlock>builder()
               .add(instanceCodeBlock)
               .addAll(
                   injectionSite.dependencies().stream()
@@ -231,18 +232,18 @@ final class InjectionMethods {
     }
   }
 
-  private static CodeBlock invokeMethod(
+  private static XCodeBlock invokeMethod(
       String methodName,
-      ImmutableList<CodeBlock> parameters,
+      ImmutableList<XCodeBlock> parameters,
       XClassName enclosingClass,
       XClassName requestingClass) {
-    CodeBlock parameterBlock = makeParametersCodeBlock(parameters);
+    XCodeBlock parameterBlock = makeParametersCodeBlock(parameters);
     return enclosingClass.equals(requestingClass)
-        ? CodeBlock.of("$L($L)", methodName, parameterBlock)
-        : CodeBlock.of("$T.$L($L)", toJavaPoet(enclosingClass), methodName, parameterBlock);
+        ? XCodeBlock.of("%L(%L)", methodName, parameterBlock)
+        : XCodeBlock.of("%T.%L(%L)", enclosingClass, methodName, parameterBlock);
   }
 
-  static CodeBlock copyParameters(
+  static XCodeBlock copyParameters(
       MethodSpec.Builder methodBuilder,
       UniqueNameSet parameterNameSet,
       List<? extends XVariableElement> parameters) {
@@ -261,7 +262,7 @@ final class InjectionMethods {
         .collect(toParametersCodeBlock());
   }
 
-  static CodeBlock copyParameter(
+  static XCodeBlock copyParameter(
       MethodSpec.Builder methodBuilder,
       XType type,
       String name,
@@ -280,6 +281,8 @@ final class InjectionMethods {
                     .map(it -> AnnotationSpec.builder(it).build())
                     .collect(toImmutableList()))
             .build());
-    return useObject ? CodeBlock.of("($T) $L", type.getTypeName(), name) : CodeBlock.of("$L", name);
+    return useObject
+        ? XCodeBlock.ofCast(type.asTypeName(), XCodeBlock.of("%L", name))
+        : XCodeBlock.of("%L", name);
   }
 }

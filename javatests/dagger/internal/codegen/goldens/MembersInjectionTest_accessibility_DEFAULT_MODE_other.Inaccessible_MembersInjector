@@ -45,11 +45,11 @@ public final class Inaccessible_MembersInjector implements MembersInjector<Inacc
 
   @InjectedFieldSignature("other.Inaccessible.foo")
   public static void injectFoo(Object instance, Object foo) {
-    ((Inaccessible) instance).foo = (Foo) foo;
+    ((Inaccessible) (instance)).foo = (Foo) (foo);
   }
 
   public static void injectMethod(Object instance, Object foo) {
-    ((Inaccessible) instance).method((Foo) foo);
+    ((Inaccessible) (instance)).method((Foo) (foo));
   }
 }
 

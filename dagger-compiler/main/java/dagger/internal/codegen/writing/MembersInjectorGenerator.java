@@ -30,15 +30,15 @@ import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameFor
 import static dagger.internal.codegen.binding.SourceFiles.parameterizedGeneratedTypeNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.asField;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
@@ -46,11 +46,13 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
 import static dagger.internal.codegen.xprocessing.XTypeNames.membersInjectorOf;
 import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
@@ -65,8 +67,6 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -119,7 +119,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
 
     XClassName generatedTypeName = membersInjectorNameForType(binding.membersInjectedType());
     ImmutableList<XTypeName> typeParameters = bindingTypeElementTypeVariableNames(binding);
-    ImmutableMap<DependencyRequest, FieldSpec> frameworkFields = frameworkFields(binding);
+    ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields = frameworkFields(binding);
     TypeSpec.Builder injectorTypeBuilder =
         classBuilder(toJavaPoet(generatedTypeName))
             .addModifiers(PUBLIC, FINAL)
@@ -130,7 +130,10 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             .addAnnotation(qualifierMetadataAnnotation(binding))
             .addSuperinterface(
                 toJavaPoet(membersInjectorOf(binding.key().type().xprocessing().asTypeName())))
-            .addFields(frameworkFields.values())
+            .addFields(
+                frameworkFields.values().stream()
+                    .map(XConverters::toJavaPoet)
+                    .collect(toImmutableList()))
             .addMethod(constructor(frameworkFields))
             .addMethod(createMethod(binding, frameworkFields))
             .addMethod(injectMembersMethod(binding, frameworkFields))
@@ -184,9 +187,11 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                     .collect(toImmutableList()));
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
-    CodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
-    CodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
-    return builder.addStatement("$L.$L($L)", instance, method.getJvmName(), arguments).build();
+    XCodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
+    XCodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    return builder
+        .addStatement("$L.$L($L)", toJavaPoet(instance), method.getJvmName(), toJavaPoet(arguments))
+        .build();
   }
 
   // Example:
@@ -213,19 +218,22 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     qualifier.map(XAnnotations::getAnnotationSpec).ifPresent(builder::addAnnotation);
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
-    CodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
-    CodeBlock argument = copyParameters(builder, parameterNameSet, ImmutableList.of(field));
-    return builder.addStatement("$L.$L = $L", instance, getSimpleName(field), argument).build();
+    XCodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
+    XCodeBlock argument = copyParameters(builder, parameterNameSet, ImmutableList.of(field));
+    return builder
+        .addStatement(
+            "$L.$L = $L", toJavaPoet(instance), getSimpleName(field), toJavaPoet(argument))
+        .build();
   }
 
   private static ImmutableList<XTypeName> getThrownTypes(XExecutableElement executable) {
     return executable.getThrownTypes().stream().map(XType::asTypeName).collect(toImmutableList());
   }
 
-  private static CodeBlock copyInstance(
+  private static XCodeBlock copyInstance(
       MethodSpec.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
     boolean useObject = !isRawTypePubliclyAccessible(type);
-    CodeBlock instance =
+    XCodeBlock instance =
         copyParameter(
             methodBuilder,
             type,
@@ -233,7 +241,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             useObject,
             Nullability.NOT_NULLABLE);
     // If we had to cast the instance add an extra parenthesis incase we're calling a method on it.
-    return useObject ? CodeBlock.of("($L)", instance) : instance;
+    return useObject ? XCodeBlock.of("(%L)", instance) : instance;
   }
 
   // MyClass(
@@ -247,22 +255,24 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   //   this.dep2Provider = dep2Provider;
   //   this.dep3Provider = dep3Provider;
   // }
-  private MethodSpec constructor(ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+  private MethodSpec constructor(ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
     ImmutableList<ParameterSpec> dependencyParameters =
         frameworkFields.values().stream()
             .map(
                 field ->
-                    ParameterSpec.builder(field.type, field.name)
-                        .addAnnotations(field.annotations)
+                    ParameterSpec.builder(
+                            toJavaPoet(field.getType()), field.getName()) // SUPPRESS_GET_NAME_CHECK
+                        .addAnnotations(toJavaPoet(field).annotations)
                         .build())
             .collect(toImmutableList());
     return constructorBuilder()
         .addModifiers(PUBLIC)
         .addParameters(dependencyParameters)
         .addCode(
-            dependencyParameters.stream()
-                .map(parameter -> CodeBlock.of("this.$1N = $1N;", parameter))
-                .collect(toConcatenatedCodeBlock()))
+            toJavaPoet(
+                dependencyParameters.stream()
+                    .map(parameter -> XCodeBlock.of("this.%1L = %1L;", parameter.name))
+                    .collect(toConcatenatedCodeBlock())))
         .build();
   }
 
@@ -277,7 +287,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   // }
   private MethodSpec createMethod(
       MembersInjectionBinding binding,
-      ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+      ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
     List<ParameterSpec> params = constructor(frameworkFields).parameters;
     // We use a static create method so that generated components can avoid having
     // to refer to the generic types of the factory.
@@ -306,21 +316,22 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   // }
   private MethodSpec injectMembersMethod(
       MembersInjectionBinding binding,
-      ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+      ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
     XType instanceType = binding.key().type().xprocessing();
-    ImmutableMap<DependencyRequest, CodeBlock> dependencyCodeBlocks =
+    ImmutableMap<DependencyRequest, XCodeBlock> dependencyCodeBlocks =
         sourceFiles.frameworkFieldUsages(binding.dependencies(), frameworkFields);
+    XCodeBlock invokeInjectionSites =
+        InjectionSiteMethod.invokeAll(
+            binding.injectionSites(),
+            membersInjectorNameForType(binding.membersInjectedType()),
+            XCodeBlock.of("instance"),
+            instanceType,
+            dependencyCodeBlocks::get);
     return methodBuilder("injectMembers")
         .addModifiers(PUBLIC)
         .addAnnotation(Override.class)
-        .addParameter(instanceType.getTypeName(), "instance")
-        .addCode(
-            InjectionSiteMethod.invokeAll(
-                binding.injectionSites(),
-                membersInjectorNameForType(binding.membersInjectedType()),
-                CodeBlock.of("instance"),
-                instanceType,
-                dependencyCodeBlocks::get))
+        .addParameter(toJavaPoet(instanceType.asTypeName()), "instance")
+        .addCode(toJavaPoet(invokeInjectionSites))
         .build();
   }
 
@@ -344,11 +355,11 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     return builder.build();
   }
 
-  private static ImmutableMap<DependencyRequest, FieldSpec> frameworkFields(
+  private static ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields(
       MembersInjectionBinding binding) {
     UniqueNameSet fieldNames = new UniqueNameSet();
     XClassName membersInjectorTypeName = membersInjectorNameForType(binding.membersInjectedType());
-    ImmutableMap.Builder<DependencyRequest, FieldSpec> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<DependencyRequest, XPropertySpec> builder = ImmutableMap.builder();
     generateBindingFieldsForDependencies(binding)
         .forEach(
             (request, bindingField) -> {
@@ -358,17 +369,19 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                   !isTypeAccessibleFrom(
                       request.key().type().xprocessing(), membersInjectorTypeName.getPackageName());
               XTypeName fieldType =
-                  useRawFrameworkType
-                      ? bindingField.type().getRawTypeName()
-                      : bindingField.type();
+                  useRawFrameworkType ? bindingField.type().getRawTypeName() : bindingField.type();
               String fieldName = fieldNames.getUniqueName(bindingField.name());
-              FieldSpec field =
-                  useRawFrameworkType
-                      ? FieldSpec.builder(toJavaPoet(fieldType), fieldName, PRIVATE, FINAL)
-                          .addAnnotation(suppressWarnings(RAWTYPES))
-                          .build()
-                      : FieldSpec.builder(toJavaPoet(fieldType), fieldName, PRIVATE, FINAL).build();
-              builder.put(request, field);
+              XPropertySpec.Builder fieldBuilder =
+                  XPropertySpec.builder(
+                      /* name= */ fieldName,
+                      /* typeName= */ fieldType,
+                      /* visibility= */ VisibilityModifier.PRIVATE,
+                      /* isMutable= */ false,
+                      /* addJavaNullabilityAnnotation= */ false);
+              if (useRawFrameworkType) {
+                fieldBuilder.addAnnotation(suppressWarnings(RAWTYPES));
+              }
+              builder.put(request, fieldBuilder.build());
             });
     return builder.buildOrThrow();
   }

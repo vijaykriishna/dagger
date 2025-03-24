@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
@@ -32,6 +31,8 @@ import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableName
 import static javax.lang.model.SourceVersion.isName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XFieldElement;
@@ -43,8 +44,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
@@ -92,38 +91,38 @@ public final class SourceFiles {
         });
   }
 
-  public CodeBlock frameworkTypeUsageStatement(
-      CodeBlock frameworkTypeMemberSelect, RequestKind dependencyKind) {
+  public XCodeBlock frameworkTypeUsageStatement(
+      XCodeBlock frameworkTypeMemberSelect, RequestKind dependencyKind) {
     switch (dependencyKind) {
       case LAZY:
-        return CodeBlock.of(
-            "$T.lazy($L)",
-            toJavaPoet(XTypeNames.DOUBLE_CHECK),
+        return XCodeBlock.of(
+            "%T.lazy(%L)",
+            XTypeNames.DOUBLE_CHECK,
             frameworkTypeMemberSelect);
       case INSTANCE:
       case FUTURE:
-        return CodeBlock.of("$L.get()", frameworkTypeMemberSelect);
+        return XCodeBlock.of("%L.get()", frameworkTypeMemberSelect);
       case PROVIDER:
       case PRODUCER:
         return frameworkTypeMemberSelect;
       case PROVIDER_OF_LAZY:
-        return CodeBlock.of(
-            "$T.create($L)", toJavaPoet(XTypeNames.PROVIDER_OF_LAZY), frameworkTypeMemberSelect);
+        return XCodeBlock.of(
+            "%T.create(%L)", XTypeNames.PROVIDER_OF_LAZY, frameworkTypeMemberSelect);
       default: // including PRODUCED
         throw new AssertionError(dependencyKind);
     }
   }
 
   /**
-   * Returns a mapping of {@link DependencyRequest}s to {@link CodeBlock}s that {@linkplain
-   * #frameworkTypeUsageStatement(CodeBlock, RequestKind) use them}.
+   * Returns a mapping of {@link DependencyRequest}s to {@link XCodeBlock}s that {@linkplain
+   * #frameworkTypeUsageStatement(XCodeBlock, RequestKind) use them}.
    */
-  public ImmutableMap<DependencyRequest, CodeBlock> frameworkFieldUsages(
+  public ImmutableMap<DependencyRequest, XCodeBlock> frameworkFieldUsages(
       ImmutableSet<DependencyRequest> dependencies,
-      ImmutableMap<DependencyRequest, FieldSpec> fields) {
+      ImmutableMap<DependencyRequest, XPropertySpec> fields) {
     return Maps.toMap(
         dependencies,
-        dep -> frameworkTypeUsageStatement(CodeBlock.of("$N", fields.get(dep)), dep.kind()));
+        dep -> frameworkTypeUsageStatement(XCodeBlock.of("%N", fields.get(dep)), dep.kind()));
   }
 
   public static String generatedProxyMethodName(ContributionBinding binding) {

@@ -50,11 +50,11 @@ public final class SomeBinding_MembersInjector implements MembersInjector<SomeBi
   @InjectedFieldSignature("test.SomeBinding.injectField")
   @FieldQualifier
   public static void injectInjectField(Object instance, String injectField) {
-    ((SomeBinding) instance).injectField = injectField;
+    ((SomeBinding) (instance)).injectField = injectField;
   }
 
   public static void injectInjectMethod(Object instance, Float f) {
-    ((SomeBinding) instance).injectMethod(f);
+    ((SomeBinding) (instance)).injectMethod(f);
   }
 }
 

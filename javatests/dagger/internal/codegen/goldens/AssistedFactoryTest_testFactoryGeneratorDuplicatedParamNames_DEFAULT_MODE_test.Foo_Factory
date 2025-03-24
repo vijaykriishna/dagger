@@ -38,7 +38,7 @@ public final class Foo_Factory {
   }
 
   public static Foo newInstance(Object arg, Integer argProvider) {
-    return new Foo((Bar) arg, argProvider);
+    return new Foo((Bar) (arg), argProvider);
   }
 }
 

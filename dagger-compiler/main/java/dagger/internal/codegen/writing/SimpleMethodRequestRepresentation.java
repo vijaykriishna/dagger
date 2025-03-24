@@ -20,15 +20,17 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.Preconditions.checkArgument;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableElement;
@@ -37,7 +39,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -51,6 +52,7 @@ import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import java.util.Optional;
 
 /**
@@ -98,40 +100,36 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
 
   private Expression invokeMethod(XClassName requestingClass) {
     // TODO(dpb): align this with the contents of InlineMethods.create
-    CodeBlock arguments =
+    XCodeBlock arguments =
         makeParametersCodeBlock(
             ProvisionMethod.invokeArguments(
                 binding,
-                request -> dependencyArgument(request, requestingClass).codeBlock(),
+                request -> toXPoet(dependencyArgument(request, requestingClass).codeBlock()),
                 shardImplementation::getUniqueFieldNameForAssistedParam));
     XElement bindingElement = binding.bindingElement().get();
     XTypeElement bindingTypeElement = binding.bindingTypeElement().get();
-    CodeBlock invocation;
+    XCodeBlock invocation;
     if (isConstructor(bindingElement)) {
-      invocation =
-          CodeBlock.of(
-              "new $T($L)",
-              toJavaPoet(constructorTypeName(requestingClass)),
-              arguments);
+      invocation = XCodeBlock.ofNewInstance(constructorTypeName(requestingClass), "%L", arguments);
     } else if (isMethod(bindingElement)) {
-      CodeBlock module;
-      Optional<CodeBlock> requiredModuleInstance = moduleReference(requestingClass);
+      XCodeBlock module;
+      Optional<XCodeBlock> requiredModuleInstance = moduleReference(requestingClass);
       if (requiredModuleInstance.isPresent()) {
         module = requiredModuleInstance.get();
       } else if (bindingTypeElement.isKotlinObject() && !bindingTypeElement.isCompanionObject()) {
         // Call through the singleton instance.
         // See: https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#static-methods
-        module = CodeBlock.of("$T.INSTANCE", bindingTypeElement.getClassName());
+        module = XCodeBlock.of("%T.INSTANCE", bindingTypeElement.asClassName());
       } else {
-        module = CodeBlock.of("$T", bindingTypeElement.getClassName());
+        module = XCodeBlock.of("%T", bindingTypeElement.asClassName());
       }
       invocation =
-          CodeBlock.of("$L.$L($L)", module, asMethod(bindingElement).getJvmName(), arguments);
+          XCodeBlock.of("%L.%L(%L)", module, asMethod(bindingElement).getJvmName(), arguments);
     } else {
       throw new AssertionError("Unexpected binding element: " + bindingElement);
     }
 
-    return Expression.create(simpleMethodReturnType(), invocation);
+    return Expression.create(simpleMethodReturnType(), toJavaPoet(invocation));
   }
 
   private XTypeName constructorTypeName(XClassName requestingClass) {
@@ -146,7 +144,7 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
     return injectMembers(
         ProvisionMethod.invoke(
             binding,
-            request -> dependencyArgument(request, requestingClass).codeBlock(),
+            request -> toXPoet(dependencyArgument(request, requestingClass).codeBlock()),
             shardImplementation::getUniqueFieldNameForAssistedParam,
             requestingClass,
             moduleReference(requestingClass),
@@ -159,9 +157,9 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         dependency, requestingClass);
   }
 
-  private Expression injectMembers(CodeBlock instance, XClassName requestingClass) {
+  private Expression injectMembers(XCodeBlock instance, XClassName requestingClass) {
     if (!hasInjectionSites(binding)) {
-      return Expression.create(simpleMethodReturnType(), instance);
+      return Expression.create(simpleMethodReturnType(), toJavaPoet(instance));
     }
     if (isPreJava8SourceVersion(processingEnv)) {
       // Java 7 type inference can't figure out that instance in
@@ -171,23 +169,21 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         XType keyType = binding.key().type().xprocessing();
         XTypeName keyTypeName = keyType.asTypeName();
         XTypeName rawKeyTypeName = keyType.getRawType().asTypeName();
-        instance = CodeBlock.of(
-            "($T) ($T) $L",
-            toJavaPoet(keyTypeName),
-            toJavaPoet(rawKeyTypeName),
-            instance);
+        instance = XCodeBlock.of("($T) ($T) $L", keyTypeName, rawKeyTypeName, instance);
       }
     }
-    return membersInjectionMethods.getInjectExpression(binding.key(), instance, requestingClass);
+    return membersInjectionMethods.getInjectExpression(
+        binding.key(), toJavaPoet(instance), requestingClass);
   }
 
-  private Optional<CodeBlock> moduleReference(XClassName requestingClass) {
+  private Optional<XCodeBlock> moduleReference(XClassName requestingClass) {
     return binding.requiresModuleInstance()
         ? binding
             .contributingModule()
             .map(XTypeElement::getType)
             .map(ComponentRequirement::forModule)
             .map(module -> componentRequirementExpressions.getExpression(module, requestingClass))
+            .map(XCodeBlocks::toXPoet)
         : Optional.empty();
   }
 

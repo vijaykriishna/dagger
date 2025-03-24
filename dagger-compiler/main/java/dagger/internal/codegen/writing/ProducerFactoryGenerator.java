@@ -44,8 +44,12 @@ import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -55,7 +59,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -124,6 +127,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                     // included as fields in the generated factory subclass.
                     .filter(field -> !field.equals(factoryFields.executorField))
                     .filter(field -> !field.equals(factoryFields.monitorField))
+                    .map(XConverters::toJavaPoet)
                     .collect(toImmutableList()))
             .addMethod(constructorMethod(binding, factoryFields))
             .addMethod(staticCreateMethod(binding, factoryFields))
@@ -153,25 +157,26 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     MethodSpec.Builder constructorBuilder = constructorBuilder().addModifiers(PRIVATE);
     constructorBuilder.addStatement(
         "super($N, $L, $N)",
-        factoryFields.monitorField,
-        producerTokenConstruction(generatedClassNameForBinding(binding), binding),
-        factoryFields.executorField);
-    factoryFields.getAll()
+        toJavaPoet(factoryFields.monitorField),
+        toJavaPoet(producerTokenConstruction(generatedClassNameForBinding(binding), binding)),
+        toJavaPoet(factoryFields.executorField));
+    factoryFields
+        .getAll()
         .forEach(
             field -> {
-              constructorBuilder.addParameter(field.type, field.name);
+              constructorBuilder.addParameter(
+                  toJavaPoet(field.getType()), field.getName()); // SUPPRESS_GET_NAME_CHECK
               // The executor and monitor fields belong to the super class so they don't need a
               // field assignment here.
               if (!field.equals(factoryFields.executorField)
-                      && !field.equals(factoryFields.monitorField)) {
-                if (XTypeNames.rawJavaTypeName(field.type)
-                        .equals(toJavaPoet(XTypeNames.PRODUCER))) {
+                  && !field.equals(factoryFields.monitorField)) {
+                if (field.getType().getRawTypeName().equals(XTypeNames.PRODUCER)) {
                   constructorBuilder.addStatement(
                       "this.$1N = $2T.nonCancellationPropagatingViewOf($1N)",
-                      field,
+                      toJavaPoet(field),
                       toJavaPoet(XTypeNames.PRODUCERS));
                 } else {
-                  constructorBuilder.addStatement("this.$1N = $1N", field);
+                  constructorBuilder.addStatement("this.$1N = $1N", toJavaPoet(field));
                 }
               }
             });
@@ -239,23 +244,24 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             .build();
       case 1: {
         DependencyRequest asyncDependency = getOnlyElement(asyncDependencies);
-        FieldSpec asyncDependencyField = factoryFields.get(asyncDependency);
-        return methodBuilder
-            .returns(toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))))
-            .addStatement("return $L", producedCodeBlock(asyncDependency, asyncDependencyField))
-            .build();
+          XPropertySpec asyncDependencyField = factoryFields.get(asyncDependency);
+          return methodBuilder
+              .returns(toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))))
+              .addStatement(
+                  "return $L", toJavaPoet(producedCodeBlock(asyncDependency, asyncDependencyField)))
+              .build();
       }
       default:
         CodeBlock.Builder argAssignments = CodeBlock.builder();
         ImmutableList.Builder<CodeBlock> argNames = ImmutableList.builder();
         for (DependencyRequest asyncDependency : asyncDependencies) {
-          FieldSpec asyncDependencyField = factoryFields.get(asyncDependency);
+          XPropertySpec asyncDependencyField = factoryFields.get(asyncDependency);
           argNames.add(CodeBlock.of("$L", dependencyFutureName(asyncDependency)));
           argAssignments.addStatement(
               "$T $L = $L",
               toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))),
               dependencyFutureName(asyncDependency),
-              producedCodeBlock(asyncDependency, asyncDependencyField));
+              toJavaPoet(producedCodeBlock(asyncDependency, asyncDependencyField)));
         }
         return methodBuilder
             .returns(toJavaPoet(listenableFutureOf(listOf(XTypeName.ANY_OBJECT))))
@@ -269,10 +275,10 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     }
   }
 
-  private CodeBlock producedCodeBlock(DependencyRequest request, FieldSpec field) {
+  private XCodeBlock producedCodeBlock(DependencyRequest request, XPropertySpec field) {
     return request.kind() == RequestKind.PRODUCED
-        ? CodeBlock.of("$T.createFutureProduced($N.get())", toJavaPoet(XTypeNames.PRODUCERS), field)
-        : CodeBlock.of("$N.get()", field);
+        ? XCodeBlock.of("%T.createFutureProduced(%N.get())", XTypeNames.PRODUCERS, field)
+        : XCodeBlock.of("%N.get()", field);
   }
 
   // Example 1: No async dependencies.
@@ -320,8 +326,9 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         }
       } else {
         parameterCodeBlocks.add(
-            sourceFiles.frameworkTypeUsageStatement(
-                CodeBlock.of("$N", factoryFields.get(dependency)), dependency.kind()));
+            toJavaPoet(
+                sourceFiles.frameworkTypeUsageStatement(
+                    XCodeBlock.of("%N", factoryFields.get(dependency)), dependency.kind())));
       }
     }
     if (asyncDependencies.size() > 1) {
@@ -332,7 +339,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         CodeBlock.of(
             "$L.$L($L)",
             factoryFields.moduleField.isPresent()
-                ? factoryFields.moduleField.get().name
+                ? factoryFields.moduleField.get().getName() // SUPPRESS_GET_NAME_CHECK
                 : CodeBlock.of("$T", toJavaPoet(binding.bindingTypeElement().get().asClassName())),
             getSimpleName(binding.bindingElement().get()),
             makeParametersCodeBlock(parameterCodeBlocks.build()));
@@ -385,18 +392,18 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         .collect(toImmutableList());
   }
 
-  private CodeBlock producerTokenConstruction(
+  private XCodeBlock producerTokenConstruction(
       XClassName generatedTypeName, ProductionBinding binding) {
-    CodeBlock producerTokenArgs =
+    XCodeBlock producerTokenArgs =
         compilerOptions.writeProducerNameInToken()
-            ? CodeBlock.of(
-                "$S",
+            ? XCodeBlock.of(
+                "%S",
                 String.format(
                     "%s#%s",
                     binding.bindingTypeElement().get().getClassName(),
                     getSimpleName(binding.bindingElement().get())))
-            : CodeBlock.of("$T.class", toJavaPoet(generatedTypeName));
-    return CodeBlock.of("$T.create($L)", toJavaPoet(XTypeNames.PRODUCER_TOKEN), producerTokenArgs);
+            : XCodeBlock.of("%T.class", generatedTypeName);
+    return XCodeBlock.of("%T.create(%L)", XTypeNames.PRODUCER_TOKEN, producerTokenArgs);
   }
 
   /** Returns a name of the variable representing this dependency's future. */
@@ -431,7 +438,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     static FactoryFields create(ProductionBinding binding) {
       UniqueNameSet nameSet = new UniqueNameSet();
       // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
-      Optional<FieldSpec> moduleField =
+      Optional<XPropertySpec> moduleField =
           binding.requiresModuleInstance()
               ? Optional.of(
                   createField(
@@ -439,8 +446,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                       nameSet.getUniqueName("module")))
               : Optional.empty();
 
-      ImmutableMap.Builder<DependencyRequest, FieldSpec> builder =
-          ImmutableMap.builder();
+      ImmutableMap.Builder<DependencyRequest, XPropertySpec> builder = ImmutableMap.builder();
       generateBindingFieldsForDependencies(binding)
           .forEach(
               (dependency, field) ->
@@ -450,32 +456,38 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
       return new FactoryFields(binding, moduleField, builder.buildOrThrow());
     }
 
-    private static FieldSpec createField(XTypeName type, String name) {
-      return FieldSpec.builder(toJavaPoet(type), name, PRIVATE, FINAL).build();
+    private static XPropertySpec createField(XTypeName type, String name) {
+      return XPropertySpec.builder(
+              /* name= */ name,
+              /* typeName= */ type,
+              /* visibility= */ VisibilityModifier.PRIVATE,
+              /* isMutable= */ false,
+              /* addJavaNullabilityAnnotation= */ false)
+          .build();
     }
 
-    private final Optional<FieldSpec> moduleField;
-    private final FieldSpec monitorField;
-    private final FieldSpec executorField;
-    private final ImmutableMap<DependencyRequest, FieldSpec> frameworkFields;
+    private final Optional<XPropertySpec> moduleField;
+    private final XPropertySpec monitorField;
+    private final XPropertySpec executorField;
+    private final ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields;
 
     private FactoryFields(
         ProductionBinding binding,
-        Optional<FieldSpec> moduleField,
-        ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+        Optional<XPropertySpec> moduleField,
+        ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
       this.moduleField = moduleField;
       this.monitorField = frameworkFields.get(binding.monitorRequest());
       this.executorField = frameworkFields.get(binding.executorRequest());
       this.frameworkFields = frameworkFields;
     }
 
-    FieldSpec get(DependencyRequest request) {
+    XPropertySpec get(DependencyRequest request) {
       return frameworkFields.get(request);
     }
 
-    ImmutableList<FieldSpec> getAll() {
+    ImmutableList<XPropertySpec> getAll() {
       return moduleField.isPresent()
-          ? ImmutableList.<FieldSpec>builder()
+          ? ImmutableList.<XPropertySpec>builder()
               .add(moduleField.get())
               .addAll(frameworkFields.values())
               .build()

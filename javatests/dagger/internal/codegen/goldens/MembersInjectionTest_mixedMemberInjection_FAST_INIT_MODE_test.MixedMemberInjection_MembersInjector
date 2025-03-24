@@ -54,20 +54,20 @@ public final class MixedMemberInjection_MembersInjector implements MembersInject
 
   @InjectedFieldSignature("test.MixedMemberInjection.string")
   public static void injectString(Object instance, String string) {
-    ((MixedMemberInjection) instance).string = string;
+    ((MixedMemberInjection) (instance)).string = string;
   }
 
   @InjectedFieldSignature("test.MixedMemberInjection.object")
   public static void injectObject(Object instance, Object object) {
-    ((MixedMemberInjection) instance).object = object;
+    ((MixedMemberInjection) (instance)).object = object;
   }
 
   public static void injectSetString(Object instance, String s) {
-    ((MixedMemberInjection) instance).setString(s);
+    ((MixedMemberInjection) (instance)).setString(s);
   }
 
   public static void injectSetObject(Object instance, Object o) {
-    ((MixedMemberInjection) instance).setObject(o);
+    ((MixedMemberInjection) (instance)).setObject(o);
   }
 }
 

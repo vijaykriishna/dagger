@@ -55,16 +55,16 @@ public final class MethodInjection_MembersInjector implements MembersInjector<Me
   }
 
   public static void injectNoArgs(Object instance) {
-    ((MethodInjection) instance).noArgs();
+    ((MethodInjection) (instance)).noArgs();
   }
 
   public static void injectOneArg(Object instance, String string) {
-    ((MethodInjection) instance).oneArg(string);
+    ((MethodInjection) (instance)).oneArg(string);
   }
 
   public static void injectManyArgs(Object instance, String string, Lazy<String> lazyString,
       javax.inject.Provider<String> stringProvider) {
-    ((MethodInjection) instance).manyArgs(string, lazyString, stringProvider);
+    ((MethodInjection) (instance)).manyArgs(string, lazyString, stringProvider);
   }
 }
 

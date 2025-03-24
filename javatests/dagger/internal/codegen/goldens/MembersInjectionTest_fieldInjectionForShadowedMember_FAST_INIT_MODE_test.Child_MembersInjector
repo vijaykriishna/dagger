@@ -45,7 +45,7 @@ public final class Child_MembersInjector implements MembersInjector<Child> {
 
   @InjectedFieldSignature("test.Child.object")
   public static void injectObject(Object instance, Object object) {
-    ((Child) instance).object = (Bar) object;
+    ((Child) (instance)).object = (Bar) (object);
   }
 }
 

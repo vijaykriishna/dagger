@@ -40,7 +40,7 @@ public final class FieldInjection_MembersInjector implements MembersInjector<Fie
 
   @InjectedFieldSignature("test.FieldInjection.string")
   public static void injectString(Object instance, @Nullable String string) {
-    ((FieldInjection) instance).string = string;
+    ((FieldInjection) (instance)).string = string;
   }
 }
 

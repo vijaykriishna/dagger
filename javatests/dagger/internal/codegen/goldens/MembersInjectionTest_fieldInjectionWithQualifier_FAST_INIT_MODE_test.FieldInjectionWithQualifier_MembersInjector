@@ -48,13 +48,13 @@ public final class FieldInjectionWithQualifier_MembersInjector implements Member
   @InjectedFieldSignature("test.FieldInjectionWithQualifier.a")
   @Named("A")
   public static void injectA(Object instance, String a) {
-    ((FieldInjectionWithQualifier) instance).a = a;
+    ((FieldInjectionWithQualifier) (instance)).a = a;
   }
 
   @InjectedFieldSignature("test.FieldInjectionWithQualifier.b")
   @Named("B")
   public static void injectB(Object instance, String b) {
-    ((FieldInjectionWithQualifier) instance).b = b;
+    ((FieldInjectionWithQualifier) (instance)).b = b;
   }
 }
 

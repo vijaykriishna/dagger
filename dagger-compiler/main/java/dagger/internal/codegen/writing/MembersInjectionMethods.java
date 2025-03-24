@@ -16,14 +16,17 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.MEMBERS_INJECTION_METHOD;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
@@ -125,18 +128,21 @@ final class MembersInjectionMethods {
     if (canIgnoreReturnValue != null) {
       methodBuilder.addAnnotation(canIgnoreReturnValue.getClassName());
     }
-    CodeBlock instance = CodeBlock.of("$N", parameter);
-    methodBuilder.addCode(
+    XCodeBlock instance = XCodeBlock.of("%N", parameter.name);
+    XCodeBlock invokeInjectionSites =
         InjectionSiteMethod.invokeAll(
             injectionSites(binding),
             shardImplementation.name(),
             instance,
             membersInjectedType,
             request ->
-                bindingExpressions
-                    .getDependencyArgumentExpression(request, shardImplementation.name())
-                    .codeBlock()));
-    methodBuilder.addStatement("return $L", instance);
+                toXPoet(
+                    bindingExpressions
+                        .getDependencyArgumentExpression(request, shardImplementation.name())
+                        .codeBlock()));
+    methodBuilder
+        .addCode(toJavaPoet(invokeInjectionSites))
+        .addStatement("return $L", toJavaPoet(instance));
 
     MethodSpec method = methodBuilder.build();
     shardImplementation.addMethod(MEMBERS_INJECTION_METHOD, method);

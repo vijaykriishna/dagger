@@ -54,11 +54,11 @@ public final class Foo_MembersInjector implements MembersInjector<Foo> {
   @InjectedFieldSignature("test.Foo.injectField")
   @FooFieldQualifier
   public static void injectInjectField(Object instance, String injectField) {
-    ((Foo) instance).injectField = injectField;
+    ((Foo) (instance)).injectField = injectField;
   }
 
   public static void injectInjectMethod(Object instance, float f) {
-    ((Foo) instance).injectMethod(f);
+    ((Foo) (instance)).injectMethod(f);
   }
 }
 

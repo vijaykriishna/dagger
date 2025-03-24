@@ -40,7 +40,7 @@ public final class B_MembersInjector implements MembersInjector<B> {
 
   @InjectedFieldSignature("test.B.valueB")
   public static void injectValueB(Object instance, String valueB) {
-    ((B) instance).valueB = valueB;
+    ((B) (instance)).valueB = valueB;
   }
 }
 

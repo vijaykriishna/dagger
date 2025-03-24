@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
-import static androidx.room.compiler.codegen.XTypeNameKt.toKotlinPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
@@ -51,6 +51,9 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.VisibilityModifier;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
@@ -68,7 +71,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -153,7 +155,10 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       factoryBuilder.addType(staticInstanceHolderType(binding));
     } else {
       factoryBuilder
-          .addFields(factoryFields.getAll())
+          .addFields(
+              factoryFields.getAll().stream()
+                  .map(XConverters::toJavaPoet)
+                  .collect(toImmutableList()))
           .addMethod(constructorMethod(factoryFields));
     }
     gwtIncompatibleAnnotation(binding).ifPresent(factoryBuilder::addAnnotation);
@@ -198,11 +203,14 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   private MethodSpec constructorMethod(FactoryFields factoryFields) {
     // TODO(bcorso): Make the constructor private?
     MethodSpec.Builder constructor = constructorBuilder().addModifiers(PUBLIC);
-    factoryFields.getAll().forEach(
-        field ->
-            constructor
-                .addParameter(field.type, field.name)
-                .addStatement("this.$1N = $1N", field));
+    factoryFields
+        .getAll()
+        .forEach(
+            field ->
+                constructor
+                    .addParameter(
+                        toJavaPoet(field.getType()), field.getName()) // SUPPRESS_GET_NAME_CHECK
+                    .addStatement("this.$1N = $1N", toJavaPoet(field)));
     return constructor.build();
   }
 
@@ -240,7 +248,12 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     } else {
       ImmutableList<ParameterSpec> parameters =
           factoryFields.getAll().stream()
-              .map(field -> ParameterSpec.builder(field.type, field.name).build())
+              .map(
+                  field ->
+                      ParameterSpec.builder(
+                              toJavaPoet(field.getType()),
+                              field.getName()) // SUPPRESS_GET_NAME_CHECK
+                          .build())
               .collect(toImmutableList());
       createMethodBuilder
           .addParameters(parameters)
@@ -267,7 +280,9 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   // }
   private MethodSpec getMethod(ContributionBinding binding, FactoryFields factoryFields) {
     UniqueNameSet uniqueFieldNames = new UniqueNameSet();
-    factoryFields.getAll().forEach(field -> uniqueFieldNames.claim(field.name));
+    factoryFields
+        .getAll()
+        .forEach(field -> uniqueFieldNames.claim(field.getName())); // SUPPRESS_GET_NAME_CHECK
     ImmutableMap<XExecutableParameterElement, ParameterSpec> assistedParameters =
         assistedParameters(binding).stream()
             .collect(
@@ -287,15 +302,15 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     if (factoryTypeName(binding).isPresent()) {
       getMethod.addAnnotation(Override.class);
     }
-    CodeBlock invokeNewInstance =
+    XCodeBlock invokeNewInstance =
         ProvisionMethod.invoke(
             binding,
             request ->
                 sourceFiles.frameworkTypeUsageStatement(
-                    CodeBlock.of("$N", factoryFields.get(request)), request.kind()),
+                    XCodeBlock.of("%N", factoryFields.get(request)), request.kind()),
             param -> assistedParameters.get(param).name,
             generatedClassNameForBinding(binding),
-            factoryFields.moduleField.map(module -> CodeBlock.of("$N", module)),
+            factoryFields.moduleField.map(module -> XCodeBlock.of("%N", module)),
             compilerOptions);
 
     if (binding.kind().equals(PROVISION)) {
@@ -303,31 +318,33 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
           .map(XConverters::toJavaPoet)
           .forEach(getMethod::addAnnotation);
       getMethod
-          .addStatement("return $L", invokeNewInstance)
+          .addStatement("return $L", toJavaPoet(invokeNewInstance))
           .returns(toJavaPoet(providedTypeName));
     } else if (!injectionSites(binding).isEmpty()) {
-      CodeBlock instance = CodeBlock.of("instance");
+      XCodeBlock instance = XCodeBlock.of("instance");
+      XCodeBlock invokeInjectionSites =
+          InjectionSiteMethod.invokeAll(
+              injectionSites(binding),
+              generatedClassNameForBinding(binding),
+              instance,
+              binding.key().type().xprocessing(),
+              sourceFiles.frameworkFieldUsages(
+                      binding.dependencies(), factoryFields.frameworkFields)
+                  ::get);
       getMethod
           .returns(toJavaPoet(providedTypeName))
           .addStatement(
               "$T $L = $L",
               toJavaPoet(providedTypeName),
-              instance,
-              invokeNewInstance)
-          .addCode(
-              InjectionSiteMethod.invokeAll(
-                  injectionSites(binding),
-                  generatedClassNameForBinding(binding),
-                  instance,
-                  binding.key().type().xprocessing(),
-                  sourceFiles.frameworkFieldUsages(
-                      binding.dependencies(), factoryFields.frameworkFields)::get))
-          .addStatement("return $L", instance);
+              toJavaPoet(instance),
+              toJavaPoet(invokeNewInstance))
+          .addCode(toJavaPoet(invokeInjectionSites))
+          .addStatement("return $L", toJavaPoet(instance));
 
     } else {
       getMethod
           .returns(toJavaPoet(providedTypeName))
-          .addStatement("return $L", invokeNewInstance);
+          .addStatement("return $L", toJavaPoet(invokeNewInstance));
     }
     return getMethod.build();
   }
@@ -365,9 +382,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                 getThrownTypes(constructor).stream()
                     .map(XConverters::toJavaPoet)
                     .collect(toImmutableList()));
-    CodeBlock arguments = copyParameters(builder, new UniqueNameSet(), constructor.getParameters());
+    XCodeBlock arguments =
+        copyParameters(builder, new UniqueNameSet(), constructor.getParameters());
     return builder
-        .addStatement("return new $T($L)", enclosingType.getType().getTypeName(), arguments)
+        .addStatement(
+            "return new $T($L)",
+            toJavaPoet(enclosingType.getType().asTypeName()),
+            toJavaPoet(arguments))
         .build();
   }
 
@@ -389,13 +410,13 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
 
     XTypeElement enclosingType = asTypeElement(method.getEnclosingElement());
     UniqueNameSet parameterNameSet = new UniqueNameSet();
-    CodeBlock module;
+    XCodeBlock module;
     if (method.isStatic() || enclosingType.isCompanionObject()) {
-      module = CodeBlock.of("$T", enclosingType.getClassName());
+      module = XCodeBlock.of("%T", enclosingType.asClassName());
     } else if (enclosingType.isKotlinObject()) {
       // Call through the singleton instance.
       // See: https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#static-methods
-      module = CodeBlock.of("$T.INSTANCE", enclosingType.getClassName());
+      module = XCodeBlock.of("%T.INSTANCE", enclosingType.asClassName());
     } else {
       builder.addTypeVariables(
           typeVariableNames(enclosingType).stream()
@@ -403,8 +424,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
               .collect(toImmutableList()));
       module = copyInstance(builder, parameterNameSet, enclosingType.getType());
     }
-    CodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
-    CodeBlock invocation = CodeBlock.of("$L.$L($L)", module, method.getJvmName(), arguments);
+    XCodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    XCodeBlock invocation = XCodeBlock.of("%L.%L(%L)", module, method.getJvmName(), arguments);
 
     Nullability nullability = Nullability.of(method);
     nullability.nonTypeUseNullableAnnotations().stream()
@@ -412,23 +433,25 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         .forEach(builder::addAnnotation);
     return builder
         .returns(
-            method.getReturnType().getTypeName()
+            method
+                .getReturnType()
+                .getTypeName()
                 .annotated(
                     nullability.typeUseNullableAnnotations().stream()
                         .map(XConverters::toJavaPoet)
                         .map(annotation -> AnnotationSpec.builder(annotation).build())
                         .collect(toImmutableList())))
-        .addStatement("return $L", maybeWrapInCheckForNull(binding, invocation))
+        .addStatement("return $L", toJavaPoet(maybeWrapInCheckForNull(binding, invocation)))
         .build();
   }
 
-  private CodeBlock maybeWrapInCheckForNull(ProvisionBinding binding, CodeBlock codeBlock) {
+  private XCodeBlock maybeWrapInCheckForNull(ProvisionBinding binding, XCodeBlock codeBlock) {
     return binding.shouldCheckForNull(compilerOptions)
-        ? CodeBlock.of("$T.checkNotNullFromProvides($L)", Preconditions.class, codeBlock)
+        ? XCodeBlock.of("%T.checkNotNullFromProvides(%L)", Preconditions.class, codeBlock)
         : codeBlock;
   }
 
-  private static CodeBlock copyInstance(
+  private static XCodeBlock copyInstance(
       MethodSpec.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
     return copyParameter(
         methodBuilder,
@@ -518,7 +541,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     static FactoryFields create(ContributionBinding binding) {
       UniqueNameSet nameSet = new UniqueNameSet();
       // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
-      Optional<FieldSpec> moduleField =
+      Optional<XPropertySpec> moduleField =
           binding.requiresModuleInstance()
               ? Optional.of(
                   createField(
@@ -526,7 +549,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                       nameSet.getUniqueName("module")))
               : Optional.empty();
 
-      ImmutableMap.Builder<DependencyRequest, FieldSpec> frameworkFields = ImmutableMap.builder();
+      ImmutableMap.Builder<DependencyRequest, XPropertySpec> frameworkFields =
+          ImmutableMap.builder();
       generateBindingFieldsForDependencies(binding).forEach(
           (dependency, field) ->
               frameworkFields.put(
@@ -536,27 +560,33 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       return new FactoryFields(moduleField, frameworkFields.buildOrThrow());
     }
 
-    private static FieldSpec createField(XTypeName type, String name) {
-      return FieldSpec.builder(toJavaPoet(type), name, PRIVATE, FINAL).build();
+    private static XPropertySpec createField(XTypeName typeName, String name) {
+      return XPropertySpec.builder(
+              /* name= */ name,
+              /* typeName= */ typeName,
+              /* visibility= */ VisibilityModifier.PRIVATE,
+              /* isMutable= */ false,
+              /* addJavaNullabilityAnnotation= */ false)
+          .build();
     }
 
-    private final Optional<FieldSpec> moduleField;
-    private final ImmutableMap<DependencyRequest, FieldSpec> frameworkFields;
+    private final Optional<XPropertySpec> moduleField;
+    private final ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields;
 
     private FactoryFields(
-        Optional<FieldSpec> moduleField,
-        ImmutableMap<DependencyRequest, FieldSpec> frameworkFields) {
+        Optional<XPropertySpec> moduleField,
+        ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
       this.moduleField = moduleField;
       this.frameworkFields = frameworkFields;
     }
 
-    FieldSpec get(DependencyRequest request) {
+    XPropertySpec get(DependencyRequest request) {
       return frameworkFields.get(request);
     }
 
-    ImmutableList<FieldSpec> getAll() {
+    ImmutableList<XPropertySpec> getAll() {
       return moduleField.isPresent()
-          ? ImmutableList.<FieldSpec>builder()
+          ? ImmutableList.<XPropertySpec>builder()
               .add(moduleField.get())
               .addAll(frameworkFields.values())
               .build()

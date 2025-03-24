@@ -40,7 +40,7 @@ public final class OuterType_B_MembersInjector implements MembersInjector<OuterT
 
   @InjectedFieldSignature("test.OuterType.B.a")
   public static void injectA(Object instance, Object a) {
-    ((OuterType.B) instance).a = (OuterType.A) a;
+    ((OuterType.B) (instance)).a = (OuterType.A) (a);
   }
 }
 
