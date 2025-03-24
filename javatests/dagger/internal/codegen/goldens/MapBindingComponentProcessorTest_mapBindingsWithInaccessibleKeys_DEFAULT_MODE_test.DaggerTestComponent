@@ -77,7 +77,7 @@ final class DaggerTestComponent {
     @SuppressWarnings("unchecked")
     private void initialize() {
       this.mapOfClassOfAndIntegerProvider = MapFactory.<Class<?>, Integer>builder(1).put(MapModule_ClassKeyMapKey.create(), MapModule_ClassKeyFactory.create()).build();
-      this.mapOfPackagePrivateEnumAndIntegerProvider = MapFactory.builder(1).put(MapModule_EnumKeyMapKey.create(), (Provider) MapModule_EnumKeyFactory.create()).build();
+      this.mapOfPackagePrivateEnumAndIntegerProvider = MapFactory.builder(1).put(MapModule_EnumKeyMapKey.create(), (Provider) (MapModule_EnumKeyFactory.create())).build();
       this.mapOfComplexKeyAndIntegerProvider = MapFactory.<MapKeys.ComplexKey, Integer>builder(3).put(MapModule_ComplexKeyWithInaccessibleValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleValueFactory.create()).put(MapModule_ComplexKeyWithInaccessibleArrayValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleArrayValueFactory.create()).put(MapModule_ComplexKeyWithInaccessibleAnnotationValueMapKey.create(), MapModule_ComplexKeyWithInaccessibleAnnotationValueFactory.create()).build();
     }
 

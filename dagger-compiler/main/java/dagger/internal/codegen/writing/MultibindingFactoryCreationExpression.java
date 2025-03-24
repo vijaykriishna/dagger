@@ -17,14 +17,15 @@
 package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 
 /** An abstract factory creation expression for multibindings. */
 abstract class MultibindingFactoryCreationExpression
@@ -43,16 +44,17 @@ abstract class MultibindingFactoryCreationExpression
   }
 
   /** Returns the expression for a dependency of this multibinding. */
-  protected final CodeBlock multibindingDependencyExpression(DependencyRequest dependency) {
-    CodeBlock expression =
-        componentRequestRepresentations
-            .getDependencyExpression(
-                BindingRequest.bindingRequest(dependency.key(), binding.frameworkType()),
-                shardImplementation.name())
-            .codeBlock();
+  protected final XCodeBlock multibindingDependencyExpression(DependencyRequest dependency) {
+    XCodeBlock expression =
+        toXPoet(
+            componentRequestRepresentations
+                .getDependencyExpression(
+                    BindingRequest.bindingRequest(dependency.key(), binding.frameworkType()),
+                    shardImplementation.name())
+                .codeBlock());
 
     return useRawType()
-        ? CodeBlocks.cast(expression, binding.frameworkType().frameworkClassName())
+        ? XCodeBlocks.cast(expression, binding.frameworkType().frameworkClassName())
         : expression;
   }
 

@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -25,6 +25,7 @@ import static dagger.internal.codegen.base.MapKeyAccessibility.isMapKeyPubliclyA
 import static dagger.internal.codegen.binding.SourceFiles.elementBasedClassName;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
+import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
@@ -33,6 +34,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XElement;
@@ -41,7 +43,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import dagger.MapKey;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
@@ -134,20 +135,20 @@ public final class MapKeys {
    * @throws IllegalStateException if {@code binding} is not a {@link dagger.multibindings.IntoMap
    *     map} contribution.
    */
-  public static CodeBlock getMapKeyExpression(
+  public static XCodeBlock getMapKeyExpression(
       ContributionBinding binding, XClassName requestingClass, XProcessingEnv processingEnv) {
     XAnnotation mapKeyAnnotation = binding.mapKey().get();
     return MapKeyAccessibility.isMapKeyAccessibleFrom(
             mapKeyAnnotation, requestingClass.getPackageName())
         ? directMapKeyExpression(mapKeyAnnotation, processingEnv)
-        : CodeBlock.of("$T.create()", toJavaPoet(mapKeyProxyClassName(binding)));
+        : XCodeBlock.of("%T.create()", mapKeyProxyClassName(binding));
   }
 
   /**
    * Returns a code block for the map key annotation {@code mapKey}.
    *
    * <p>This method assumes the map key will be accessible in the context that the returned {@link
-   * CodeBlock} is used. Use {@link #getMapKeyExpression(ContributionBinding, XClassName,
+   * XCodeBlock} is used. Use {@link #getMapKeyExpression(ContributionBinding, XClassName,
    * XProcessingEnv)} when that assumption is not guaranteed.
    *
    * @throws IllegalArgumentException if the element is annotated with more than one {@code MapKey}
@@ -155,17 +156,17 @@ public final class MapKeys {
    * @throws IllegalStateException if {@code bindingElement} is not annotated with a {@code MapKey}
    *     annotation
    */
-  private static CodeBlock directMapKeyExpression(
+  private static XCodeBlock directMapKeyExpression(
       XAnnotation mapKey, XProcessingEnv processingEnv) {
     Optional<XAnnotationValue> unwrappedValue = unwrapValue(mapKey);
     if (mapKey.getQualifiedName().contentEquals("dagger.android.AndroidInjectionKey")) {
       XTypeElement unwrappedType =
           DaggerSuperficialValidation.requireTypeElement(
               processingEnv, unwrappedValue.get().asString());
-      return CodeBlock.of(
-          "$T.of($S)",
-          toJavaPoet(XClassName.get("dagger.android.internal", "AndroidInjectionKeys")),
-          unwrappedType.getClassName().reflectionName());
+      return XCodeBlock.of(
+          "%T.of(%S)",
+          XClassName.get("dagger.android.internal", "AndroidInjectionKeys"),
+          unwrappedType.asClassName().getReflectionName());
     }
     AnnotationExpression annotationExpression = new AnnotationExpression(mapKey);
     return unwrappedValue.isPresent()
@@ -196,7 +197,8 @@ public final class MapKeys {
                 methodBuilder("create")
                     .addModifiers(PUBLIC, STATIC)
                     .returns(mapKeyType(mapKey).getTypeName())
-                    .addStatement("return $L", directMapKeyExpression(mapKey, processingEnv))
+                    .addStatement(
+                        "return $L", toJavaPoet(directMapKeyExpression(mapKey, processingEnv)))
                     .build());
   }
 
@@ -221,12 +223,10 @@ public final class MapKeys {
     return false;
   }
 
-  public static CodeBlock getLazyClassMapKeyExpression(ContributionBinding contributionBinding) {
-    XClassName proxyClassName =
-        lazyClassKeyProxyClassName(XElements.asMethod(contributionBinding.bindingElement().get()));
-    return CodeBlock.of(
-        "$T.$N",
-        toJavaPoet(proxyClassName),
+  public static XCodeBlock getLazyClassMapKeyExpression(ContributionBinding contributionBinding) {
+    return XCodeBlock.of(
+        "%T.%N",
+        lazyClassKeyProxyClassName(asMethod(contributionBinding.bindingElement().get())),
         LAZY_CLASS_KEY_NAME_FIELD);
   }
 

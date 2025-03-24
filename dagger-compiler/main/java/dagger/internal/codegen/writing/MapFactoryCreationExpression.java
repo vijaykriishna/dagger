@@ -16,13 +16,14 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.binding.SourceFiles.mapFactoryClassName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.CodeBlock;
@@ -64,23 +65,22 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   @Override
   public CodeBlock creationExpression() {
     XClassName mapFactoryClassName = mapFactoryClassName(binding);
-    CodeBlock.Builder builder = CodeBlock.builder().add("$T.", toJavaPoet(mapFactoryClassName));
+    XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", mapFactoryClassName);
     XTypeName valueTypeName = XTypeName.ANY_OBJECT;
     if (!useRawType()) {
       MapType mapType = MapType.from(binding.key());
       valueTypeName = mapType.unwrappedFrameworkValueType().asTypeName();
       builder.add(
-          "<$T, $T>",
-          toJavaPoet(useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName()),
-          toJavaPoet(valueTypeName));
+          "<%T, %T>",
+          useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName(), valueTypeName);
     }
 
-    builder.add("builder($L)", binding.dependencies().size());
+    builder.add("builder(%L)", binding.dependencies().size());
 
     for (DependencyRequest dependency : binding.dependencies()) {
       ContributionBinding contributionBinding = graph.contributionBinding(dependency.key());
       builder.add(
-          ".put($L, $L)",
+          ".put(%L, %L)",
           useLazyClassKey
               ? getLazyClassMapKeyExpression(graph.contributionBinding(dependency.key()))
               : getMapKeyExpression(
@@ -88,13 +88,13 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
           multibindingDependencyExpression(dependency));
     }
 
-    return useLazyClassKey
-        ? CodeBlock.of(
-            "$T.<$T>of($L)",
-            toJavaPoet(lazyMapFactoryClassName(binding)),
-            toJavaPoet(valueTypeName),
-            builder.add(".build()").build())
-        : builder.add(".build()").build();
+    XCodeBlock creationExpression = builder.add(".build()").build();
+    return toJavaPoet(
+        useLazyClassKey
+            ? XCodeBlock.of(
+                "%T.<%T>of(%L)",
+                lazyMapFactoryClassName(binding), valueTypeName, creationExpression)
+            : creationExpression);
   }
 
   private static XClassName lazyMapFactoryClassName(MultiboundMapBinding binding) {

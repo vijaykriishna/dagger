@@ -18,29 +18,27 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import dagger.internal.SetBuilder;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import java.util.Collections;
 
 /** A binding expression for multibound sets. */
 final class SetRequestRepresentation extends RequestRepresentation {
@@ -70,55 +68,54 @@ final class SetRequestRepresentation extends RequestRepresentation {
     if (isImmutableSetAvailable && binding.dependencies().stream().allMatch(this::isSingleValue)) {
       return Expression.create(
           immutableSetType(),
-          CodeBlock.builder()
-              .add("$T.", ImmutableSet.class)
+          XCodeBlock.builder()
+              .add("%T.", XTypeNames.IMMUTABLE_SET)
               .add(maybeTypeParameter(requestingClass))
               .add(
-                  "of($L)",
-                  binding
-                      .dependencies()
-                      .stream()
+                  "of(%L)",
+                  binding.dependencies().stream()
                       .map(dependency -> getContributionExpression(dependency, requestingClass))
                       .collect(toParametersCodeBlock()))
               .build());
     }
     switch (binding.dependencies().size()) {
       case 0:
-        return collectionsStaticFactoryInvocation(requestingClass, CodeBlock.of("emptySet()"));
+        return collectionsStaticFactoryInvocation(requestingClass, XCodeBlock.of("emptySet()"));
       case 1:
         {
           DependencyRequest dependency = getOnlyElement(binding.dependencies());
-          CodeBlock contributionExpression = getContributionExpression(dependency, requestingClass);
+          XCodeBlock contributionExpression =
+              getContributionExpression(dependency, requestingClass);
           if (isSingleValue(dependency)) {
             return collectionsStaticFactoryInvocation(
-                requestingClass, CodeBlock.of("singleton($L)", contributionExpression));
+                requestingClass, XCodeBlock.of("singleton(%L)", contributionExpression));
           } else if (isImmutableSetAvailable) {
             return Expression.create(
                 immutableSetType(),
-                CodeBlock.builder()
-                    .add("$T.", ImmutableSet.class)
+                XCodeBlock.builder()
+                    .add("%T.", XTypeNames.IMMUTABLE_SET)
                     .add(maybeTypeParameter(requestingClass))
-                    .add("copyOf($L)", contributionExpression)
+                    .add("copyOf(%L)", contributionExpression)
                     .build());
           }
         }
         // fall through
       default:
-        CodeBlock.Builder instantiation = CodeBlock.builder();
+        XCodeBlock.Builder instantiation = XCodeBlock.builder();
         instantiation
-            .add("$T.", isImmutableSetAvailable ? ImmutableSet.class : SetBuilder.class)
+            .add("%T.", isImmutableSetAvailable ? XTypeNames.IMMUTABLE_SET : XTypeNames.SET_BUILDER)
             .add(maybeTypeParameter(requestingClass));
         if (isImmutableSetBuilderWithExpectedSizeAvailable()) {
-          instantiation.add("builderWithExpectedSize($L)", binding.dependencies().size());
+          instantiation.add("builderWithExpectedSize(%L)", binding.dependencies().size());
         } else if (isImmutableSetAvailable) {
           instantiation.add("builder()");
         } else {
-          instantiation.add("newSetBuilder($L)", binding.dependencies().size());
+          instantiation.add("newSetBuilder(%L)", binding.dependencies().size());
         }
         for (DependencyRequest dependency : binding.dependencies()) {
           String builderMethod = isSingleValue(dependency) ? "add" : "addAll";
           instantiation.add(
-              ".$L($L)", builderMethod, getContributionExpression(dependency, requestingClass));
+              ".%L(%L)", builderMethod, getContributionExpression(dependency, requestingClass));
         }
         instantiation.add(".build()");
         return Expression.create(
@@ -133,11 +130,12 @@ final class SetRequestRepresentation extends RequestRepresentation {
         SetType.from(binding.key()).elementType());
   }
 
-  private CodeBlock getContributionExpression(
+  private XCodeBlock getContributionExpression(
       DependencyRequest dependency, XClassName requestingClass) {
     RequestRepresentation bindingExpression =
         componentRequestRepresentations.getRequestRepresentation(bindingRequest(dependency));
-    CodeBlock expression = bindingExpression.getDependencyExpression(requestingClass).codeBlock();
+    XCodeBlock expression =
+        toXPoet(bindingExpression.getDependencyExpression(requestingClass).codeBlock());
 
     // TODO(b/211774331): Type casting should be Set after contributions to Set multibinding are
     // limited to be Set.
@@ -150,26 +148,26 @@ final class SetRequestRepresentation extends RequestRepresentation {
             // TODO(bcorso): Replace instanceof checks with validation on the binding.
             && (bindingExpression instanceof DerivedFromFrameworkInstanceRequestRepresentation
                 || bindingExpression instanceof DelegateRequestRepresentation))
-        ? CodeBlocks.cast(expression, XTypeName.COLLECTION)
+        ? XCodeBlocks.cast(expression, XTypeName.COLLECTION)
         : expression;
   }
 
   private Expression collectionsStaticFactoryInvocation(
-      XClassName requestingClass, CodeBlock methodInvocation) {
+      XClassName requestingClass, XCodeBlock methodInvocation) {
     return Expression.create(
         binding.key().type().xprocessing(),
-        CodeBlock.builder()
-            .add("$T.", Collections.class)
+        XCodeBlock.builder()
+            .add("%T.", XTypeNames.COLLECTIONS)
             .add(maybeTypeParameter(requestingClass))
             .add(methodInvocation)
             .build());
   }
 
-  private CodeBlock maybeTypeParameter(XClassName requestingClass) {
+  private XCodeBlock maybeTypeParameter(XClassName requestingClass) {
     XType elementType = SetType.from(binding.key()).elementType();
     return isTypeAccessibleFrom(elementType, requestingClass.getPackageName())
-        ? CodeBlock.of("<$T>", elementType.getTypeName())
-        : CodeBlock.of("");
+        ? XCodeBlock.of("<%T>", elementType.asTypeName())
+        : XCodeBlock.of("");
   }
 
   private boolean isSingleValue(DependencyRequest dependency) {

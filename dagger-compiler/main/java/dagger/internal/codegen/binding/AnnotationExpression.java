@@ -16,23 +16,22 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XAnnotationValues.characterLiteralWithSingleQuotes;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**
@@ -59,14 +58,14 @@ public final class AnnotationExpression {
    * Returns an expression that calls static methods on the annotation's creator class to create an
    * annotation instance equivalent the annotation passed to the constructor.
    */
-  CodeBlock getAnnotationInstanceExpression() {
+  XCodeBlock getAnnotationInstanceExpression() {
     return getAnnotationInstanceExpression(annotation);
   }
 
-  private CodeBlock getAnnotationInstanceExpression(XAnnotation annotation) {
-    return CodeBlock.of(
-        "$T.$L($L)",
-        toJavaPoet(creatorClass),
+  private XCodeBlock getAnnotationInstanceExpression(XAnnotation annotation) {
+    return XCodeBlock.of(
+        "%T.%L(%L)",
+        creatorClass,
         createMethodName(annotation.getType().getTypeElement()),
         makeParametersCodeBlock(
             annotation.getAnnotationValues().stream()
@@ -93,45 +92,43 @@ public final class AnnotationExpression {
    * Returns an expression that evaluates to a {@code value} of a given type on an {@code
    * annotation}.
    */
-  CodeBlock getValueExpression(XAnnotationValue value) {
+  XCodeBlock getValueExpression(XAnnotationValue value) {
     if (isArray(value.getValueType())) {
       XType componentType = asArray(value.getValueType()).getComponentType();
-      return CodeBlock.of(
-          "new $T[] {$L}",
+      return XCodeBlock.of(
+          "new %T[] {%L}",
           // TODO(b/264464791): The KClass -> Class swap can be removed once this bug is fixed.
-          toJavaPoet(
-              isTypeOf(componentType, XTypeNames.KCLASS)
-                  ? XTypeNames.CLASS
-                  : componentType.getRawType().asTypeName()),
+          isTypeOf(componentType, XTypeNames.KCLASS)
+              ? XTypeNames.CLASS
+              : componentType.getRawType().asTypeName(),
           value.asAnnotationValueList().stream()
               .map(this::getValueExpression)
               .collect(toParametersCodeBlock()));
     } else if (value.hasEnumValue()) {
-      return CodeBlock.of(
-          "$T.$L",
-          value.asEnum().getEnclosingElement().getClassName(),
-          getSimpleName(value.asEnum()));
+      return XCodeBlock.of(
+          "%T.%L",
+          value.asEnum().getEnclosingElement().asClassName(), getSimpleName(value.asEnum()));
     } else if (value.hasAnnotationValue()) {
       return getAnnotationInstanceExpression(value.asAnnotation());
     } else if (value.hasTypeValue()) {
-      return CodeBlock.of("$T.class", value.asType().getTypeElement().getClassName());
+      return XCodeBlock.of("%T.class", value.asType().getTypeElement().asClassName());
     } else if (value.hasStringValue()) {
-      return CodeBlock.of("$S", value.asString());
+      return XCodeBlock.of("%S", value.asString());
     } else if (value.hasByteValue()) {
-      return CodeBlock.of("(byte) $L", value.asByte());
+      return XCodeBlock.of("(byte) %L", value.asByte());
     } else if (value.hasCharValue()) {
       // TODO(bcorso): Replace when https://github.com/square/javapoet/issues/698 is fixed.
-      return CodeBlock.of("$L", characterLiteralWithSingleQuotes(value.asChar()));
+      return XCodeBlock.of("%L", characterLiteralWithSingleQuotes(value.asChar()));
     } else if (value.hasDoubleValue()) {
-      return CodeBlock.of("$LD", value.asDouble());
+      return XCodeBlock.of("%LD", value.asDouble());
     } else if (value.hasFloatValue()) {
-      return CodeBlock.of("$LF", value.asFloat());
+      return XCodeBlock.of("%LF", value.asFloat());
     } else if (value.hasLongValue()) {
-      return CodeBlock.of("$LL", value.asLong());
+      return XCodeBlock.of("%LL", value.asLong());
     } else if (value.hasShortValue()) {
-      return CodeBlock.of("(short) $L", value.asShort());
+      return XCodeBlock.of("(short) %L", value.asShort());
     } else {
-      return CodeBlock.of("$L", value.getValue());
+      return XCodeBlock.of("%L", value.getValue());
     }
   }
 }

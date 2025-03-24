@@ -16,8 +16,10 @@
 
 package dagger.internal.codegen.javapoet;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XRawType;
 import androidx.room.compiler.processing.XType;
 import com.squareup.javapoet.CodeBlock;
@@ -46,8 +48,18 @@ public final class Expression {
   }
 
   /** Creates a new {@link Expression} with a {@link XType} and {@link CodeBlock}. */
+  public static Expression create(XType type, XCodeBlock expression) {
+    return create(type, toJavaPoet(expression));
+  }
+
+  /** Creates a new {@link Expression} with a {@link XType} and {@link CodeBlock}. */
   public static Expression create(XType type, CodeBlock expression) {
     return new Expression(ExpressionType.create(type), expression);
+  }
+
+  /** Creates a new {@link Expression} with a {@link ExpressionType} and {@link CodeBlock}. */
+  public static Expression create(ExpressionType type, XCodeBlock expression) {
+    return create(type, toJavaPoet(expression));
   }
 
   /** Creates a new {@link Expression} with a {@link ExpressionType} and {@link CodeBlock}. */

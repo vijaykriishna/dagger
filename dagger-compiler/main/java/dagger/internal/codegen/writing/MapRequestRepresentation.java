@@ -22,22 +22,22 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import dagger.internal.MapBuilder;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ContributionBinding;
@@ -47,7 +47,6 @@ import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import java.util.Collections;
 
 /** A {@link RequestRepresentation} for multibound maps. */
 final class MapRequestRepresentation extends RequestRepresentation {
@@ -85,11 +84,11 @@ final class MapRequestRepresentation extends RequestRepresentation {
     if (useLazyClassKey) {
       return Expression.create(
           dependencyExpression.type(),
-          CodeBlock.of(
-              "$T.<$T>of($L)",
-              toJavaPoet(XTypeNames.LAZY_CLASS_KEY_MAP),
-              mapType.valueType().getTypeName(),
-              dependencyExpression.codeBlock()));
+          XCodeBlock.of(
+              "%T.<%T>of(%L)",
+              XTypeNames.LAZY_CLASS_KEY_MAP,
+              mapType.valueType().asTypeName(),
+              toXPoet(dependencyExpression.codeBlock())));
     }
     return dependencyExpression;
   }
@@ -101,11 +100,11 @@ final class MapRequestRepresentation extends RequestRepresentation {
     if (isImmutableMapAvailable && dependencies.size() <= MAX_IMMUTABLE_MAP_OF_KEY_VALUE_PAIRS) {
       return Expression.create(
           immutableMapType(),
-          CodeBlock.builder()
-              .add("$T.", ImmutableMap.class)
+          XCodeBlock.builder()
+              .add("%T.", XTypeNames.IMMUTABLE_MAP)
               .add(maybeTypeParameters(requestingClass))
               .add(
-                  "of($L)",
+                  "of(%L)",
                   dependencies.keySet().stream()
                       .map(dependency -> keyAndValueExpression(dependency, requestingClass))
                       .collect(toParametersCodeBlock()))
@@ -113,27 +112,29 @@ final class MapRequestRepresentation extends RequestRepresentation {
     }
     switch (dependencies.size()) {
       case 0:
-        return collectionsStaticFactoryInvocation(requestingClass, CodeBlock.of("emptyMap()"));
+        return collectionsStaticFactoryInvocation(requestingClass, XCodeBlock.of("emptyMap()"));
       case 1:
         return collectionsStaticFactoryInvocation(
             requestingClass,
-            CodeBlock.of(
-                "singletonMap($L)",
+            XCodeBlock.of(
+                "singletonMap(%L)",
                 keyAndValueExpression(getOnlyElement(dependencies.keySet()), requestingClass)));
       default:
-        CodeBlock.Builder instantiation =
-            CodeBlock.builder()
-                .add("$T.", isImmutableMapAvailable ? ImmutableMap.class : MapBuilder.class)
+        XCodeBlock.Builder instantiation =
+            XCodeBlock.builder()
+                .add(
+                    "%T.",
+                    isImmutableMapAvailable ? XTypeNames.IMMUTABLE_MAP : XTypeNames.MAP_BUILDER)
                 .add(maybeTypeParameters(requestingClass));
         if (isImmutableMapBuilderWithExpectedSizeAvailable()) {
-          instantiation.add("builderWithExpectedSize($L)", dependencies.size());
+          instantiation.add("builderWithExpectedSize(%L)", dependencies.size());
         } else if (isImmutableMapAvailable) {
           instantiation.add("builder()");
         } else {
-          instantiation.add("newMapBuilder($L)", dependencies.size());
+          instantiation.add("newMapBuilder(%L)", dependencies.size());
         }
         for (DependencyRequest dependency : dependencies.keySet()) {
-          instantiation.add(".put($L)", keyAndValueExpression(dependency, requestingClass));
+          instantiation.add(".put(%L)", keyAndValueExpression(dependency, requestingClass));
         }
         return Expression.create(
             isImmutableMapAvailable ? immutableMapType() : binding.key().type().xprocessing(),
@@ -149,38 +150,40 @@ final class MapRequestRepresentation extends RequestRepresentation {
         mapType.valueType());
   }
 
-  private CodeBlock keyAndValueExpression(
+  private XCodeBlock keyAndValueExpression(
       DependencyRequest dependency, XClassName requestingClass) {
-    return CodeBlock.of(
-        "$L, $L",
+    return XCodeBlock.of(
+        "%L, %L",
         useLazyClassKey
             ? getLazyClassMapKeyExpression(dependencies.get(dependency))
             : getMapKeyExpression(dependencies.get(dependency), requestingClass, processingEnv),
-        componentRequestRepresentations
-            .getDependencyExpression(bindingRequest(dependency), requestingClass)
-            .codeBlock());
+        toXPoet(
+            componentRequestRepresentations
+                .getDependencyExpression(bindingRequest(dependency), requestingClass)
+                .codeBlock()));
   }
 
   private Expression collectionsStaticFactoryInvocation(
-      XClassName requestingClass, CodeBlock methodInvocation) {
+      XClassName requestingClass, XCodeBlock methodInvocation) {
     return Expression.create(
         binding.key().type().xprocessing(),
-        CodeBlock.builder()
-            .add("$T.", Collections.class)
-            .add(maybeTypeParameters(requestingClass))
-            .add(methodInvocation)
-            .build());
+        toJavaPoet(
+            XCodeBlock.builder()
+                .add("%T.", XTypeNames.COLLECTIONS)
+                .add(maybeTypeParameters(requestingClass))
+                .add(methodInvocation)
+                .build()));
   }
 
-  private CodeBlock maybeTypeParameters(XClassName requestingClass) {
+  private XCodeBlock maybeTypeParameters(XClassName requestingClass) {
     XType bindingKeyType = binding.key().type().xprocessing();
     MapType mapType = MapType.from(binding.key());
     return isTypeAccessibleFrom(bindingKeyType, requestingClass.getPackageName())
-        ? CodeBlock.of(
-            "<$T, $T>",
-            toJavaPoet(useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName()),
-            mapType.valueType().getTypeName())
-        : CodeBlock.of("");
+        ? XCodeBlock.of(
+            "<%T, %T>",
+            useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName(),
+            mapType.valueType().asTypeName())
+        : XCodeBlock.of("");
   }
 
   private boolean isImmutableMapBuilderWithExpectedSizeAvailable() {

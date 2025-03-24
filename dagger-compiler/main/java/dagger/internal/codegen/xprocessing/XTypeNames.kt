@@ -17,8 +17,8 @@
 package dagger.internal.codegen.xprocessing
 
 import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.box
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.box
 import androidx.room.compiler.codegen.compat.XConverters.toXPoet
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.codegen.toKotlinPoet
@@ -76,6 +76,9 @@ object XTypeNames {
   @JvmField val DELEGATE_FACTORY = XClassName.get("dagger.internal", "DelegateFactory")
   @JvmField val DOUBLE_CHECK = XClassName.get("dagger.internal", "DoubleCheck")
 
+  // TODO(b/404613325): Figure out what to do for calls like java.util.Collections.<T>emptyList()
+  // where in Kotlin it becomes a top-level function like kotlin.collections.emptyList<T>().
+  @JvmField val COLLECTIONS = XClassName.get("java.util", "Collections")
   @JvmField val FACTORY = XClassName.get("dagger.internal", "Factory")
   @JvmField
   val INJECTED_FIELD_SIGNATURE = XClassName.get("dagger.internal", "InjectedFieldSignature")
@@ -92,6 +95,7 @@ object XTypeNames {
   @JvmField val PROVIDER_OF_LAZY = XClassName.get("dagger.internal", "ProviderOfLazy")
   @JvmField val SCOPE_METADATA = XClassName.get("dagger.internal", "ScopeMetadata")
   @JvmField val QUALIFIER_METADATA = XClassName.get("dagger.internal", "QualifierMetadata")
+  @JvmField val SET_BUILDER = XClassName.get("dagger.internal", "SetBuilder")
   @JvmField val SET_FACTORY = XClassName.get("dagger.internal", "SetFactory")
   @JvmField val SINGLE_CHECK = XClassName.get("dagger.internal", "SingleCheck")
   @JvmField val LAZY = XClassName.get("dagger", "Lazy")
@@ -278,9 +282,9 @@ object XTypeNames {
       this
     } else {
       toXPoet(
-          this.toJavaPoet().withTypeNullability(nullability),
-          // TODO(bcorso): Check if we need to add nullability to the Kotlin type.
-          this.toKotlinPoet()
+        this.toJavaPoet().withTypeNullability(nullability),
+        // TODO(bcorso): Check if we need to add nullability to the Kotlin type.
+        this.toKotlinPoet(),
       )
     }
   }
@@ -291,8 +295,9 @@ object XTypeNames {
       this
     } else {
       this.annotated(
-          nullability.typeUseNullableAnnotations()
-              .map { AnnotationSpec.builder(it.toJavaPoet()).build() }
+        nullability.typeUseNullableAnnotations().map {
+          AnnotationSpec.builder(it.toJavaPoet()).build()
+        }
       )
     }
   }
@@ -307,6 +312,5 @@ object XTypeNames {
   }
 
   // TODO(bcorso): Remove this workaround once @JvmStatic is added to XTypeName#getTypeVariableName
-  @JvmStatic
-  fun getTypeVariableName(name: String) = XTypeName.getTypeVariableName(name)
+  @JvmStatic fun getTypeVariableName(name: String) = XTypeName.getTypeVariableName(name)
 }

@@ -16,10 +16,11 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.setFactoryClassName;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -50,21 +51,19 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   @Override
   public CodeBlock creationExpression() {
-    CodeBlock.Builder builder =
-        CodeBlock.builder().add("$T.", toJavaPoet(setFactoryClassName(binding)));
+    XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", setFactoryClassName(binding));
     if (!useRawType()) {
       SetType setType = SetType.from(binding.key());
       builder.add(
-          "<$T>",
-          toJavaPoet(
-              setType.elementsAreTypeOf(XTypeNames.PRODUCED)
-                  ? setType.unwrappedElementType(XTypeNames.PRODUCED).asTypeName()
-                  : setType.elementType().asTypeName()));
+          "<%T>",
+          setType.elementsAreTypeOf(XTypeNames.PRODUCED)
+              ? setType.unwrappedElementType(XTypeNames.PRODUCED).asTypeName()
+              : setType.elementType().asTypeName());
     }
 
     int individualProviders = 0;
     int setProviders = 0;
-    CodeBlock.Builder builderMethodCalls = CodeBlock.builder();
+    XCodeBlock.Builder builderMethodCalls = XCodeBlock.builder();
     String methodNameSuffix =
         binding.bindingType().equals(BindingType.PROVISION) ? "Provider" : "Producer";
 
@@ -86,15 +85,13 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
       }
 
       builderMethodCalls.add(
-          ".$N$N($L)",
-          methodNamePrefix,
-          methodNameSuffix,
-          multibindingDependencyExpression(dependency));
+          ".%N%N(%L)",
+          methodNamePrefix, methodNameSuffix, multibindingDependencyExpression(dependency));
     }
-    builder.add("builder($L, $L)", individualProviders, setProviders);
+    builder.add("builder(%L, %L)", individualProviders, setProviders);
     builder.add(builderMethodCalls.build());
 
-    return builder.add(".build()").build();
+    return toJavaPoet(builder.add(".build()").build());
   }
 
   @AssistedFactory
