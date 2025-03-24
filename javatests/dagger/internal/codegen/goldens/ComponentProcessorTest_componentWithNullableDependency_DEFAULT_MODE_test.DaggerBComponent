@@ -1,5 +1,5 @@
 package test;
-    
+
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
@@ -80,3 +80,4 @@ final class DaggerBComponent {
     }
   }
 }
+

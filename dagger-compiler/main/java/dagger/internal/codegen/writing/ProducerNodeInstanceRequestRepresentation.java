@@ -16,20 +16,18 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Binding expression for producer node instances. */
@@ -57,20 +55,20 @@ final class ProducerNodeInstanceRequestRepresentation
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    Expression result = super.getDependencyExpression(requestingClass);
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    XExpression result = super.getDependencyExpression(requestingClass);
     shardImplementation.addCancellation(
         key,
-        CodeBlock.of(
-            "$T.cancel($L, $N);",
-            toJavaPoet(XTypeNames.PRODUCERS),
+        XCodeBlock.of(
+            "%T.cancel(%L, %N);",
+            XTypeNames.PRODUCERS,
             result.codeBlock(),
-            ComponentImplementation.MAY_INTERRUPT_IF_RUNNING_PARAM));
+            ComponentImplementation.MAY_INTERRUPT_IF_RUNNING_PARAM.name));
     return result;
   }
 
   @Override
-  Expression getDependencyExpressionForComponentMethod(
+  XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     return producerEntryPointView
         .getProducerEntryPointField(this, componentMethod, component.name())

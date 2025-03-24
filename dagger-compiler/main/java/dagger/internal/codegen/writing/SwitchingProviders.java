@@ -32,6 +32,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
@@ -140,10 +141,11 @@ final class SwitchingProviders {
           // the type when wrapped. For example, the following will error:
           //   fooProvider = DoubleCheck.provider(new SwitchingProvider<>(1));
           (binding.scope().isPresent()
-              || binding.kind().equals(BindingKind.ASSISTED_FACTORY)
-              || XProcessingEnvs.isPreJava8SourceVersion(processingEnv))
-              ? CodeBlock.of(
-                  "$T", shardImplementation.accessibleTypeName(binding.contributedType()))
+                  || binding.kind().equals(BindingKind.ASSISTED_FACTORY)
+                  || XProcessingEnvs.isPreJava8SourceVersion(processingEnv))
+              ? toJavaPoet(
+                  XCodeBlock.of(
+                      "%T", shardImplementation.accessibleTypeName(binding.contributedType())))
               : "",
           shardImplementation.componentFieldsByImplementation().values().stream()
               .map(field -> CodeBlock.of("$N", field))
@@ -156,7 +158,7 @@ final class SwitchingProviders {
       // TODO(bcorso): Try to delay calling getDependencyExpression() until we are writing out the
       // SwitchingProvider because calling it here makes FrameworkFieldInitializer think there's a
       // cycle when initializing SwitchingProviders which adds an uncessary DelegateFactory.
-      CodeBlock instanceCodeBlock =
+      XCodeBlock instanceCodeBlock =
           unscopedInstanceRequestRepresentation
               .getDependencyExpression(switchingProviderType)
               .box()
@@ -166,7 +168,9 @@ final class SwitchingProviders {
           // TODO(bcorso): Is there something else more useful than the key?
           .add("case $L: // $L\n", switchIds.get(key), key)
           .addStatement(
-              "return ($T) $L", (TypeVariableName) toJavaPoet(typeVariable), instanceCodeBlock)
+              "return ($T) $L",
+              (TypeVariableName) toJavaPoet(typeVariable),
+              toJavaPoet(instanceCodeBlock))
           .build();
     }
 

@@ -20,6 +20,7 @@ import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
 import com.squareup.javapoet.CodeBlock;
@@ -28,7 +29,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /**
  * A binding expression for members injection component methods. See {@link
@@ -46,23 +47,23 @@ final class MembersInjectionRequestRepresentation extends RequestRepresentation 
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     throw new UnsupportedOperationException(binding.toString());
   }
 
   @Override
-  protected Expression getDependencyExpressionForComponentMethod(
+  protected XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     XMethodElement methodElement = componentMethod.methodElement();
     XExecutableParameterElement parameter = getOnlyElement(methodElement.getParameters());
     if (binding.injectionSites().isEmpty()) {
       // If there are no injection sites either do nothing (if the return type is void) or return
       // the input instance as-is.
-      return Expression.create(
+      return XExpression.create(
           methodElement.getReturnType(),
           isVoid(methodElement.getReturnType())
-              ? CodeBlock.of("")
-              : CodeBlock.of("$L", parameter.getJvmName()));
+              ? XCodeBlock.of("")
+              : XCodeBlock.of("%L", parameter.getJvmName()));
     }
     return membersInjectionMethods.getInjectExpression(
         binding.key(), CodeBlock.of("$L", parameter.getJvmName()), component.name());

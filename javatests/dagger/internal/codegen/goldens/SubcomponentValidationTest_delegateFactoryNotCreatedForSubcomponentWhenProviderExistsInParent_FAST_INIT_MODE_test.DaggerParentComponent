@@ -134,10 +134,10 @@ final class DaggerParentComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.Dep1 
+          case 0: // test.Dep1
           return (T) parentComponentImpl.injectDep1(Dep1_Factory.newInstance());
 
-          case 1: // test.Dep2 
+          case 1: // test.Dep2
           return (T) parentComponentImpl.injectDep2(Dep2_Factory.newInstance());
 
           default: throw new AssertionError(id);

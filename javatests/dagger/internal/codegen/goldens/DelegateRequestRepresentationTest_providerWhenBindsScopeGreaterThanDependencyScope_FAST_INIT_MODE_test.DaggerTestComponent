@@ -57,7 +57,7 @@ final class DaggerTestComponent {
     @SuppressWarnings("unchecked")
     private void initialize() {
       this.provideStringProvider = SingleCheck.provider(new SwitchingProvider<String>(testComponentImpl, 0));
-      this.bindStringProvider = DoubleCheck.provider((Provider) provideStringProvider);
+      this.bindStringProvider = DoubleCheck.provider((Provider) (provideStringProvider));
     }
 
     @Override
@@ -79,7 +79,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.String 
+          case 0: // java.lang.String
           return (T) TestModule_ProvideStringFactory.provideString();
 
           default: throw new AssertionError(id);

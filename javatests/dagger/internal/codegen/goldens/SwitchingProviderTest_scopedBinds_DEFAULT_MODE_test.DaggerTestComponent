@@ -53,12 +53,12 @@ final class DaggerTestComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.cProvider = DoubleCheck.provider((Provider) TestModule_SFactory.create());
+      this.cProvider = DoubleCheck.provider((Provider) (TestModule_SFactory.create()));
     }
 
     @Override
     public javax.inject.Provider<Object> objectProvider() {
-      return ((Provider) cProvider);
+      return ((Provider) (cProvider));
     }
 
     @Override

@@ -61,7 +61,7 @@ final class DaggerTestComponent {
 
     @Override
     public Supertype supertype() {
-      return (Supertype) subtypeProvider.get();
+      return (Supertype) (subtypeProvider.get());
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -78,7 +78,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // other.Subtype 
+          case 0: // other.Subtype
           return (T) Subtype_Factory.newInstance();
 
           default: throw new AssertionError(id);

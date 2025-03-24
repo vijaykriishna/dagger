@@ -19,10 +19,15 @@ package dagger.internal.codegen.xprocessing;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static com.google.common.collect.Streams.stream;
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
+import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
+import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
+import static javax.lang.model.element.Modifier.PUBLIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XParameterSpec;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XType;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -79,6 +84,35 @@ public final class XCodeBlocks {
     return stream(codeBlocks).collect(toConcatenatedCodeBlock());
   }
 
+  /**
+   * Returns an anonymous {@link javax.inject.Provider} class with the single {@link
+   * javax.inject.Provider#get()} method that returns the given {@code expression}.
+   */
+  public static XCodeBlock anonymousProvider(XExpression expression) {
+    return anonymousProvider(
+        expression.type().asTypeName(), XCodeBlock.of("return %L;", expression.codeBlock()));
+  }
+
+  /**
+   * Returns an anonymous {@link javax.inject.Provider} class with the single {@link
+   * javax.inject.Provider#get()} method implemented by {@code body}.
+   */
+  public static XCodeBlock anonymousProvider(XTypeName providedType, XCodeBlock body) {
+    return toXPoet(
+        CodeBlock.of(
+            "$L",
+            anonymousClassBuilder("")
+                .superclass(toJavaPoet(daggerProviderOf(providedType)))
+                .addMethod(
+                    methodBuilder("get")
+                        .addAnnotation(Override.class)
+                        .addModifiers(PUBLIC)
+                        .returns(toJavaPoet(providedType))
+                        .addCode(toJavaPoet(body))
+                        .build())
+                .build()));
+  }
+
   /** Returns {@code expression} cast to a type. */
   public static XCodeBlock cast(XCodeBlock expression, XClassName castTo) {
     return XCodeBlock.ofCast(castTo, expression);
@@ -120,6 +154,11 @@ public final class XCodeBlocks {
           }
           return joiner.join();
         });
+  }
+
+  public static boolean isEmpty(XCodeBlock codeBlock) {
+    // TODO(bcorso): Take into account kotlin code blocks.
+    return toJavaPoet(codeBlock).isEmpty();
   }
 
   private static final class XCodeBlockJoiner {

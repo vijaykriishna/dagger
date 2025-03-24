@@ -57,7 +57,7 @@ final class DaggerTestComponent {
     @SuppressWarnings("unchecked")
     private void initialize() {
       this.provideStringProvider = SingleCheck.provider(TestModule_ProvideStringFactory.create());
-      this.bindStringProvider = DoubleCheck.provider((Provider) provideStringProvider);
+      this.bindStringProvider = DoubleCheck.provider((Provider) (provideStringProvider));
     }
 
     @Override

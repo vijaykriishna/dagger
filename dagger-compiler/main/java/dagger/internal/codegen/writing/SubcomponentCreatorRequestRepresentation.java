@@ -25,8 +25,8 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.SubcomponentCreatorBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /** A binding expression for a subcomponent creator that just invokes the constructor. */
 final class SubcomponentCreatorRequestRepresentation extends RequestRepresentation {
@@ -42,14 +42,15 @@ final class SubcomponentCreatorRequestRepresentation extends RequestRepresentati
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    return Expression.create(
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    return XExpression.create(
         binding.key().type().xprocessing(),
-        "new $T($L)",
-        toJavaPoet(shardImplementation.getSubcomponentCreatorSimpleName(binding.key())),
-        shardImplementation.componentFieldsByImplementation().values().stream()
-            .map(field -> CodeBlock.of("$N", field))
-            .collect(toParametersCodeBlock()));
+        CodeBlock.of(
+            "new $T($L)",
+            toJavaPoet(shardImplementation.getSubcomponentCreatorSimpleName(binding.key())),
+            shardImplementation.componentFieldsByImplementation().values().stream()
+                .map(field -> CodeBlock.of("$N", field))
+                .collect(toParametersCodeBlock())));
   }
 
   CodeBlock getDependencyExpressionArguments() {

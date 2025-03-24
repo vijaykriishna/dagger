@@ -28,7 +28,7 @@ import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ComponentDependencyProvisionBinding;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /** A binding expression for component provision methods. */
 final class ComponentProvisionRequestRepresentation extends RequestRepresentation {
@@ -51,12 +51,12 @@ final class ComponentProvisionRequestRepresentation extends RequestRepresentatio
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     CodeBlock componentDependency = getComponentRequirementExpression(requestingClass);
     CodeBlock invocation =
         CodeBlock.of(
             "$L.$L()", componentDependency, asMethod(binding.bindingElement().get()).getJvmName());
-    return Expression.create(
+    return XExpression.create(
         binding.contributedPrimitiveType().orElse(binding.key().type().xprocessing()),
         maybeCheckForNull(binding, compilerOptions, invocation));
   }

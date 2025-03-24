@@ -61,7 +61,7 @@ final class DaggerTestComponent {
 
     @Override
     public Supertype supertype() {
-      return (Supertype) subtypeProvider.get();
+      return (Supertype) (subtypeProvider.get());
     }
   }
 }

@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -44,6 +44,8 @@ import static javax.lang.model.element.Modifier.STATIC;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -67,7 +69,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.ComponentCreatorKind;
@@ -607,7 +608,7 @@ public final class ComponentImplementation {
      *
      * <p>This method checks accessibility for public types and package private types.
      */
-    TypeName accessibleTypeName(XType type) {
+    XTypeName accessibleTypeName(XType type) {
       return Accessibility.accessibleTypeName(type, name(), processingEnv);
     }
 
@@ -659,9 +660,9 @@ public final class ComponentImplementation {
     /**
      * Adds the given cancellation statement to the cancellation listener method of the component.
      */
-    void addCancellation(Key key, CodeBlock codeBlock) {
+    void addCancellation(Key key, XCodeBlock codeBlock) {
       // Store cancellations by key to avoid adding the same cancellation twice.
-      cancellations.putIfAbsent(key, codeBlock);
+      cancellations.putIfAbsent(key, toJavaPoet(codeBlock));
     }
 
     /** Returns a new, unique field name for the component based on the given name. */

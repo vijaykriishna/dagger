@@ -61,7 +61,7 @@ public final class DaggerTestComponent {
 
     @Override
     test.sub.TestComponentBase.ProtectedType provideProtectedType() {
-      return (test.sub.TestComponentBase.ProtectedType) protectedTypeProvider.get();
+      return (test.sub.TestComponentBase.ProtectedType) (protectedTypeProvider.get());
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -78,7 +78,7 @@ public final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.sub.TestComponentBase.ProtectedType 
+          case 0: // test.sub.TestComponentBase.ProtectedType
           return (T) TestComponentBase_ProtectedType_Factory.newInstance(TestComponentBase_Dep_Factory.newInstance());
 
           default: throw new AssertionError(id);

@@ -22,7 +22,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ComponentBinding;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /** A binding expression for the instance of the component itself, i.e. {@code this}. */
 final class ComponentInstanceRequestRepresentation extends RequestRepresentation {
@@ -37,8 +37,8 @@ final class ComponentInstanceRequestRepresentation extends RequestRepresentation
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    return Expression.create(
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    return XExpression.create(
         binding.key().type().xprocessing(),
         componentImplementation.name().equals(requestingClass)
             ? CodeBlock.of("this")

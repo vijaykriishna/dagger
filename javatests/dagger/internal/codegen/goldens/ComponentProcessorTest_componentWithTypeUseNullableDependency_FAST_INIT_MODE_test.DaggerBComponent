@@ -81,7 +81,7 @@ final class DaggerBComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.String 
+          case 0: // java.lang.String
           return (T) bComponentImpl.nullableStringComponent.nullableString();
 
           default: throw new AssertionError(id);
@@ -90,3 +90,4 @@ final class DaggerBComponent {
     }
   }
 }
+

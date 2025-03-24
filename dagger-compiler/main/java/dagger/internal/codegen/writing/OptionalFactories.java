@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -40,12 +40,11 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -68,7 +67,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 /** The nested class and static methods required by the component to implement optional bindings. */
@@ -374,9 +372,10 @@ final class OptionalFactories {
                 "return $L;",
                 spec.optionalKind()
                     .presentExpression(
-                        FrameworkType.PROVIDER.to(
-                            spec.valueKind(),
-                            CodeBlock.of("$N", delegateField))))
+                        toJavaPoet(
+                            FrameworkType.PROVIDER.to(
+                                spec.valueKind(),
+                                XCodeBlock.of("%N", delegateField.name)))))
             .build();
 
       case PRODUCER_NODE:
@@ -391,9 +390,10 @@ final class OptionalFactories {
                     Futures.class,
                     spec.optionalKind()
                         .presentExpression(
-                            FrameworkType.PRODUCER_NODE.to(
-                                spec.valueKind(),
-                                CodeBlock.of("$N", delegateField))))
+                            toJavaPoet(
+                                FrameworkType.PRODUCER_NODE.to(
+                                    spec.valueKind(),
+                                    XCodeBlock.of("%N", delegateField.name)))))
                 .build();
 
           case INSTANCE: // return a ListenableFuture<Optional<T>>

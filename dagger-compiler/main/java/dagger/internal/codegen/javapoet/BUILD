@@ -25,9 +25,7 @@ java_library(
     plugins = ["//dagger-compiler/main/java/dagger/internal/codegen/bootstrap"],
     tags = ["maven:merged"],
     deps = [
-        "//dagger-compiler/main/java/dagger/internal/codegen/langmodel",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
-        "//third_party/java/auto:common",
         "//third_party/java/error_prone:annotations",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",

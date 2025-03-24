@@ -35,10 +35,10 @@ import static dagger.internal.codegen.xprocessing.XTypes.isTypeVariable;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.TypeName;
 import java.util.Optional;
 
 /**
@@ -156,14 +156,14 @@ public final class Accessibility {
    *   <li>Otherwise returns {@link Object}.
    * </ul>
    */
-  public static TypeName accessibleTypeName(
+  public static XTypeName accessibleTypeName(
       XType type, XClassName requestingClass, XProcessingEnv processingEnv) {
     if (isTypeAccessibleFrom(type, requestingClass.getPackageName())) {
-      return type.getTypeName();
+      return type.asTypeName();
     } else if (isDeclared(type) && isRawTypeAccessible(type, requestingClass.getPackageName())) {
-      return type.getRawType().getTypeName();
+      return type.getRawType().asTypeName();
     } else {
-      return TypeName.OBJECT;
+      return XTypeName.ANY_OBJECT;
     }
   }
 

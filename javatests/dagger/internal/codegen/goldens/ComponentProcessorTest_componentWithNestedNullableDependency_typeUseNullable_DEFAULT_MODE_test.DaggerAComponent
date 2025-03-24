@@ -1,5 +1,5 @@
 package test;
-    
+
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Preconditions;
 import java.util.List;
@@ -60,3 +60,4 @@ final class DaggerAComponent {
     }
   }
 }
+

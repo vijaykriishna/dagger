@@ -25,7 +25,6 @@ import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -43,9 +42,9 @@ import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A {@link RequestRepresentation} for multibound maps. */
@@ -77,28 +76,28 @@ final class MapRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     MapType mapType = MapType.from(binding.key());
-    Expression dependencyExpression = getUnderlyingMapExpression(requestingClass);
+    XExpression dependencyExpression = getUnderlyingMapExpression(requestingClass);
     // LazyClassKey is backed with a string map, therefore needs to be wrapped.
     if (useLazyClassKey) {
-      return Expression.create(
+      return XExpression.create(
           dependencyExpression.type(),
           XCodeBlock.of(
               "%T.<%T>of(%L)",
               XTypeNames.LAZY_CLASS_KEY_MAP,
               mapType.valueType().asTypeName(),
-              toXPoet(dependencyExpression.codeBlock())));
+              dependencyExpression.codeBlock()));
     }
     return dependencyExpression;
   }
 
-  private Expression getUnderlyingMapExpression(XClassName requestingClass) {
+  private XExpression getUnderlyingMapExpression(XClassName requestingClass) {
     // TODO(ronshapiro): We should also make an ImmutableMap version of MapFactory
     boolean isImmutableMapAvailable = isImmutableMapAvailable();
     // TODO(ronshapiro, gak): Use Maps.immutableEnumMap() if it's available?
     if (isImmutableMapAvailable && dependencies.size() <= MAX_IMMUTABLE_MAP_OF_KEY_VALUE_PAIRS) {
-      return Expression.create(
+      return XExpression.create(
           immutableMapType(),
           XCodeBlock.builder()
               .add("%T.", XTypeNames.IMMUTABLE_MAP)
@@ -136,7 +135,7 @@ final class MapRequestRepresentation extends RequestRepresentation {
         for (DependencyRequest dependency : dependencies.keySet()) {
           instantiation.add(".put(%L)", keyAndValueExpression(dependency, requestingClass));
         }
-        return Expression.create(
+        return XExpression.create(
             isImmutableMapAvailable ? immutableMapType() : binding.key().type().xprocessing(),
             instantiation.add(".build()").build());
     }
@@ -157,15 +156,14 @@ final class MapRequestRepresentation extends RequestRepresentation {
         useLazyClassKey
             ? getLazyClassMapKeyExpression(dependencies.get(dependency))
             : getMapKeyExpression(dependencies.get(dependency), requestingClass, processingEnv),
-        toXPoet(
-            componentRequestRepresentations
-                .getDependencyExpression(bindingRequest(dependency), requestingClass)
-                .codeBlock()));
+        componentRequestRepresentations
+            .getDependencyExpression(bindingRequest(dependency), requestingClass)
+            .codeBlock());
   }
 
-  private Expression collectionsStaticFactoryInvocation(
+  private XExpression collectionsStaticFactoryInvocation(
       XClassName requestingClass, XCodeBlock methodInvocation) {
-    return Expression.create(
+    return XExpression.create(
         binding.key().type().xprocessing(),
         toJavaPoet(
             XCodeBlock.builder()

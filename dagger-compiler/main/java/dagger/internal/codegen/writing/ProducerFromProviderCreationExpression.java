@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 
 import androidx.room.compiler.codegen.XClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -43,9 +44,10 @@ final class ProducerFromProviderCreationExpression implements FrameworkInstanceC
 
   @Override
   public CodeBlock creationExpression() {
-    return FrameworkType.PROVIDER.to(
-        RequestKind.PRODUCER,
-        providerRequestRepresentation.getDependencyExpression(requestingClass).codeBlock());
+    return toJavaPoet(
+        FrameworkType.PROVIDER.to(
+            RequestKind.PRODUCER,
+            providerRequestRepresentation.getDependencyExpression(requestingClass).codeBlock()));
   }
 
   @Override

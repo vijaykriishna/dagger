@@ -22,14 +22,13 @@ import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8Sour
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.google.common.util.concurrent.Futures;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
@@ -48,14 +47,15 @@ final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    return Expression.create(
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    return XExpression.create(
         wrapType(XTypeNames.LISTENABLE_FUTURE, type, processingEnv),
-        CodeBlock.of("$T.immediateFuture($L)", Futures.class, instanceExpression(requestingClass)));
+        XCodeBlock.of(
+            "%T.immediateFuture(%L)", XTypeNames.FUTURES, instanceExpression(requestingClass)));
   }
 
-  private CodeBlock instanceExpression(XClassName requestingClass) {
-    Expression expression = instanceRequestRepresentation.getDependencyExpression(requestingClass);
+  private XCodeBlock instanceExpression(XClassName requestingClass) {
+    XExpression expression = instanceRequestRepresentation.getDependencyExpression(requestingClass);
     if (isPreJava8SourceVersion(processingEnv)) {
       // Java 7 type inference is not as strong as in Java 8, and therefore some generated code must
       // cast.
@@ -63,10 +63,8 @@ final class ImmediateFutureRequestRepresentation extends RequestRepresentation {
       // For example, javac7 cannot detect that Futures.immediateFuture(ImmutableSet.of("T"))
       // can safely be assigned to ListenableFuture<Set<T>>.
       if (!expression.type().isSameType(type)) {
-        return CodeBlock.of(
-            "($T) $L",
-            accessibleTypeName(type, requestingClass, processingEnv),
-            expression.codeBlock());
+        return XCodeBlock.ofCast(
+            accessibleTypeName(type, requestingClass, processingEnv), expression.codeBlock());
       }
     }
     return expression.codeBlock();

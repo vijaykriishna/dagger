@@ -70,7 +70,7 @@ final class DaggerTestComponent {
 
     @CanIgnoreReturnValue
     private UsesInaccessibles injectUsesInaccessibles(UsesInaccessibles instance) {
-      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, (List) inaccessiblesProvider.get());
+      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, (List) (inaccessiblesProvider.get()));
       return instance;
     }
   }

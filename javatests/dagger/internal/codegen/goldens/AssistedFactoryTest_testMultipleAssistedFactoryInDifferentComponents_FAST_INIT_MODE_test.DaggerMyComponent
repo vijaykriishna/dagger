@@ -82,7 +82,7 @@ final class DaggerMyComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.MySubcomponentAssistedFactory 
+          case 0: // test.MySubcomponentAssistedFactory
           return (T) new MySubcomponentAssistedFactory() {
             @Override
             public MyAssistedClass create(Bar bar, Foo foo) {
@@ -136,7 +136,7 @@ final class DaggerMyComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.MyComponentAssistedFactory 
+          case 0: // test.MyComponentAssistedFactory
           return (T) new MyComponentAssistedFactory() {
             @Override
             public MyAssistedClass create(Bar bar, Foo foo) {

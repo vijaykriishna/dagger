@@ -75,7 +75,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.FooFactory<java.lang.String> 
+          case 0: // test.FooFactory<java.lang.String>
           return (T) new FooFactory<String>() {
             @Override
             public Foo<String> create(String arg) {

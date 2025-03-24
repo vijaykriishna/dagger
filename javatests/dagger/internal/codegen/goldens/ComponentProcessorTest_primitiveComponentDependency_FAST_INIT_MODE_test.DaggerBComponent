@@ -81,8 +81,8 @@ final class DaggerBComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.Integer 
-          return (T) (Integer) bComponentImpl.intComponent.i();
+          case 0: // java.lang.Integer
+          return (T) (Integer) (bComponentImpl.intComponent.i());
 
           default: throw new AssertionError(id);
         }

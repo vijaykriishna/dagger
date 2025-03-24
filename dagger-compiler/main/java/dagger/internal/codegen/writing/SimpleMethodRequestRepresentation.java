@@ -24,7 +24,6 @@ import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibl
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
@@ -47,12 +46,12 @@ import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.InjectionBinding;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.XCodeBlocks;
+import dagger.internal.codegen.xprocessing.XExpression;
 import java.util.Optional;
 
 /**
@@ -92,19 +91,19 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     return requiresInjectionMethod(requestingClass)
         ? invokeInjectionMethod(requestingClass)
         : invokeMethod(requestingClass);
   }
 
-  private Expression invokeMethod(XClassName requestingClass) {
+  private XExpression invokeMethod(XClassName requestingClass) {
     // TODO(dpb): align this with the contents of InlineMethods.create
     XCodeBlock arguments =
         makeParametersCodeBlock(
             ProvisionMethod.invokeArguments(
                 binding,
-                request -> toXPoet(dependencyArgument(request, requestingClass).codeBlock()),
+                request -> dependencyArgument(request, requestingClass).codeBlock(),
                 shardImplementation::getUniqueFieldNameForAssistedParam));
     XElement bindingElement = binding.bindingElement().get();
     XTypeElement bindingTypeElement = binding.bindingTypeElement().get();
@@ -129,7 +128,7 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
       throw new AssertionError("Unexpected binding element: " + bindingElement);
     }
 
-    return Expression.create(simpleMethodReturnType(), toJavaPoet(invocation));
+    return XExpression.create(simpleMethodReturnType(), toJavaPoet(invocation));
   }
 
   private XTypeName constructorTypeName(XClassName requestingClass) {
@@ -140,11 +139,11 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         : type.getRawType().asTypeName();
   }
 
-  private Expression invokeInjectionMethod(XClassName requestingClass) {
+  private XExpression invokeInjectionMethod(XClassName requestingClass) {
     return injectMembers(
         ProvisionMethod.invoke(
             binding,
-            request -> toXPoet(dependencyArgument(request, requestingClass).codeBlock()),
+            request -> dependencyArgument(request, requestingClass).codeBlock(),
             shardImplementation::getUniqueFieldNameForAssistedParam,
             requestingClass,
             moduleReference(requestingClass),
@@ -152,14 +151,14 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         requestingClass);
   }
 
-  private Expression dependencyArgument(DependencyRequest dependency, XClassName requestingClass) {
+  private XExpression dependencyArgument(DependencyRequest dependency, XClassName requestingClass) {
     return componentRequestRepresentations.getDependencyArgumentExpression(
         dependency, requestingClass);
   }
 
-  private Expression injectMembers(XCodeBlock instance, XClassName requestingClass) {
+  private XExpression injectMembers(XCodeBlock instance, XClassName requestingClass) {
     if (!hasInjectionSites(binding)) {
-      return Expression.create(simpleMethodReturnType(), toJavaPoet(instance));
+      return XExpression.create(simpleMethodReturnType(), toJavaPoet(instance));
     }
     if (isPreJava8SourceVersion(processingEnv)) {
       // Java 7 type inference can't figure out that instance in

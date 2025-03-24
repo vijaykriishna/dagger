@@ -98,7 +98,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.Object 
+          case 0: // java.lang.Object
           return (T) ParentModule_ReliesOnMultibindingFactory.reliesOnMultibinding(testComponentImpl.parentModule, testSubcomponentImpl.setOfObject());
 
           default: throw new AssertionError(id);
@@ -153,7 +153,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.Object 
+          case 0: // java.lang.Object
           return (T) ParentModule_ReliesOnMultibindingFactory.reliesOnMultibinding(testComponentImpl.parentModule, testComponentImpl.setOfObject());
 
           default: throw new AssertionError(id);

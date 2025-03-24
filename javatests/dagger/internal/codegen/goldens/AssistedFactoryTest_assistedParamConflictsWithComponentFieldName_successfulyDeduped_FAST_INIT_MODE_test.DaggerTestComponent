@@ -78,7 +78,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.FooFactory 
+          case 0: // test.FooFactory
           return (T) new FooFactory() {
             @Override
             public Foo create(String testComponentImpl2) {
@@ -86,7 +86,7 @@ final class DaggerTestComponent {
             }
           };
 
-          case 1: // test.Bar 
+          case 1: // test.Bar
           return (T) new Bar();
 
           default: throw new AssertionError(id);

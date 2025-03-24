@@ -86,7 +86,7 @@ final class DaggerSimpleComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.SomeInjectableType 
+          case 0: // test.SomeInjectableType
           return (T) new SomeInjectableType();
 
           default: throw new AssertionError(id);

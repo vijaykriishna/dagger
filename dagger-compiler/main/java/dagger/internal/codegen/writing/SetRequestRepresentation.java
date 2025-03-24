@@ -20,7 +20,6 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -35,9 +34,9 @@ import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.XCodeBlocks;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A binding expression for multibound sets. */
@@ -61,12 +60,12 @@ final class SetRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     // TODO(ronshapiro): We should also make an ImmutableSet version of SetFactory
     boolean isImmutableSetAvailable = isImmutableSetAvailable();
     // TODO(ronshapiro, gak): Use Sets.immutableEnumSet() if it's available?
     if (isImmutableSetAvailable && binding.dependencies().stream().allMatch(this::isSingleValue)) {
-      return Expression.create(
+      return XExpression.create(
           immutableSetType(),
           XCodeBlock.builder()
               .add("%T.", XTypeNames.IMMUTABLE_SET)
@@ -90,7 +89,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
             return collectionsStaticFactoryInvocation(
                 requestingClass, XCodeBlock.of("singleton(%L)", contributionExpression));
           } else if (isImmutableSetAvailable) {
-            return Expression.create(
+            return XExpression.create(
                 immutableSetType(),
                 XCodeBlock.builder()
                     .add("%T.", XTypeNames.IMMUTABLE_SET)
@@ -118,7 +117,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
               ".%L(%L)", builderMethod, getContributionExpression(dependency, requestingClass));
         }
         instantiation.add(".build()");
-        return Expression.create(
+        return XExpression.create(
             isImmutableSetAvailable ? immutableSetType() : binding.key().type().xprocessing(),
             instantiation.build());
     }
@@ -134,8 +133,7 @@ final class SetRequestRepresentation extends RequestRepresentation {
       DependencyRequest dependency, XClassName requestingClass) {
     RequestRepresentation bindingExpression =
         componentRequestRepresentations.getRequestRepresentation(bindingRequest(dependency));
-    XCodeBlock expression =
-        toXPoet(bindingExpression.getDependencyExpression(requestingClass).codeBlock());
+    XCodeBlock expression = bindingExpression.getDependencyExpression(requestingClass).codeBlock();
 
     // TODO(b/211774331): Type casting should be Set after contributions to Set multibinding are
     // limited to be Set.
@@ -152,9 +150,9 @@ final class SetRequestRepresentation extends RequestRepresentation {
         : expression;
   }
 
-  private Expression collectionsStaticFactoryInvocation(
+  private XExpression collectionsStaticFactoryInvocation(
       XClassName requestingClass, XCodeBlock methodInvocation) {
-    return Expression.create(
+    return XExpression.create(
         binding.key().type().xprocessing(),
         XCodeBlock.builder()
             .add("%T.", XTypeNames.COLLECTIONS)

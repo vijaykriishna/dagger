@@ -95,7 +95,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // other.Maybe 
+          case 0: // other.Maybe
           return (T) Maybe_MaybeModule_ProvideMaybeFactory.provideMaybe();
 
           default: throw new AssertionError(id);

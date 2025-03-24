@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 
@@ -55,12 +56,13 @@ final class OptionalFactoryInstanceCreationExpression
         ? optionalFactories.absentOptionalProvider(binding)
         : optionalFactories.presentOptionalFactory(
             binding,
-            componentRequestRepresentations
-                .getDependencyExpression(
-                    bindingRequest(
-                        getOnlyElement(binding.dependencies()).key(), binding.frameworkType()),
-                    componentImplementation.shardImplementation(binding).name())
-                .codeBlock());
+            toJavaPoet(
+                componentRequestRepresentations
+                    .getDependencyExpression(
+                        bindingRequest(
+                            getOnlyElement(binding.dependencies()).key(), binding.frameworkType()),
+                        componentImplementation.shardImplementation(binding).name())
+                    .codeBlock()));
   }
 
   @AssistedFactory

@@ -26,7 +26,7 @@ import dagger.internal.codegen.binding.BoundInstanceBinding;
 import dagger.internal.codegen.binding.ComponentDependencyBinding;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /**
  * A binding expression for instances bound with {@link dagger.BindsInstance} and instances of
@@ -47,8 +47,8 @@ final class ComponentRequirementRequestRepresentation extends RequestRepresentat
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    return Expression.create(
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    return XExpression.create(
         componentRequirement.type(),
         componentRequirementExpressions.getExpression(componentRequirement, requestingClass));
   }

@@ -149,10 +149,10 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // dagger.internal.codegen.Binding6 
+          case 0: // dagger.internal.codegen.Binding6
           return (T) new Binding6(testComponentImpl.binding7Provider.get());
 
-          case 1: // dagger.internal.codegen.Binding7 
+          case 1: // dagger.internal.codegen.Binding7
           return (T) new Binding7();
 
           default: throw new AssertionError(id);
@@ -200,16 +200,16 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // dagger.internal.codegen.Binding2 
+          case 0: // dagger.internal.codegen.Binding2
           return (T) new Binding2(testComponentImpl.testComponentImplShard.binding3Provider.get());
 
-          case 1: // dagger.internal.codegen.Binding3 
+          case 1: // dagger.internal.codegen.Binding3
           return (T) new Binding3(testComponentImpl.testComponentImplShard.binding4Provider.get());
 
-          case 2: // dagger.internal.codegen.Binding4 
+          case 2: // dagger.internal.codegen.Binding4
           return (T) new Binding4(testComponentImpl.testComponentImplShard.binding5Provider.get(), testComponentImpl.testComponentImplShard.binding2Provider);
 
-          case 3: // dagger.internal.codegen.Binding5 
+          case 3: // dagger.internal.codegen.Binding5
           return (T) new Binding5(testComponentImpl.binding6Provider.get());
 
           default: throw new AssertionError(id);
@@ -247,7 +247,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // dagger.internal.codegen.Binding1 
+          case 0: // dagger.internal.codegen.Binding1
           return (T) new Binding1(testComponentImpl.testComponentImplShard.binding2Provider.get());
 
           default: throw new AssertionError(id);

@@ -103,7 +103,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.util.Map<test.PathEnum,test.Handler> 
+          case 0: // java.util.Map<test.PathEnum,test.Handler>
           return (T) ImmutableMap.<PathEnum, Handler>of(PathEnum.ADMIN, MapModuleOne_ProvideAdminHandlerFactory.provideAdminHandler(testComponentImpl.mapModuleOne), PathEnum.LOGIN, MapModuleTwo_ProvideLoginHandlerFactory.provideLoginHandler(testComponentImpl.mapModuleTwo));
 
           default: throw new AssertionError(id);

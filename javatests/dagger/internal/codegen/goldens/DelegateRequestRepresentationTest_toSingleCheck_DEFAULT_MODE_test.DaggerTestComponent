@@ -60,7 +60,7 @@ final class DaggerTestComponent {
     private void initialize() {
       this.regularScopedProvider = DoubleCheck.provider(RegularScoped_Factory.create());
       this.reusableScopedProvider = SingleCheck.provider(ReusableScoped_Factory.create());
-      this.unscopedProvider = SingleCheck.provider((Provider) Unscoped_Factory.create());
+      this.unscopedProvider = SingleCheck.provider((Provider) (Unscoped_Factory.create()));
     }
 
     @Override

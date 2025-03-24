@@ -23,9 +23,9 @@ import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -33,8 +33,8 @@ import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.BindsTypeChecker;
 import dagger.internal.codegen.binding.DelegateBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 
@@ -74,8 +74,8 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    Expression delegateExpression =
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    XExpression delegateExpression =
         componentRequestRepresentations.getDependencyExpression(
             bindingRequest(getOnlyElement(binding.dependencies()).key(), requestKind),
             requestingClass);
@@ -100,7 +100,7 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
 
   static boolean instanceRequiresCast(
       DelegateBinding binding,
-      Expression delegateExpression,
+      XExpression delegateExpression,
       XClassName requestingClass,
       BindsTypeChecker bindsTypeChecker) {
     // delegateExpression.type() could be Object if expression is satisfied with a raw
@@ -115,21 +115,21 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
    * If {@code delegateExpression} can be assigned to {@code desiredType} safely, then {@code
    * delegateExpression} is returned unchanged. If the {@code delegateExpression} is already a raw
    * type, returns {@code delegateExpression} as well, as casting would have no effect. Otherwise,
-   * returns a {@link Expression#castTo(XType) casted} version of {@code delegateExpression} to the
+   * returns a {@link XExpression#castTo(XType) casted} version of {@code delegateExpression} to the
    * raw type of {@code desiredType}.
    */
   // TODO(ronshapiro): this probably can be generalized for usage in InjectionMethods
-  private Expression castToRawTypeIfNecessary(Expression delegateExpression, XType desiredType) {
+  private XExpression castToRawTypeIfNecessary(XExpression delegateExpression, XType desiredType) {
     if (delegateExpression.type().isAssignableTo(desiredType)) {
       return delegateExpression;
     }
-    Expression castedExpression = delegateExpression.castTo(desiredType.getRawType());
+    XExpression castedExpression = delegateExpression.castTo(desiredType.getRawType());
     // Casted raw type provider expression has to be wrapped parentheses, otherwise there
     // will be an error when DerivedFromFrameworkInstanceRequestRepresentation appends a `get()` to
     // it.
     // TODO(bcorso): change the logic to only add parenthesis when necessary.
-    return Expression.create(
-        castedExpression.type(), CodeBlock.of("($L)", castedExpression.codeBlock()));
+    return XExpression.create(
+        castedExpression.type(), XCodeBlock.of("(%L)", castedExpression.codeBlock()));
   }
 
   private enum ScopeKind {

@@ -109,13 +109,13 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.util.Map<test.PathEnum,javax.inject.Provider<test.Handler>> 
+          case 0: // java.util.Map<test.PathEnum,javax.inject.Provider<test.Handler>>
           return (T) ImmutableMap.<PathEnum, javax.inject.Provider<Handler>>of(PathEnum.ADMIN, testComponentImpl.provideAdminHandlerProvider, PathEnum.LOGIN, testComponentImpl.provideLoginHandlerProvider);
 
-          case 1: // java.util.Map<test.PathEnum,test.Handler> test.MapModuleOne#provideAdminHandler 
+          case 1: // java.util.Map<test.PathEnum,test.Handler> test.MapModuleOne#provideAdminHandler
           return (T) MapModuleOne_ProvideAdminHandlerFactory.provideAdminHandler(testComponentImpl.mapModuleOne);
 
-          case 2: // java.util.Map<test.PathEnum,test.Handler> test.MapModuleTwo#provideLoginHandler 
+          case 2: // java.util.Map<test.PathEnum,test.Handler> test.MapModuleTwo#provideLoginHandler
           return (T) MapModuleTwo_ProvideLoginHandlerFactory.provideLoginHandler(testComponentImpl.mapModuleTwo);
 
           default: throw new AssertionError(id);

@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
@@ -26,9 +27,9 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 
 /** A framework instance creation expression for a {@link dagger.Binds @Binds} binding. */
 final class DelegatingFrameworkInstanceCreationExpression
@@ -52,13 +53,14 @@ final class DelegatingFrameworkInstanceCreationExpression
   @Override
   public CodeBlock creationExpression() {
     DependencyRequest dependency = getOnlyElement(binding.dependencies());
-    return CodeBlocks.cast(
-        componentRequestRepresentations
-            .getDependencyExpression(
-                bindingRequest(dependency.key(), binding.frameworkType()),
-                componentImplementation.shardImplementation(binding).name())
-            .codeBlock(),
-        binding.frameworkType().frameworkClassName());
+    return toJavaPoet(
+        XCodeBlocks.cast(
+            componentRequestRepresentations
+                .getDependencyExpression(
+                    bindingRequest(dependency.key(), binding.frameworkType()),
+                    componentImplementation.shardImplementation(binding).name())
+                .codeBlock(),
+            binding.frameworkType().frameworkClassName()));
   }
 
   @AssistedFactory

@@ -30,9 +30,9 @@ import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescri
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.binding.FrameworkType;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A binding expression that depends on a framework instance. */
@@ -61,14 +61,14 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     return getDependencyExpressionFromFrameworkExpression(
         frameworkRequestRepresentation.getDependencyExpression(requestingClass),
         requestingClass);
   }
 
   @Override
-  Expression getDependencyExpressionForComponentMethod(
+  XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     return getDependencyExpressionFromFrameworkExpression(
         frameworkRequestRepresentation
@@ -76,9 +76,9 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
         component.name());
   }
 
-  private Expression getDependencyExpressionFromFrameworkExpression(
-      Expression frameworkExpression, XClassName requestingClass) {
-    Expression expression =
+  private XExpression getDependencyExpressionFromFrameworkExpression(
+      XExpression frameworkExpression, XClassName requestingClass) {
+    XExpression expression =
         frameworkType.to(
             requestKind,
             frameworkExpression,
@@ -97,7 +97,7 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
         : expression;
   }
 
-  private Expression castMapOfProvider(Expression expression, ContributionBinding binding) {
+  private XExpression castMapOfProvider(XExpression expression, ContributionBinding binding) {
     switch (requestKind) {
       case INSTANCE:
         return expression.castTo(binding.contributedType());
@@ -117,7 +117,7 @@ final class DerivedFromFrameworkInstanceRequestRepresentation extends RequestRep
     throw new IllegalStateException("Unexpected request kind: " + requestKind);
   }
 
-  private boolean requiresTypeCast(Expression expression, XClassName requestingClass) {
+  private boolean requiresTypeCast(XExpression expression, XClassName requestingClass) {
     return binding.kind().equals(BindingKind.DELEGATE)
         && requestKind.equals(RequestKind.INSTANCE)
         && instanceRequiresCast(

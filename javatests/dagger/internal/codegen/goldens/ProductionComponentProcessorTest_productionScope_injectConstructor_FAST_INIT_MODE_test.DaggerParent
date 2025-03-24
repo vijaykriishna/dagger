@@ -105,7 +105,7 @@ final class DaggerParent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.ProductionScoped 
+          case 0: // test.ProductionScoped
           return (T) new ProductionScoped();
 
           default: throw new AssertionError(id);

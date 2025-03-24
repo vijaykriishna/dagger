@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package dagger.internal.codegen.javapoet;
+package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 
 import androidx.room.compiler.codegen.XCodeBlock;
@@ -25,7 +25,7 @@ import androidx.room.compiler.processing.XType;
 import com.squareup.javapoet.CodeBlock;
 
 /**
- * Encapsulates a {@link CodeBlock} for an <a
+ * Encapsulates a {@link XCodeBlock} for an <a
  * href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html">expression</a> and the
  * {@link XType} that it represents from the perspective of the compiler. Consider the following
  * example:
@@ -35,75 +35,67 @@ import com.squareup.javapoet.CodeBlock;
  *   private Provider fooImplProvider = DoubleCheck.provider(FooImpl_Factory.create());
  * </code></pre>
  *
- * <p>An {@code Expression} for {@code fooImplProvider.get()} would have a {@link #type()} of {@code
- * java.lang.Object} and not {@code FooImpl}.
+ * <p>An {@code XExpression} for {@code fooImplProvider.get()} would have a {@link #type()} of
+ * {@code java.lang.Object} and not {@code FooImpl}.
  */
-public final class Expression {
-  private final ExpressionType type;
-  private final CodeBlock codeBlock;
+public final class XExpression {
+  private final XExpressionType type;
+  private final XCodeBlock codeBlock;
 
-  private Expression(ExpressionType type, CodeBlock codeBlock) {
+  private XExpression(XExpressionType type, XCodeBlock codeBlock) {
     this.type = type;
     this.codeBlock = codeBlock;
   }
 
-  /** Creates a new {@link Expression} with a {@link XType} and {@link CodeBlock}. */
-  public static Expression create(XType type, XCodeBlock expression) {
-    return create(type, toJavaPoet(expression));
+  /** Creates a new {@link XExpression} with a {@link XType} and {@link XCodeBlock}. */
+  public static XExpression create(XType type, CodeBlock expression) {
+    return create(type, toXPoet(expression));
   }
 
-  /** Creates a new {@link Expression} with a {@link XType} and {@link CodeBlock}. */
-  public static Expression create(XType type, CodeBlock expression) {
-    return new Expression(ExpressionType.create(type), expression);
+  /** Creates a new {@link XExpression} with a {@link XType} and {@link XCodeBlock}. */
+  public static XExpression create(XType type, XCodeBlock expression) {
+    return new XExpression(XExpressionType.create(type), expression);
   }
 
-  /** Creates a new {@link Expression} with a {@link ExpressionType} and {@link CodeBlock}. */
-  public static Expression create(ExpressionType type, XCodeBlock expression) {
-    return create(type, toJavaPoet(expression));
+  /** Creates a new {@link XExpression} with a {@link XExpressionType} and {@link XCodeBlock}. */
+  public static XExpression create(XExpressionType type, CodeBlock expression) {
+    return create(type, toXPoet(expression));
   }
 
-  /** Creates a new {@link Expression} with a {@link ExpressionType} and {@link CodeBlock}. */
-  public static Expression create(ExpressionType type, CodeBlock expression) {
-    return new Expression(type, expression);
-  }
-
-  /**
-   * Creates a new {@link Expression} with a {@link XType}, {@linkplain CodeBlock#of(String,
-   * Object[]) format, and arguments}.
-   */
-  public static Expression create(XType type, String format, Object... args) {
-    return create(type, CodeBlock.of(format, args));
+  /** Creates a new {@link XExpression} with a {@link XExpressionType} and {@link XCodeBlock}. */
+  public static XExpression create(XExpressionType type, XCodeBlock expression) {
+    return new XExpression(type, expression);
   }
 
   /** Returns a new expression that casts the current expression to {@code newType}. */
-  public Expression castTo(XType newType) {
-    return create(newType, CodeBlock.of("($T) $L", newType.getTypeName(), codeBlock));
+  public XExpression castTo(XType newType) {
+    return create(newType, XCodeBlock.ofCast(newType.asTypeName(), codeBlock));
   }
 
   /** Returns a new expression that casts the current expression to {@code newType}. */
-  public Expression castTo(XRawType newRawType) {
+  public XExpression castTo(XRawType newRawType) {
     return create(
-        ExpressionType.create(newRawType, type.getProcessingEnv()),
-        CodeBlock.of("($T) $L", newRawType.getTypeName(), codeBlock));
+        XExpressionType.create(newRawType, type.getProcessingEnv()),
+        XCodeBlock.ofCast(newRawType.asTypeName(), codeBlock));
   }
 
   /**
    * Returns a new expression that {@link #castTo(XType)} casts the current expression to its boxed
    * type if this expression has a primitive type.
    */
-  public Expression box() {
+  public XExpression box() {
     return type.asType().isPresent() && isPrimitive(type.asType().get())
         ? castTo(type.asType().get().boxed())
         : this;
   }
 
   /** The {@link XType type} to which the expression evaluates. */
-  public ExpressionType type() {
+  public XExpressionType type() {
     return type;
   }
 
   /** The code of the expression. */
-  public CodeBlock codeBlock() {
+  public XCodeBlock codeBlock() {
     return codeBlock;
   }
 

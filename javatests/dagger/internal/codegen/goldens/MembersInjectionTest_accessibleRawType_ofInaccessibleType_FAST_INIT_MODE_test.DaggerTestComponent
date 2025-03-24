@@ -70,7 +70,7 @@ final class DaggerTestComponent {
 
     @CanIgnoreReturnValue
     private UsesInaccessibles injectUsesInaccessibles(UsesInaccessibles instance) {
-      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, (List) inaccessiblesProvider.get());
+      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, (List) (inaccessiblesProvider.get()));
       return instance;
     }
 
@@ -88,7 +88,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.util.List<other.Inaccessible> 
+          case 0: // java.util.List<other.Inaccessible>
           return (T) InaccessiblesModule_InaccessiblesFactory.inaccessibles();
 
           default: throw new AssertionError(id);

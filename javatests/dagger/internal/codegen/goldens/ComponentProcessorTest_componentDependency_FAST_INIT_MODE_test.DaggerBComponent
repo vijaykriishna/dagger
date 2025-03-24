@@ -81,7 +81,7 @@ final class DaggerBComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.A 
+          case 0: // test.A
           return (T) Preconditions.checkNotNullFromComponent(bComponentImpl.aComponent.a());
 
           default: throw new AssertionError(id);

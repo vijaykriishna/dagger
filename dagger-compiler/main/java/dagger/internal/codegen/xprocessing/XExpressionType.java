@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dagger.internal.codegen.javapoet;
+package dagger.internal.codegen.xprocessing;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -25,26 +25,22 @@ import androidx.room.compiler.processing.XRawType;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.compat.XConverters;
 import com.squareup.javapoet.TypeName;
-import dagger.internal.codegen.xprocessing.XProcessingEnvs;
-import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Optional;
 
-/**
- * The type of an {@link Expression} that can represent both {@link XType} or {@link XRawType}.
- */
+/** The type of an {@link XExpression} that can represent both {@link XType} or {@link XRawType}. */
 // TODO(bcorso): It would be nice if XType and XRawType shared some basic interface with some of
-// the common methods so that we wouldn't need to create this ExpressionType to make things work.
-public final class ExpressionType {
-  public static ExpressionType create(XType type) {
-    return new ExpressionType(
+// the common methods so that we wouldn't need to create this XExpressionType to make things work.
+public final class XExpressionType {
+  public static XExpressionType create(XType type) {
+    return new XExpressionType(
         Optional.of(type), Optional.empty(), XConverters.getProcessingEnv(type));
   }
 
-  static ExpressionType create(XRawType type, XProcessingEnv processingEnv) {
-    return new ExpressionType(Optional.empty(), Optional.of(type), processingEnv);
+  static XExpressionType create(XRawType type, XProcessingEnv processingEnv) {
+    return new XExpressionType(Optional.empty(), Optional.of(type), processingEnv);
   }
 
-  public static ExpressionType createRawType(XType type) {
+  public static XExpressionType createRawType(XType type) {
     return create(type.getRawType(), XConverters.getProcessingEnv(type));
   }
 
@@ -52,7 +48,7 @@ public final class ExpressionType {
   private final Optional<XRawType> optionalRawType;
   private final XProcessingEnv processingEnv;
 
-  private ExpressionType(
+  private XExpressionType(
       Optional<XType> optionalType,
       Optional<XRawType> optionalRawType,
       XProcessingEnv processingEnv) {
@@ -62,27 +58,27 @@ public final class ExpressionType {
     checkState(optionalType.isPresent() || optionalRawType.isPresent());
   }
 
-  public ExpressionType unwrapType() {
+  public XExpressionType unwrapType() {
     return optionalType.isPresent() && !XTypes.isRawParameterizedType(optionalType.get())
-        ? ExpressionType.create(XProcessingEnvs.unwrapType(optionalType.get()))
-        : ExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
+        ? XExpressionType.create(XProcessingEnvs.unwrapType(optionalType.get()))
+        : XExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
   }
 
-  public ExpressionType wrapType(XClassName wrapper) {
+  public XExpressionType wrapType(XClassName wrapper) {
     return optionalType.isPresent()
-        ? ExpressionType.create(
+        ? XExpressionType.create(
             XProcessingEnvs.wrapType(wrapper, optionalType.get(), processingEnv))
         // If the current type is a raw type then we just return the wrapper type as a raw type too.
         // This isn't really accurate, but it's the best we can do with XProcessing's type system.
         // For example, if the current type is a raw type, Foo, then Provider<Foo> is not allowed so
         // we return the raw Provider type.
-        : ExpressionType.createRawType(processingEnv.requireType(wrapper));
+        : XExpressionType.createRawType(processingEnv.requireType(wrapper));
   }
 
-  public ExpressionType rewrapType(XClassName wrapper) {
+  public XExpressionType rewrapType(XClassName wrapper) {
     return optionalType.isPresent()
-        ? ExpressionType.create(XTypes.rewrapType(optionalType.get(), wrapper))
-        : ExpressionType.createRawType(processingEnv.requireType(wrapper));
+        ? XExpressionType.create(XTypes.rewrapType(optionalType.get(), wrapper))
+        : XExpressionType.createRawType(processingEnv.requireType(wrapper));
   }
 
   public TypeName getTypeName() {

@@ -66,7 +66,7 @@ final class DaggerTestComponent {
     private void initialize() {
       this.bindProvider = new DelegateFactory<>();
       this.fooImplProvider = new SwitchingProvider<>(testComponentImpl, 0);
-      DelegateFactory.setDelegate(bindProvider, DoubleCheck.provider((Provider) fooImplProvider));
+      DelegateFactory.setDelegate(bindProvider, DoubleCheck.provider((Provider) (fooImplProvider)));
     }
 
     @Override
@@ -88,7 +88,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // other.FooImpl 
+          case 0: // other.FooImpl
           return (T) FooImpl_Factory.newInstance(testComponentImpl.bindProvider);
 
           default: throw new AssertionError(id);

@@ -63,7 +63,7 @@ final class DaggerTestComponent {
       this.regularScopedProvider = DoubleCheck.provider(new SwitchingProvider<RegularScoped>(testComponentImpl, 0));
       this.reusableScopedProvider = SingleCheck.provider(new SwitchingProvider<ReusableScoped>(testComponentImpl, 1));
       this.unscopedProvider = new SwitchingProvider<>(testComponentImpl, 2);
-      this.unscopedProvider2 = SingleCheck.provider((Provider) unscopedProvider);
+      this.unscopedProvider2 = SingleCheck.provider((Provider) (unscopedProvider));
     }
 
     @Override
@@ -95,13 +95,13 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.RegularScoped 
+          case 0: // test.RegularScoped
           return (T) new RegularScoped();
 
-          case 1: // test.ReusableScoped 
+          case 1: // test.ReusableScoped
           return (T) new ReusableScoped();
 
-          case 2: // test.Unscoped 
+          case 2: // test.Unscoped
           return (T) new Unscoped();
 
           default: throw new AssertionError(id);

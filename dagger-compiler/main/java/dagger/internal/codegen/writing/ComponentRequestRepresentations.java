@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,6 +29,8 @@ import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
@@ -44,9 +47,10 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.FrameworkTypeMapper;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
+import dagger.internal.codegen.xprocessing.XExpression;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -98,7 +102,7 @@ public final class ComponentRequestRepresentations {
    * @param requestingClass the class that will contain the expression
    * @throws IllegalStateException if there is no binding expression that satisfies the request
    */
-  public Expression getDependencyExpression(BindingRequest request, XClassName requestingClass) {
+  public XExpression getDependencyExpression(BindingRequest request, XClassName requestingClass) {
     return getRequestRepresentation(request).getDependencyExpression(requestingClass);
   }
 
@@ -108,7 +112,7 @@ public final class ComponentRequestRepresentations {
    *
    * @throws IllegalStateException if there is no binding expression that satisfies the request
    */
-  Expression getDependencyExpressionForComponentMethod(
+  XExpression getDependencyExpressionForComponentMethod(
       BindingRequest request,
       ComponentMethodDescriptor componentMethod,
       ComponentImplementation componentImplementation) {
@@ -139,7 +143,8 @@ public final class ComponentRequestRepresentations {
     binding.dependencies().stream()
         .map(dependency -> frameworkRequest(binding, dependency))
         .map(request -> getDependencyExpression(request, requestingClass))
-        .map(Expression::codeBlock)
+        .map(XExpression::codeBlock)
+        .map(XConverters::toJavaPoet)
         .forEach(arguments::add);
 
     return arguments.build();
@@ -164,12 +169,12 @@ public final class ComponentRequestRepresentations {
    *
    * @param requestingClass the class that will contain the expression
    */
-  Expression getDependencyArgumentExpression(
+  XExpression getDependencyArgumentExpression(
       DependencyRequest dependencyRequest, XClassName requestingClass) {
 
     XType dependencyType = dependencyRequest.key().type().xprocessing();
     BindingRequest bindingRequest = bindingRequest(dependencyRequest);
-    Expression dependencyExpression = getDependencyExpression(bindingRequest, requestingClass);
+    XExpression dependencyExpression = getDependencyExpression(bindingRequest, requestingClass);
 
     if (dependencyRequest.kind().equals(RequestKind.INSTANCE)
         && !isTypeAccessibleFrom(dependencyType, requestingClass.getPackageName())
@@ -183,26 +188,26 @@ public final class ComponentRequestRepresentations {
   /** Returns the implementation of a component method. */
   public MethodSpec getComponentMethod(ComponentMethodDescriptor componentMethod) {
     return overriding(componentMethod.methodElement(), graph.componentTypeElement().getType())
-        .addCode(getComponentMethodCodeBlock(componentMethod))
+        .addCode(toJavaPoet(getComponentMethodCodeBlock(componentMethod)))
         .build();
   }
 
-  private CodeBlock getComponentMethodCodeBlock(ComponentMethodDescriptor componentMethod) {
-    Expression expression = getComponentMethodExpression(componentMethod);
+  private XCodeBlock getComponentMethodCodeBlock(ComponentMethodDescriptor componentMethod) {
+    XExpression expression = getComponentMethodExpression(componentMethod);
     if (isVoid(componentMethod.methodElement().getReturnType())) {
-      return expression.codeBlock().isEmpty()
+      return XCodeBlocks.isEmpty(expression.codeBlock())
           ? expression.codeBlock()
-          : CodeBlock.of("$L;", expression.codeBlock());
+          : XCodeBlock.of("%L;", expression.codeBlock());
     }
-    return CodeBlock.of("return $L;", expression.codeBlock());
+    return XCodeBlock.of("return %L;", expression.codeBlock());
   }
 
-  private Expression getComponentMethodExpression(ComponentMethodDescriptor componentMethod) {
+  private XExpression getComponentMethodExpression(ComponentMethodDescriptor componentMethod) {
     checkArgument(componentMethod.dependencyRequest().isPresent());
     BindingRequest request = bindingRequest(componentMethod.dependencyRequest().get());
     RequestRepresentation requestRepresentation = getRequestRepresentation(request);
 
-    Expression expression =
+    XExpression expression =
         requestRepresentation.getDependencyExpressionForComponentMethod(
             componentMethod, componentImplementation);
 

@@ -40,6 +40,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -333,11 +334,12 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       "return $T.$Lcreate(new $T($N))",
                       toJavaPoet(XTypeNames.INSTANCE_FACTORY),
                       // Java 7 type inference requires the method call provide the exact type here.
-                      isPreJava8SourceVersion(processingEnv)
-                          ? CodeBlock.of(
-                              "<$T>",
-                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                          : CodeBlock.of(""),
+                      toJavaPoet(
+                          isPreJava8SourceVersion(processingEnv)
+                              ? XCodeBlock.of(
+                                  "<%T>",
+                                  accessibleTypeName(metadata.factoryType(), name, processingEnv))
+                              : XCodeBlock.of("")),
                       toJavaPoet(name),
                       delegateFactoryParam)
                   .build())
@@ -357,11 +359,12 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       "return $T.$Lcreate(new $T($N))",
                       toJavaPoet(XTypeNames.INSTANCE_FACTORY),
                       // Java 7 type inference requires the method call provide the exact type here.
-                      isPreJava8SourceVersion(processingEnv)
-                          ? CodeBlock.of(
-                              "<$T>",
-                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                          : CodeBlock.of(""),
+                      toJavaPoet(
+                          isPreJava8SourceVersion(processingEnv)
+                              ? XCodeBlock.of(
+                                  "<%T>",
+                                  accessibleTypeName(metadata.factoryType(), name, processingEnv))
+                              : XCodeBlock.of("")),
                       toJavaPoet(name),
                       delegateFactoryParam)
                   .build());

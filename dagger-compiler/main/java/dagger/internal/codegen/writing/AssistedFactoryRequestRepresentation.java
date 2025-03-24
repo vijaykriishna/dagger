@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethod;
@@ -37,7 +38,7 @@ import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 import java.util.Optional;
 
 /**
@@ -63,23 +64,23 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     // Get corresponding assisted injection binding.
     Optional<Binding> localBinding = graph.localContributionBinding(binding.assistedInjectKey());
     checkArgument(
         localBinding.isPresent(),
         "assisted factory should have a dependency on an assisted injection binding");
-    Expression assistedInjectionExpression =
+    XExpression assistedInjectionExpression =
         simpleMethodRequestRepresentationFactory
             .create((AssistedInjectionBinding) localBinding.get())
             .getDependencyExpression(requestingClass.peerClass(""));
-    return Expression.create(
+    return XExpression.create(
         assistedInjectionExpression.type(),
         CodeBlock.of("$L", anonymousfactoryImpl(localBinding.get(), assistedInjectionExpression)));
   }
 
   private TypeSpec anonymousfactoryImpl(
-      Binding assistedBinding, Expression assistedInjectionExpression) {
+      Binding assistedBinding, XExpression assistedInjectionExpression) {
     XTypeElement factory = asTypeElement(binding.bindingElement().get());
     XType factoryType = binding.key().type().xprocessing();
     XMethodElement factoryMethod = assistedFactoryMethod(factory);
@@ -99,7 +100,7 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
                     .addParameters(
                         assistedFactoryParameterSpecs(
                             binding, componentImplementation.shardImplementation(assistedBinding)))
-                    .addStatement("return $L", assistedInjectionExpression.codeBlock())
+                    .addStatement("return $L", toJavaPoet(assistedInjectionExpression.codeBlock()))
                     .build());
 
     if (factory.isInterface()) {

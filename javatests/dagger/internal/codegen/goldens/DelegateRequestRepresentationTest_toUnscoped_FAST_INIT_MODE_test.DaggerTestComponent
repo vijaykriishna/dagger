@@ -89,10 +89,10 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.RegularScoped 
+          case 0: // test.RegularScoped
           return (T) new RegularScoped();
 
-          case 1: // test.ReusableScoped 
+          case 1: // test.ReusableScoped
           return (T) new ReusableScoped();
 
           default: throw new AssertionError(id);

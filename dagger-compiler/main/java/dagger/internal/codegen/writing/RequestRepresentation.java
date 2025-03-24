@@ -18,7 +18,7 @@ package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
-import dagger.internal.codegen.javapoet.Expression;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /** A factory of code expressions used to access a single request for a binding in a component. */
 // TODO(bcorso): Rename this to RequestExpression?
@@ -30,14 +30,14 @@ abstract class RequestRepresentation {
    *
    * @param requestingClass the class that will contain the expression
    */
-  abstract Expression getDependencyExpression(XClassName requestingClass);
+  abstract XExpression getDependencyExpression(XClassName requestingClass);
 
   /**
    * Equivalent to {@link #getDependencyExpression} that is used only when the request is for an
    * implementation of a component method. By default, just delegates to {@link
    * #getDependencyExpression}.
    */
-  Expression getDependencyExpressionForComponentMethod(
+  XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     return getDependencyExpression(component.name());
   }

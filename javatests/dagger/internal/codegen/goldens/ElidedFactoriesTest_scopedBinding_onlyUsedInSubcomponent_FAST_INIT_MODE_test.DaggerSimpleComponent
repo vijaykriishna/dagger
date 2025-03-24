@@ -92,7 +92,7 @@ final class DaggerSimpleComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // test.ScopedType 
+          case 0: // test.ScopedType
           return (T) new ScopedType();
 
           default: throw new AssertionError(id);

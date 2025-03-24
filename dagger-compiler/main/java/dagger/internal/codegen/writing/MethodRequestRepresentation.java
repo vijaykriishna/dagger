@@ -20,9 +20,9 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
-import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.ExpressionType;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XExpressionType;
 
 /** A binding expression that wraps another in a nullary method on the component. */
 abstract class MethodRequestRepresentation extends RequestRepresentation {
@@ -36,8 +36,8 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
-    return Expression.create(
+  XExpression getDependencyExpression(XClassName requestingClass) {
+    return XExpression.create(
         returnType(),
         requestingClass.equals(shardImplementation.name())
             ? methodCall()
@@ -45,7 +45,7 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpressionForComponentMethod(
+  XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     return producerEntryPointView
         .getProducerEntryPointField(this, componentMethod, component.name())
@@ -54,7 +54,7 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
   }
 
   /** Returns the return type for the dependency request. */
-  protected abstract ExpressionType returnType();
+  protected abstract XExpressionType returnType();
 
   /** Returns the method call. */
   protected abstract CodeBlock methodCall();

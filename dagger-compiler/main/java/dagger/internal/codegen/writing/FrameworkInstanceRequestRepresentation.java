@@ -25,8 +25,8 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
-import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.ExpressionType;
+import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XExpressionType;
 
 /** A binding expression that uses a {@link FrameworkType} field. */
 abstract class FrameworkInstanceRequestRepresentation extends RequestRepresentation {
@@ -48,15 +48,15 @@ abstract class FrameworkInstanceRequestRepresentation extends RequestRepresentat
    * added to the component the first time this method is invoked.
    */
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     MemberSelect memberSelect = frameworkInstanceSupplier.memberSelect();
     XType expressionType =
         wrapType(frameworkType().frameworkClassName(), binding.contributedType(), processingEnv);
-    return Expression.create(
+    return XExpression.create(
         isTypeAccessibleFrom(binding.contributedType(), requestingClass.getPackageName())
                 || isInlinedFactoryCreation(memberSelect)
-            ? ExpressionType.create(expressionType)
-            : ExpressionType.createRawType(expressionType),
+            ? XExpressionType.create(expressionType)
+            : XExpressionType.createRawType(expressionType),
         memberSelect.getExpressionFor(requestingClass));
   }
 

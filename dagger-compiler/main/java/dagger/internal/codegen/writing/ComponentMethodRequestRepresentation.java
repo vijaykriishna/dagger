@@ -24,8 +24,8 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
-import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.javapoet.ExpressionType;
+import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XExpressionType;
 
 /**
  * A binding expression that implements and uses a component method.
@@ -50,7 +50,7 @@ final class ComponentMethodRequestRepresentation extends MethodRequestRepresenta
   }
 
   @Override
-  protected Expression getDependencyExpressionForComponentMethod(
+  protected XExpression getDependencyExpressionForComponentMethod(
       ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
     // There could be several methods on the component for the same request key and kind.
     // Only one should use the BindingMethodImplementation; the others can delegate that one.
@@ -71,8 +71,8 @@ final class ComponentMethodRequestRepresentation extends MethodRequestRepresenta
   }
 
   @Override
-  protected ExpressionType returnType() {
-    return ExpressionType.create(componentMethod.methodElement().getReturnType());
+  protected XExpressionType returnType() {
+    return XExpressionType.create(componentMethod.methodElement().getReturnType());
   }
 
   @AssistedFactory

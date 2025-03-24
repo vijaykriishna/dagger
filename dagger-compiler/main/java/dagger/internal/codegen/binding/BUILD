@@ -27,7 +27,6 @@ java_library(
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/base",
         "//dagger-compiler/main/java/dagger/internal/codegen/compileroption",
-        "//dagger-compiler/main/java/dagger/internal/codegen/javapoet",
         "//dagger-compiler/main/java/dagger/internal/codegen/kotlin",
         "//dagger-compiler/main/java/dagger/internal/codegen/model",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
@@ -38,7 +37,7 @@ java_library(
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/guava/graph",
-        "//third_party/java/guava/util/concurrent",
         "//third_party/java/javapoet",
+        "//third_party/java/jsr330_inject",
     ],
 )

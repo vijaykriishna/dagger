@@ -58,7 +58,7 @@ final class DaggerTestComponent {
     @SuppressWarnings("unchecked")
     private void initialize() {
       this.fooImplProvider = new SwitchingProvider<>(testComponentImpl, 0);
-      this.bindProvider = DoubleCheck.provider((Provider) fooImplProvider);
+      this.bindProvider = DoubleCheck.provider((Provider) (fooImplProvider));
     }
 
     @Override
@@ -80,7 +80,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // other.FooImpl 
+          case 0: // other.FooImpl
           return (T) FooImpl_Factory.newInstance();
 
           default: throw new AssertionError(id);

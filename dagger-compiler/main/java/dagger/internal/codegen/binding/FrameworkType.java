@@ -21,14 +21,13 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import dagger.internal.codegen.base.RequestKinds;
-import dagger.internal.codegen.javapoet.Expression;
-import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
@@ -37,49 +36,43 @@ public enum FrameworkType {
   /** A {@link javax.inject.Provider}. */
   PROVIDER {
     @Override
-    public CodeBlock to(
+    public XCodeBlock to(
         RequestKind requestKind,
-        CodeBlock from) {
+        XCodeBlock from) {
       switch (requestKind) {
         case INSTANCE:
-          return CodeBlock.of("$L.get()", from);
+          return XCodeBlock.of("%L.get()", from);
 
         case LAZY:
-          return CodeBlock.of(
-              "$T.lazy($L)",
-              toJavaPoet(
-                  XTypeNames.DOUBLE_CHECK),
+          return XCodeBlock.of(
+              "%T.lazy(%L)",
+              XTypeNames.DOUBLE_CHECK,
               from);
 
         case PROVIDER:
           return from;
 
         case PROVIDER_OF_LAZY:
-          return CodeBlock.of(
-              "$T.create($L)",
-              toJavaPoet(XTypeNames.PROVIDER_OF_LAZY),
-              from);
+          return XCodeBlock.of("%T.create(%L)", XTypeNames.PROVIDER_OF_LAZY, from);
 
         case PRODUCER:
-          return CodeBlock.of(
-              "$T.producerFromProvider($L)",
-              toJavaPoet(XTypeNames.PRODUCERS),
-              from);
+          return XCodeBlock.of("%T.producerFromProvider(%L)", XTypeNames.PRODUCERS, from);
 
         case FUTURE:
-          return CodeBlock.of(
-              "$T.immediateFuture($L)",
-              toJavaPoet(XTypeNames.FUTURES),
+          return XCodeBlock.of(
+              "%T.immediateFuture(%L)",
+              XTypeNames.FUTURES,
               to(
                   RequestKind.INSTANCE,
                   from));
 
         case PRODUCED:
-          return CodeBlock.of(
-              "$T.successful($L)",
-              toJavaPoet(XTypeNames.PRODUCED),
+          return XCodeBlock.of(
+              "%T.successful(%L)",
+              XTypeNames.PRODUCED,
               to(
-                  RequestKind.INSTANCE, from));
+                  RequestKind.INSTANCE,
+                  from));
 
         default:
           throw new IllegalArgumentException(
@@ -88,30 +81,32 @@ public enum FrameworkType {
     }
 
     @Override
-    public Expression to(
+    public XExpression to(
         RequestKind requestKind,
-        Expression from,
+        XExpression from,
         XProcessingEnv processingEnv) {
-      CodeBlock codeBlock = to(
-          requestKind,
-          from.codeBlock());
+      XCodeBlock codeBlock =
+          to(
+              requestKind,
+              from.codeBlock());
       switch (requestKind) {
         case INSTANCE:
-          return Expression.create(from.type().unwrapType(), codeBlock);
+          return XExpression.create(from.type().unwrapType(), codeBlock);
 
         case PROVIDER:
           return from;
 
         case PROVIDER_OF_LAZY:
-          return Expression.create(
+          return XExpression.create(
               from.type().rewrapType(XTypeNames.LAZY).wrapType(XTypeNames.DAGGER_PROVIDER),
               codeBlock);
 
         case FUTURE:
-          return Expression.create(from.type().rewrapType(XTypeNames.LISTENABLE_FUTURE), codeBlock);
+          return XExpression.create(
+              from.type().rewrapType(XTypeNames.LISTENABLE_FUTURE), codeBlock);
 
         default:
-          return Expression.create(
+          return XExpression.create(
               from.type().rewrapType(RequestKinds.frameworkClassName(requestKind)), codeBlock);
       }
     }
@@ -120,12 +115,12 @@ public enum FrameworkType {
   /** A {@link dagger.producers.Producer}. */
   PRODUCER_NODE {
     @Override
-    public CodeBlock to(
+    public XCodeBlock to(
         RequestKind requestKind,
-        CodeBlock from) {
+        XCodeBlock from) {
       switch (requestKind) {
         case FUTURE:
-          return CodeBlock.of("$L.get()", from);
+          return XCodeBlock.of("%L.get()", from);
 
         case PRODUCER:
           return from;
@@ -137,13 +132,13 @@ public enum FrameworkType {
     }
 
     @Override
-    public Expression to(
+    public XExpression to(
         RequestKind requestKind,
-        Expression from,
+        XExpression from,
         XProcessingEnv processingEnv) {
       switch (requestKind) {
         case FUTURE:
-          return Expression.create(
+          return XExpression.create(
               from.type().rewrapType(XTypeNames.LISTENABLE_FUTURE),
               to(
                   requestKind,
@@ -214,21 +209,21 @@ public enum FrameworkType {
   }
 
   /**
-   * Returns a {@link CodeBlock} that evaluates to a requested object given an expression that
+   * Returns a {@link XCodeBlock} that evaluates to a requested object given an expression that
    * evaluates to an instance of this framework type.
    *
    * @param requestKind the kind of {@link DependencyRequest} that the returned expression can
    *     satisfy
-   * @param from a {@link CodeBlock} that evaluates to an instance of this framework type
+   * @param from a {@link XCodeBlock} that evaluates to an instance of this framework type
    * @throws IllegalArgumentException if a valid expression cannot be generated for {@code
    *     requestKind}
    */
-  public abstract CodeBlock to(
+  public abstract XCodeBlock to(
       RequestKind requestKind,
-      CodeBlock from);
+      XCodeBlock from);
 
   /**
-   * Returns an {@link Expression} that evaluates to a requested object given an expression that
+   * Returns an {@link XExpression} that evaluates to a requested object given an expression that
    * evaluates to an instance of this framework type.
    *
    * @param requestKind the kind of {@link DependencyRequest} that the returned expression can
@@ -237,9 +232,9 @@ public enum FrameworkType {
    * @throws IllegalArgumentException if a valid expression cannot be generated for {@code
    *     requestKind}
    */
-  public abstract Expression to(
+  public abstract XExpression to(
       RequestKind requestKind,
-      Expression from,
+      XExpression from,
       XProcessingEnv processingEnv);
 
   @Override

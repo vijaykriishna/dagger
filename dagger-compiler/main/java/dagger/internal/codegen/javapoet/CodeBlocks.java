@@ -19,7 +19,6 @@ package dagger.internal.codegen.javapoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
-import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.lazyOf;
 import static java.util.stream.StreamSupport.stream;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -70,34 +69,6 @@ public final class CodeBlocks {
    */
   public static CodeBlock concat(Iterable<CodeBlock> codeBlocks) {
     return stream(codeBlocks.spliterator(), false).collect(toConcatenatedCodeBlock());
-  }
-
-  /**
-   * Returns an anonymous {@link javax.inject.Provider} class with the single {@link
-   * javax.inject.Provider#get()} method that returns the given {@code expression}.
-   */
-  public static CodeBlock anonymousProvider(Expression expression) {
-    return anonymousProvider(
-        expression.type().asTypeName(), CodeBlock.of("return $L;", expression.codeBlock()));
-  }
-
-  /**
-   * Returns an anonymous {@link javax.inject.Provider} class with the single {@link
-   * javax.inject.Provider#get()} method implemented by {@code body}.
-   */
-  public static CodeBlock anonymousProvider(XTypeName providedType, CodeBlock body) {
-    return CodeBlock.of(
-        "$L",
-        anonymousClassBuilder("")
-            .superclass(toJavaPoet(daggerProviderOf(providedType)))
-            .addMethod(
-                methodBuilder("get")
-                    .addAnnotation(Override.class)
-                    .addModifiers(PUBLIC)
-                    .returns(toJavaPoet(providedType))
-                    .addCode(body)
-                    .build())
-            .build());
   }
 
   /**

@@ -98,10 +98,10 @@ final class DaggerBComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // pkg1.A 
+          case 0: // pkg1.A
           return (T) Preconditions.checkNotNullFromComponent(bComponentImpl.aComponent.a());
 
-          case 1: // pkg2.A 
+          case 1: // pkg2.A
           return (T) Preconditions.checkNotNullFromComponent(bComponentImpl.aComponent2.a());
 
           default: throw new AssertionError(id);

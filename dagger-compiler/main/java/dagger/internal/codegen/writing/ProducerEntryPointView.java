@@ -16,21 +16,23 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.FRAMEWORK_FIELD;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
@@ -56,7 +58,7 @@ final class ProducerEntryPointView {
    * ComponentImplementation)}, and in cases where {@link Optional#empty()} is returned, callers
    * should call {@code super.getDependencyExpressionForComponentMethod()}.
    */
-  Optional<Expression> getProducerEntryPointField(
+  Optional<XExpression> getProducerEntryPointField(
       RequestRepresentation producerExpression,
       ComponentMethodDescriptor componentMethod,
       XClassName requestingClass) {
@@ -65,7 +67,7 @@ final class ProducerEntryPointView {
             || componentMethod.dependencyRequest().get().kind().equals(RequestKind.PRODUCER))) {
       MemberSelect field = createField(producerExpression, componentMethod);
       return Optional.of(
-          Expression.create(fieldType(componentMethod), field.getExpressionFor(requestingClass)));
+          XExpression.create(fieldType(componentMethod), field.getExpressionFor(requestingClass)));
     } else {
       // If the component isn't a production component, it won't implement CancellationListener and
       // as such we can't create an entry point. But this binding must also just be a Producer from
@@ -90,21 +92,22 @@ final class ProducerEntryPointView {
             .build();
     shardImplementation.addField(FRAMEWORK_FIELD, field);
 
-    CodeBlock fieldInitialization =
-        CodeBlock.of(
-            "this.$N = $T.entryPointViewOf($L, $L);",
-            field,
-            toJavaPoet(XTypeNames.PRODUCERS),
+    XCodeBlock fieldInitialization =
+        XCodeBlock.of(
+            "this.%N = %T.entryPointViewOf(%L, %L);",
+            field.name,
+            XTypeNames.PRODUCERS,
             producerExpression.getDependencyExpression(shardImplementation.name()).codeBlock(),
             // Always pass in the componentShard reference here rather than the owning shard for
             // this key because this needs to be the root CancellationListener.
-            shardImplementation.isComponentShard()
-                ? "this"
-                : shardImplementation
-                    .getComponentImplementation()
-                    .getComponentShard()
-                    .shardFieldReference());
-    shardImplementation.addInitialization(fieldInitialization);
+            toXPoet(
+                shardImplementation.isComponentShard()
+                    ? CodeBlock.of("this")
+                    : shardImplementation
+                        .getComponentImplementation()
+                        .getComponentShard()
+                        .shardFieldReference()));
+    shardImplementation.addInitialization(toJavaPoet(fieldInitialization));
 
     return MemberSelect.localField(shardImplementation, field.name);
   }

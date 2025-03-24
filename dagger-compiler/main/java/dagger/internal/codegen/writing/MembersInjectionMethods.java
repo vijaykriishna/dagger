@@ -41,10 +41,10 @@ import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.InjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
+import dagger.internal.codegen.xprocessing.XExpression;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ import javax.inject.Inject;
 /** Manages the member injection methods for a component. */
 @PerComponentImplementation
 final class MembersInjectionMethods {
-  private final Map<Key, Expression> injectMethodExpressions = new LinkedHashMap<>();
+  private final Map<Key, XExpression> injectMethodExpressions = new LinkedHashMap<>();
   private final ComponentImplementation componentImplementation;
   private final ComponentRequestRepresentations bindingExpressions;
   private final BindingGraph graph;
@@ -71,30 +71,30 @@ final class MembersInjectionMethods {
   }
 
   /**
-   * Returns the members injection {@link Expression} for the given {@link Key}, creating it if
+   * Returns the members injection {@link XExpression} for the given {@link Key}, creating it if
    * necessary.
    */
-  Expression getInjectExpression(Key key, CodeBlock instance, XClassName requestingClass) {
+  XExpression getInjectExpression(Key key, CodeBlock instance, XClassName requestingClass) {
     Binding binding =
         graph.localMembersInjectionBinding(key).isPresent()
             ? graph.localMembersInjectionBinding(key).get()
             : graph.localContributionBinding(key).get();
-    Expression expression =
+    XExpression expression =
         reentrantComputeIfAbsent(
             injectMethodExpressions, key, k -> injectMethodExpression(binding));
     ShardImplementation shardImplementation = componentImplementation.shardImplementation(binding);
-    return Expression.create(
+    return XExpression.create(
         expression.type(),
         shardImplementation.name().equals(requestingClass)
-            ? CodeBlock.of("$L($L)", expression.codeBlock(), instance)
-            : CodeBlock.of(
-                "$L.$L($L)",
-                shardImplementation.shardFieldReference(),
+            ? XCodeBlock.of("%L(%L)", expression.codeBlock(), toXPoet(instance))
+            : XCodeBlock.of(
+                "%L.%L(%L)",
+                toXPoet(shardImplementation.shardFieldReference()),
                 expression.codeBlock(),
-                instance));
+                toXPoet(instance)));
   }
 
-  private Expression injectMethodExpression(Binding binding) {
+  private XExpression injectMethodExpression(Binding binding) {
     // TODO(bcorso): move Switching Providers and injection methods to Shard classes to avoid
     // exceeding component class constant pool limit.
     // Add to Component Shard so that is can be accessible from Switching Providers.
@@ -136,17 +136,16 @@ final class MembersInjectionMethods {
             instance,
             membersInjectedType,
             request ->
-                toXPoet(
-                    bindingExpressions
-                        .getDependencyArgumentExpression(request, shardImplementation.name())
-                        .codeBlock()));
+                bindingExpressions
+                    .getDependencyArgumentExpression(request, shardImplementation.name())
+                    .codeBlock());
     methodBuilder
         .addCode(toJavaPoet(invokeInjectionSites))
         .addStatement("return $L", toJavaPoet(instance));
 
     MethodSpec method = methodBuilder.build();
     shardImplementation.addMethod(MEMBERS_INJECTION_METHOD, method);
-    return Expression.create(membersInjectedType, CodeBlock.of("$N", method));
+    return XExpression.create(membersInjectedType, CodeBlock.of("$N", method));
   }
 
   private static ImmutableSet<InjectionSite> injectionSites(Binding binding) {

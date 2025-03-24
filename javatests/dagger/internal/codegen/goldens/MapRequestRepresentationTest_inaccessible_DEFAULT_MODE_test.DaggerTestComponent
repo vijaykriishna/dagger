@@ -52,7 +52,7 @@ final class DaggerTestComponent {
 
     @Override
     public UsesInaccessible usesInaccessible() {
-      return UsesInaccessible_Factory.newInstance((Map) Collections.emptyMap());
+      return UsesInaccessible_Factory.newInstance((Map) (Collections.emptyMap()));
     }
   }
 }

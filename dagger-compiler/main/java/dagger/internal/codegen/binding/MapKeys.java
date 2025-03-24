@@ -44,12 +44,10 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.MethodSpec;
-import dagger.MapKey;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.MapKeyAccessibility;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /** Methods for extracting {@link MapKey} annotations and key code blocks from binding elements. */

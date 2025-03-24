@@ -54,7 +54,7 @@ final class DaggerTestComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.bindProvider = DoubleCheck.provider((Provider) FooImpl_Factory.create());
+      this.bindProvider = DoubleCheck.provider((Provider) (FooImpl_Factory.create()));
     }
 
     @Override

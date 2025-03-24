@@ -17,7 +17,6 @@
 package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 
 import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.binding.BindingRequest;
@@ -46,12 +45,11 @@ abstract class MultibindingFactoryCreationExpression
   /** Returns the expression for a dependency of this multibinding. */
   protected final XCodeBlock multibindingDependencyExpression(DependencyRequest dependency) {
     XCodeBlock expression =
-        toXPoet(
-            componentRequestRepresentations
-                .getDependencyExpression(
-                    BindingRequest.bindingRequest(dependency.key(), binding.frameworkType()),
-                    shardImplementation.name())
-                .codeBlock());
+        componentRequestRepresentations
+            .getDependencyExpression(
+                BindingRequest.bindingRequest(dependency.key(), binding.frameworkType()),
+                shardImplementation.name())
+            .codeBlock();
 
     return useRawType()
         ? XCodeBlocks.cast(expression, binding.frameworkType().frameworkClassName())

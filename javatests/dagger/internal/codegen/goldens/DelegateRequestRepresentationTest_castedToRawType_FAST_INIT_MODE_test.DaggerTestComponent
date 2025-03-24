@@ -57,12 +57,12 @@ final class DaggerTestComponent {
 
     @Override
     public javax.inject.Provider<CharSequence> charSequence() {
-      return ((Provider) provideStringProvider);
+      return ((Provider) (provideStringProvider));
     }
 
     @Override
     public CharSequence charSequenceInstance() {
-      return (CharSequence) ((Provider) provideStringProvider).get();
+      return (CharSequence) (((Provider) (provideStringProvider)).get());
     }
 
     @Override
@@ -84,7 +84,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.String 
+          case 0: // java.lang.String
           return (T) TestModule_ProvideStringFactory.provideString();
 
           default: throw new AssertionError(id);

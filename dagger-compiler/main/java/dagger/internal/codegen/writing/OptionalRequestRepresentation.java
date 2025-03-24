@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
@@ -31,9 +32,9 @@ import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.OptionalType.OptionalKind;
 import dagger.internal.codegen.binding.OptionalBinding;
-import dagger.internal.codegen.javapoet.Expression;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XExpression;
 
 /** A binding expression for optional bindings. */
 final class OptionalRequestRepresentation extends RequestRepresentation {
@@ -53,7 +54,7 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
   }
 
   @Override
-  Expression getDependencyExpression(XClassName requestingClass) {
+  XExpression getDependencyExpression(XClassName requestingClass) {
     OptionalType optionalType = OptionalType.from(binding.key());
     OptionalKind optionalKind = optionalType.kind();
     if (binding.dependencies().isEmpty()) {
@@ -65,32 +66,33 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
         // https://github.com/google/dagger/issues/916)
         if (isTypeAccessibleFrom(
             binding.key().type().xprocessing(), requestingClass.getPackageName())) {
-          return Expression.create(
+          return XExpression.create(
               binding.key().type().xprocessing(),
               optionalKind.parameterizedAbsentValueExpression(optionalType));
         }
       }
-      return Expression.create(
+      return XExpression.create(
           binding.key().type().xprocessing(), optionalKind.absentValueExpression());
     }
     DependencyRequest dependency = getOnlyElement(binding.dependencies());
 
     CodeBlock dependencyExpression =
-        componentRequestRepresentations
-            .getDependencyExpression(bindingRequest(dependency), requestingClass)
-            .codeBlock();
+        toJavaPoet(
+            componentRequestRepresentations
+                .getDependencyExpression(bindingRequest(dependency), requestingClass)
+                .codeBlock());
 
     boolean needsObjectExpression = !isTypeAccessibleFrom(
         dependency.key().type().xprocessing(), requestingClass.getPackageName())
         || (isPreJava8SourceVersion(processingEnv) && dependency.kind() == RequestKind.PROVIDER);
 
     return !needsObjectExpression
-        ? Expression.create(
+        ? XExpression.create(
             binding.key().type().xprocessing(),
             optionalKind.presentExpression(dependencyExpression))
         // If the dependency type is inaccessible, then we have to use Optional.<Object>of(...), or
         // else we will get "incompatible types: inference variable has incompatible bounds.
-        : Expression.create(
+        : XExpression.create(
             processingEnv.getDeclaredType(
                 processingEnv.findTypeElement(optionalKind.className()),
                 processingEnv.findType(TypeName.OBJECT)),

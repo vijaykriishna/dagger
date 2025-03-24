@@ -96,7 +96,7 @@ final class DaggerParent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.Number 
+          case 0: // java.lang.Number
           return (T) TestModule_NumberFactory.number();
 
           default: throw new AssertionError(id);

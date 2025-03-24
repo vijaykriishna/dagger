@@ -56,12 +56,12 @@ final class DaggerTestComponent {
     @SuppressWarnings("unchecked")
     private void initialize() {
       this.sProvider = new SwitchingProvider<>(testComponentImpl, 0);
-      this.cProvider = DoubleCheck.provider((Provider) sProvider);
+      this.cProvider = DoubleCheck.provider((Provider) (sProvider));
     }
 
     @Override
     public javax.inject.Provider<Object> objectProvider() {
-      return ((Provider) cProvider);
+      return ((Provider) (cProvider));
     }
 
     @Override
@@ -83,7 +83,7 @@ final class DaggerTestComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // java.lang.String 
+          case 0: // java.lang.String
           return (T) TestModule_SFactory.s();
 
           default: throw new AssertionError(id);

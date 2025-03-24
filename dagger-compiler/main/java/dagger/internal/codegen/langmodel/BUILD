@@ -24,16 +24,5 @@ java_library(
     srcs = glob(["*.java"]),
     plugins = ["//dagger-compiler/main/java/dagger/internal/codegen/bootstrap"],
     tags = ["maven:merged"],
-    deps = [
-        "//dagger-compiler/main/java/dagger/internal/codegen/base:shared",
-        "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
-        "//dagger-runtime/main/java/dagger:core",
-        "//dagger-spi",
-        "//third_party/java/auto:common",
-        "//third_party/java/guava/base",
-        "//third_party/java/guava/collect",
-        "//third_party/java/guava/graph",
-        "//third_party/java/guava/util/concurrent",
-        "//third_party/java/javapoet",
-    ],
+    deps = ["//dagger-compiler/main/java/dagger/internal/codegen/xprocessing"],
 )

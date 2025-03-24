@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
@@ -34,9 +35,9 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.javapoet.ExpressionType;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XExpressionType;
 
 /**
  * A binding expression that wraps the dependency expressions in a private, no-arg method.
@@ -72,18 +73,18 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
   }
 
   @Override
-  protected ExpressionType returnType() {
+  protected XExpressionType returnType() {
     XType type = request.isRequestKind(RequestKind.INSTANCE)
                 && binding.contributedPrimitiveType().isPresent()
         ? binding.contributedPrimitiveType().get()
         : request.requestedType(binding.contributedType(), processingEnv);
     String requestingPackage = shardImplementation.name().getPackageName();
     if (isTypeAccessibleFrom(type, requestingPackage)) {
-      return ExpressionType.create(type);
+      return XExpressionType.create(type);
     } else if (isDeclared(type) && isRawTypeAccessible(type, requestingPackage)) {
-      return ExpressionType.createRawType(type);
+      return XExpressionType.createRawType(type);
     } else {
-      return ExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
+      return XExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
     }
   }
 
@@ -104,9 +105,10 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
               .returns(returnType().getTypeName())
               .addStatement(
                   "return $L",
-                  wrappedRequestRepresentation
-                      .getDependencyExpression(shardImplementation.name())
-                      .codeBlock())
+                  toJavaPoet(
+                      wrappedRequestRepresentation
+                          .getDependencyExpression(shardImplementation.name())
+                          .codeBlock()))
               .build());
     }
     return methodName;
