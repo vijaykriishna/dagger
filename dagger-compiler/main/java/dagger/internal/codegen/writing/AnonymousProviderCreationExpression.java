@@ -16,19 +16,18 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
-import static dagger.internal.codegen.model.RequestKind.INSTANCE;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.anonymousProvider;
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XExpression;
 
@@ -53,15 +52,15 @@ final class AnonymousProviderCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
-    BindingRequest instanceExpressionRequest = bindingRequest(binding.key(), INSTANCE);
+  public XCodeBlock creationExpression() {
+    BindingRequest instanceExpressionRequest = bindingRequest(binding.key(), RequestKind.INSTANCE);
     XExpression instanceExpression =
         componentRequestRepresentations.getDependencyExpression(
             instanceExpressionRequest,
             // Not a real class name, but the actual requestingClass is an inner class within the
             // given class, not that class itself.
             requestingClass.nestedClass("Anonymous"));
-    return toJavaPoet(anonymousProvider(instanceExpression));
+    return anonymousProvider(instanceExpression);
   }
 
   @AssistedFactory

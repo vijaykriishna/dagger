@@ -16,14 +16,13 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -52,18 +51,16 @@ final class MembersInjectorProviderCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     XType membersInjectedType =
         getOnlyElement(binding.key().type().xprocessing().getTypeArguments());
 
     boolean castThroughRawType = false;
-    CodeBlock membersInjector;
+    XCodeBlock membersInjector;
     if (binding.injectionSites().isEmpty()) {
       membersInjector =
-          CodeBlock.of(
-              "$T.<$T>noOp()",
-              toJavaPoet(XTypeNames.MEMBERS_INJECTORS),
-              toJavaPoet(membersInjectedType.asTypeName()));
+          XCodeBlock.of(
+              "%T.<%T>noOp()", XTypeNames.MEMBERS_INJECTORS, membersInjectedType.asTypeName());
     } else {
       XTypeElement injectedTypeElement = membersInjectedType.getTypeElement();
       while (!hasLocalInjectionSites(injectedTypeElement)) {
@@ -74,31 +71,24 @@ final class MembersInjectorProviderCreationExpression
       }
 
       membersInjector =
-          CodeBlock.of(
-              "$T.create($L)",
-              toJavaPoet(membersInjectorNameForType(injectedTypeElement)),
+          XCodeBlock.of(
+              "%T.create(%L)",
+              membersInjectorNameForType(injectedTypeElement),
               componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
                   binding, shardImplementation.name()));
     }
 
     // TODO(ronshapiro): consider adding a MembersInjectorRequestRepresentation to return this
-    // directly
-    // (as it's rarely requested as a Provider).
-    CodeBlock providerExpression =
-        CodeBlock.of(
-            "$T.create($L)",
-            toJavaPoet(XTypeNames.INSTANCE_FACTORY),
-            membersInjector);
+    // directly (as it's rarely requested as a Provider).
+    XCodeBlock providerExpression =
+        XCodeBlock.of("%T.create(%L)", XTypeNames.INSTANCE_FACTORY, membersInjector);
     // If needed we cast through raw type around the InstanceFactory type as opposed to the
     // MembersInjector since we end up with an InstanceFactory<MembersInjector> as opposed to a
     // InstanceFactory<MembersInjector<Foo>> and that becomes unassignable. To fix it would require
     // a second cast. If we just cast to the raw type InstanceFactory though, that becomes
     // assignable.
     return castThroughRawType
-        ? CodeBlock.of(
-            "($T) $L",
-            toJavaPoet(XTypeNames.INSTANCE_FACTORY),
-            providerExpression)
+        ? XCodeBlock.ofCast(XTypeNames.INSTANCE_FACTORY, providerExpression)
         : providerExpression;
   }
 

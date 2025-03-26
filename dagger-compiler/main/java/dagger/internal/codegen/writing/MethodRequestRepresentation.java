@@ -17,8 +17,8 @@
 package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XExpression;
@@ -41,7 +41,7 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
         returnType(),
         requestingClass.equals(shardImplementation.name())
             ? methodCall()
-            : CodeBlock.of("$L.$L", shardImplementation.shardFieldReference(), methodCall()));
+            : XCodeBlock.of("%L.%L", shardImplementation.shardFieldReference(), methodCall()));
   }
 
   @Override
@@ -57,5 +57,5 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
   protected abstract XExpressionType returnType();
 
   /** Returns the method call. */
-  protected abstract CodeBlock methodCall();
+  protected abstract XCodeBlock methodCall();
 }

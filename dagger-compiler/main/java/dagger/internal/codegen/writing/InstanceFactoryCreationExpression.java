@@ -18,9 +18,9 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.squareup.javapoet.CodeBlock;
-import dagger.internal.InstanceFactory;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.function.Supplier;
 
 /**
@@ -30,22 +30,22 @@ import java.util.function.Supplier;
 final class InstanceFactoryCreationExpression implements FrameworkInstanceCreationExpression {
 
   private final boolean nullable;
-  private final Supplier<CodeBlock> instanceExpression;
+  private final Supplier<XCodeBlock> instanceExpression;
 
-  InstanceFactoryCreationExpression(Supplier<CodeBlock> instanceExpression) {
+  InstanceFactoryCreationExpression(Supplier<XCodeBlock> instanceExpression) {
     this(false, instanceExpression);
   }
 
-  InstanceFactoryCreationExpression(boolean nullable, Supplier<CodeBlock> instanceExpression) {
+  InstanceFactoryCreationExpression(boolean nullable, Supplier<XCodeBlock> instanceExpression) {
     this.nullable = nullable;
     this.instanceExpression = checkNotNull(instanceExpression);
   }
 
   @Override
-  public CodeBlock creationExpression() {
-    return CodeBlock.of(
-        "$T.$L($L)",
-        InstanceFactory.class,
+  public XCodeBlock creationExpression() {
+    return XCodeBlock.of(
+        "%T.%L(%L)",
+        XTypeNames.INSTANCE_FACTORY,
         nullable ? "createNullable" : "create",
         instanceExpression.get());
   }

@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
@@ -25,20 +24,19 @@ import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
-import javax.inject.Provider;
 
 /**
  * A {@link Provider} creation expression for an {@link javax.inject.Inject @Inject}-constructed
@@ -66,12 +64,12 @@ final class InjectionOrProvisionProviderCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     XClassName factoryImpl = generatedClassNameForBinding(binding);
-    CodeBlock createFactory =
-        CodeBlock.of(
-            "$T.$L($L)",
-            toJavaPoet(factoryImpl),
+    XCodeBlock createFactory =
+        XCodeBlock.of(
+            "%T.%L(%L)",
+            factoryImpl,
             // A different name is used for assisted factories due to backwards compatibility
             // issues when migrating from the javax Provider.
             binding.kind().equals(ASSISTED_FACTORY) ? "createFactoryProvider" : "create",
@@ -94,10 +92,10 @@ final class InjectionOrProvisionProviderCreationExpression
         // Only convert it if the newer method doesn't exist.
         if (createMethod.isEmpty()) {
           createFactory =
-              CodeBlock.of(
-                  "$T.asDaggerProvider($T.create($L))",
-                  toJavaPoet(XTypeNames.DAGGER_PROVIDERS),
-                  toJavaPoet(factoryImpl),
+              XCodeBlock.of(
+                  "%T.asDaggerProvider(%T.create(%L))",
+                  XTypeNames.DAGGER_PROVIDERS,
+                  factoryImpl,
                   componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
                       binding, shardImplementation.name()));
         }
@@ -109,7 +107,7 @@ final class InjectionOrProvisionProviderCreationExpression
     if (binding.kind().equals(INJECTION)
         && binding.unresolved().isPresent()
         && binding.scope().isPresent()) {
-      return CodeBlocks.cast(createFactory, XTypeNames.DAGGER_PROVIDER);
+      return XCodeBlocks.cast(createFactory, XTypeNames.DAGGER_PROVIDER);
     } else {
       return createFactory;
     }

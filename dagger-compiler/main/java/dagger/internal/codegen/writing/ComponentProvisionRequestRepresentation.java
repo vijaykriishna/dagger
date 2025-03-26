@@ -19,16 +19,16 @@ package dagger.internal.codegen.writing;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import dagger.internal.Preconditions;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ComponentDependencyProvisionBinding;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A binding expression for component provision methods. */
 final class ComponentProvisionRequestRepresentation extends RequestRepresentation {
@@ -52,16 +52,16 @@ final class ComponentProvisionRequestRepresentation extends RequestRepresentatio
 
   @Override
   XExpression getDependencyExpression(XClassName requestingClass) {
-    CodeBlock componentDependency = getComponentRequirementExpression(requestingClass);
-    CodeBlock invocation =
-        CodeBlock.of(
-            "$L.$L()", componentDependency, asMethod(binding.bindingElement().get()).getJvmName());
+    XCodeBlock componentDependency = getComponentRequirementExpression(requestingClass);
+    XCodeBlock invocation =
+        XCodeBlock.of(
+            "%L.%L()", componentDependency, asMethod(binding.bindingElement().get()).getJvmName());
     return XExpression.create(
         binding.contributedPrimitiveType().orElse(binding.key().type().xprocessing()),
         maybeCheckForNull(binding, compilerOptions, invocation));
   }
 
-  CodeBlock getComponentRequirementExpression(XClassName requestingClass) {
+  private XCodeBlock getComponentRequirementExpression(XClassName requestingClass) {
     return componentRequirementExpressions.getExpression(componentRequirement(), requestingClass);
   }
 
@@ -71,12 +71,13 @@ final class ComponentProvisionRequestRepresentation extends RequestRepresentatio
         .getDependencyThatDefinesMethod(binding.bindingElement().get());
   }
 
-  static CodeBlock maybeCheckForNull(
+  static XCodeBlock maybeCheckForNull(
       ComponentDependencyProvisionBinding binding,
       CompilerOptions compilerOptions,
-      CodeBlock invocation) {
+      XCodeBlock invocation) {
     return binding.shouldCheckForNull(compilerOptions)
-        ? CodeBlock.of("$T.checkNotNullFromComponent($L)", Preconditions.class, invocation)
+        ? XCodeBlock.of(
+            "%T.checkNotNullFromComponent(%L)", XTypeNames.DAGGER_PRECONDITIONS, invocation)
         : invocation;
   }
 

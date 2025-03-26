@@ -18,8 +18,8 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -66,8 +66,8 @@ final class ComponentMethodRequestRepresentation extends MethodRequestRepresenta
   }
 
   @Override
-  protected CodeBlock methodCall() {
-    return CodeBlock.of("$N()", componentMethod.methodElement().getJvmName());
+  protected XCodeBlock methodCall() {
+    return XCodeBlock.of("%N()", componentMethod.methodElement().getJvmName());
   }
 
   @Override

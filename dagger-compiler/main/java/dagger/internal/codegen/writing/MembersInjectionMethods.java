@@ -21,7 +21,6 @@ import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.MEMBERS_INJECTION_METHOD;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
@@ -74,7 +73,7 @@ final class MembersInjectionMethods {
    * Returns the members injection {@link XExpression} for the given {@link Key}, creating it if
    * necessary.
    */
-  XExpression getInjectExpression(Key key, CodeBlock instance, XClassName requestingClass) {
+  XExpression getInjectExpression(Key key, XCodeBlock instance, XClassName requestingClass) {
     Binding binding =
         graph.localMembersInjectionBinding(key).isPresent()
             ? graph.localMembersInjectionBinding(key).get()
@@ -86,12 +85,10 @@ final class MembersInjectionMethods {
     return XExpression.create(
         expression.type(),
         shardImplementation.name().equals(requestingClass)
-            ? XCodeBlock.of("%L(%L)", expression.codeBlock(), toXPoet(instance))
+            ? XCodeBlock.of("%L(%L)", expression.codeBlock(), instance)
             : XCodeBlock.of(
                 "%L.%L(%L)",
-                toXPoet(shardImplementation.shardFieldReference()),
-                expression.codeBlock(),
-                toXPoet(instance)));
+                shardImplementation.shardFieldReference(), expression.codeBlock(), instance));
   }
 
   private XExpression injectMethodExpression(Binding binding) {

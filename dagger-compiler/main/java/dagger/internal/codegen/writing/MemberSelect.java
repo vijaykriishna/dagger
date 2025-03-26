@@ -19,12 +19,10 @@ package dagger.internal.codegen.writing;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 
-/**
- * Represents a {@link com.sun.source.tree.MemberSelectTree} as a {@link CodeBlock}.
- */
+/** Represents a {@link com.sun.source.tree.MemberSelectTree} as a {@link XCodeBlock}. */
 abstract class MemberSelect {
 
   /**
@@ -49,10 +47,10 @@ abstract class MemberSelect {
     }
 
     @Override
-    CodeBlock getExpressionFor(XClassName usingClass) {
+    XCodeBlock getExpressionFor(XClassName usingClass) {
       return owningClass().equals(usingClass)
-          ? CodeBlock.of("$N", fieldName)
-          : CodeBlock.of("$L.$N", owningShard.shardFieldReference(), fieldName);
+          ? XCodeBlock.of("%N", fieldName)
+          : XCodeBlock.of("%L.%N", owningShard.shardFieldReference(), fieldName);
     }
   }
 
@@ -78,8 +76,8 @@ abstract class MemberSelect {
   }
 
   /**
-   * Returns a {@link CodeBlock} suitable for accessing the member from the given {@code
+   * Returns a {@link XCodeBlock} suitable for accessing the member from the given {@code
    * usingClass}.
    */
-  abstract CodeBlock getExpressionFor(XClassName usingClass);
+  abstract XCodeBlock getExpressionFor(XClassName usingClass);
 }

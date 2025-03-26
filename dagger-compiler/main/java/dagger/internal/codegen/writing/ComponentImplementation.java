@@ -345,11 +345,11 @@ public final class ComponentImplementation {
   }
 
   /** Returns a reference to this implementation when called from a different class. */
-  public CodeBlock componentFieldReference() {
+  public XCodeBlock componentFieldReference() {
     // TODO(bcorso): This currently relies on all requesting classes having a reference to the
     // component with the same name, which is kind of sketchy. Try to think of a better way that
     // can accomodate the component missing in some classes if it's not used.
-    return CodeBlock.of("$N", componentFieldsByImplementation.get(this));
+    return XCodeBlock.of("%N", componentFieldsByImplementation.get(this).name);
   }
 
   /** Returns the fields for all components in the component path. */
@@ -560,7 +560,7 @@ public final class ComponentImplementation {
     }
 
     /** Returns a reference to this implementation when called from a different class. */
-    public CodeBlock shardFieldReference() {
+    public XCodeBlock shardFieldReference() {
       if (!isComponentShard() && !shardFieldsByImplementation.containsKey(this)) {
         // Add the shard if this is the first time it's requested by something.
         String shardFieldName =
@@ -574,7 +574,8 @@ public final class ComponentImplementation {
       // can accomodate the component missing in some classes if it's not used.
       return isComponentShard()
           ? componentFieldReference()
-          : CodeBlock.of("$L.$N", componentFieldReference(), shardFieldsByImplementation.get(this));
+          : XCodeBlock.of(
+              "%L.%N", componentFieldReference(), shardFieldsByImplementation.get(this).name);
     }
 
     // TODO(ronshapiro): see if we can remove this method and instead inject it in the objects that
@@ -648,13 +649,13 @@ public final class ComponentImplementation {
     }
 
     /** Adds the given code block to the initialize methods of the component. */
-    void addInitialization(CodeBlock codeBlock) {
-      initializations.add(codeBlock);
+    void addInitialization(XCodeBlock codeBlock) {
+      initializations.add(toJavaPoet(codeBlock));
     }
 
     /** Adds the given code block that initializes a {@link ComponentRequirement}. */
-    void addComponentRequirementInitialization(CodeBlock codeBlock) {
-      componentRequirementInitializations.add(codeBlock);
+    void addComponentRequirementInitialization(XCodeBlock codeBlock) {
+      componentRequirementInitializations.add(toJavaPoet(codeBlock));
     }
 
     /**
@@ -1097,7 +1098,7 @@ public final class ComponentImplementation {
           CodeBlock.builder()
               .addStatement(
                   "$L.$N($N)",
-                  parent.get().componentFieldReference(),
+                  toJavaPoet(parent.get().componentFieldReference()),
                   CANCELLATION_LISTENER_METHOD_NAME,
                   MAY_INTERRUPT_IF_RUNNING_PARAM)
               .build());

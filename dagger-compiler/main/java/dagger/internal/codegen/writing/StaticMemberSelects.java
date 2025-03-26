@@ -16,27 +16,26 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.binding.SourceFiles.setFactoryClassName;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingType;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
-import dagger.internal.codegen.javapoet.CodeBlocks;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Helper class for static member select creation. */
@@ -50,12 +49,12 @@ final class StaticMemberSelects {
         ? new ParameterizedStaticMethod(
             XTypeNames.PRODUCERS,
             typeParameters,
-            CodeBlock.of("emptyMapProducer()"),
+            XCodeBlock.of("emptyMapProducer()"),
             XTypeNames.PRODUCER)
         : new ParameterizedStaticMethod(
             XTypeNames.MAP_FACTORY,
             typeParameters,
-            CodeBlock.of("emptyMapProvider()"),
+            XCodeBlock.of("emptyMapProvider()"),
             XTypeNames.DAGGER_PROVIDER);
   }
 
@@ -68,7 +67,7 @@ final class StaticMemberSelects {
     return new ParameterizedStaticMethod(
         setFactoryClassName(binding),
         ImmutableList.of(SetType.from(binding.key()).elementType()),
-        CodeBlock.of("empty()"),
+        XCodeBlock.of("empty()"),
         XTypeNames.FACTORY);
   }
 
@@ -93,37 +92,37 @@ final class StaticMemberSelects {
       if (!typeVariables.isEmpty()) {
         ImmutableList<XType> typeArguments = ImmutableList.copyOf(keyType.getTypeArguments());
         return new ParameterizedStaticMethod(
-            factoryName, typeArguments, CodeBlock.of("create()"), XTypeNames.FACTORY);
+            factoryName, typeArguments, XCodeBlock.of("create()"), XTypeNames.FACTORY);
       }
     }
-    return new StaticMethod(factoryName, CodeBlock.of("create()"));
+    return new StaticMethod(factoryName, XCodeBlock.of("create()"));
   }
 
   private static final class StaticMethod extends MemberSelect {
-    private final CodeBlock methodCodeBlock;
+    private final XCodeBlock methodCodeBlock;
 
-    StaticMethod(XClassName owningClass, CodeBlock methodCodeBlock) {
+    StaticMethod(XClassName owningClass, XCodeBlock methodCodeBlock) {
       super(owningClass, true);
       this.methodCodeBlock = checkNotNull(methodCodeBlock);
     }
 
     @Override
-    CodeBlock getExpressionFor(XClassName usingClass) {
+    XCodeBlock getExpressionFor(XClassName usingClass) {
       return owningClass().equals(usingClass)
           ? methodCodeBlock
-          : CodeBlock.of("$T.$L", toJavaPoet(owningClass()), methodCodeBlock);
+          : XCodeBlock.of("%T.%L", owningClass(), methodCodeBlock);
     }
   }
 
   private static final class ParameterizedStaticMethod extends MemberSelect {
     private final ImmutableList<XType> typeParameters;
-    private final CodeBlock methodCodeBlock;
+    private final XCodeBlock methodCodeBlock;
     private final XClassName rawReturnType;
 
     ParameterizedStaticMethod(
         XClassName owningClass,
         ImmutableList<XType> typeParameters,
-        CodeBlock methodCodeBlock,
+        XCodeBlock methodCodeBlock,
         XClassName rawReturnType) {
       super(owningClass, true);
       this.typeParameters = typeParameters;
@@ -132,20 +131,20 @@ final class StaticMemberSelects {
     }
 
     @Override
-    CodeBlock getExpressionFor(XClassName usingClass) {
+    XCodeBlock getExpressionFor(XClassName usingClass) {
       boolean isAccessible =
           typeParameters.stream()
               .allMatch(t -> isTypeAccessibleFrom(t, usingClass.getPackageName()));
 
       if (isAccessible) {
-        return CodeBlock.of(
-            "$T.<$L>$L",
-            toJavaPoet(owningClass()),
-            typeParameters.stream().map(CodeBlocks::type).collect(toParametersCodeBlock()),
+        return XCodeBlock.of(
+            "%T.<%L>%L",
+            owningClass(),
+            typeParameters.stream().map(XCodeBlocks::type).collect(toParametersCodeBlock()),
             methodCodeBlock);
       } else {
-        return CodeBlock.of(
-            "(($T) $T.$L)", toJavaPoet(rawReturnType), toJavaPoet(owningClass()), methodCodeBlock);
+        XCodeBlock expression = XCodeBlock.of("%T.%L", owningClass(), methodCodeBlock);
+        return XCodeBlock.of("(%L)", XCodeBlock.ofCast(rawReturnType, expression));
       }
     }
   }

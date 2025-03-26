@@ -16,9 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -68,14 +66,13 @@ final class SwitchingProviderInstanceSupplier implements FrameworkInstanceSuppli
       return unscoped;
     }
     return () ->
-        CodeBlock.of(
-            "$T.provider($L)",
-            toJavaPoet(
-                binding.scope().isPresent()
-                    ? (binding.scope().get().isReusable()
-                        ? XTypeNames.SINGLE_CHECK
-                        : XTypeNames.DOUBLE_CHECK)
-                    : XTypeNames.SINGLE_CHECK),
+        XCodeBlock.of(
+            "%T.provider(%L)",
+            binding.scope().isPresent()
+                ? (binding.scope().get().isReusable()
+                    ? XTypeNames.SINGLE_CHECK
+                    : XTypeNames.DOUBLE_CHECK)
+                : XTypeNames.SINGLE_CHECK,
             unscoped.creationExpression());
   }
 

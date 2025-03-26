@@ -75,6 +75,7 @@ object XTypeNames {
 
   @JvmField val DELEGATE_FACTORY = XClassName.get("dagger.internal", "DelegateFactory")
   @JvmField val DOUBLE_CHECK = XClassName.get("dagger.internal", "DoubleCheck")
+  @JvmField val DAGGER_PRECONDITIONS = XClassName.get("dagger.internal", "Preconditions")
 
   // TODO(b/404613325): Figure out what to do for calls like java.util.Collections.<T>emptyList()
   // where in Kotlin it becomes a top-level function like kotlin.collections.emptyList<T>().

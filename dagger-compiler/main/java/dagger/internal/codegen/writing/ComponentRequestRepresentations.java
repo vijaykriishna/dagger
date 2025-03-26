@@ -22,19 +22,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
@@ -124,14 +122,14 @@ public final class ComponentRequestRepresentations {
    * Returns the {@link CodeBlock} for the method arguments used with the factory {@code create()}
    * method for the given {@link ContributionBinding binding}.
    */
-  CodeBlock getCreateMethodArgumentsCodeBlock(
+  XCodeBlock getCreateMethodArgumentsCodeBlock(
       ContributionBinding binding, XClassName requestingClass) {
     return makeParametersCodeBlock(getCreateMethodArgumentsCodeBlocks(binding, requestingClass));
   }
 
-  private ImmutableList<CodeBlock> getCreateMethodArgumentsCodeBlocks(
+  private ImmutableList<XCodeBlock> getCreateMethodArgumentsCodeBlocks(
       ContributionBinding binding, XClassName requestingClass) {
-    ImmutableList.Builder<CodeBlock> arguments = ImmutableList.builder();
+    ImmutableList.Builder<XCodeBlock> arguments = ImmutableList.builder();
 
     if (binding.requiresModuleInstance()) {
       arguments.add(
@@ -144,7 +142,6 @@ public final class ComponentRequestRepresentations {
         .map(dependency -> frameworkRequest(binding, dependency))
         .map(request -> getDependencyExpression(request, requestingClass))
         .map(XExpression::codeBlock)
-        .map(XConverters::toJavaPoet)
         .forEach(arguments::add);
 
     return arguments.build();

@@ -16,11 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -51,18 +50,17 @@ final class OptionalFactoryInstanceCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     return binding.dependencies().isEmpty()
         ? optionalFactories.absentOptionalProvider(binding)
         : optionalFactories.presentOptionalFactory(
             binding,
-            toJavaPoet(
-                componentRequestRepresentations
-                    .getDependencyExpression(
-                        bindingRequest(
-                            getOnlyElement(binding.dependencies()).key(), binding.frameworkType()),
-                        componentImplementation.shardImplementation(binding).name())
-                    .codeBlock()));
+            componentRequestRepresentations
+                .getDependencyExpression(
+                    bindingRequest(
+                        getOnlyElement(binding.dependencies()).key(), binding.frameworkType()),
+                    componentImplementation.shardImplementation(binding).name())
+                .codeBlock());
   }
 
   @AssistedFactory

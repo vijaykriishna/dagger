@@ -16,12 +16,11 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -51,16 +50,15 @@ final class DelegatingFrameworkInstanceCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     DependencyRequest dependency = getOnlyElement(binding.dependencies());
-    return toJavaPoet(
-        XCodeBlocks.cast(
-            componentRequestRepresentations
-                .getDependencyExpression(
-                    bindingRequest(dependency.key(), binding.frameworkType()),
-                    componentImplementation.shardImplementation(binding).name())
-                .codeBlock(),
-            binding.frameworkType().frameworkClassName()));
+    return XCodeBlocks.cast(
+        componentRequestRepresentations
+            .getDependencyExpression(
+                bindingRequest(dependency.key(), binding.frameworkType()),
+                componentImplementation.shardImplementation(binding).name())
+            .codeBlock(),
+        binding.frameworkType().frameworkClassName());
   }
 
   @AssistedFactory

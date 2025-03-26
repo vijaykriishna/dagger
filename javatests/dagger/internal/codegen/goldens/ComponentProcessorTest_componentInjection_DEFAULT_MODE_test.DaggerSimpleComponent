@@ -53,7 +53,7 @@ final class DaggerSimpleComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.simpleComponentProvider = InstanceFactory.create((SimpleComponent) simpleComponentImpl);
+      this.simpleComponentProvider = InstanceFactory.create((SimpleComponent) (simpleComponentImpl));
     }
 
     @Override

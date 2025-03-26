@@ -35,10 +35,10 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XMethodElement;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -85,27 +85,26 @@ final class DependencyMethodProviderCreationExpression
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     // TODO(sameb): The Provider.get() throws a very vague NPE.  The stack trace doesn't
     // help to figure out what the method or return type is.  If we include a string
     // of the return type or method name in the error message, that can defeat obfuscation.
     // We can easily include the raw type (no generics) + annotation type (no values),
     // using .class & String.format -- but that wouldn't be the whole story.
     // What should we do?
-    CodeBlock invocation =
+    XCodeBlock invocation =
         ComponentProvisionRequestRepresentation.maybeCheckForNull(
             binding,
             compilerOptions,
-            CodeBlock.of("$N.$N()", dependency().variableName(), provisionMethod.getJvmName()));
+            XCodeBlock.of("%N.%N()", dependency().variableName(), provisionMethod.getJvmName()));
     XClassName dependencyClassName = dependency().typeElement().asClassName();
     XTypeName keyType = binding.key().type().xprocessing().asTypeName();
     MethodSpec.Builder getMethod =
         methodBuilder("get")
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
-            .returns(
-                toJavaPoet(XTypeNames.withTypeNullability(keyType, binding.nullability())))
-            .addStatement("return $L", invocation);
+            .returns(toJavaPoet(XTypeNames.withTypeNullability(keyType, binding.nullability())))
+            .addStatement("return $L", toJavaPoet(invocation));
 
     binding.nullability().nonTypeUseNullableAnnotations().stream()
         .map(XConverters::toJavaPoet)
@@ -137,9 +136,9 @@ final class DependencyMethodProviderCreationExpression
                     .build())
             .addMethod(getMethod.build())
             .build());
-    return CodeBlock.of(
-        "new $T($L)",
-        toJavaPoet(factoryClassName),
+    return XCodeBlock.ofNewInstance(
+        factoryClassName,
+        "%L",
         componentRequirementExpressions.getExpressionDuringInitialization(
             dependency(), shardImplementation.name()));
   }

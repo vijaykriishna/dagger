@@ -16,11 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -50,10 +49,10 @@ final class ProducerCreationExpression implements FrameworkInstanceCreationExpre
   }
 
   @Override
-  public CodeBlock creationExpression() {
-    return CodeBlock.of(
-        "$T.create($L)",
-        toJavaPoet(generatedClassNameForBinding(binding)),
+  public XCodeBlock creationExpression() {
+    return XCodeBlock.of(
+        "%T.create(%L)",
+        generatedClassNameForBinding(binding),
         componentRequestRepresentations.getCreateMethodArgumentsCodeBlock(
             binding, shardImplementation.name()));
   }

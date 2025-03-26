@@ -25,6 +25,8 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.concat;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -37,12 +39,10 @@ import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.binding.ContributionBinding;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
@@ -94,7 +94,7 @@ final class SwitchingProviders {
       ContributionBinding binding, RequestRepresentation unscopedInstanceRequestRepresentation) {
     return new FrameworkInstanceCreationExpression() {
       @Override
-      public CodeBlock creationExpression() {
+      public XCodeBlock creationExpression() {
         return switchingProviderBuilders
             .computeIfAbsent(binding.key(), key -> getSwitchingProviderBuilder())
             .getNewInstanceCodeBlock(binding, unscopedInstanceRequestRepresentation);
@@ -117,7 +117,7 @@ final class SwitchingProviders {
   private final class SwitchingProviderBuilder {
     // Keep the switch cases ordered by switch id. The switch Ids are assigned in pre-order
     // traversal, but the switch cases are assigned in post-order traversal of the binding graph.
-    private final Map<Integer, CodeBlock> switchCases = new TreeMap<>();
+    private final Map<Integer, XCodeBlock> switchCases = new TreeMap<>();
     private final Map<Key, Integer> switchIds = new HashMap<>();
     private final XClassName switchingProviderType;
 
@@ -125,7 +125,7 @@ final class SwitchingProviders {
       this.switchingProviderType = checkNotNull(switchingProviderType);
     }
 
-    private CodeBlock getNewInstanceCodeBlock(
+    private XCodeBlock getNewInstanceCodeBlock(
         ContributionBinding binding, RequestRepresentation unscopedInstanceRequestRepresentation) {
       Key key = binding.key();
       if (!switchIds.containsKey(key)) {
@@ -134,26 +134,25 @@ final class SwitchingProviders {
         switchCases.put(
             switchId, createSwitchCaseCodeBlock(key, unscopedInstanceRequestRepresentation));
       }
-      return CodeBlock.of(
-          "new $T<$L>($L, $L)",
-          toJavaPoet(switchingProviderType),
-          // Add the type parameter explicitly when the binding is scoped because Java can't resolve
-          // the type when wrapped. For example, the following will error:
+      return XCodeBlock.of(
+          "new %T<%L>(%L, %L)",
+          switchingProviderType,
+          // Add the type parameter explicitly when the binding is scoped because Java can't
+          // resolve the type when wrapped. For example, the following will error:
           //   fooProvider = DoubleCheck.provider(new SwitchingProvider<>(1));
           (binding.scope().isPresent()
                   || binding.kind().equals(BindingKind.ASSISTED_FACTORY)
                   || XProcessingEnvs.isPreJava8SourceVersion(processingEnv))
-              ? toJavaPoet(
-                  XCodeBlock.of(
-                      "%T", shardImplementation.accessibleTypeName(binding.contributedType())))
+              ? XCodeBlock.of(
+                  "%T", shardImplementation.accessibleTypeName(binding.contributedType()))
               : "",
           shardImplementation.componentFieldsByImplementation().values().stream()
-              .map(field -> CodeBlock.of("$N", field))
-              .collect(CodeBlocks.toParametersCodeBlock()),
+              .map(field -> XCodeBlock.of("%N", field.name))
+              .collect(toParametersCodeBlock()),
           switchIds.get(key));
     }
 
-    private CodeBlock createSwitchCaseCodeBlock(
+    private XCodeBlock createSwitchCaseCodeBlock(
         Key key, RequestRepresentation unscopedInstanceRequestRepresentation) {
       // TODO(bcorso): Try to delay calling getDependencyExpression() until we are writing out the
       // SwitchingProvider because calling it here makes FrameworkFieldInitializer think there's a
@@ -164,13 +163,10 @@ final class SwitchingProviders {
               .box()
               .codeBlock();
 
-      return CodeBlock.builder()
+      return XCodeBlock.builder()
           // TODO(bcorso): Is there something else more useful than the key?
-          .add("case $L: // $L\n", switchIds.get(key), key)
-          .addStatement(
-              "return ($T) $L",
-              (TypeVariableName) toJavaPoet(typeVariable),
-              toJavaPoet(instanceCodeBlock))
+          .add("case %L: // %L\n", switchIds.get(key), key)
+          .addStatement("return (%T) %L", typeVariable, instanceCodeBlock)
           .build();
     }
 
@@ -201,7 +197,7 @@ final class SwitchingProviders {
     }
 
     private ImmutableList<MethodSpec> getMethods() {
-      ImmutableList<CodeBlock> switchCodeBlockPartitions = switchCodeBlockPartitions();
+      ImmutableList<XCodeBlock> switchCodeBlockPartitions = switchCodeBlockPartitions();
       if (switchCodeBlockPartitions.size() == 1) {
         // There are less than MAX_CASES_PER_SWITCH cases, so no need for extra get methods.
         return ImmutableList.of(
@@ -210,7 +206,7 @@ final class SwitchingProviders {
                 .addAnnotation(suppressWarnings(UNCHECKED))
                 .addAnnotation(Override.class)
                 .returns(toJavaPoet(typeVariable))
-                .addCode(getOnlyElement(switchCodeBlockPartitions))
+                .addCode(toJavaPoet(getOnlyElement(switchCodeBlockPartitions)))
                 .build());
       }
 
@@ -229,7 +225,7 @@ final class SwitchingProviders {
                 .addModifiers(PRIVATE)
                 .addAnnotation(suppressWarnings(UNCHECKED))
                 .returns(toJavaPoet(typeVariable))
-                .addCode(switchCodeBlockPartitions.get(i))
+                .addCode(toJavaPoet(switchCodeBlockPartitions.get(i)))
                 .build();
         getMethods.add(method);
         routerMethod.addStatement("case $L: return $N()", i, method);
@@ -240,15 +236,17 @@ final class SwitchingProviders {
       return getMethods.add(routerMethod.build()).build();
     }
 
-    private ImmutableList<CodeBlock> switchCodeBlockPartitions() {
+    private ImmutableList<XCodeBlock> switchCodeBlockPartitions() {
       return Lists.partition(ImmutableList.copyOf(switchCases.values()), MAX_CASES_PER_SWITCH)
           .stream()
           .map(
               partitionCases ->
-                  CodeBlock.builder()
+                  XCodeBlock.builder()
                       .beginControlFlow("switch (id)")
-                      .add(CodeBlocks.concat(partitionCases))
-                      .addStatement("default: throw new $T(id)", AssertionError.class)
+                      .add(concat(partitionCases))
+                      .addStatement(
+                          "default: throw new %T(id)",
+                          XClassName.get("java.lang", "AssertionError"))
                       .endControlFlow()
                       .build())
           .collect(toImmutableList());

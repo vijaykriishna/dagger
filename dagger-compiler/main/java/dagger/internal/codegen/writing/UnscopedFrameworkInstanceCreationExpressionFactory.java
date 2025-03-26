@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.binding.BoundInstanceBinding;
 import dagger.internal.codegen.binding.ComponentDependencyBinding;
 import dagger.internal.codegen.binding.ComponentDependencyProductionBinding;
@@ -111,9 +111,8 @@ final class UnscopedFrameworkInstanceCreationExpressionFactory {
         // The cast can be removed when we drop java 7 source support
         return new InstanceFactoryCreationExpression(
             () ->
-                CodeBlock.of(
-                    "($T) $L",
-                    binding.key().type().xprocessing().getTypeName(),
+                XCodeBlock.ofCast(
+                    binding.key().type().xprocessing().asTypeName(),
                     componentImplementation.componentFieldReference()));
 
       case BOUND_INSTANCE:

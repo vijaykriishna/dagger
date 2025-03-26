@@ -25,11 +25,11 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Supplier;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.BindingGraph;
@@ -73,7 +73,7 @@ public final class ComponentRequirementExpressions {
    * component method. This may add a field or method to the component in order to reference the
    * component requirement outside of the {@code initialize()} methods.
    */
-  CodeBlock getExpression(ComponentRequirement componentRequirement, XClassName requestingClass) {
+  XCodeBlock getExpression(ComponentRequirement componentRequirement, XClassName requestingClass) {
     return getExpression(componentRequirement).getExpression(requestingClass);
   }
 
@@ -97,7 +97,7 @@ public final class ComponentRequirementExpressions {
    * <p>When accessing this expression from a subcomponent, this may cause a field to be initialized
    * or a method to be added in the component that owns this {@link ComponentRequirement}.
    */
-  CodeBlock getExpressionDuringInitialization(
+  XCodeBlock getExpressionDuringInitialization(
       ComponentRequirement componentRequirement, XClassName requestingClass) {
     return getExpression(componentRequirement).getExpressionDuringInitialization(requestingClass);
   }
@@ -125,7 +125,7 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    public CodeBlock getExpression(XClassName requestingClass) {
+    public XCodeBlock getExpression(XClassName requestingClass) {
       return field.get().getExpressionFor(requestingClass);
     }
 
@@ -155,8 +155,8 @@ public final class ComponentRequirementExpressions {
       return MemberSelect.localField(componentShard, fieldName);
     }
 
-    /** Returns the {@link CodeBlock} that initializes the component field during construction. */
-    abstract CodeBlock fieldInitialization(FieldSpec componentField);
+    /** Returns the {@link XCodeBlock} that initializes the component field during construction. */
+    abstract XCodeBlock fieldInitialization(FieldSpec componentField);
   }
 
   /**
@@ -173,10 +173,10 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    CodeBlock fieldInitialization(FieldSpec componentField) {
-      return CodeBlock.of(
-          "this.$N = $L;",
-          componentField,
+    XCodeBlock fieldInitialization(FieldSpec componentField) {
+      return XCodeBlock.of(
+          "this.%N = %L;",
+          componentField.name,
           ModuleProxies.newModuleInstance(moduleElement, componentShard.name()));
     }
   }
@@ -194,9 +194,9 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    public CodeBlock getExpressionDuringInitialization(XClassName requestingClass) {
+    public XCodeBlock getExpressionDuringInitialization(XClassName requestingClass) {
       if (componentShard.name().equals(requestingClass)) {
-        return CodeBlock.of("$L", parameterName);
+        return XCodeBlock.of("%N", parameterName);
       } else {
         // requesting this component requirement during initialization of a child component requires
         // it to be accessed from a field and not the parameter (since it is no longer available)
@@ -205,10 +205,10 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    CodeBlock fieldInitialization(FieldSpec componentField) {
+    XCodeBlock fieldInitialization(FieldSpec componentField) {
       // Don't checkNotNull here because the parameter may be nullable; if it isn't, the caller
       // should handle checking that before passing the parameter.
-      return CodeBlock.of("this.$N = $L;", componentField, parameterName);
+      return XCodeBlock.of("this.%N = %L;", componentField.name, parameterName);
     }
   }
 }

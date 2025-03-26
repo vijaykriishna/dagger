@@ -119,21 +119,22 @@ final class OptionalFactories {
    * Returns an expression that calls a static method that returns a {@code Provider<Optional<T>>}
    * for absent optional bindings.
    */
-  CodeBlock absentOptionalProvider(OptionalBinding binding) {
+  XCodeBlock absentOptionalProvider(OptionalBinding binding) {
     verify(
         binding.bindingType().equals(BindingType.PROVISION),
         "Absent optional bindings should be provisions: %s",
         binding);
     OptionalKind optionalKind = OptionalType.from(binding.key()).kind();
-    return CodeBlock.of(
-        "$N()",
+    return XCodeBlock.of(
+        "%N()",
         perGeneratedFileCache.absentOptionalProviderMethods.computeIfAbsent(
-            optionalKind,
-            kind -> {
-              MethodSpec method = absentOptionalProviderMethod(kind);
-              topLevelImplementation.addMethod(ABSENT_OPTIONAL_METHOD, method);
-              return method;
-            }));
+                optionalKind,
+                kind -> {
+                  MethodSpec method = absentOptionalProviderMethod(kind);
+                  topLevelImplementation.addMethod(ABSENT_OPTIONAL_METHOD, method);
+                  return method;
+                })
+            .name);
   }
 
   /**
@@ -302,16 +303,17 @@ final class OptionalFactories {
    * @param delegateFactory an expression for a {@code Provider} or {@code Producer} of the
    *     underlying type
    */
-  CodeBlock presentOptionalFactory(OptionalBinding binding, CodeBlock delegateFactory) {
-    return CodeBlock.of(
-        "$N.of($L)",
+  XCodeBlock presentOptionalFactory(OptionalBinding binding, XCodeBlock delegateFactory) {
+    return XCodeBlock.of(
+        "%N.of(%L)",
         perGeneratedFileCache.presentFactoryClasses.computeIfAbsent(
-            PresentFactorySpec.of(binding),
-            spec -> {
-              TypeSpec type = presentOptionalFactoryClass(spec);
-              topLevelImplementation.addType(PRESENT_FACTORY, type);
-              return type;
-            }),
+                PresentFactorySpec.of(binding),
+                spec -> {
+                  TypeSpec type = presentOptionalFactoryClass(spec);
+                  topLevelImplementation.addType(PRESENT_FACTORY, type);
+                  return type;
+                })
+            .name,
         delegateFactory);
   }
 

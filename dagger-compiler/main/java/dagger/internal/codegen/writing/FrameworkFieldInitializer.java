@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
@@ -24,11 +24,10 @@ import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecK
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import dagger.internal.DelegateFactory;
 import dagger.internal.codegen.binding.BindingType;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkField;
@@ -50,7 +49,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
    */
   interface FrameworkInstanceCreationExpression {
     /** Returns the expression to use to assign to the component field for the binding. */
-    CodeBlock creationExpression();
+    XCodeBlock creationExpression();
 
     /**
      * Returns the framework class to use for the field, if different from the one implied by the
@@ -92,16 +91,14 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
       case UNINITIALIZED:
         // Change our state in case we are recursively invoked via initializeRequestRepresentation
         fieldInitializationState = InitializationState.INITIALIZING;
-        CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        CodeBlock fieldInitialization = frameworkInstanceCreationExpression.creationExpression();
-        CodeBlock initCode = CodeBlock.of("this.$N = $L;", getOrCreateField(), fieldInitialization);
+        XCodeBlock.Builder codeBuilder = XCodeBlock.builder();
+        XCodeBlock fieldInitialization = frameworkInstanceCreationExpression.creationExpression();
+        XCodeBlock initCode =
+            XCodeBlock.of("this.%N = %L;", getOrCreateField().name, fieldInitialization);
 
         if (fieldInitializationState == InitializationState.DELEGATED) {
           codeBuilder.add(
-              "$T.setDelegate($N, $L);",
-              toJavaPoet(delegateType()),
-              fieldSpec,
-              fieldInitialization);
+              "%T.setDelegate(%N, %L);", delegateType(), fieldSpec.name, fieldInitialization);
         } else {
           codeBuilder.add(initCode);
         }
@@ -123,7 +120,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
 
         fieldInitializationState = InitializationState.DELEGATED;
         shardImplementation.addInitialization(
-            CodeBlock.of("this.$N = new $T<>();", fieldSpec, toJavaPoet(delegateType())));
+            XCodeBlock.of("this.%N = new %T<>();", fieldSpec.name, delegateType()));
         break;
 
       case DELEGATED:

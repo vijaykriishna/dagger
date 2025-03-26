@@ -50,7 +50,6 @@ import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
-import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import dagger.internal.codegen.xprocessing.XExpression;
 import java.util.Optional;
 
@@ -171,8 +170,7 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         instance = XCodeBlock.of("($T) ($T) $L", keyTypeName, rawKeyTypeName, instance);
       }
     }
-    return membersInjectionMethods.getInjectExpression(
-        binding.key(), toJavaPoet(instance), requestingClass);
+    return membersInjectionMethods.getInjectExpression(binding.key(), instance, requestingClass);
   }
 
   private Optional<XCodeBlock> moduleReference(XClassName requestingClass) {
@@ -182,7 +180,6 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
             .map(XTypeElement::getType)
             .map(ComponentRequirement::forModule)
             .map(module -> componentRequirementExpressions.getExpression(module, requestingClass))
-            .map(XCodeBlocks::toXPoet)
         : Optional.empty();
   }
 

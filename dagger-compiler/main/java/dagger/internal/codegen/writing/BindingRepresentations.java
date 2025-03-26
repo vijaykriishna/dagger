@@ -16,9 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -32,12 +30,11 @@ final class BindingRepresentations {
   FrameworkInstanceCreationExpression scope(
       Binding binding, FrameworkInstanceCreationExpression unscoped) {
     return () ->
-        CodeBlock.of(
-            "$T.provider($L)",
-            toJavaPoet(
-                binding.scope().get().isReusable()
-                    ? XTypeNames.SINGLE_CHECK
-                    : XTypeNames.DOUBLE_CHECK),
+        XCodeBlock.of(
+            "%T.provider(%L)",
+            binding.scope().get().isReusable()
+                ? XTypeNames.SINGLE_CHECK
+                : XTypeNames.DOUBLE_CHECK,
             unscoped.creationExpression());
   }
 }

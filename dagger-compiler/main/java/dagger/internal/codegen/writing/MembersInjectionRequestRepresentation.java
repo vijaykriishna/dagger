@@ -23,7 +23,6 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -66,7 +65,7 @@ final class MembersInjectionRequestRepresentation extends RequestRepresentation 
               : XCodeBlock.of("%L", parameter.getJvmName()));
     }
     return membersInjectionMethods.getInjectExpression(
-        binding.key(), CodeBlock.of("$L", parameter.getJvmName()), component.name());
+        binding.key(), XCodeBlock.of("%L", parameter.getJvmName()), component.name());
   }
 
   // TODO(bcorso): Consider making this a method on all RequestRepresentations.

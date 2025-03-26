@@ -17,7 +17,7 @@
 package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -41,7 +41,7 @@ final class ComponentInstanceRequestRepresentation extends RequestRepresentation
     return XExpression.create(
         binding.key().type().xprocessing(),
         componentImplementation.name().equals(requestingClass)
-            ? CodeBlock.of("this")
+            ? XCodeBlock.of("this")
             : componentImplementation.componentFieldReference());
   }
 

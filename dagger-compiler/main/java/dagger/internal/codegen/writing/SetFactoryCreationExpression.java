@@ -16,12 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.setFactoryClassName;
 
 import androidx.room.compiler.codegen.XCodeBlock;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -50,7 +48,7 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", setFactoryClassName(binding));
     if (!useRawType()) {
       SetType setType = SetType.from(binding.key());
@@ -91,7 +89,7 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
     builder.add("builder(%L, %L)", individualProviders, setProviders);
     builder.add(builderMethodCalls.build());
 
-    return toJavaPoet(builder.add(".build()").build());
+    return builder.add(".build()").build();
   }
 
   @AssistedFactory

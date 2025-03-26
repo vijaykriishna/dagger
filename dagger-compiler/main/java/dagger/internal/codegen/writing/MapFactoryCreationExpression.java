@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
@@ -26,7 +25,6 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -63,7 +61,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   }
 
   @Override
-  public CodeBlock creationExpression() {
+  public XCodeBlock creationExpression() {
     XClassName mapFactoryClassName = mapFactoryClassName(binding);
     XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", mapFactoryClassName);
     XTypeName valueTypeName = XTypeName.ANY_OBJECT;
@@ -89,12 +87,10 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     }
 
     XCodeBlock creationExpression = builder.add(".build()").build();
-    return toJavaPoet(
-        useLazyClassKey
-            ? XCodeBlock.of(
-                "%T.<%T>of(%L)",
-                lazyMapFactoryClassName(binding), valueTypeName, creationExpression)
-            : creationExpression);
+    return useLazyClassKey
+        ? XCodeBlock.of(
+            "%T.<%T>of(%L)", lazyMapFactoryClassName(binding), valueTypeName, creationExpression)
+        : creationExpression;
   }
 
   private static XClassName lazyMapFactoryClassName(MultiboundMapBinding binding) {

@@ -101,7 +101,7 @@ final class DaggerTestClass_SimpleComponent {
         final TestClass.BModule bModuleParam) {
       this.executorProvider = new SwitchingProvider<>(simpleComponentImpl, 0);
       this.productionImplementationExecutorProvider = DoubleCheck.provider((Provider) (executorProvider));
-      this.simpleComponentProvider = InstanceFactory.create((TestClass.SimpleComponent) simpleComponentImpl);
+      this.simpleComponentProvider = InstanceFactory.create((TestClass.SimpleComponent) (simpleComponentImpl));
       this.monitorProvider = DoubleCheck.provider(new SwitchingProvider<ProductionComponentMonitor>(simpleComponentImpl, 1));
       this.bProvider = new SwitchingProvider<>(simpleComponentImpl, 2);
       this.bProducer = Producers.producerFromProvider(bProvider);
