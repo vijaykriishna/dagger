@@ -15,6 +15,7 @@
 # Description:
 #    Macros for building with Bazel.
 
+load("@rules_java//java:defs.bzl", "java_library")
 load("//third_party/kotlin/build_extensions:rules.bzl", "kt_android_library")
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 
@@ -23,6 +24,12 @@ def compat_kt_android_library(name, **kwargs):
 
 def compat_kt_jvm_library(name, **kwargs):
     bazel_kt_jvm_library(name, kwargs)
+
+def compat_java_library(name, **kwargs):
+    java_library(
+        name = name,
+        **kwargs
+    )
 
 def bazel_kt_android_library(name, kwargs):
     """A macro that wraps Bazel's kt_android_library.
