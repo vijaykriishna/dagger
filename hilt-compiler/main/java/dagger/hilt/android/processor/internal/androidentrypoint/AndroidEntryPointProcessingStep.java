@@ -44,11 +44,6 @@ public final class AndroidEntryPointProcessingStep extends BaseProcessingStep {
   }
 
   @Override
-  public boolean delayErrors() {
-    return true;
-  }
-
-  @Override
   public void processEach(ClassName annotation, XElement element) throws Exception {
     AndroidEntryPointMetadata metadata = AndroidEntryPointMetadata.of(element);
     new InjectorEntryPointGenerator(processingEnv(), metadata).generate();

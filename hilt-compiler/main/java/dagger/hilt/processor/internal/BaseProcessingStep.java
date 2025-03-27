@@ -99,9 +99,7 @@ public abstract class BaseProcessingStep implements XProcessingStep {
         errorHandler.recordError(e);
       }
     }
-    if (!delayErrors() || round.isProcessingOver()) {
-      errorHandler.checkErrors();
-    }
+    errorHandler.checkErrors();
   }
 
   @Override
@@ -128,14 +126,5 @@ public abstract class BaseProcessingStep implements XProcessingStep {
       }
     }
     return elementsToReprocessBuilder.build();
-  }
-
-  /**
-   * Returns true if you want to delay errors to the last round. Useful if the processor generates
-   * code for symbols used a lot in the user code. Delaying allows as much code to compile as
-   * possible for correctly configured types and reduces error spam.
-   */
-  protected boolean delayErrors() {
-    return false;
   }
 }
