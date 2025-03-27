@@ -33,9 +33,13 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
-import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.COMPONENT_METHOD;
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.concat;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.isEmpty;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -65,7 +69,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -86,7 +89,6 @@ import dagger.internal.codegen.binding.KeyVariableNamer;
 import dagger.internal.codegen.binding.MethodSignature;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.javapoet.TypeSpecs;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.BindingGraph.Node;
@@ -260,8 +262,8 @@ public final class ComponentImplementation {
   private final ShardImplementation componentShard;
   private final Supplier<ImmutableMap<Binding, ShardImplementation>> shardsByBinding;
   private final Map<ShardImplementation, FieldSpec> shardFieldsByImplementation = new HashMap<>();
-  private final List<CodeBlock> shardInitializations = new ArrayList<>();
-  private final List<CodeBlock> shardCancellations = new ArrayList<>();
+  private final List<XCodeBlock> shardInitializations = new ArrayList<>();
+  private final List<XCodeBlock> shardCancellations = new ArrayList<>();
   private final Optional<ComponentImplementation> parent;
   private final ChildComponentImplementationFactory childComponentImplementationFactory;
   private final Provider<GeneratedImplementation> topLevelImplementationProvider;
@@ -470,11 +472,11 @@ public final class ComponentImplementation {
     private final UniqueNameSet componentMethodNames = new UniqueNameSet();
     private final UniqueNameSet componentClassNames = new UniqueNameSet();
     private final UniqueNameSet assistedParamNames = new UniqueNameSet();
-    private final List<CodeBlock> initializations = new ArrayList<>();
+    private final List<XCodeBlock> initializations = new ArrayList<>();
     private final SwitchingProviders switchingProviders;
-    private final Map<Key, CodeBlock> cancellations = new LinkedHashMap<>();
+    private final Map<Key, XCodeBlock> cancellations = new LinkedHashMap<>();
     private final Map<XVariableElement, String> uniqueAssistedName = new LinkedHashMap<>();
-    private final List<CodeBlock> componentRequirementInitializations = new ArrayList<>();
+    private final List<XCodeBlock> componentRequirementInitializations = new ArrayList<>();
     private final ImmutableMap<ComponentRequirement, ParameterSpec> constructorParameters;
     private final ListMultimap<FieldSpecKind, FieldSpec> fieldSpecsMap =
         MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
@@ -650,12 +652,12 @@ public final class ComponentImplementation {
 
     /** Adds the given code block to the initialize methods of the component. */
     void addInitialization(XCodeBlock codeBlock) {
-      initializations.add(toJavaPoet(codeBlock));
+      initializations.add(codeBlock);
     }
 
     /** Adds the given code block that initializes a {@link ComponentRequirement}. */
     void addComponentRequirementInitialization(XCodeBlock codeBlock) {
-      componentRequirementInitializations.add(toJavaPoet(codeBlock));
+      componentRequirementInitializations.add(codeBlock);
     }
 
     /**
@@ -663,7 +665,7 @@ public final class ComponentImplementation {
      */
     void addCancellation(Key key, XCodeBlock codeBlock) {
       // Store cancellations by key to avoid adding the same cancellation twice.
-      cancellations.putIfAbsent(key, toJavaPoet(codeBlock));
+      cancellations.putIfAbsent(key, codeBlock);
     }
 
     /** Returns a new, unique field name for the component based on the given name. */
@@ -900,14 +902,15 @@ public final class ComponentImplementation {
       method.addStatement(
           "return new $T($L)",
           toJavaPoet(name()),
-          parameterNames(
-              ImmutableList.<ParameterSpec>builder()
-                  .addAll(
-                      creatorComponentFields().stream()
-                          .map(field -> ParameterSpec.builder(field.type, field.name).build())
-                          .collect(toImmutableList()))
-                  .addAll(method.parameters)
-                  .build()));
+          toJavaPoet(
+              parameterNames(
+                  ImmutableList.<ParameterSpec>builder()
+                      .addAll(
+                          creatorComponentFields().stream()
+                              .map(field -> ParameterSpec.builder(field.type, field.name).build())
+                              .collect(toImmutableList()))
+                      .addAll(method.parameters)
+                      .build())));
 
       parent.get().getComponentShard().addMethod(COMPONENT_METHOD, method.build());
     }
@@ -977,7 +980,7 @@ public final class ComponentImplementation {
                 }
               });
       if (isComponentShard()) {
-        constructor.addCode(CodeBlocks.concat(componentRequirementInitializations));
+        constructor.addCode(toJavaPoet(concat(componentRequirementInitializations)));
       }
       constructor.addParameters(parameters);
 
@@ -990,7 +993,7 @@ public final class ComponentImplementation {
       // returns a bunch of CodeBlocks with no semantic information. Additionally, we may not know
       // yet whether a field will end up needing to be created for a specific requirement, and we
       // don't want to create a field that ends up only being used during initialization.
-      CodeBlock args = parameterNames(parameters);
+      XCodeBlock args = parameterNames(parameters);
       ImmutableList<MethodSpec> initializationMethods =
           createPartitionedMethods(
               "initialize",
@@ -1009,29 +1012,31 @@ public final class ComponentImplementation {
                       .addAnnotation(suppressWarnings(UNCHECKED)));
 
       for (MethodSpec initializationMethod : initializationMethods) {
-        constructor.addStatement("$N($L)", initializationMethod, args);
+        constructor.addStatement("$N($L)", initializationMethod, toJavaPoet(args));
         addMethod(MethodSpecKind.INITIALIZE_METHOD, initializationMethod);
       }
 
       if (isComponentShard()) {
-        constructor.addCode(CodeBlocks.concat(shardInitializations));
+        constructor.addCode(toJavaPoet(concat(shardInitializations)));
       } else {
         // This initialization is called from the componentShard, so we need to use those args.
-        CodeBlock componentArgs =
+        XCodeBlock componentArgs =
             parameterNames(componentShard.constructorParameters.values().asList());
-        CodeBlock componentFields =
+        XCodeBlock componentFields =
             componentFieldsByImplementation().values().stream()
-                .map(field -> CodeBlock.of("$N", field))
-                .collect(CodeBlocks.toParametersCodeBlock());
+                .map(field -> XCodeBlock.of("%N", field.name))
+                .collect(toParametersCodeBlock());
         shardInitializations.add(
-            CodeBlock.of(
-                "$N = new $T($L);",
-                shardFieldsByImplementation.get(this),
-                toJavaPoet(name),
-                componentArgs.isEmpty()
-                    ? componentFields
-                    : CodeBlocks.makeParametersCodeBlock(
-                        ImmutableList.of(componentFields, componentArgs))));
+            XCodeBlock.of(
+                "%N = %L;",
+                shardFieldsByImplementation.get(this).name,
+                XCodeBlock.ofNewInstance(
+                    name,
+                    "%L",
+                    isEmpty(componentArgs)
+                        ? componentFields
+                        : makeParametersCodeBlock(
+                            ImmutableList.of(componentFields, componentArgs)))));
       }
 
       addMethod(MethodSpecKind.CONSTRUCTOR, constructor.build());
@@ -1055,20 +1060,20 @@ public final class ComponentImplementation {
       // onProducerFutureCancelled method do nothing.
       if (isComponentShard()) {
         methodBuilder.addCode(
-            CodeBlocks.concat(ImmutableList.copyOf(shardCancellations).reverse()));
+            toJavaPoet(concat(ImmutableList.copyOf(shardCancellations).reverse())));
       } else if (!cancellations.isEmpty()) {
         shardCancellations.add(
-            CodeBlock.of(
-                "$N.$N($N);",
-                shardFieldsByImplementation.get(this),
+            XCodeBlock.of(
+                "%N.%N(%N);",
+                shardFieldsByImplementation.get(this).name,
                 CANCELLATION_LISTENER_METHOD_NAME,
-                MAY_INTERRUPT_IF_RUNNING_PARAM));
+                MAY_INTERRUPT_IF_RUNNING_PARAM.name));
       }
 
-      ImmutableList<CodeBlock> cancellationStatements =
+      ImmutableList<XCodeBlock> cancellationStatements =
           ImmutableList.copyOf(cancellations.values()).reverse();
       if (cancellationStatements.size() < STATEMENTS_PER_METHOD) {
-        methodBuilder.addCode(CodeBlocks.concat(cancellationStatements)).build();
+        methodBuilder.addCode(toJavaPoet(concat(cancellationStatements))).build();
       } else {
         ImmutableList<MethodSpec> cancelProducersMethods =
             createPartitionedMethods(
@@ -1084,23 +1089,23 @@ public final class ComponentImplementation {
       }
 
       if (isComponentShard()) {
-        cancelParentStatement().ifPresent(methodBuilder::addCode);
+        cancelParentStatement().map(XConverters::toJavaPoet).ifPresent(methodBuilder::addCode);
       }
 
       addMethod(MethodSpecKind.CANCELLATION_LISTENER_METHOD, methodBuilder.build());
     }
 
-    private Optional<CodeBlock> cancelParentStatement() {
+    private Optional<XCodeBlock> cancelParentStatement() {
       if (!shouldPropagateCancellationToParent()) {
         return Optional.empty();
       }
       return Optional.of(
-          CodeBlock.builder()
+          XCodeBlock.builder()
               .addStatement(
-                  "$L.$N($N)",
-                  toJavaPoet(parent.get().componentFieldReference()),
+                  "%L.%N(%N)",
+                  parent.get().componentFieldReference(),
                   CANCELLATION_LISTENER_METHOD_NAME,
-                  MAY_INTERRUPT_IF_RUNNING_PARAM)
+                  MAY_INTERRUPT_IF_RUNNING_PARAM.name)
               .build());
     }
 
@@ -1123,7 +1128,7 @@ public final class ComponentImplementation {
     private ImmutableList<MethodSpec> createPartitionedMethods(
         String methodName,
         Iterable<ParameterSpec> parameters,
-        List<CodeBlock> statements,
+        List<XCodeBlock> statements,
         Function<String, MethodSpec.Builder> methodBuilderCreator) {
       return Lists.partition(statements, STATEMENTS_PER_METHOD).stream()
           .map(
@@ -1132,7 +1137,7 @@ public final class ComponentImplementation {
                       .apply(getUniqueMethodName(methodName))
                       .addModifiers(PRIVATE)
                       .addParameters(parameters)
-                      .addCode(CodeBlocks.concat(partition))
+                      .addCode(toJavaPoet(concat(partition)))
                       .build())
           .collect(toImmutableList());
     }

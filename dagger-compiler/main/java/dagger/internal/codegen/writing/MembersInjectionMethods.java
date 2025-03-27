@@ -30,7 +30,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
@@ -142,7 +141,7 @@ final class MembersInjectionMethods {
 
     MethodSpec method = methodBuilder.build();
     shardImplementation.addMethod(MEMBERS_INJECTION_METHOD, method);
-    return XExpression.create(membersInjectedType, CodeBlock.of("$N", method));
+    return XExpression.create(membersInjectedType, XCodeBlock.of("%N", method.name));
   }
 
   private static ImmutableSet<InjectionSite> injectionSites(Binding binding) {

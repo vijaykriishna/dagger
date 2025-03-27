@@ -16,15 +16,14 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -76,11 +75,10 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
     }
     DependencyRequest dependency = getOnlyElement(binding.dependencies());
 
-    CodeBlock dependencyExpression =
-        toJavaPoet(
-            componentRequestRepresentations
-                .getDependencyExpression(bindingRequest(dependency), requestingClass)
-                .codeBlock());
+    XCodeBlock dependencyExpression =
+        componentRequestRepresentations
+            .getDependencyExpression(bindingRequest(dependency), requestingClass)
+            .codeBlock();
 
     boolean needsObjectExpression = !isTypeAccessibleFrom(
         dependency.key().type().xprocessing(), requestingClass.getPackageName())

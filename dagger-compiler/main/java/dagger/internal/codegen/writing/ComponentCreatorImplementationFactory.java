@@ -24,22 +24,22 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.javapoet.TypeSpecs.addSupertype;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -232,9 +232,11 @@ final class ComponentCreatorImplementationFactory {
       method.addStatement(
           "this.$N = $L",
           fields.get(requirement),
-          requirement.nullPolicy().equals(NullPolicy.ALLOW)
-              ? CodeBlock.of("$N", parameter)
-              : CodeBlock.of("$T.checkNotNull($N)", Preconditions.class, parameter));
+          toJavaPoet(
+              requirement.nullPolicy().equals(NullPolicy.ALLOW)
+                  ? XCodeBlock.of("%N", parameter.name)
+                  : XCodeBlock.of(
+                      "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name)));
       return maybeReturnThis(method);
     }
 
@@ -300,7 +302,7 @@ final class ComponentCreatorImplementationFactory {
       factoryMethod.addStatement(
           "return new $T($L)",
           toJavaPoet(componentImplementation.name()),
-          componentConstructorArgs(factoryMethodParameters));
+          toJavaPoet(componentConstructorArgs(factoryMethodParameters)));
       return factoryMethod.build();
     }
 
@@ -311,7 +313,7 @@ final class ComponentCreatorImplementationFactory {
           checkState(requirement.kind().isModule());
           factoryMethod
               .beginControlFlow("if ($N == null)", field)
-              .addStatement("this.$N = $L", field, newModuleInstance(requirement))
+              .addStatement("this.$N = $L", field, toJavaPoet(newModuleInstance(requirement)))
               .endControlFlow();
           break;
         case THROW:
@@ -340,18 +342,18 @@ final class ComponentCreatorImplementationFactory {
     /** Returns a builder for the creator's factory method. */
     protected abstract MethodSpec.Builder factoryMethodBuilder();
 
-    private CodeBlock componentConstructorArgs(
+    private XCodeBlock componentConstructorArgs(
         ImmutableMap<ComponentRequirement, String> factoryMethodParameters) {
       return Stream.concat(
               componentImplementation.creatorComponentFields().stream()
-                  .map(field -> CodeBlock.of("$N", field)),
+                  .map(field -> XCodeBlock.of("%N", field.name)),
               componentConstructorRequirements().stream()
                   .map(
                       requirement -> {
                         if (fields.containsKey(requirement)) {
-                          return CodeBlock.of("$N", fields.get(requirement));
+                          return XCodeBlock.of("%N", fields.get(requirement).name);
                         } else if (factoryMethodParameters.containsKey(requirement)) {
-                          return CodeBlock.of("$L", factoryMethodParameters.get(requirement));
+                          return XCodeBlock.of("%N", factoryMethodParameters.get(requirement));
                         } else {
                           return newModuleInstance(requirement);
                         }
@@ -359,7 +361,7 @@ final class ComponentCreatorImplementationFactory {
           .collect(toParametersCodeBlock());
     }
 
-    private CodeBlock newModuleInstance(ComponentRequirement requirement) {
+    private XCodeBlock newModuleInstance(ComponentRequirement requirement) {
       checkArgument(requirement.kind().isModule()); // this should be guaranteed to be true here
       return ModuleProxies.newModuleInstance(
           requirement.typeElement(), componentImplementation.getCreatorName());

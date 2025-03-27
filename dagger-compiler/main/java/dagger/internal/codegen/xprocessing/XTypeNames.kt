@@ -178,6 +178,8 @@ object XTypeNames {
   @JvmField val QUALIFIER = XClassName.get("jakarta.inject", "Qualifier")
   @JvmField val QUALIFIER_JAVAX = XClassName.get("javax.inject", "Qualifier")
   @JvmField val IMMUTABLE_SET = XClassName.get("com.google.common.collect", "ImmutableSet")
+  @JvmField
+  val MORE_EXECUTORS = XClassName.get("com.google.common.util.concurrent", "MoreExecutors")
   @JvmField val FUTURES = XClassName.get("com.google.common.util.concurrent", "Futures")
   @JvmField
   val LISTENABLE_FUTURE = XClassName.get("com.google.common.util.concurrent", "ListenableFuture")

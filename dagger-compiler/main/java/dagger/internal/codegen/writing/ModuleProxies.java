@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
@@ -29,14 +29,13 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.ModuleKind;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -73,7 +72,7 @@ public final class ModuleProxies {
     }
 
     private TypeSpec.Builder buildProxy(XTypeElement moduleElement) {
-      return classBuilder(constructorProxyTypeName(moduleElement))
+      return classBuilder(toJavaPoet(constructorProxyTypeName(moduleElement)))
           .addModifiers(PUBLIC, FINAL)
           .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
           .addMethod(
@@ -86,12 +85,10 @@ public final class ModuleProxies {
   }
 
   /** The name of the class that hosts the module constructor proxy method. */
-  private static ClassName constructorProxyTypeName(XTypeElement moduleElement) {
+  private static XClassName constructorProxyTypeName(XTypeElement moduleElement) {
     ModuleKind.checkIsModule(moduleElement);
     XClassName moduleClassName = moduleElement.asClassName();
-    return toJavaPoet(moduleClassName)
-        .topLevelClassName()
-        .peerClass(classFileName(moduleClassName) + "_Proxy");
+    return moduleClassName.topLevelClass().peerClass(classFileName(moduleClassName) + "_Proxy");
   }
 
   /**
@@ -117,15 +114,14 @@ public final class ModuleProxies {
    * constructor if it's accessible from {@code requestingClass} or else by invoking the
    * constructor's generated proxy method.
    */
-  public static CodeBlock newModuleInstance(
+  public static XCodeBlock newModuleInstance(
       XTypeElement moduleElement, XClassName requestingClass) {
     ModuleKind.checkIsModule(moduleElement);
     String packageName = requestingClass.getPackageName();
+    XClassName constructorProxyClassName = constructorProxyTypeName(moduleElement);
     return nonPublicNullaryConstructor(moduleElement)
         .filter(constructor -> !isElementAccessibleFrom(constructor, packageName))
-        .map(
-            constructor ->
-                CodeBlock.of("$T.newInstance()", constructorProxyTypeName(moduleElement)))
-        .orElse(CodeBlock.of("new $T()", moduleElement.getClassName()));
+        .map(constructor -> XCodeBlock.of("%T.newInstance()", constructorProxyClassName))
+        .orElse(XCodeBlock.ofNewInstance(moduleElement.asClassName(), ""));
   }
 }

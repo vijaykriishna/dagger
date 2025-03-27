@@ -16,22 +16,17 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XTypeNames.dependencyMethodProducerOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
-import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
+import androidx.room.compiler.codegen.XTypeSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -69,42 +64,46 @@ final class DependencyMethodProducerCreationExpression
   public XCodeBlock creationExpression() {
     ComponentRequirement dependency =
         graph.componentDescriptor().getDependencyThatDefinesMethod(binding.bindingElement().get());
-    FieldSpec dependencyField =
-        FieldSpec.builder(
-                dependency.typeElement().getClassName(), dependency.variableName(), PRIVATE, FINAL)
+    XPropertySpec dependencyProperty =
+        XPropertySpec.builder(
+                /* name= */ dependency.variableName(),
+                /* typeName= */ dependency.typeElement().asClassName(),
+                /* visibility= */ VisibilityModifier.PRIVATE,
+                /* isMutable= */ false,
+                /* addJavaNullabilityAnnotation= */ false)
             .initializer(
-                toJavaPoet(
-                    componentRequirementExpressions.getExpressionDuringInitialization(
-                        dependency,
-                        // This isn't a real class name, but we want the requesting class for the
-                        // expression to *not* be the same class as the component implementation,
-                        // because it isn't... it's an anonymous inner class.
-                        // TODO(cgdecker): If we didn't use an anonymous inner class here but
-                        // instead generated a named nested class as with
-                        // DependencyMethodProviderCreationExpression, we wouldn't need to deal with
-                        // this and might be able to avoid potentially creating an extra field in
-                        // the component?
-                        componentImplementation.name().nestedClass("Anonymous"))))
+                componentRequirementExpressions.getExpressionDuringInitialization(
+                    dependency,
+                    // This isn't a real class name, but we want the requesting class for the
+                    // expression to *not* be the same class as the component implementation,
+                    // because it isn't... it's an anonymous inner class.
+                    // TODO(cgdecker): If we didn't use an anonymous inner class here but
+                    // instead generated a named nested class as with
+                    // DependencyMethodProviderCreationExpression, we wouldn't need to deal with
+                    // this and might be able to avoid potentially creating an extra field in
+                    // the component?
+                    componentImplementation.name().nestedClass("Anonymous")))
             .build();
     // TODO(b/70395982): Explore using a private static type instead of an anonymous class.
     XTypeName keyType = binding.key().type().xprocessing().asTypeName();
-    return toXPoet(
-        CodeBlock.of(
-            "$L",
-            anonymousClassBuilder("")
-                .superclass(toJavaPoet(dependencyMethodProducerOf(keyType)))
-                .addField(dependencyField)
-                .addMethod(
-                    methodBuilder("callDependencyMethod")
-                        .addAnnotation(Override.class)
-                        .addModifiers(PUBLIC)
-                        .returns(toJavaPoet(listenableFutureOf(keyType)))
-                        .addStatement(
-                            "return $N.$L()",
-                            dependencyField,
-                            asMethod(binding.bindingElement().get()).getJvmName())
-                        .build())
-                .build()));
+    return XCodeBlock.of(
+        "%L",
+        XTypeSpec.anonymousClassBuilder("")
+            .superclass(dependencyMethodProducerOf(keyType))
+            .addProperty(dependencyProperty)
+            .addFunction(
+                XFunSpec.builder(
+                        /* name= */ "callDependencyMethod",
+                        /* visibility= */ VisibilityModifier.PUBLIC,
+                        /* isOpen= */ false,
+                        /* isOverride= */ true,
+                        /* addJavaNullabilityAnnotation= */ false)
+                    .returns(listenableFutureOf(keyType))
+                    .addStatement(
+                        "return %N.%N()",
+                        dependencyProperty, asMethod(binding.bindingElement().get()).getJvmName())
+                    .build())
+            .build());
   }
 
   @AssistedFactory

@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.base;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.valuesOf;
@@ -24,11 +23,11 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
@@ -80,33 +79,29 @@ public final class OptionalType {
     }
 
     /** Returns an expression for the absent/empty value. */
-    public CodeBlock absentValueExpression() {
-      return CodeBlock.of("$T.$L()", toJavaPoet(className), absentMethodName);
+    public XCodeBlock absentValueExpression() {
+      return XCodeBlock.of("%T.%N()", className, absentMethodName);
     }
 
     /**
      * Returns an expression for the absent/empty value, parameterized with {@link #valueType()}.
      */
-    public CodeBlock parameterizedAbsentValueExpression(OptionalType optionalType) {
-      return CodeBlock.of(
-          "$T.<$T>$L()",
-          toJavaPoet(className),
-          toJavaPoet(optionalType.valueType().asTypeName()),
-          absentMethodName);
+    public XCodeBlock parameterizedAbsentValueExpression(OptionalType optionalType) {
+      return XCodeBlock.of(
+          "%T.<%T>%N()", className, optionalType.valueType().asTypeName(), absentMethodName);
     }
 
     /** Returns an expression for the present {@code value}. */
-    public CodeBlock presentExpression(CodeBlock value) {
-      return CodeBlock.of("$T.of($L)", toJavaPoet(className), value);
+    public XCodeBlock presentExpression(XCodeBlock value) {
+      return XCodeBlock.of("%T.of(%L)", className, value);
     }
 
     /**
      * Returns an expression for the present {@code value}, returning {@code Optional<Object>} no
      * matter what type the value is.
      */
-    public CodeBlock presentObjectExpression(CodeBlock value) {
-      return CodeBlock.of(
-          "$T.<$T>of($L)", toJavaPoet(className), toJavaPoet(XTypeName.ANY_OBJECT), value);
+    public XCodeBlock presentObjectExpression(XCodeBlock value) {
+      return XCodeBlock.of("%T.<%T>of(%L)", className, XTypeName.ANY_OBJECT, value);
     }
   }
 

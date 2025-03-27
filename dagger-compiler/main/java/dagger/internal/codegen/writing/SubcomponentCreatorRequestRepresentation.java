@@ -16,11 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 
 import androidx.room.compiler.codegen.XClassName;
-import com.squareup.javapoet.CodeBlock;
+import androidx.room.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -45,17 +44,17 @@ final class SubcomponentCreatorRequestRepresentation extends RequestRepresentati
   XExpression getDependencyExpression(XClassName requestingClass) {
     return XExpression.create(
         binding.key().type().xprocessing(),
-        CodeBlock.of(
-            "new $T($L)",
-            toJavaPoet(shardImplementation.getSubcomponentCreatorSimpleName(binding.key())),
+        XCodeBlock.ofNewInstance(
+            shardImplementation.getSubcomponentCreatorSimpleName(binding.key()),
+            "%L",
             shardImplementation.componentFieldsByImplementation().values().stream()
-                .map(field -> CodeBlock.of("$N", field))
+                .map(field -> XCodeBlock.of("%N", field.name))
                 .collect(toParametersCodeBlock())));
   }
 
-  CodeBlock getDependencyExpressionArguments() {
+  XCodeBlock getDependencyExpressionArguments() {
     return shardImplementation.componentFieldsByImplementation().values().stream()
-        .map(field -> CodeBlock.of("$N", field))
+        .map(field -> XCodeBlock.of("%N", field.name))
         .collect(toParametersCodeBlock());
   }
 

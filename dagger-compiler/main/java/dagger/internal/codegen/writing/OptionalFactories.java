@@ -24,7 +24,6 @@ import static com.google.common.base.Verify.verify;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.base.RequestKinds.requestTypeName;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
@@ -37,16 +36,15 @@ import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
 import com.google.auto.value.AutoValue;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -152,7 +150,7 @@ final class OptionalFactories {
         .addJavadoc(
             "Returns a {@link $T} that returns {@code $L}.",
             toJavaPoet(XTypeNames.DAGGER_PROVIDER),
-            optionalKind.absentValueExpression())
+            toJavaPoet(optionalKind.absentValueExpression()))
         .addCode("$L // safe covariant cast\n", AnnotationSpecs.suppressWarnings(UNCHECKED))
         .addStatement(
             "$1T provider = ($1T) $2N",
@@ -180,11 +178,14 @@ final class OptionalFactories {
             STATIC,
             FINAL)
         .addAnnotation(AnnotationSpecs.suppressWarnings(RAWTYPES))
-        .initializer("$T.create($L)", InstanceFactory.class, optionalKind.absentValueExpression())
+        .initializer(
+            "$T.create($L)",
+            InstanceFactory.class,
+            toJavaPoet(optionalKind.absentValueExpression()))
         .addJavadoc(
             "A {@link $T} that returns {@code $L}.",
             toJavaPoet(XTypeNames.DAGGER_PROVIDER),
-            optionalKind.absentValueExpression())
+            toJavaPoet(optionalKind.absentValueExpression()))
         .build();
   }
 
@@ -345,7 +346,7 @@ final class OptionalFactories {
                     Preconditions.class,
                     delegateParameter)
                 .build())
-        .addMethod(presentOptionalFactoryGetMethod(spec, delegateField))
+        .addMethod(toJavaPoet(presentOptionalFactoryGetMethod(spec, delegateField)))
         .addMethod(
             methodBuilder("of")
                 .addModifiers(PRIVATE, STATIC)
@@ -361,64 +362,66 @@ final class OptionalFactories {
         .build();
   }
 
-  private MethodSpec presentOptionalFactoryGetMethod(
+  private XFunSpec presentOptionalFactoryGetMethod(
       PresentFactorySpec spec, FieldSpec delegateField) {
-    MethodSpec.Builder getMethodBuilder =
-        methodBuilder(spec.factoryMethodName()).addAnnotation(Override.class).addModifiers(PUBLIC);
+    XFunSpec.Builder getMethodBuilder =
+        XFunSpec.builder(
+            spec.factoryMethodName(),
+            VisibilityModifier.PUBLIC,
+            /* isOpen= */ false,
+            /* isOverride= */ true,
+            /* addJavaNullabilityAnnotation= */ false);
 
     switch (spec.frameworkType()) {
       case PROVIDER:
         return getMethodBuilder
-            .returns(toJavaPoet(spec.optionalType()))
+            .returns(spec.optionalType())
             .addCode(
-                "return $L;",
+                "return %L;",
                 spec.optionalKind()
                     .presentExpression(
-                        toJavaPoet(
-                            FrameworkType.PROVIDER.to(
-                                spec.valueKind(),
-                                XCodeBlock.of("%N", delegateField.name)))))
+                        FrameworkType.PROVIDER.to(
+                            spec.valueKind(),
+                            XCodeBlock.of("%N", delegateField.name))))
             .build();
 
       case PRODUCER_NODE:
-        getMethodBuilder.returns(toJavaPoet(listenableFutureOf(spec.optionalType())));
+        getMethodBuilder.returns(listenableFutureOf(spec.optionalType()));
 
         switch (spec.valueKind()) {
           case FUTURE: // return a ListenableFuture<Optional<ListenableFuture<T>>>
           case PRODUCER: // return a ListenableFuture<Optional<Producer<T>>>
             return getMethodBuilder
                 .addCode(
-                    "return $T.immediateFuture($L);",
-                    Futures.class,
+                    "return %T.immediateFuture(%L);",
+                    XTypeNames.FUTURES,
                     spec.optionalKind()
                         .presentExpression(
-                            toJavaPoet(
-                                FrameworkType.PRODUCER_NODE.to(
-                                    spec.valueKind(),
-                                    XCodeBlock.of("%N", delegateField.name)))))
+                            FrameworkType.PRODUCER_NODE.to(
+                                spec.valueKind(),
+                                XCodeBlock.of("%N", delegateField.name))))
                 .build();
 
           case INSTANCE: // return a ListenableFuture<Optional<T>>
             return getMethodBuilder
                 .addCode(
-                    "return $L;",
+                    "return %L;",
                     transformFutureToOptional(
                         spec.optionalKind(),
                         spec.typeVariable(),
-                        CodeBlock.of("$N.get()", delegateField)))
+                        XCodeBlock.of("%N.get()", delegateField.name)))
                 .build();
 
           case PRODUCED: // return a ListenableFuture<Optional<Produced<T>>>
             return getMethodBuilder
                 .addCode(
-                    "return $L;",
+                    "return %L;",
                     transformFutureToOptional(
                         spec.optionalKind(),
                         spec.valueType(),
-                        CodeBlock.of(
-                            "$T.createFutureProduced($N.get())",
-                            toJavaPoet(XTypeNames.PRODUCERS),
-                            delegateField)))
+                        XCodeBlock.of(
+                            "%T.createFutureProduced(%N.get())",
+                            XTypeNames.PRODUCERS, delegateField.name)))
                 .build();
 
           default:
@@ -436,25 +439,29 @@ final class OptionalFactories {
    *
    * @param inputFuture an expression of type {@code ListenableFuture<inputType>}
    */
-  private static CodeBlock transformFutureToOptional(
-      OptionalKind optionalKind, XTypeName inputType, CodeBlock inputFuture) {
+  private static XCodeBlock transformFutureToOptional(
+      OptionalKind optionalKind, XTypeName inputType, XCodeBlock inputFuture) {
     XTypeName superInterface =
         XTypeNames.GUAVA_FUNCTION.parametrizedBy(inputType, optionalKind.of(inputType));
-    return CodeBlock.of(
-        "$T.transform($L, $L, $T.directExecutor())",
-        Futures.class,
+    return XCodeBlock.of(
+        "%T.transform(%L, %L, %T.directExecutor())",
+        XTypeNames.FUTURES,
         inputFuture,
-        anonymousClassBuilder("")
-            .addSuperinterface(toJavaPoet(superInterface))
-            .addMethod(
-                methodBuilder("apply")
-                    .addAnnotation(Override.class)
-                    .addModifiers(PUBLIC)
-                    .returns(toJavaPoet(optionalKind.of(inputType)))
-                    .addParameter(toJavaPoet(inputType), "input")
-                    .addCode("return $L;", optionalKind.presentExpression(CodeBlock.of("input")))
+        XTypeSpec.anonymousClassBuilder("")
+            .addSuperinterface(superInterface)
+            .addFunction(
+                XFunSpec.builder(
+                        "apply",
+                        VisibilityModifier.PUBLIC,
+                        /* isOpen= */ false,
+                        /* isOverride= */ true,
+                        /* addJavaNullabilityAnnotation= */ false)
+                    .returns(optionalKind.of(inputType))
+                    .addParameter("input", inputType)
+                    .addStatement(
+                        "return %L", optionalKind.presentExpression(XCodeBlock.of("input")))
                     .build())
             .build(),
-        MoreExecutors.class);
+        XTypeNames.MORE_EXECUTORS);
   }
 }

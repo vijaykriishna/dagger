@@ -29,9 +29,9 @@ import static dagger.internal.codegen.binding.SourceFiles.parameterizedGenerated
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.FUTURE_RETURN_VALUE_IGNORED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
-import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeNames.isFutureType;
@@ -58,7 +58,6 @@ import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -206,7 +205,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
         .addStatement(
             "return new $T($L)",
             toJavaPoet(parameterizedGeneratedTypeNameForBinding(binding)),
-            parameterNames(params))
+            toJavaPoet(parameterNames(params)))
         .build();
   }
 
@@ -252,25 +251,25 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
               .build();
       }
       default:
-        CodeBlock.Builder argAssignments = CodeBlock.builder();
-        ImmutableList.Builder<CodeBlock> argNames = ImmutableList.builder();
+        XCodeBlock.Builder argAssignments = XCodeBlock.builder();
+        ImmutableList.Builder<XCodeBlock> argNames = ImmutableList.builder();
         for (DependencyRequest asyncDependency : asyncDependencies) {
           XPropertySpec asyncDependencyField = factoryFields.get(asyncDependency);
-          argNames.add(CodeBlock.of("$L", dependencyFutureName(asyncDependency)));
-          argAssignments.addStatement(
-              "$T $L = $L",
-              toJavaPoet(listenableFutureOf(asyncDependencyType(asyncDependency))),
-              dependencyFutureName(asyncDependency),
-              toJavaPoet(producedCodeBlock(asyncDependency, asyncDependencyField)));
+          argNames.add(XCodeBlock.of("%N", dependencyFutureName(asyncDependency)));
+          argAssignments.addLocalVal(
+              /* name= */ dependencyFutureName(asyncDependency),
+              /* typeName= */ listenableFutureOf(asyncDependencyType(asyncDependency)),
+              /* assignExprFormat= */ "%L",
+              /* assignExprArgs...= */ producedCodeBlock(asyncDependency, asyncDependencyField));
         }
         return methodBuilder
             .returns(toJavaPoet(listenableFutureOf(listOf(XTypeName.ANY_OBJECT))))
-            .addCode(argAssignments.build())
+            .addCode(toJavaPoet(argAssignments.build()))
             .addStatement(
                 "return $T.<$T>allAsList($L)",
                 toJavaPoet(XTypeNames.FUTURES),
                 toJavaPoet(XTypeName.ANY_OBJECT),
-                makeParametersCodeBlock(argNames.build()))
+                toJavaPoet(makeParametersCodeBlock(argNames.build())))
             .build();
     }
   }
@@ -313,34 +312,34 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
                     .collect(toImmutableList()))
             .addParameter(parameter);
     ImmutableList<DependencyRequest> asyncDependencies = asyncDependencies(binding);
-    ImmutableList.Builder<CodeBlock> parameterCodeBlocks = ImmutableList.builder();
+    ImmutableList.Builder<XCodeBlock> parameterCodeBlocks = ImmutableList.builder();
     for (DependencyRequest dependency : binding.explicitDependencies()) {
       if (isAsyncDependency(dependency)) {
         if (asyncDependencies.size() > 1) {
           XTypeName dependencyType = asyncDependencyType(dependency);
           int argIndex = asyncDependencies.indexOf(dependency);
           parameterCodeBlocks.add(
-              CodeBlock.of("($T) $N.get($L)", toJavaPoet(dependencyType), parameter, argIndex));
+              XCodeBlock.ofCast(
+                  dependencyType, XCodeBlock.of("%N.get(%L)", parameter.name, argIndex)));
         } else {
-          parameterCodeBlocks.add(CodeBlock.of("$N", parameter));
+          parameterCodeBlocks.add(XCodeBlock.of("%N", parameter.name));
         }
       } else {
         parameterCodeBlocks.add(
-            toJavaPoet(
-                sourceFiles.frameworkTypeUsageStatement(
-                    XCodeBlock.of("%N", factoryFields.get(dependency)), dependency.kind())));
+            sourceFiles.frameworkTypeUsageStatement(
+                XCodeBlock.of("%N", factoryFields.get(dependency)), dependency.kind()));
       }
     }
     if (asyncDependencies.size() > 1) {
       methodBuilder.addAnnotation(AnnotationSpecs.suppressWarnings(UNCHECKED));
     }
 
-    CodeBlock moduleCodeBlock =
-        CodeBlock.of(
-            "$L.$L($L)",
+    XCodeBlock moduleCodeBlock =
+        XCodeBlock.of(
+            "%L.%N(%L)",
             factoryFields.moduleField.isPresent()
                 ? factoryFields.moduleField.get().getName() // SUPPRESS_GET_NAME_CHECK
-                : CodeBlock.of("$T", toJavaPoet(binding.bindingTypeElement().get().asClassName())),
+                : XCodeBlock.of("%T", binding.bindingTypeElement().get().asClassName()),
             getSimpleName(binding.bindingElement().get()),
             makeParametersCodeBlock(parameterCodeBlocks.build()));
 
@@ -350,16 +349,16 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             "return $T.<$T>immediateFuture($L)",
             toJavaPoet(XTypeNames.FUTURES),
             toJavaPoet(contributedTypeName),
-            moduleCodeBlock);
+            toJavaPoet(moduleCodeBlock));
         break;
       case FUTURE:
-        methodBuilder.addStatement("return $L", moduleCodeBlock);
+        methodBuilder.addStatement("return $L", toJavaPoet(moduleCodeBlock));
         break;
       case SET_OF_FUTURE:
         methodBuilder.addStatement(
             "return $T.allAsSet($L)",
             toJavaPoet(XTypeNames.PRODUCERS),
-            moduleCodeBlock);
+            toJavaPoet(moduleCodeBlock));
         break;
     }
     return methodBuilder.build();

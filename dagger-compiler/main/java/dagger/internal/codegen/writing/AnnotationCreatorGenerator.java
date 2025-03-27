@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
@@ -24,7 +24,7 @@ import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.AnnotationExpression.createMethodName;
 import static dagger.internal.codegen.binding.AnnotationExpression.getAnnotationCreatorClassName;
-import static dagger.internal.codegen.javapoet.CodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
@@ -35,6 +35,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
@@ -44,7 +45,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -118,12 +118,12 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
             .addModifiers(PUBLIC, STATIC)
             .returns(annotationElement.getType().getTypeName());
 
-    ImmutableList.Builder<CodeBlock> parameters = ImmutableList.builder();
+    ImmutableList.Builder<XCodeBlock> parameters = ImmutableList.builder();
     for (XMethodElement annotationMember : annotationElement.getDeclaredMethods()) {
       String parameterName = getSimpleName(annotationMember);
       XTypeName parameterType = maybeRewrapKClass(annotationMember.getReturnType()).asTypeName();
       createMethod.addParameter(toJavaPoet(parameterType), parameterName);
-      parameters.add(CodeBlock.of("$L", parameterName));
+      parameters.add(XCodeBlock.of("%N", parameterName));
     }
 
     XClassName autoAnnotationClass =
@@ -132,7 +132,7 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
     createMethod.addStatement(
         "return new $T($L)",
         toJavaPoet(autoAnnotationClass),
-        makeParametersCodeBlock(parameters.build()));
+        toJavaPoet(makeParametersCodeBlock(parameters.build())));
     return createMethod.build();
   }
 
