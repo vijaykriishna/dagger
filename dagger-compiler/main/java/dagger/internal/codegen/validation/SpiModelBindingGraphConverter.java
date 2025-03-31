@@ -428,6 +428,13 @@ public final class SpiModelBindingGraphConverter {
     public ImmutableSetMultimap<Class<? extends Node>, ? extends Node> nodesByClass() {
       return super.nodesByClass();
     }
+
+    // This overrides dagger.model.BindingGraph to memoize the output.
+    @Override
+    @Memoized
+    protected ImmutableNetwork<Node, DependencyEdge> dependencyGraph() {
+      return super.dependencyGraph();
+    }
   }
 
   @AutoValue

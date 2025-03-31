@@ -270,8 +270,7 @@ public abstract class BindingGraph {
   }
 
   /** Returns a subnetwork that contains all nodes but only {@link DependencyEdge}s. */
-  // TODO(dpb): Make public. Cache.
-  private ImmutableNetwork<Node, DependencyEdge> dependencyGraph() {
+  protected ImmutableNetwork<Node, DependencyEdge> dependencyGraph() {
     MutableNetwork<Node, DependencyEdge> dependencyGraph =
         NetworkBuilder.from(network())
             .expectedNodeCount(network().nodes().size())
