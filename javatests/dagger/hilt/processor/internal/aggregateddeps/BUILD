@@ -21,7 +21,6 @@ package(default_visibility = ["//:src"])
 
 compiler_test(
     name = "AggregatedDepsProcessorErrorsTest",
-    size = "small",
     srcs = ["AggregatedDepsProcessorErrorsTest.java"],
     compiler_deps = [
         "//hilt-android/main/java/dagger/hilt/internal:component_entry_point",

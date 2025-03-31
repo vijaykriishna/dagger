@@ -291,8 +291,6 @@ public class AggregatedDepsProcessorErrorsTest {
 
   private static void compile(
       Source source, Consumer<CompilationResultSubject> onCompilationResult) {
-    HiltCompilerTests.hiltCompiler(source)
-        // TODO(b/401536139): Remove this once we fix the timeout issue with KSP2.
-        .legacyCompile(onCompilationResult);
+    HiltCompilerTests.hiltCompiler(source).compile(onCompilationResult);
   }
 }
