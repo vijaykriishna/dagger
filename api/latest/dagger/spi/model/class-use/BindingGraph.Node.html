@@ -103,17 +103,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>abstract com.google.common.graph.ImmutableNetwork&lt;<a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="../BindingGraph.Edge.html" title="interface in dagger.spi.model">BindingGraph.Edge</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#network()" class="member-name-link">network</a>()</code></div>
+<div class="col-first even-row-color"><code>protected com.google.common.graph.ImmutableNetwork&lt;<a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#dependencyGraph()" class="member-name-link">dependencyGraph</a>()</code></div>
 <div class="col-last even-row-color">
+<div class="block">Returns a subnetwork that contains all nodes but only <a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model"><code>BindingGraph.DependencyEdge</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color"><code>abstract com.google.common.graph.ImmutableNetwork&lt;<a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="../BindingGraph.Edge.html" title="interface in dagger.spi.model">BindingGraph.Edge</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#network()" class="member-name-link">network</a>()</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Returns the graph in its <code>Network</code> representation.</div>
 </div>
-<div class="col-first odd-row-color"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,<wbr>? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#nodesByClass()" class="member-name-link">nodesByClass</a>()</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,<wbr>? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></div>
 <div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#nodesByClass()" class="member-name-link">nodesByClass</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,<wbr>? extends <a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#nodesByClass()" class="member-name-link">nodesByClass</a>()</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

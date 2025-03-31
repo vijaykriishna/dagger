@@ -248,88 +248,93 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the dependency edges for a dependency request.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointBindings()" class="member-name-link">entryPointBindings</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.google.common.graph.ImmutableNetwork&lt;<a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dependencyGraph()" class="member-name-link">dependencyGraph</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a subnetwork that contains all nodes but only <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model"><code>BindingGraph.DependencyEdge</code></a>s.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointBindings()" class="member-name-link">entryPointBindings</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the binding or missing binding nodes that directly satisfy entry points.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdges()" class="member-name-link">entryPointEdges</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdges()" class="member-name-link">entryPointEdges</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the dependency edges for all entry points for all components and subcomponents.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdges(dagger.spi.model.ComponentPath)" class="member-name-link">entryPointEdges</a><wbr>(<a href="ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdges(dagger.spi.model.ComponentPath)" class="member-name-link">entryPointEdges</a><wbr>(<a href="ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the dependency edges for the entry points of a given <code>component</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdgesDependingOnBinding(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">entryPointEdgesDependingOnBinding</a><wbr>(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entryPointEdgesDependingOnBinding(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">entryPointEdgesDependingOnBinding</a><wbr>(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the edges for entry points that transitively depend on a binding or missing binding for
  a key.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isFullBindingGraph()" class="member-name-link">isFullBindingGraph</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isFullBindingGraph()" class="member-name-link">isFullBindingGraph</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns <code>true</code> if this is a full binding graph, which contains all bindings installed in
  the component, or <code>false</code> if it is a reachable binding graph, which contains only
  bindings that are reachable from at least one <a href="#entryPointEdges()">entry point</a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#isModuleBindingGraph()" class="member-name-link">isModuleBindingGraph</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#isModuleBindingGraph()" class="member-name-link">isModuleBindingGraph</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6">
 <div class="block"><span class="deprecated-label">Deprecated.</span>
 <div class="deprecation-comment">use <a href="#isFullBindingGraph()"><code>isFullBindingGraph()</code></a> to tell if this is a full binding graph, or
      <a href="BindingGraph.ComponentNode.html#isRealComponent()"><code>rootComponentNode().isRealComponent()</code></a> to tell if
      the root component node is really a component or derived from a module.</div>
 </div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#isPartialBindingGraph()" class="member-name-link">isPartialBindingGraph</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#isPartialBindingGraph()" class="member-name-link">isPartialBindingGraph</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6">
 <div class="block"><span class="deprecated-label">Deprecated.</span>
 <div class="deprecation-comment">use <a href="BindingGraph.ComponentNode.html#isSubcomponent()"><code>rootComponentNode().isSubcomponent()</code></a>
      instead</div>
 </div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MissingBinding.html" title="class in dagger.spi.model">BindingGraph.MissingBinding</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#missingBindings()" class="member-name-link">missingBindings</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MissingBinding.html" title="class in dagger.spi.model">BindingGraph.MissingBinding</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#missingBindings()" class="member-name-link">missingBindings</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the nodes that represent missing bindings.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract com.google.common.graph.ImmutableNetwork&lt;<a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="BindingGraph.Edge.html" title="interface in dagger.spi.model">BindingGraph.Edge</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#network()" class="member-name-link">network</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract com.google.common.graph.ImmutableNetwork&lt;<a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="BindingGraph.Edge.html" title="interface in dagger.spi.model">BindingGraph.Edge</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#network()" class="member-name-link">network</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the graph in its <code>Network</code> representation.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,<wbr>? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#nodesByClass()" class="member-name-link">nodesByClass</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestedBindings(dagger.spi.model.Binding)" class="member-name-link">requestedBindings</a><wbr>(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.google.common.collect.ImmutableSetMultimap&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;,<wbr>? extends <a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#nodesByClass()" class="member-name-link">nodesByClass</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestedBindings(dagger.spi.model.Binding)" class="member-name-link">requestedBindings</a><wbr>(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the bindings that a given binding directly requests as a dependency.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestedMaybeMissingBindings(dagger.spi.model.Binding)" class="member-name-link">requestedMaybeMissingBindings</a><wbr>(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestedMaybeMissingBindings(dagger.spi.model.Binding)" class="member-name-link">requestedMaybeMissingBindings</a><wbr>(<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&nbsp;binding)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the bindings or missing bindings that a given binding directly requests as a
  dependency.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestingBindings(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">requestingBindings</a><wbr>(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.common.collect.ImmutableSet&lt;<a href="Binding.html" title="interface in dagger.spi.model">Binding</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#requestingBindings(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">requestingBindings</a><wbr>(<a href="BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the bindings that directly request a given binding as a dependency.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rootComponentNode()" class="member-name-link">rootComponentNode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BindingGraph.ComponentNode.html" title="interface in dagger.spi.model">BindingGraph.ComponentNode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rootComponentNode()" class="member-name-link">rootComponentNode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the component node for the root component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -571,6 +576,13 @@ loadScripts(document, 'script');</script>
 </ul>
 </dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="dependencyGraph()">
+<h3>dependencyGraph</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.google.common.graph.ImmutableNetwork&lt;<a href="BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</span>&nbsp;<span class="element-name">dependencyGraph</span>()</div>
+<div class="block">Returns a subnetwork that contains all nodes but only <a href="BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model"><code>BindingGraph.DependencyEdge</code></a>s.</div>
 </section>
 </li>
 <li>

@@ -86,19 +86,24 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Returns the dependency edges for a dependency request.</div>
 </div>
-<div class="col-first odd-row-color"><code>com.google.common.collect.ImmutableSet&lt;<a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdges()" class="member-name-link">entryPointEdges</a>()</code></div>
+<div class="col-first odd-row-color"><code>protected com.google.common.graph.ImmutableNetwork&lt;<a href="../BindingGraph.Node.html" title="interface in dagger.spi.model">BindingGraph.Node</a>,<wbr><a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#dependencyGraph()" class="member-name-link">dependencyGraph</a>()</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Returns the dependency edges for all entry points for all components and subcomponents.</div>
+<div class="block">Returns a subnetwork that contains all nodes but only <a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model"><code>BindingGraph.DependencyEdge</code></a>s.</div>
 </div>
 <div class="col-first even-row-color"><code>com.google.common.collect.ImmutableSet&lt;<a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdges(dagger.spi.model.ComponentPath)" class="member-name-link">entryPointEdges</a><wbr>(<a href="../ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdges()" class="member-name-link">entryPointEdges</a>()</code></div>
 <div class="col-last even-row-color">
-<div class="block">Returns the dependency edges for the entry points of a given <code>component</code>.</div>
+<div class="block">Returns the dependency edges for all entry points for all components and subcomponents.</div>
 </div>
 <div class="col-first odd-row-color"><code>com.google.common.collect.ImmutableSet&lt;<a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdgesDependingOnBinding(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">entryPointEdgesDependingOnBinding</a><wbr>(<a href="../BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdges(dagger.spi.model.ComponentPath)" class="member-name-link">entryPointEdges</a><wbr>(<a href="../ComponentPath.html" title="class in dagger.spi.model">ComponentPath</a>&nbsp;component)</code></div>
 <div class="col-last odd-row-color">
+<div class="block">Returns the dependency edges for the entry points of a given <code>component</code>.</div>
+</div>
+<div class="col-first even-row-color"><code>com.google.common.collect.ImmutableSet&lt;<a href="../BindingGraph.DependencyEdge.html" title="interface in dagger.spi.model">BindingGraph.DependencyEdge</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">BindingGraph.</span><code><a href="../BindingGraph.html#entryPointEdgesDependingOnBinding(dagger.spi.model.BindingGraph.MaybeBinding)" class="member-name-link">entryPointEdgesDependingOnBinding</a><wbr>(<a href="../BindingGraph.MaybeBinding.html" title="interface in dagger.spi.model">BindingGraph.MaybeBinding</a>&nbsp;binding)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Returns the edges for entry points that transitively depend on a binding or missing binding for
  a key.</div>
 </div>
