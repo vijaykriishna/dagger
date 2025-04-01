@@ -127,6 +127,7 @@ final class RootGenerator {
               .build());
     }
 
+    JavaPoetExtKt.addOriginatingElement(componentsWrapper, originatingElement);
     JavaFile componentsWrapperJavaFile =
         JavaFile.builder(componentsWrapperClassName.packageName(), componentsWrapper.build())
             .build();
