@@ -42,6 +42,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XFiler;
@@ -56,7 +57,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
@@ -68,6 +68,7 @@ import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.validation.ValidationReport;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.HashSet;
 import java.util.Optional;
@@ -271,22 +272,19 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     //   }
     // }
     @Override
-    public ImmutableList<TypeSpec.Builder> topLevelTypes(AssistedFactoryBinding binding) {
+    public ImmutableList<XTypeSpec> topLevelTypes(AssistedFactoryBinding binding) {
       XTypeElement factory = asTypeElement(binding.bindingElement().get());
 
       XClassName name = generatedClassNameForBinding(binding);
-      TypeSpec.Builder builder =
-          TypeSpec.classBuilder(toJavaPoet(name))
+      XTypeSpecs.Builder builder =
+          XTypeSpecs.classBuilder(name)
               .addModifiers(PUBLIC, FINAL)
-              .addTypeVariables(
-                  typeVariableNames(factory).stream()
-                      .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
-                      .collect(toImmutableList()));
+              .addTypeVariableNames(typeVariableNames(factory));
 
       if (factory.isInterface()) {
-        builder.addSuperinterface(factory.getType().getTypeName());
+        builder.addSuperinterface(factory.getType().asTypeName());
       } else {
-        builder.superclass(factory.getType().getTypeName());
+        builder.superclass(factory.getType().asTypeName());
       }
 
       AssistedFactoryMetadata metadata = AssistedFactoryMetadata.create(factory.getType());
@@ -368,7 +366,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       toJavaPoet(name),
                       delegateFactoryParam)
                   .build());
-      return ImmutableList.of(builder);
+      return ImmutableList.of(builder.build());
     }
 
     /** Returns the generated factory {@link XTypeName type} for an @AssistedInject constructor. */

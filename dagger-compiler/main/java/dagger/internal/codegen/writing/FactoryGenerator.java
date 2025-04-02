@@ -22,7 +22,6 @@ import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedParameters;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
 import static dagger.internal.codegen.binding.SourceFiles.generateBindingFieldsForDependencies;
@@ -55,6 +54,7 @@ import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
@@ -95,6 +95,7 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -125,7 +126,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(ContributionBinding binding) {
+  public ImmutableList<XTypeSpec> topLevelTypes(ContributionBinding binding) {
     // We don't want to write out resolved bindings -- we want to write out the generic version.
     checkArgument(!binding.unresolved().isPresent());
     checkArgument(binding.bindingElement().isPresent());
@@ -134,20 +135,15 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     return ImmutableList.of(factoryBuilder(binding));
   }
 
-  private TypeSpec.Builder factoryBuilder(ContributionBinding binding) {
-    TypeSpec.Builder factoryBuilder =
-        classBuilder(toJavaPoet(generatedClassNameForBinding(binding)))
+  private XTypeSpec factoryBuilder(ContributionBinding binding) {
+    XTypeSpecs.Builder factoryBuilder =
+        XTypeSpecs.classBuilder(generatedClassNameForBinding(binding))
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(
-               bindingTypeElementTypeVariableNames(binding).stream()
-                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
-                    .collect(toImmutableList()))
+            .addTypeVariableNames(bindingTypeElementTypeVariableNames(binding))
             .addAnnotation(scopeMetadataAnnotation(binding))
             .addAnnotation(qualifierMetadataAnnotation(binding));
 
-    factoryTypeName(binding)
-        .map(XConverters::toJavaPoet)
-        .ifPresent(factoryBuilder::addSuperinterface);
+    factoryTypeName(binding).ifPresent(factoryBuilder::addSuperinterface);
     FactoryFields factoryFields = FactoryFields.create(binding);
     // If the factory has no input fields we can use a static instance holder to create a
     // singleton instance of the factory. Otherwise, we create a new instance via the constructor.
@@ -155,10 +151,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       factoryBuilder.addType(staticInstanceHolderType(binding));
     } else {
       factoryBuilder
-          .addFields(
-              factoryFields.getAll().stream()
-                  .map(XConverters::toJavaPoet)
-                  .collect(toImmutableList()))
+          .addProperties(factoryFields.getAll())
           .addMethod(constructorMethod(factoryFields));
     }
     gwtIncompatibleAnnotation(binding).ifPresent(factoryBuilder::addAnnotation);
@@ -166,7 +159,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     return factoryBuilder
         .addMethod(getMethod(binding, factoryFields))
         .addMethod(staticCreateMethod(binding, factoryFields))
-        .addMethod(staticProxyMethod(binding));
+        .addMethod(staticProxyMethod(binding))
+        .build();
   }
 
   // private static final class InstanceHolder {

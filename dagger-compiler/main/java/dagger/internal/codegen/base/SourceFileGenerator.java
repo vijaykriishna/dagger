@@ -16,16 +16,20 @@
 
 package dagger.internal.codegen.base;
 
-import static androidx.room.compiler.processing.JavaPoetExtKt.addOriginatingElement;
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.CAST;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.DEPRECATION;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.KOTLIN_INTERNAL;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNINITIALIZED;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.CAST;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.DEPRECATION;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.KOTLIN_INTERNAL;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNINITIALIZED;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 
+import androidx.room.compiler.codegen.CodeLanguage;
+import androidx.room.compiler.codegen.XAnnotationSpec;
+import androidx.room.compiler.codegen.XFileSpec;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMessager;
@@ -33,12 +37,10 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
-import dagger.internal.DaggerGenerated;
-import dagger.internal.codegen.javapoet.AnnotationSpecs;
-import dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression;
+import dagger.internal.codegen.xprocessing.XAnnotationSpecs;
+import dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression;
+import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 
 /**
@@ -70,40 +72,43 @@ public abstract class SourceFileGenerator<T> {
 
   /** Generates a source file to be compiled for {@code T}. */
   public void generate(T input) {
-    for (TypeSpec.Builder type : topLevelTypes(input)) {
-      filer.write(buildJavaFile(input, type), XFiler.Mode.Isolating);
+    for (XTypeSpec type : topLevelTypes(input)) {
+       buildFile(input, XTypeSpecs.toBuilder(type))
+           .writeTo(CodeLanguage.JAVA, filer, XFiler.Mode.Isolating);
     }
   }
 
-  private JavaFile buildJavaFile(T input, TypeSpec.Builder typeSpecBuilder) {
+  private XFileSpec buildFile(T input, XTypeSpec.Builder typeSpecBuilder) {
     XElement originatingElement = originatingElement(input);
-    addOriginatingElement(typeSpecBuilder, originatingElement);
-    typeSpecBuilder.addAnnotation(DaggerGenerated.class);
-    Optional<AnnotationSpec> generatedAnnotation =
+    typeSpecBuilder
+        .addOriginatingElement(originatingElement)
+        .addAnnotation(XAnnotationSpec.of(XTypeNames.DAGGER_GENERATED));
+
+    Optional<XAnnotationSpec> generatedAnnotation =
         findGeneratedAnnotation()
             .map(
                 annotation ->
-                    AnnotationSpec.builder(annotation.getClassName())
-                        .addMember("value", "$S", "dagger.internal.codegen.ComponentProcessor")
-                        .addMember("comments", "$S", GENERATED_COMMENTS)
+                    XAnnotationSpec.builder(annotation.asClassName())
+                        .addMember("value", "%S", "dagger.internal.codegen.ComponentProcessor")
+                        .addMember("comments", "%S", GENERATED_COMMENTS)
                         .build());
     generatedAnnotation.ifPresent(typeSpecBuilder::addAnnotation);
 
     // TODO(b/263891456): Remove KOTLIN_INTERNAL and use Object/raw types where necessary.
     typeSpecBuilder.addAnnotation(
-        AnnotationSpecs.suppressWarnings(
+        XAnnotationSpecs.suppressWarnings(
             ImmutableSet.<Suppression>builder()
                 .addAll(warningSuppressions())
                 .add(UNCHECKED, RAWTYPES, KOTLIN_INTERNAL, CAST, DEPRECATION, UNINITIALIZED)
                 .build()));
 
     String packageName = closestEnclosingTypeElement(originatingElement).getPackageName();
-    JavaFile.Builder javaFileBuilder =
-        JavaFile.builder(packageName, typeSpecBuilder.build()).skipJavaLangImports(true);
+    XFileSpec.Builder fileBuilder = XFileSpec.builder(packageName, typeSpecBuilder.build());
+    toJavaPoet(fileBuilder).skipJavaLangImports(true);
     if (!generatedAnnotation.isPresent()) {
-      javaFileBuilder.addFileComment("Generated by Dagger ($L).", GENERATED_COMMENTS);
+      fileBuilder.addFileComment("Generated by Dagger (%L).", GENERATED_COMMENTS);
     }
-    return javaFileBuilder.build();
+    return fileBuilder.build();
   }
 
   // TODO(b/392896762): Use XProcessingEnv.findGeneratedAnnotation() once we're on Kotlin 2.1.0
@@ -117,12 +122,12 @@ public abstract class SourceFileGenerator<T> {
   public abstract XElement originatingElement(T input);
 
   /**
-   * Returns {@link TypeSpec.Builder types} be generated for {@code T}, or an empty list if no types
+   * Returns {@link XTypeSpecs types} be generated for {@code T}, or an empty list if no types
    * should be generated.
    *
    * <p>Every type will be generated in its own file.
    */
-  public abstract ImmutableList<TypeSpec.Builder> topLevelTypes(T input);
+  public abstract ImmutableList<XTypeSpec> topLevelTypes(T input);
 
   /** Returns {@link Suppression}s that are applied to files generated by this generator. */
   // TODO(b/134590785): When suppressions are removed locally, remove this and inline the usages

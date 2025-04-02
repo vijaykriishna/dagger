@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
 import static dagger.internal.codegen.binding.SourceFiles.generateBindingFieldsForDependencies;
 import static dagger.internal.codegen.binding.SourceFiles.memberInjectedFieldSignatureForVariable;
@@ -54,6 +53,7 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
@@ -69,7 +69,6 @@ import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.MembersInjector;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -84,6 +83,7 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -109,7 +109,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(MembersInjectionBinding binding) {
+  public ImmutableList<XTypeSpec> topLevelTypes(MembersInjectionBinding binding) {
 
     // We don't want to write out resolved bindings -- we want to write out the generic version.
     checkState(
@@ -120,20 +120,13 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     XClassName generatedTypeName = membersInjectorNameForType(binding.membersInjectedType());
     ImmutableList<XTypeName> typeParameters = bindingTypeElementTypeVariableNames(binding);
     ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields = frameworkFields(binding);
-    TypeSpec.Builder injectorTypeBuilder =
-        classBuilder(toJavaPoet(generatedTypeName))
+    XTypeSpecs.Builder injectorTypeBuilder =
+        XTypeSpecs.classBuilder(generatedTypeName)
             .addModifiers(PUBLIC, FINAL)
-            .addTypeVariables(
-                typeParameters.stream()
-                    .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
-                    .collect(toImmutableList()))
+            .addTypeVariableNames(typeParameters)
             .addAnnotation(qualifierMetadataAnnotation(binding))
-            .addSuperinterface(
-                toJavaPoet(membersInjectorOf(binding.key().type().xprocessing().asTypeName())))
-            .addFields(
-                frameworkFields.values().stream()
-                    .map(XConverters::toJavaPoet)
-                    .collect(toImmutableList()))
+            .addSuperinterface(membersInjectorOf(binding.key().type().xprocessing().asTypeName()))
+            .addProperties(frameworkFields.values())
             .addMethod(constructor(frameworkFields))
             .addMethod(createMethod(binding, frameworkFields))
             .addMethod(injectMembersMethod(binding, frameworkFields))
@@ -146,7 +139,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
 
     gwtIncompatibleAnnotation(binding).ifPresent(injectorTypeBuilder::addAnnotation);
 
-    return ImmutableList.of(injectorTypeBuilder);
+    return ImmutableList.of(injectorTypeBuilder.build());
   }
 
   private static MethodSpec membersInjectionMethod(InjectionSite injectionSite) {

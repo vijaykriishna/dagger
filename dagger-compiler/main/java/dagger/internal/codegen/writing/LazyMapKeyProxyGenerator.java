@@ -17,7 +17,6 @@
 package dagger.internal.codegen.writing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.MapKeys.KEEP_FIELD_TYPE_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.LAZY_CLASS_KEY_NAME_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.lazyClassKeyProxyClassName;
@@ -27,15 +26,16 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import javax.inject.Inject;
 
 /**
@@ -55,14 +55,14 @@ public final class LazyMapKeyProxyGenerator extends SourceFileGenerator<XMethodE
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(XMethodElement input) {
-    return ImmutableList.of(lazyClassKeyProxyTypeSpec(input).toBuilder());
+  public ImmutableList<XTypeSpec> topLevelTypes(XMethodElement input) {
+    return ImmutableList.of(lazyClassKeyProxyTypeSpec(input));
   }
 
-  private TypeSpec lazyClassKeyProxyTypeSpec(XMethodElement element) {
-    return classBuilder(toJavaPoet(lazyClassKeyProxyClassName(element)))
+  private XTypeSpec lazyClassKeyProxyTypeSpec(XMethodElement element) {
+    return XTypeSpecs.classBuilder(lazyClassKeyProxyClassName(element))
         .addModifiers(PUBLIC, FINAL)
-        .addAnnotation(toJavaPoet(XTypeNames.IDENTIFIER_NAME_STRING))
+        .addAnnotation(XTypeNames.IDENTIFIER_NAME_STRING)
         .addFields(lazyClassKeyFields(element))
         .build();
   }

@@ -55,6 +55,7 @@ object XTypeNames {
   @JvmField val SUBCOMPONENT_FACTORY = XClassName.get("dagger", "Subcomponent", "Factory")
 
   // Dagger Internal classnames
+  @JvmField val DAGGER_GENERATED = XClassName.get("dagger.internal", "DaggerGenerated")
   @JvmField val IDENTIFIER_NAME_STRING = XClassName.get("dagger.internal", "IdentifierNameString")
   @JvmField val KEEP_FIELD_TYPE = XClassName.get("dagger.internal", "KeepFieldType")
   @JvmField val LAZY_CLASS_KEY = XClassName.get("dagger.multibindings", "LazyClassKey")

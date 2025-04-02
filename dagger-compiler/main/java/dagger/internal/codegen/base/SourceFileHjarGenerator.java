@@ -19,7 +19,6 @@ package dagger.internal.codegen.base;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
@@ -27,6 +26,7 @@ import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingType
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -43,6 +43,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.javapoet.CodeBlocks;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
@@ -71,20 +72,20 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(T input) {
+  public ImmutableList<XTypeSpec> topLevelTypes(T input) {
     String packageName = closestEnclosingTypeElement(originatingElement(input)).getPackageName();
     return delegate.topLevelTypes(input).stream()
-        .map(completeType -> skeletonType(packageName, completeType.build()))
+        .map(completeType -> skeletonType(packageName,  toJavaPoet(completeType)))
         .collect(toImmutableList());
   }
 
-  private TypeSpec.Builder skeletonType(String packageName, TypeSpec completeType) {
-    TypeSpec.Builder skeleton =
-        classBuilder(completeType.name)
-            .addSuperinterfaces(completeType.superinterfaces)
-            .addTypeVariables(completeType.typeVariables)
+  private XTypeSpec skeletonType(String packageName, TypeSpec completeType) {
+    XTypeSpecs.Builder skeleton =
+        XTypeSpecs.classBuilder(completeType.name)
+            .addJavaSuperinterfaces(completeType.superinterfaces)
+            .addJavaTypeVariableNames(completeType.typeVariables)
             .addModifiers(completeType.modifiers.toArray(new Modifier[0]))
-            .addAnnotations(completeType.annotations);
+            .addJavaAnnotations(completeType.annotations);
 
     if (!completeType.superclass.equals(ClassName.OBJECT)) {
       skeleton.superclass(completeType.superclass);
@@ -101,13 +102,13 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
         .forEach(skeleton::addField);
 
     completeType.typeSpecs.stream()
-        .map(type -> skeletonType(packageName, type).build())
+        .map(type -> skeletonType(packageName, type))
         .forEach(skeleton::addType);
 
     completeType.alwaysQualifiedNames
         .forEach(skeleton::alwaysQualify);
 
-    return skeleton;
+    return skeleton.build();
   }
 
   private MethodSpec skeletonMethod(

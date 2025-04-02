@@ -16,10 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isNested;
@@ -30,16 +28,17 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.ModuleKind;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.langmodel.Accessibility;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -64,15 +63,15 @@ public final class ModuleProxies {
     }
 
     @Override
-    public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement moduleElement) {
+    public ImmutableList<XTypeSpec> topLevelTypes(XTypeElement moduleElement) {
       ModuleKind.checkIsModule(moduleElement);
       return nonPublicNullaryConstructor(moduleElement).isPresent()
           ? ImmutableList.of(buildProxy(moduleElement))
           : ImmutableList.of();
     }
 
-    private TypeSpec.Builder buildProxy(XTypeElement moduleElement) {
-      return classBuilder(toJavaPoet(constructorProxyTypeName(moduleElement)))
+    private XTypeSpec buildProxy(XTypeElement moduleElement) {
+      return XTypeSpecs.classBuilder(constructorProxyTypeName(moduleElement))
           .addModifiers(PUBLIC, FINAL)
           .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
           .addMethod(
@@ -80,7 +79,8 @@ public final class ModuleProxies {
                   .addModifiers(PUBLIC, STATIC)
                   .returns(moduleElement.getClassName())
                   .addStatement("return new $T()", moduleElement.getClassName())
-                  .build());
+                  .build())
+          .build();
     }
   }
 

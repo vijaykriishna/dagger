@@ -18,21 +18,21 @@ package dagger.internal.codegen.writing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import javax.inject.Inject;
 
 /**
@@ -56,12 +56,12 @@ public final class InaccessibleMapKeyProxyGenerator
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(ContributionBinding binding) {
+  public ImmutableList<XTypeSpec> topLevelTypes(ContributionBinding binding) {
     return MapKeys.mapKeyFactoryMethod(binding, processingEnv)
         .map(
             method -> {
-              TypeSpec.Builder builder =
-                  classBuilder(toJavaPoet(MapKeys.mapKeyProxyClassName(binding)))
+              XTypeSpecs.Builder builder =
+                  XTypeSpecs.classBuilder(MapKeys.mapKeyProxyClassName(binding))
                       .addModifiers(PUBLIC, FINAL)
                       .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
                       .addMethod(method);
@@ -81,7 +81,7 @@ public final class InaccessibleMapKeyProxyGenerator
                               .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
                               .build())
                   .ifPresent(builder::addField);
-              return builder;
+              return builder.build();
             })
         .map(ImmutableList::of)
         .orElse(ImmutableList.of());

@@ -17,6 +17,7 @@
 package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.common.base.Supplier;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -46,5 +47,5 @@ public interface GeneratedImplementation {
   void addTypeSupplier(Supplier<TypeSpec> typeSupplier);
 
   /** Returns the {@link TypeSpec} for this generated implementation. */
-  public TypeSpec generate();
+  public XTypeSpec generate();
 }

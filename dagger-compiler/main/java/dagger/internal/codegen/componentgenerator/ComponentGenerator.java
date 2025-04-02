@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen.componentgenerator;
 
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.TypeSpec;
 import dagger.Component;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.BindingGraph;
@@ -47,7 +47,7 @@ final class ComponentGenerator extends SourceFileGenerator<BindingGraph> {
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(BindingGraph bindingGraph) {
+  public ImmutableList<XTypeSpec> topLevelTypes(BindingGraph bindingGraph) {
     ComponentImplementation componentImplementation =
         topLevelImplementationComponentFactory
             .create(bindingGraph)
@@ -58,6 +58,6 @@ final class ComponentGenerator extends SourceFileGenerator<BindingGraph> {
             .parentRequirementExpressions(Optional.empty())
             .build()
             .componentImplementation();
-    return ImmutableList.of(componentImplementation.generate().toBuilder());
+    return ImmutableList.of(componentImplementation.generate());
   }
 }

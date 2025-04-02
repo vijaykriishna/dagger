@@ -21,7 +21,6 @@ import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.AnnotationExpression.createMethodName;
 import static dagger.internal.codegen.binding.AnnotationExpression.getAnnotationCreatorClassName;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
@@ -37,6 +36,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -46,9 +46,9 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.inject.Inject;
@@ -95,10 +95,10 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement annotationType) {
+  public ImmutableList<XTypeSpec> topLevelTypes(XTypeElement annotationType) {
     XClassName generatedTypeName = getAnnotationCreatorClassName(annotationType);
-    TypeSpec.Builder annotationCreatorBuilder =
-        classBuilder(toJavaPoet(generatedTypeName))
+    XTypeSpecs.Builder annotationCreatorBuilder =
+        XTypeSpecs.classBuilder(generatedTypeName)
             .addModifiers(PUBLIC, FINAL)
             .addMethod(constructorBuilder().addModifiers(PRIVATE).build());
 
@@ -106,7 +106,7 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
       annotationCreatorBuilder.addMethod(buildCreateMethod(generatedTypeName, annotationElement));
     }
 
-    return ImmutableList.of(annotationCreatorBuilder);
+    return ImmutableList.of(annotationCreatorBuilder.build());
   }
 
   private MethodSpec buildCreateMethod(

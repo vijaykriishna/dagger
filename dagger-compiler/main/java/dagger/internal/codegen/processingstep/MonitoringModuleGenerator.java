@@ -19,7 +19,6 @@ package dagger.internal.codegen.processingstep;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.setOf;
@@ -28,17 +27,18 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.Module;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.MonitoringModules;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.multibindings.Multibinds;
 import javax.inject.Inject;
 
@@ -61,16 +61,17 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(XTypeElement componentElement) {
+  public ImmutableList<XTypeSpec> topLevelTypes(XTypeElement componentElement) {
     XClassName name = generatedMonitoringModuleName(componentElement);
     monitoringModules.add(name);
     return ImmutableList.of(
-        classBuilder(toJavaPoet(name))
+        XTypeSpecs.classBuilder(name)
             .addAnnotation(Module.class)
             .addModifiers(ABSTRACT)
             .addMethod(privateConstructor())
             .addMethod(setOfFactories())
-            .addMethod(monitor(componentElement)));
+            .addMethod(monitor(componentElement))
+            .build());
   }
 
   private MethodSpec privateConstructor() {

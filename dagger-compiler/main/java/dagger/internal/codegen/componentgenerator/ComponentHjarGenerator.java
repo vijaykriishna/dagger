@@ -23,7 +23,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static dagger.internal.codegen.base.ComponentCreatorKind.BUILDER;
-import static dagger.internal.codegen.javapoet.TypeSpecs.addSupertype;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.writing.ComponentNames.getTopLevelClassName;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
@@ -33,6 +32,9 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XMethodElement;
@@ -42,7 +44,6 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -55,6 +56,7 @@ import dagger.internal.codegen.binding.MethodSignature;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.MethodSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -90,10 +92,10 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
   }
 
   @Override
-  public ImmutableList<TypeSpec.Builder> topLevelTypes(ComponentDescriptor componentDescriptor) {
-    ClassName generatedTypeName = toJavaPoet(getTopLevelClassName(componentDescriptor));
-    TypeSpec.Builder generatedComponent =
-        TypeSpec.classBuilder(generatedTypeName)
+  public ImmutableList<XTypeSpec> topLevelTypes(ComponentDescriptor componentDescriptor) {
+    XClassName generatedTypeName = getTopLevelClassName(componentDescriptor);
+    XTypeSpecs.Builder generatedComponent =
+        XTypeSpecs.classBuilder(generatedTypeName)
             .addModifiers(FINAL)
             .addMethod(privateConstructor());
     if (componentDescriptor.typeElement().isPublic()) {
@@ -102,15 +104,15 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
 
     XTypeElement componentElement = componentDescriptor.typeElement();
     if (compilerOptions.generatedClassExtendsComponent()) {
-      addSupertype(generatedComponent, componentElement);
+      generatedComponent.superType(componentElement);
     }
 
-    TypeName builderMethodReturnType;
+    XTypeName builderMethodReturnType;
     ComponentCreatorKind creatorKind;
     boolean noArgFactoryMethod;
     if (componentDescriptor.creatorDescriptor().isPresent()) {
       ComponentCreatorDescriptor creatorDescriptor = componentDescriptor.creatorDescriptor().get();
-      builderMethodReturnType = creatorDescriptor.typeElement().getClassName();
+      builderMethodReturnType = creatorDescriptor.typeElement().asClassName();
       creatorKind = creatorDescriptor.kind();
       noArgFactoryMethod = creatorDescriptor.factoryParameters().isEmpty();
     } else {
@@ -122,7 +124,7 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
         builder.addModifiers(PUBLIC);
       }
 
-      ClassName builderClassName = generatedTypeName.nestedClass("Builder");
+      XClassName builderClassName = generatedTypeName.nestedClass("Builder");
       builderMethodReturnType = builderClassName;
       creatorKind = BUILDER;
       noArgFactoryMethod = true;
@@ -159,12 +161,12 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
 
       if (componentDescriptor.isProduction()) {
         generatedComponent
-            .addSuperinterface(toJavaPoet(XTypeNames.CANCELLATION_LISTENER))
+            .addSuperinterface(XTypeNames.CANCELLATION_LISTENER)
             .addMethod(onProducerFutureCancelledMethod());
       }
     }
 
-    return ImmutableList.of(generatedComponent);
+    return ImmutableList.of(generatedComponent.build());
   }
 
   private MethodSpec emptyComponentMethod(XTypeElement typeElement, XMethodElement baseMethod) {
@@ -217,12 +219,12 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
   }
 
   private static MethodSpec builderSetterMethod(
-      XTypeElement componentRequirement, ClassName builderClass) {
+      XTypeElement componentRequirement, XClassName builderClass) {
     String simpleName = UPPER_CAMEL.to(LOWER_CAMEL, getSimpleName(componentRequirement));
     return MethodSpec.methodBuilder(simpleName)
         .addModifiers(PUBLIC)
         .addParameter(componentRequirement.getClassName(), simpleName)
-        .returns(builderClass)
+        .returns(toJavaPoet(builderClass))
         .build();
   }
 
@@ -234,10 +236,10 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
   }
 
   private static MethodSpec staticCreatorMethod(
-      TypeName creatorMethodReturnType, ComponentCreatorKind creatorKind) {
+      XTypeName creatorMethodReturnType, ComponentCreatorKind creatorKind) {
     return MethodSpec.methodBuilder(Ascii.toLowerCase(creatorKind.typeName()))
         .addModifiers(PUBLIC, STATIC)
-        .returns(creatorMethodReturnType)
+        .returns(toJavaPoet(creatorMethodReturnType))
         .build();
   }
 

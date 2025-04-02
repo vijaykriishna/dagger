@@ -25,7 +25,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.base.ComponentCreatorKind.BUILDER;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
 import static dagger.internal.codegen.extension.DaggerStreams.instancesOf;
@@ -50,8 +49,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
-import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMessager;
 import androidx.room.compiler.processing.XMethodElement;
@@ -89,13 +88,13 @@ import dagger.internal.codegen.binding.KeyVariableNamer;
 import dagger.internal.codegen.binding.MethodSignature;
 import dagger.internal.codegen.binding.ModuleDescriptor;
 import dagger.internal.codegen.compileroption.CompilerOptions;
-import dagger.internal.codegen.javapoet.TypeSpecs;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -447,8 +446,8 @@ public final class ComponentImplementation {
     return componentNames.getCreatorName(graph.componentPath());
   }
 
-  /** Generates the component and returns the resulting {@link TypeSpec}. */
-  public TypeSpec generate() {
+  /** Generates the component and returns the resulting {@link XTypeSpec}. */
+  public XTypeSpec generate() {
     return componentShard.generate();
   }
 
@@ -741,20 +740,19 @@ public final class ComponentImplementation {
     }
 
     @Override
-    public TypeSpec generate() {
-      TypeSpec.Builder builder = classBuilder(toJavaPoet(name));
+    public XTypeSpec generate() {
+      XTypeSpecs.Builder builder = XTypeSpecs.classBuilder(name);
 
       // Ksp requires explicitly associating input classes that are generated with the output class,
       // otherwise, the cached generated classes won't be discoverable in an incremental build.
       if (processingEnv.getBackend() == XProcessingEnv.Backend.KSP) {
         graph.componentDescriptor().modules().stream()
             .filter(ModuleDescriptor::isImplicitlyIncluded)
-            .forEach(
-                module -> JavaPoetExtKt.addOriginatingElement(builder, module.moduleElement()));
+            .forEach(module -> builder.addOriginatingElement(module.moduleElement()));
       }
 
       if (isComponentShard()) {
-        TypeSpecs.addSupertype(builder, graph.componentTypeElement());
+        builder.superType(graph.componentTypeElement());
         addCreator();
         addFactoryMethods();
         addInterfaceMethods();
@@ -766,8 +764,7 @@ public final class ComponentImplementation {
 
       if (graph.componentDescriptor().isProduction()) {
         if (isComponentShard() || !cancellations.isEmpty()) {
-          TypeSpecs.addSupertype(
-              builder, processingEnv.requireTypeElement(XTypeNames.CANCELLATION_LISTENER));
+          builder.superType(processingEnv.requireTypeElement(XTypeNames.CANCELLATION_LISTENER));
           addCancellationListenerImplementation();
         }
       }
@@ -775,13 +772,13 @@ public final class ComponentImplementation {
       modifiers().forEach(builder::addModifiers);
       fieldSpecsMap.asMap().values().forEach(builder::addFields);
       methodSpecsMap.asMap().values().forEach(builder::addMethods);
-      typeSpecsMap.asMap().values().forEach(builder::addTypes);
+      typeSpecsMap.asMap().values().forEach(builder::addJavaTypes);
       typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
 
       if (!compilerOptions.generatedClassExtendsComponent()
           && isComponentShard()
           && graph.componentPath().atRoot()) {
-        topLevelImplementation().addType(TypeSpecKind.COMPONENT_IMPL, builder.build());
+        topLevelImplementation().addType(TypeSpecKind.COMPONENT_IMPL, toJavaPoet(builder.build()));
         return topLevelImplementation().generate();
       }
 
@@ -936,7 +933,7 @@ public final class ComponentImplementation {
         topLevelImplementation()
             .addType(
                 TypeSpecKind.COMPONENT_IMPL,
-                childComponentImplementationFactory.create(subgraph).generate());
+                toJavaPoet(childComponentImplementationFactory.create(subgraph).generate()));
       }
     }
 
@@ -945,7 +942,7 @@ public final class ComponentImplementation {
       for (ShardImplementation shard : ImmutableSet.copyOf(shardsByBinding.get().values())) {
         if (shardFieldsByImplementation.containsKey(shard)) {
           addField(FieldSpecKind.COMPONENT_SHARD_FIELD, shardFieldsByImplementation.get(shard));
-          TypeSpec shardTypeSpec = shard.generate();
+          TypeSpec shardTypeSpec = toJavaPoet(shard.generate());
           topLevelImplementation().addType(TypeSpecKind.COMPONENT_SHARD_TYPE, shardTypeSpec);
         }
       }
