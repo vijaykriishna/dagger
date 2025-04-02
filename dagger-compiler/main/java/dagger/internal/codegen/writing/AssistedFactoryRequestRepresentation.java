@@ -25,12 +25,12 @@ import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -39,6 +39,7 @@ import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 
 /**
@@ -76,10 +77,10 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
             .getDependencyExpression(requestingClass.peerClass(""));
     return XExpression.create(
         assistedInjectionExpression.type(),
-        CodeBlock.of("$L", anonymousfactoryImpl(localBinding.get(), assistedInjectionExpression)));
+        XCodeBlock.of("%L", anonymousfactoryImpl(localBinding.get(), assistedInjectionExpression)));
   }
 
-  private TypeSpec anonymousfactoryImpl(
+  private XTypeSpec anonymousfactoryImpl(
       Binding assistedBinding, XExpression assistedInjectionExpression) {
     XTypeElement factory = asTypeElement(binding.bindingElement().get());
     XType factoryType = binding.key().type().xprocessing();
@@ -87,8 +88,8 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
 
     // We can't use MethodSpec.overriding directly because we need to control the parameter names.
     MethodSpec factoryOverride = overriding(factoryMethod, factoryType).build();
-    TypeSpec.Builder builder =
-        TypeSpec.anonymousClassBuilder("")
+    XTypeSpecs.Builder builder =
+        XTypeSpecs.anonymousClassBuilder()
             .addMethod(
                 // We're overriding the method so we have to use the jvm name here.
                 MethodSpec.methodBuilder(factoryMethod.getJvmName())

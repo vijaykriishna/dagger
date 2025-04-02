@@ -46,7 +46,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
@@ -116,8 +115,8 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
       creatorKind = creatorDescriptor.kind();
       noArgFactoryMethod = creatorDescriptor.factoryParameters().isEmpty();
     } else {
-      TypeSpec.Builder builder =
-          TypeSpec.classBuilder("Builder")
+      XTypeSpecs.Builder builder =
+          XTypeSpecs.classBuilder("Builder")
               .addModifiers(STATIC, FINAL)
               .addMethod(privateConstructor());
       if (componentDescriptor.typeElement().isPublic()) {

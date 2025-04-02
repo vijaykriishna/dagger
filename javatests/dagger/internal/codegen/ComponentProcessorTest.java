@@ -20,15 +20,15 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.util.CompilationResultSubject;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.MembersInjector;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;
 import java.util.Collection;
@@ -54,21 +54,23 @@ public class ComponentProcessorTest {
           "",
           "public @interface Nullable {}");
 
-  private static final TypeSpec GENERATED_INJECT_TYPE =
-      TypeSpec.classBuilder("GeneratedInjectType")
+  private static final XTypeSpec GENERATED_INJECT_TYPE =
+      XTypeSpecs.classBuilder("GeneratedInjectType")
           .addMethod(
               MethodSpec.constructorBuilder()
                   .addAnnotation(toJavaPoet(XTypeNames.INJECT_JAVAX))
                   .build())
           .build();
 
-  private static final TypeSpec GENERATED_QUALIFIER =
-      TypeSpec.annotationBuilder("GeneratedQualifier")
-          .addAnnotation(AnnotationSpec.builder(toJavaPoet(XTypeNames.QUALIFIER_JAVAX)).build())
+  private static final XTypeSpec GENERATED_QUALIFIER =
+      XTypeSpecs.annotationBuilder("GeneratedQualifier")
+          .addAnnotation(XTypeNames.QUALIFIER_JAVAX)
           .build();
 
-  private static final TypeSpec GENERATED_MODULE =
-      TypeSpec.classBuilder("GeneratedModule").addAnnotation(toJavaPoet(XTypeNames.MODULE)).build();
+  private static final XTypeSpec GENERATED_MODULE =
+      XTypeSpecs.classBuilder("GeneratedModule")
+          .addAnnotation(XTypeNames.MODULE)
+          .build();
 
 
   @Rule public GoldenFileRule goldenFileRule = new GoldenFileRule();

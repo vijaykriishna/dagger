@@ -71,7 +71,6 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.UniqueNameSet;
@@ -481,9 +480,9 @@ public final class ComponentImplementation {
         MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
     private final ListMultimap<MethodSpecKind, MethodSpec> methodSpecsMap =
         MultimapBuilder.enumKeys(MethodSpecKind.class).arrayListValues().build();
-    private final ListMultimap<TypeSpecKind, TypeSpec> typeSpecsMap =
+    private final ListMultimap<TypeSpecKind, XTypeSpec> typeSpecsMap =
         MultimapBuilder.enumKeys(TypeSpecKind.class).arrayListValues().build();
-    private final List<Supplier<TypeSpec>> typeSuppliers = new ArrayList<>();
+    private final List<Supplier<XTypeSpec>> typeSuppliers = new ArrayList<>();
     private boolean initialized = false; // This is used for initializing assistedParamNames.
 
     private ShardImplementation(XClassName name) {
@@ -639,13 +638,13 @@ public final class ComponentImplementation {
 
     /** Adds the given type to the component. */
     @Override
-    public void addType(TypeSpecKind typeKind, TypeSpec typeSpec) {
+    public void addType(TypeSpecKind typeKind, XTypeSpec typeSpec) {
       typeSpecsMap.put(typeKind, typeSpec);
     }
 
     /** Adds a {@link Supplier} for the SwitchingProvider for the component. */
     @Override
-    public void addTypeSupplier(Supplier<TypeSpec> typeSpecSupplier) {
+    public void addTypeSupplier(Supplier<XTypeSpec> typeSpecSupplier) {
       typeSuppliers.add(typeSpecSupplier);
     }
 
@@ -772,13 +771,13 @@ public final class ComponentImplementation {
       modifiers().forEach(builder::addModifiers);
       fieldSpecsMap.asMap().values().forEach(builder::addFields);
       methodSpecsMap.asMap().values().forEach(builder::addMethods);
-      typeSpecsMap.asMap().values().forEach(builder::addJavaTypes);
+      typeSpecsMap.asMap().values().forEach(builder::addTypes);
       typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
 
       if (!compilerOptions.generatedClassExtendsComponent()
           && isComponentShard()
           && graph.componentPath().atRoot()) {
-        topLevelImplementation().addType(TypeSpecKind.COMPONENT_IMPL, toJavaPoet(builder.build()));
+        topLevelImplementation().addType(TypeSpecKind.COMPONENT_IMPL, builder.build());
         return topLevelImplementation().generate();
       }
 
@@ -933,7 +932,7 @@ public final class ComponentImplementation {
         topLevelImplementation()
             .addType(
                 TypeSpecKind.COMPONENT_IMPL,
-                toJavaPoet(childComponentImplementationFactory.create(subgraph).generate()));
+                childComponentImplementationFactory.create(subgraph).generate());
       }
     }
 
@@ -942,8 +941,7 @@ public final class ComponentImplementation {
       for (ShardImplementation shard : ImmutableSet.copyOf(shardsByBinding.get().values())) {
         if (shardFieldsByImplementation.containsKey(shard)) {
           addField(FieldSpecKind.COMPONENT_SHARD_FIELD, shardFieldsByImplementation.get(shard));
-          TypeSpec shardTypeSpec = toJavaPoet(shard.generate());
-          topLevelImplementation().addType(TypeSpecKind.COMPONENT_SHARD_TYPE, shardTypeSpec);
+          topLevelImplementation().addType(TypeSpecKind.COMPONENT_SHARD_TYPE, shard.generate());
         }
       }
     }

@@ -29,7 +29,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind;
@@ -50,9 +49,9 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
       MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
   private final ListMultimap<MethodSpecKind, MethodSpec> methodSpecsMap =
       MultimapBuilder.enumKeys(MethodSpecKind.class).arrayListValues().build();
-  private final ListMultimap<TypeSpecKind, TypeSpec> typeSpecsMap =
+  private final ListMultimap<TypeSpecKind, XTypeSpec> typeSpecsMap =
       MultimapBuilder.enumKeys(TypeSpecKind.class).arrayListValues().build();
-  private final List<Supplier<TypeSpec>> typeSuppliers = new ArrayList<>();
+  private final List<Supplier<XTypeSpec>> typeSuppliers = new ArrayList<>();
 
   @Inject
   ComponentWrapperImplementation(@TopLevel BindingGraph graph) {
@@ -81,12 +80,12 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   }
 
   @Override
-  public void addType(TypeSpecKind typeKind, TypeSpec typeSpec) {
+  public void addType(TypeSpecKind typeKind, XTypeSpec typeSpec) {
     typeSpecsMap.put(typeKind, typeSpec);
   }
 
   @Override
-  public void addTypeSupplier(Supplier<TypeSpec> typeSpecSupplier) {
+  public void addTypeSupplier(Supplier<XTypeSpec> typeSpecSupplier) {
     typeSuppliers.add(typeSpecSupplier);
   }
 
@@ -102,7 +101,7 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
 
     fieldSpecsMap.asMap().values().forEach(builder::addFields);
     methodSpecsMap.asMap().values().forEach(builder::addMethods);
-    typeSpecsMap.asMap().values().forEach(builder::addJavaTypes);
+    typeSpecsMap.asMap().values().forEach(builder::addTypes);
     typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
 
     return builder.addMethod(constructorBuilder().addModifiers(PRIVATE).build()).build();

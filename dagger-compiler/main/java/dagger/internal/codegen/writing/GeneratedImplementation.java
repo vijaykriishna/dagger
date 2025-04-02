@@ -21,7 +21,6 @@ import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.common.base.Supplier;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind;
 import dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind;
 import dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind;
@@ -41,11 +40,11 @@ public interface GeneratedImplementation {
   void addMethod(MethodSpecKind methodKind, MethodSpec methodSpec);
 
   /** Adds the given type to the generated implementation. */
-  void addType(TypeSpecKind typeKind, TypeSpec typeSpec);
+  void addType(TypeSpecKind typeKind, XTypeSpec typeSpec);
 
-  /** Adds a {@link Supplier} for a {@link TypeSpec} to the generated implementation. */
-  void addTypeSupplier(Supplier<TypeSpec> typeSupplier);
+  /** Adds a {@link Supplier} for a {@link XTypeSpec} to the generated implementation. */
+  void addTypeSupplier(Supplier<XTypeSpec> typeSupplier);
 
-  /** Returns the {@link TypeSpec} for this generated implementation. */
+  /** Returns the {@link XTypeSpec} for this generated implementation. */
   public XTypeSpec generate();
 }

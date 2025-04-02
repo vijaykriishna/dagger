@@ -20,10 +20,12 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkState;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 
 import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
@@ -35,6 +37,7 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -74,6 +77,10 @@ public final class XTypeSpecs {
     return new Builder(Builder.Kind.ANONYMOUS_CLASS);
   }
 
+  public static Builder annotationBuilder(String name) {
+    return new Builder(Builder.Kind.ANNOTATION).name(name);
+  }
+
   public static XTypeSpec.Builder toBuilder(XTypeSpec typeSpec) {
     return toXPoet(
         toJavaPoet(typeSpec).toBuilder(),
@@ -85,6 +92,7 @@ public final class XTypeSpecs {
     private static enum Kind {
       CLASS,
       INTERFACE,
+      ANNOTATION,
       OBJECT,
       ANONYMOUS_CLASS
     }
@@ -97,6 +105,7 @@ public final class XTypeSpecs {
     private VisibilityModifier visibility = null;
     private XElement originatingElement;
     private final Set<String> alwaysQualifyNames = new LinkedHashSet<>();
+    private final List<XCodeBlock> javadocs = new ArrayList<>();
     // For migration purposes, use a Object to allow for both XPoet and JavaPoet types.
     private Object superclass;
     private final List<Object> superinterfaces = new ArrayList<>();
@@ -141,6 +150,13 @@ public final class XTypeSpecs {
     @CanIgnoreReturnValue
     public Builder visibility(VisibilityModifier visibility) {
       this.visibility = visibility;
+      return this;
+    }
+
+    /** Sets the originating element of the type. */
+    @CanIgnoreReturnValue
+    public Builder addJavadoc(String format, Object... args) {
+      javadocs.add(toXPoet(CodeBlock.of(format, args)));
       return this;
     }
 
@@ -248,7 +264,7 @@ public final class XTypeSpecs {
     /**
      * Sets the modifiers of the type.
      *
-     * <p>@Deprecated Use the individual setter methods instead.
+     * <p>@deprecated Use the individual setter methods instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
@@ -291,31 +307,31 @@ public final class XTypeSpecs {
     /** Adds the given type variable names to the type. */
     @CanIgnoreReturnValue
     public Builder addTypeVariableNames(Collection<XTypeName> typeVariableNames) {
-      typeVariableNames.forEach(this::addTypeVariableName);
+      typeVariableNames.forEach(this::addTypeVariable);
       return this;
     }
 
     /**
      * Adds the given type variable names to the type.
      *
-     * @Deprecated Use {@link #addTypeVariableNames(Collection<XTypeName>)} instead.
+     * @deprecated Use {@link #addTypeVariableNames(Collection<XTypeName>)} instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
     public Builder addJavaTypeVariableNames(Collection<TypeVariableName> typeVariableNames) {
-      typeVariableNames.forEach(this::addTypeVariableName);
+      typeVariableNames.forEach(this::addTypeVariable);
       return this;
     }
 
     /** Adds the given type variable to the type. */
     @CanIgnoreReturnValue
     public Builder addTypeVariable(XType type) {
-      return addTypeVariableName(type.asTypeName());
+      return addTypeVariable(type.asTypeName());
     }
 
     /** Adds the given type variable name to the type. */
     @CanIgnoreReturnValue
-    public Builder addTypeVariableName(XTypeName typeName) {
+    public Builder addTypeVariable(XTypeName typeName) {
       typeVariableNames.add(typeName);
       return this;
     }
@@ -323,11 +339,11 @@ public final class XTypeSpecs {
     /**
      * Adds the given type variable name to the type.
      *
-     * <p>@deprecated Use {@link #addTypeVariableName(XTypeName)} instead.
+     * <p>@deprecated Use {@link #addTypeVariable(XTypeName)} instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
-    public Builder addTypeVariableName(TypeVariableName typeVariableName) {
+    public Builder addTypeVariable(TypeVariableName typeVariableName) {
       typeVariableNames.add(typeVariableName);
       return this;
     }
@@ -471,6 +487,18 @@ public final class XTypeSpecs {
       return this;
     }
 
+    /**
+     * Adds the given field to the type.
+     *
+     * @deprecated Use {@link #addProperty(XPropertySpec)} instead.
+     */
+    @Deprecated
+    @CanIgnoreReturnValue
+    public Builder addField(TypeName type, String name, Modifier... modifiers) {
+      properties.add(FieldSpec.builder(type, name, modifiers).build());
+      return this;
+    }
+
     /** Adds the given functions to the type. */
     @CanIgnoreReturnValue
     public Builder addFunctions(Collection<XFunSpec> functions) {
@@ -527,6 +555,12 @@ public final class XTypeSpecs {
             toJavaPoet(builder).addModifiers(Modifier.FINAL);
           }
           break;
+        case ANNOTATION:
+          // TODO(bcorso): Add support for annotations in XPoet.
+          builder = XConverters.toXPoet(
+              com.squareup.javapoet.TypeSpec.annotationBuilder(name),
+              com.squareup.kotlinpoet.TypeSpec.annotationBuilder(name));
+          break;
         case OBJECT:
           builder = XTypeSpec.objectBuilder(name);
           break;
@@ -558,6 +592,11 @@ public final class XTypeSpecs {
       for (String name : alwaysQualifyNames) {
         // TODO(bcorso): Handle the KotlinPoet side of this implementation.
         toJavaPoet(builder).alwaysQualify(name);
+      }
+
+      for (XCodeBlock javadoc : javadocs) {
+        // TODO(bcorso): Handle the KotlinPoet side of this implementation.
+        toJavaPoet(builder).addJavadoc(toJavaPoet(javadoc));
       }
 
       if (superclass != null) {

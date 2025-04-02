@@ -24,7 +24,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.COMPONENT_PROVISION_FACTORY;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
@@ -50,6 +49,7 @@ import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 
 /**
  * A {@link javax.inject.Provider} creation expression for a provision method on a component's
@@ -122,11 +122,9 @@ final class DependencyMethodProviderCreationExpression
                     LOWER_CAMEL.to(UPPER_CAMEL, getSimpleName(provisionMethod) + "Provider")));
     componentShard.addType(
         COMPONENT_PROVISION_FACTORY,
-        classBuilder(toJavaPoet(factoryClassName))
+        XTypeSpecs.classBuilder(factoryClassName)
             .addSuperinterface(
-                toJavaPoet(
-                    daggerProviderOf(
-                        XTypeNames.withTypeNullability(keyType, binding.nullability()))))
+                daggerProviderOf(XTypeNames.withTypeNullability(keyType, binding.nullability())))
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
             .addMethod(

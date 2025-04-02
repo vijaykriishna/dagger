@@ -51,6 +51,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.VisibilityModifier;
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
@@ -74,7 +75,6 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -167,7 +167,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   //   static final FooModule_ProvidesFooFactory INSTANCE =
   //       new FooModule_ProvidesFooFactory();
   // }
-  private TypeSpec staticInstanceHolderType(ContributionBinding binding) {
+  private XTypeSpec staticInstanceHolderType(ContributionBinding binding) {
     ClassName generatedClassName = toJavaPoet(generatedClassNameForBinding(binding));
     FieldSpec.Builder instanceHolderFieldBuilder =
         FieldSpec.builder(generatedClassName, "INSTANCE", STATIC, FINAL)
@@ -176,14 +176,14 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       // If the factory has type parameters, ignore them in the field declaration & initializer
       instanceHolderFieldBuilder.addAnnotation(suppressWarnings(RAWTYPES));
     }
-    return TypeSpec.classBuilder(instanceHolderClassName(binding))
+    return XTypeSpecs.classBuilder(instanceHolderClassName(binding))
         .addModifiers(PRIVATE, STATIC, FINAL)
         .addField(instanceHolderFieldBuilder.build())
         .build();
   }
 
-  private static ClassName instanceHolderClassName(ContributionBinding binding) {
-    return toJavaPoet(generatedClassNameForBinding(binding).nestedClass("InstanceHolder"));
+  private static XClassName instanceHolderClassName(ContributionBinding binding) {
+    return generatedClassNameForBinding(binding).nestedClass("InstanceHolder");
   }
 
   // public FooModule_ProvidesFooFactory(
@@ -238,7 +238,9 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
         createMethodBuilder.addAnnotation(suppressWarnings(UNCHECKED));
       }
-      createMethodBuilder.addStatement("return $T.INSTANCE", instanceHolderClassName(binding));
+      createMethodBuilder.addStatement(
+          "return $T.INSTANCE",
+          toJavaPoet(instanceHolderClassName(binding)));
     } else {
       ImmutableList<ParameterSpec> parameters =
           factoryFields.getAll().stream()

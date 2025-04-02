@@ -24,7 +24,6 @@ import static com.google.common.base.Verify.verify;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.base.RequestKinds.requestTypeName;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
@@ -49,7 +48,6 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.InstanceFactory;
 import dagger.internal.Preconditions;
@@ -61,6 +59,7 @@ import dagger.internal.codegen.binding.OptionalBinding;
 import dagger.internal.codegen.javapoet.AnnotationSpecs;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
@@ -80,7 +79,7 @@ final class OptionalFactories {
      *
      * <p>The key is the {@code Provider<Optional<T>>} type.
      */
-    private final Map<PresentFactorySpec, TypeSpec> presentFactoryClasses =
+    private final Map<PresentFactorySpec, XTypeSpec> presentFactoryClasses =
         new TreeMap<>(
             Comparator.comparing(PresentFactorySpec::valueKind)
                 .thenComparing(PresentFactorySpec::frameworkType)
@@ -310,21 +309,21 @@ final class OptionalFactories {
         perGeneratedFileCache.presentFactoryClasses.computeIfAbsent(
                 PresentFactorySpec.of(binding),
                 spec -> {
-                  TypeSpec type = presentOptionalFactoryClass(spec);
+                  XTypeSpec type = presentOptionalFactoryClass(spec);
                   topLevelImplementation.addType(PRESENT_FACTORY, type);
                   return type;
                 })
-            .name,
+            .getName(), // SUPPRESS_GET_NAME_CHECK
         delegateFactory);
   }
 
-  private TypeSpec presentOptionalFactoryClass(PresentFactorySpec spec) {
+  private XTypeSpec presentOptionalFactoryClass(PresentFactorySpec spec) {
     FieldSpec delegateField =
         FieldSpec.builder(spec.delegateType(), "delegate", PRIVATE, FINAL).build();
     ParameterSpec delegateParameter = ParameterSpec.builder(delegateField.type, "delegate").build();
-    TypeSpec.Builder factoryClassBuilder =
-        classBuilder(spec.factoryClassName())
-            .addTypeVariable((TypeVariableName) toJavaPoet(spec.typeVariable()))
+    XTypeSpecs.Builder factoryClassBuilder =
+        XTypeSpecs.classBuilder(spec.factoryClassName())
+            .addTypeVariable(spec.typeVariable())
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addJavadoc(
                 "A {@code $T} that uses a delegate {@code $T}.",

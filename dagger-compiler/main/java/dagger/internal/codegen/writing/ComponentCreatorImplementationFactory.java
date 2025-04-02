@@ -22,9 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
-import static dagger.internal.codegen.javapoet.TypeSpecs.addSupertype;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
@@ -44,7 +42,6 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
@@ -54,6 +51,7 @@ import dagger.internal.codegen.binding.ComponentRequirement.NullPolicy;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -91,8 +89,8 @@ final class ComponentCreatorImplementationFactory {
 
   /** Base class for building a creator implementation. */
   private abstract class Builder {
-    private final TypeSpec.Builder classBuilder =
-        classBuilder(toJavaPoet(componentImplementation.getCreatorName()));
+    private final XTypeSpecs.Builder classBuilder =
+        XTypeSpecs.classBuilder(componentImplementation.getCreatorName());
     private final UniqueNameSet fieldNames = new UniqueNameSet();
     private ImmutableMap<ComponentRequirement, FieldSpec> fields;
 
@@ -388,7 +386,7 @@ final class ComponentCreatorImplementationFactory {
 
     @Override
     protected void setSupertype() {
-      addSupertype(super.classBuilder, creatorDescriptor.typeElement());
+      super.classBuilder.superType(creatorDescriptor.typeElement());
     }
 
     @Override

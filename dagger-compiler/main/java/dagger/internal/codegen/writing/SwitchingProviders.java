@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
-import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
@@ -36,12 +35,11 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
@@ -49,6 +47,7 @@ import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementati
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XProcessingEnvs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -170,12 +169,12 @@ final class SwitchingProviders {
           .build();
     }
 
-    private TypeSpec build() {
-      TypeSpec.Builder builder =
-          classBuilder(toJavaPoet(switchingProviderType))
+    private XTypeSpec build() {
+      XTypeSpecs.Builder builder =
+          XTypeSpecs.classBuilder(switchingProviderType)
               .addModifiers(PRIVATE, FINAL, STATIC)
-              .addTypeVariable((TypeVariableName) toJavaPoet(typeVariable))
-              .addSuperinterface(toJavaPoet(daggerProviderOf(typeVariable)))
+              .addTypeVariable(typeVariable)
+              .addSuperinterface(daggerProviderOf(typeVariable))
               .addMethods(getMethods());
 
       // The SwitchingProvider constructor lists all component parameters first and switch id last.

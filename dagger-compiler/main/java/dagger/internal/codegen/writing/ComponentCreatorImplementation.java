@@ -17,10 +17,10 @@
 package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.binding.ComponentRequirement;
 
 /** The implementation of a component creator type. */
@@ -29,12 +29,12 @@ public abstract class ComponentCreatorImplementation {
 
   /** Creates a new {@link ComponentCreatorImplementation}. */
   public static ComponentCreatorImplementation create(
-      TypeSpec spec, XClassName name, ImmutableMap<ComponentRequirement, FieldSpec> fields) {
+      XTypeSpec spec, XClassName name, ImmutableMap<ComponentRequirement, FieldSpec> fields) {
     return new AutoValue_ComponentCreatorImplementation(spec, name, fields);
   }
 
   /** The type spec for the creator implementation. */
-  public abstract TypeSpec spec();
+  public abstract XTypeSpec spec();
 
   /** The name of the creator implementation class. */
   public abstract XClassName name();
