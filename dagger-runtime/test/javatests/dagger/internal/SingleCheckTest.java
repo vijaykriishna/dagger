@@ -17,6 +17,7 @@
 package dagger.internal;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Provider;
@@ -29,9 +30,9 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class SingleCheckTest {
-  @Test(expected = NullPointerException.class)
+  @Test
   public void create_nullPointerException() {
-    SingleCheck.provider(null);
+    assertThrows(NullPointerException.class, () -> SingleCheck.provider(null));
   }
 
   @Test
