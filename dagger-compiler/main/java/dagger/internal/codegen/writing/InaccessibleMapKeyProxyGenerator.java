@@ -17,7 +17,8 @@
 package dagger.internal.codegen.writing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XTypeSpecs.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -33,6 +34,7 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
+import java.util.Optional;
 import javax.inject.Inject;
 
 /**
@@ -61,29 +63,29 @@ public final class InaccessibleMapKeyProxyGenerator
         .map(
             method -> {
               XTypeSpecs.Builder builder =
-                  XTypeSpecs.classBuilder(MapKeys.mapKeyProxyClassName(binding))
+                  classBuilder(MapKeys.mapKeyProxyClassName(binding))
                       .addModifiers(PUBLIC, FINAL)
-                      .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
-                      .addMethod(method);
-              // In proguard, we need to keep the classes referenced by @LazyClassKey, we do that by
-              // generating a field referencing the type, and then applying @KeepFieldType to the
-              // field. Here, we generate the field in the proxy class. For classes that are
-              // accessible from the dagger component, we generate fields in LazyClassKeyProvider.
-              // Note: the generated field should not be initialized to avoid class loading.
-              binding
-                  .mapKey()
-                  .filter(
-                      mapKey ->
-                          mapKey.getTypeElement().asClassName().equals(XTypeNames.LAZY_CLASS_KEY))
-                  .map(
-                      mapKey ->
-                          FieldSpec.builder(mapKey.getAsType("value").getTypeName(), "className")
-                              .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
-                              .build())
-                  .ifPresent(builder::addField);
-              return builder.build();
+                      .addFunction(constructorBuilder().addModifiers(PRIVATE).build())
+                      .addFunction(method);
+              lazyClassKeyField(binding).ifPresent(builder::addField);
+              return ImmutableList.of(builder.build());
             })
-        .map(ImmutableList::of)
-        .orElse(ImmutableList.of());
+        .orElse(ImmutableList.<XTypeSpec>of());
+  }
+
+  private Optional<FieldSpec> lazyClassKeyField(ContributionBinding binding) {
+    // In proguard, we need to keep the classes referenced by @LazyClassKey, we do that by
+    // generating a field referencing the type, and then applying @KeepFieldType to the
+    // field. Here, we generate the field in the proxy class. For classes that are
+    // accessible from the dagger component, we generate fields in LazyClassKeyProvider.
+    // Note: the generated field should not be initialized to avoid class loading.
+    return binding
+        .mapKey()
+        .filter(mapKey -> mapKey.getTypeElement().asClassName().equals(XTypeNames.LAZY_CLASS_KEY))
+        .map(
+            mapKey ->
+                FieldSpec.builder(mapKey.getAsType("value").getTypeName(), "className")
+                    .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
+                    .build());
   }
 }

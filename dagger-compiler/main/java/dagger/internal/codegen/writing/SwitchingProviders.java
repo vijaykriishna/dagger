@@ -20,12 +20,13 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.concat;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -34,17 +35,18 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XProcessingEnvs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -175,10 +177,10 @@ final class SwitchingProviders {
               .addModifiers(PRIVATE, FINAL, STATIC)
               .addTypeVariable(typeVariable)
               .addSuperinterface(daggerProviderOf(typeVariable))
-              .addMethods(getMethods());
+              .addFunctions(getMethods());
 
       // The SwitchingProvider constructor lists all component parameters first and switch id last.
-      MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
+      XFunSpecs.Builder constructor = constructorBuilder();
       shardImplementation
           .componentFieldsByImplementation()
           .values()
@@ -186,16 +188,16 @@ final class SwitchingProviders {
               field -> {
                 builder.addField(field);
                 constructor.addParameter(field.type, field.name);
-                constructor.addStatement("this.$1N = $1N", field);
+                constructor.addStatement("this.%1N = %1N", field.name);
               });
       builder.addField(toJavaPoet(XTypeName.PRIMITIVE_INT), "id", PRIVATE, FINAL);
       constructor.addParameter(toJavaPoet(XTypeName.PRIMITIVE_INT), "id")
           .addStatement("this.id = id");
 
-      return builder.addMethod(constructor.build()).build();
+      return builder.addFunction(constructor.build()).build();
     }
 
-    private ImmutableList<MethodSpec> getMethods() {
+    private ImmutableList<XFunSpec> getMethods() {
       ImmutableList<XCodeBlock> switchCodeBlockPartitions = switchCodeBlockPartitions();
       if (switchCodeBlockPartitions.size() == 1) {
         // There are less than MAX_CASES_PER_SWITCH cases, so no need for extra get methods.
@@ -204,33 +206,36 @@ final class SwitchingProviders {
                 .addModifiers(PUBLIC)
                 .addAnnotation(suppressWarnings(UNCHECKED))
                 .addAnnotation(Override.class)
-                .returns(toJavaPoet(typeVariable))
-                .addCode(toJavaPoet(getOnlyElement(switchCodeBlockPartitions)))
+                .returns(typeVariable)
+                .addCode(getOnlyElement(switchCodeBlockPartitions))
                 .build());
       }
 
       // This is the main public "get" method that will route to private getter methods.
-      MethodSpec.Builder routerMethod =
+      XFunSpecs.Builder routerMethod =
           methodBuilder("get")
               .addModifiers(PUBLIC)
               .addAnnotation(Override.class)
-              .returns(toJavaPoet(typeVariable))
-              .beginControlFlow("switch (id / $L)", MAX_CASES_PER_SWITCH);
+              .returns(typeVariable)
+              .beginControlFlow("switch (id / %L)", MAX_CASES_PER_SWITCH);
 
-      ImmutableList.Builder<MethodSpec> getMethods = ImmutableList.builder();
+      ImmutableList.Builder<XFunSpec> getMethods = ImmutableList.builder();
       for (int i = 0; i < switchCodeBlockPartitions.size(); i++) {
-        MethodSpec method =
+        XFunSpec method =
             methodBuilder("get" + i)
                 .addModifiers(PRIVATE)
                 .addAnnotation(suppressWarnings(UNCHECKED))
-                .returns(toJavaPoet(typeVariable))
-                .addCode(toJavaPoet(switchCodeBlockPartitions.get(i)))
+                .returns(typeVariable)
+                .addCode(switchCodeBlockPartitions.get(i))
                 .build();
         getMethods.add(method);
-        routerMethod.addStatement("case $L: return $N()", i, method);
+        routerMethod.addStatement("case %L: return %N()", i, method);
       }
 
-      routerMethod.addStatement("default: throw new $T(id)", AssertionError.class).endControlFlow();
+      routerMethod
+          .addStatement(
+              "default: throw %L", XCodeBlock.ofNewInstance(XTypeNames.ASSERTION_ERROR, "id"))
+          .endControlFlow();
 
       return getMethods.add(routerMethod.build()).build();
     }
@@ -244,8 +249,8 @@ final class SwitchingProviders {
                       .beginControlFlow("switch (id)")
                       .add(concat(partitionCases))
                       .addStatement(
-                          "default: throw new %T(id)",
-                          XClassName.get("java.lang", "AssertionError"))
+                          "default: throw %L",
+                          XCodeBlock.ofNewInstance(XTypeNames.ASSERTION_ERROR, "id"))
                       .endControlFlow()
                       .build())
           .collect(toImmutableList());

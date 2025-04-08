@@ -16,14 +16,13 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.testing.compile.CompilerTests;
@@ -361,7 +360,7 @@ public class MembersInjectionTest {
             "import javax.inject.Provider;",
             "",
             "class FieldInjection {",
-            "  @Inject @Nullable String string;",
+            "  @Inject @Nullable String nullableString;",
             "}");
     CompilerTests.daggerCompiler(file, TYPE_USE_NULLABLE)
         .withProcessingOptions(compilerMode.processorOptions())
@@ -369,7 +368,10 @@ public class MembersInjectionTest {
             subject -> {
               subject.hasErrorCount(0);
               subject.generatedSource(
-                  goldenFileRule.goldenSource("test/FieldInjection_MembersInjector"));
+                  CompilerTests.transformContent(
+                      goldenFileRule.goldenSource("test/FieldInjection_MembersInjector"),
+                      content -> content.replace(
+                          "@Nullable String nullableString", "String nullableString")));
             });
   }
 
@@ -582,10 +584,7 @@ public class MembersInjectionTest {
             "}");
     XTypeSpec generatedInjectType =
         XTypeSpecs.classBuilder("GeneratedInjectType")
-            .addMethod(
-                MethodSpec.constructorBuilder()
-                    .addAnnotation(toJavaPoet(XTypeNames.INJECT_JAVAX))
-                    .build())
+            .addFunction(constructorBuilder().addAnnotation(XTypeNames.INJECT_JAVAX).build())
             .build();
 
     CompilerTests.daggerCompiler(nestedTypesFile)

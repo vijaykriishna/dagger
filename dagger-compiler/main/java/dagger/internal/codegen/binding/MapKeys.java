@@ -16,17 +16,16 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.base.MapKeyAccessibility.isMapKeyPubliclyAccessible;
 import static dagger.internal.codegen.binding.SourceFiles.elementBasedClassName;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
@@ -35,6 +34,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XElement;
@@ -43,7 +43,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.MapKeyAccessibility;
 import dagger.internal.codegen.xprocessing.XElements;
@@ -185,7 +184,7 @@ public final class MapKeys {
    * #mapKeyProxyClassName(ContributionBinding)} when the {@code @MapKey} annotation is not publicly
    * accessible.
    */
-  public static Optional<MethodSpec> mapKeyFactoryMethod(
+  public static Optional<XFunSpec> mapKeyFactoryMethod(
       ContributionBinding binding, XProcessingEnv processingEnv) {
     return binding
         .mapKey()
@@ -194,9 +193,8 @@ public final class MapKeys {
             mapKey ->
                 methodBuilder("create")
                     .addModifiers(PUBLIC, STATIC)
-                    .returns(mapKeyType(mapKey).getTypeName())
-                    .addStatement(
-                        "return $L", toJavaPoet(directMapKeyExpression(mapKey, processingEnv)))
+                    .returns(mapKeyType(mapKey).asTypeName())
+                    .addStatement("return %L", directMapKeyExpression(mapKey, processingEnv))
                     .build());
   }
 

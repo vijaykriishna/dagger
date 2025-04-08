@@ -16,10 +16,10 @@
 
 package dagger.internal.codegen.writing;
 
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isNested;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -73,12 +73,13 @@ public final class ModuleProxies {
     private XTypeSpec buildProxy(XTypeElement moduleElement) {
       return XTypeSpecs.classBuilder(constructorProxyTypeName(moduleElement))
           .addModifiers(PUBLIC, FINAL)
-          .addMethod(constructorBuilder().addModifiers(PRIVATE).build())
-          .addMethod(
+          .addFunction(constructorBuilder().addModifiers(PRIVATE).build())
+          .addFunction(
               methodBuilder("newInstance")
                   .addModifiers(PUBLIC, STATIC)
-                  .returns(moduleElement.getClassName())
-                  .addStatement("return new $T()", moduleElement.getClassName())
+                  .returns(moduleElement.asClassName())
+                  .addStatement(
+                      "return %L", XCodeBlock.ofNewInstance(moduleElement.asClassName(), ""))
                   .build())
           .build();
     }

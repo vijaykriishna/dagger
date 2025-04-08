@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,16 +23,16 @@ import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
-import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.binding.Binding;
@@ -183,9 +182,9 @@ public final class ComponentRequestRepresentations {
   }
 
   /** Returns the implementation of a component method. */
-  public MethodSpec getComponentMethod(ComponentMethodDescriptor componentMethod) {
+  public XFunSpec getComponentMethod(ComponentMethodDescriptor componentMethod) {
     return overriding(componentMethod.methodElement(), graph.componentTypeElement().getType())
-        .addCode(toJavaPoet(getComponentMethodCodeBlock(componentMethod)))
+        .addCode(getComponentMethodCodeBlock(componentMethod))
         .build();
   }
 

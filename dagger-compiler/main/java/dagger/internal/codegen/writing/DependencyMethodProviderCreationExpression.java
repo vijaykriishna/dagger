@@ -22,11 +22,11 @@ import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.COMPONENT_PROVISION_FACTORY;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -36,9 +36,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XMethodElement;
-import com.squareup.javapoet.MethodSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -48,6 +46,7 @@ import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 
@@ -99,16 +98,13 @@ final class DependencyMethodProviderCreationExpression
             XCodeBlock.of("%N.%N()", dependency().variableName(), provisionMethod.getJvmName()));
     XClassName dependencyClassName = dependency().typeElement().asClassName();
     XTypeName keyType = binding.key().type().xprocessing().asTypeName();
-    MethodSpec.Builder getMethod =
+    XFunSpecs.Builder getMethod =
         methodBuilder("get")
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
-            .returns(toJavaPoet(XTypeNames.withTypeNullability(keyType, binding.nullability())))
-            .addStatement("return $L", toJavaPoet(invocation));
-
-    binding.nullability().nonTypeUseNullableAnnotations().stream()
-        .map(XConverters::toJavaPoet)
-        .forEach(getMethod::addAnnotation);
+            .returns(XTypeNames.withTypeNullability(keyType, binding.nullability()))
+            .addStatement("return %L", invocation)
+            .addAnnotationNames(binding.nullability().nonTypeUseNullableAnnotations());
 
     // We need to use the componentShard here since the generated type is static and shards are
     // not static classes so it can't be nested inside the shard.
@@ -127,12 +123,12 @@ final class DependencyMethodProviderCreationExpression
                 daggerProviderOf(XTypeNames.withTypeNullability(keyType, binding.nullability())))
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
-            .addMethod(
+            .addFunction(
                 constructorBuilder()
                     .addParameter(toJavaPoet(dependencyClassName), dependency().variableName())
-                    .addStatement("this.$1L = $1L", dependency().variableName())
+                    .addStatement("this.%1N = %1N", dependency().variableName())
                     .build())
-            .addMethod(getMethod.build())
+            .addFunction(getMethod.build())
             .build());
     return XCodeBlock.ofNewInstance(
         factoryClassName,

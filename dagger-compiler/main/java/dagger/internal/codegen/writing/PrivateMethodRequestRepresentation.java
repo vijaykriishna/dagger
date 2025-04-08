@@ -16,20 +16,19 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.PRIVATE_METHOD;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -84,7 +83,7 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
     } else if (isDeclared(type) && isRawTypeAccessible(type, requestingPackage)) {
       return XExpressionType.createRawType(type);
     } else {
-      return XExpressionType.create(processingEnv.requireType(TypeName.OBJECT));
+      return XExpressionType.create(processingEnv.requireType(XTypeName.ANY_OBJECT));
     }
   }
 
@@ -102,13 +101,12 @@ final class PrivateMethodRequestRepresentation extends MethodRequestRepresentati
                   !shardImplementation.isShardClassPrivate()
                       ? ImmutableSet.of(PRIVATE)
                       : ImmutableSet.of())
-              .returns(returnType().getTypeName())
+              .returns(returnType().asTypeName())
               .addStatement(
-                  "return $L",
-                  toJavaPoet(
-                      wrappedRequestRepresentation
-                          .getDependencyExpression(shardImplementation.name())
-                          .codeBlock()))
+                  "return %L",
+                  wrappedRequestRepresentation
+                      .getDependencyExpression(shardImplementation.name())
+                      .codeBlock())
               .build());
     }
     return methodName;

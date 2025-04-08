@@ -23,8 +23,6 @@ import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.base.ComponentCreatorKind.BUILDER;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
 import static dagger.internal.codegen.extension.DaggerStreams.instancesOf;
@@ -33,13 +31,16 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.COMPONENT_METHOD;
-import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.concat;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.isEmpty;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -48,6 +49,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
@@ -68,10 +70,9 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.Binding;
@@ -91,10 +92,12 @@ import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -478,7 +481,7 @@ public final class ComponentImplementation {
     private final ImmutableMap<ComponentRequirement, ParameterSpec> constructorParameters;
     private final ListMultimap<FieldSpecKind, FieldSpec> fieldSpecsMap =
         MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
-    private final ListMultimap<MethodSpecKind, MethodSpec> methodSpecsMap =
+    private final ListMultimap<MethodSpecKind, XFunSpec> methodSpecsMap =
         MultimapBuilder.enumKeys(MethodSpecKind.class).arrayListValues().build();
     private final ListMultimap<TypeSpecKind, XTypeSpec> typeSpecsMap =
         MultimapBuilder.enumKeys(TypeSpecKind.class).arrayListValues().build();
@@ -629,10 +632,10 @@ public final class ComponentImplementation {
       fieldSpecsMap.put(fieldKind, fieldSpec);
     }
 
-    // TODO(dpb): Consider taking MethodSpec, and returning identical MethodSpec with unique name?
+    // TODO(dpb): Consider taking XFunSpec, and returning identical XFunSpec with unique name?
     /** Adds the given method to the component. */
     @Override
-    public void addMethod(MethodSpecKind methodKind, MethodSpec methodSpec) {
+    public void addMethod(MethodSpecKind methodKind, XFunSpec methodSpec) {
       methodSpecsMap.put(methodKind, methodSpec);
     }
 
@@ -770,7 +773,7 @@ public final class ComponentImplementation {
 
       modifiers().forEach(builder::addModifiers);
       fieldSpecsMap.asMap().values().forEach(builder::addFields);
-      methodSpecsMap.asMap().values().forEach(builder::addMethods);
+      methodSpecsMap.asMap().values().forEach(builder::addFunctions);
       typeSpecsMap.asMap().values().forEach(builder::addTypes);
       typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
 
@@ -842,10 +845,10 @@ public final class ComponentImplementation {
       topLevelImplementation()
           .addMethod(
               MethodSpecKind.BUILDER_METHOD,
-              methodBuilder(creatorKind.methodName())
+              XFunSpecs.methodBuilder(creatorKind.methodName())
                   .addModifiers(PUBLIC, STATIC)
-                  .returns(toJavaPoet(creatorType))
-                  .addStatement("return new $T()", toJavaPoet(getCreatorName()))
+                  .returns(creatorType)
+                  .addStatement("return %L", XCodeBlock.ofNewInstance(getCreatorName(), ""))
                   .build());
       if (noArgFactoryMethod && canInstantiateAllRequirements()) {
         validateMethodNameDoesNotOverrideGeneratedCreator("create");
@@ -854,9 +857,13 @@ public final class ComponentImplementation {
             .addMethod(
                 MethodSpecKind.BUILDER_METHOD,
                 methodBuilder("create")
-                    .returns(graph.componentTypeElement().getClassName())
+                    .returns(graph.componentTypeElement().asClassName())
                     .addModifiers(PUBLIC, STATIC)
-                    .addStatement("return new $L().$L()", creatorKind.typeName(), factoryMethodName)
+                    .addStatement(
+                        // TODO(bcorso): Convert this to XCodeBlock.ofNewInstance().
+                        toXPoet(
+                            CodeBlock.of(
+                                "return new $L().$L()", creatorKind.typeName(), factoryMethodName)))
                     .build());
       }
     }
@@ -889,23 +896,28 @@ public final class ComponentImplementation {
     private void createSubcomponentFactoryMethod(XMethodElement factoryMethod) {
       checkState(parent.isPresent());
       XType parentType = parent.get().graph().componentTypeElement().getType();
-      MethodSpec.Builder method = overriding(factoryMethod, parentType);
+      XFunSpecs.Builder method = overriding(factoryMethod, parentType);
       // Use the parameter names from the overriding method, which may be different from the
       // parameter names at the declaration site if it is pulled in as a class dependency from a
       // separate build unit (see https://github.com/google/dagger/issues/3401).
-      method.parameters.forEach(
-          param -> method.addStatement("$T.checkNotNull($N)", Preconditions.class, param));
+      toJavaPoet(method.build())
+          .parameters
+          .forEach(
+              param ->
+                  method.addStatement(
+                      "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, param.name));
       method.addStatement(
-          "return new $T($L)",
-          toJavaPoet(name()),
-          toJavaPoet(
+          "return %L",
+          XCodeBlock.ofNewInstance(
+              name(),
+              "%L",
               parameterNames(
                   ImmutableList.<ParameterSpec>builder()
                       .addAll(
                           creatorComponentFields().stream()
                               .map(field -> ParameterSpec.builder(field.type, field.name).build())
                               .collect(toImmutableList()))
-                      .addAll(method.parameters)
+                      .addAll(toJavaPoet(method.build()).parameters)
                       .build())));
 
       parent.get().getComponentShard().addMethod(COMPONENT_METHOD, method.build());
@@ -948,7 +960,7 @@ public final class ComponentImplementation {
 
     /** Creates and adds the constructor and methods needed for initializing the component. */
     private void addConstructorAndInitializationMethods() {
-      MethodSpec.Builder constructor = constructorBuilder();
+      XFunSpecs.Builder constructor = constructorBuilder();
       // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
       if (!isShardClassPrivate()) {
         constructor.addModifiers(PRIVATE);
@@ -970,14 +982,14 @@ public final class ComponentImplementation {
                       field.toBuilder().initializer("this").build());
                 } else {
                   addField(FieldSpecKind.COMPONENT_REQUIREMENT_FIELD, field);
-                  constructor.addStatement("this.$1N = $1N", field);
+                  constructor.addStatement("this.%1N = %1N", field.name);
                   constructor.addParameter(field.type, field.name);
                 }
               });
       if (isComponentShard()) {
-        constructor.addCode(toJavaPoet(concat(componentRequirementInitializations)));
+        constructor.addCode(concat(componentRequirementInitializations));
       }
-      constructor.addParameters(parameters);
+      constructor.addJavaParameters(parameters);
 
       // TODO(cgdecker): It's not the case that each initialize() method has need for all of the
       // given parameters. In some cases, those parameters may have already been assigned to fields
@@ -989,7 +1001,7 @@ public final class ComponentImplementation {
       // yet whether a field will end up needing to be created for a specific requirement, and we
       // don't want to create a field that ends up only being used during initialization.
       XCodeBlock args = parameterNames(parameters);
-      ImmutableList<MethodSpec> initializationMethods =
+      ImmutableList<XFunSpec> initializationMethods =
           createPartitionedMethods(
               "initialize",
               // TODO(bcorso): Rather than passing in all of the constructor parameters, keep track
@@ -1006,13 +1018,13 @@ public final class ComponentImplementation {
                        * when we no longer separate fields and initialization as we do now. */
                       .addAnnotation(suppressWarnings(UNCHECKED)));
 
-      for (MethodSpec initializationMethod : initializationMethods) {
-        constructor.addStatement("$N($L)", initializationMethod, toJavaPoet(args));
+      for (XFunSpec initializationMethod : initializationMethods) {
+        constructor.addStatement("%N(%L)", initializationMethod, args);
         addMethod(MethodSpecKind.INITIALIZE_METHOD, initializationMethod);
       }
 
       if (isComponentShard()) {
-        constructor.addCode(toJavaPoet(concat(shardInitializations)));
+        constructor.addCode(concat(shardInitializations));
       } else {
         // This initialization is called from the componentShard, so we need to use those args.
         XCodeBlock componentArgs =
@@ -1038,7 +1050,7 @@ public final class ComponentImplementation {
     }
 
     private void addCancellationListenerImplementation() {
-      MethodSpec.Builder methodBuilder =
+      XFunSpecs.Builder methodBuilder =
           methodBuilder(CANCELLATION_LISTENER_METHOD_NAME)
               .addModifiers(PUBLIC)
               .addAnnotation(Override.class)
@@ -1054,8 +1066,7 @@ public final class ComponentImplementation {
       // propagate through most of the graph, making most of the cancel calls that follow in the
       // onProducerFutureCancelled method do nothing.
       if (isComponentShard()) {
-        methodBuilder.addCode(
-            toJavaPoet(concat(ImmutableList.copyOf(shardCancellations).reverse())));
+        methodBuilder.addCode(concat(ImmutableList.copyOf(shardCancellations).reverse()));
       } else if (!cancellations.isEmpty()) {
         shardCancellations.add(
             XCodeBlock.of(
@@ -1068,23 +1079,23 @@ public final class ComponentImplementation {
       ImmutableList<XCodeBlock> cancellationStatements =
           ImmutableList.copyOf(cancellations.values()).reverse();
       if (cancellationStatements.size() < STATEMENTS_PER_METHOD) {
-        methodBuilder.addCode(toJavaPoet(concat(cancellationStatements))).build();
+        methodBuilder.addCode(concat(cancellationStatements));
       } else {
-        ImmutableList<MethodSpec> cancelProducersMethods =
+        ImmutableList<XFunSpec> cancelProducersMethods =
             createPartitionedMethods(
                 "cancelProducers",
                 ImmutableList.of(MAY_INTERRUPT_IF_RUNNING_PARAM),
                 cancellationStatements,
                 methodName -> methodBuilder(methodName).addModifiers(PRIVATE));
-        for (MethodSpec cancelProducersMethod : cancelProducersMethods) {
+        for (XFunSpec cancelProducersMethod : cancelProducersMethods) {
           methodBuilder.addStatement(
-              "$N($N)", cancelProducersMethod, MAY_INTERRUPT_IF_RUNNING_PARAM);
+              "%N(%N)", cancelProducersMethod, MAY_INTERRUPT_IF_RUNNING_PARAM.name);
           addMethod(MethodSpecKind.CANCELLATION_LISTENER_METHOD, cancelProducersMethod);
         }
       }
 
       if (isComponentShard()) {
-        cancelParentStatement().map(XConverters::toJavaPoet).ifPresent(methodBuilder::addCode);
+        cancelParentStatement().ifPresent(methodBuilder::addCode);
       }
 
       addMethod(MethodSpecKind.CANCELLATION_LISTENER_METHOD, methodBuilder.build());
@@ -1120,19 +1131,19 @@ public final class ComponentImplementation {
      * STATEMENTS_PER_METHOD} statements in it and such that the returned methods, if called in
      * order, will execute the {@code statements} in the given order.
      */
-    private ImmutableList<MethodSpec> createPartitionedMethods(
+    private ImmutableList<XFunSpec> createPartitionedMethods(
         String methodName,
-        Iterable<ParameterSpec> parameters,
+        Collection<ParameterSpec> parameters,
         List<XCodeBlock> statements,
-        Function<String, MethodSpec.Builder> methodBuilderCreator) {
+        Function<String, XFunSpecs.Builder> methodBuilderCreator) {
       return Lists.partition(statements, STATEMENTS_PER_METHOD).stream()
           .map(
               partition ->
                   methodBuilderCreator
                       .apply(getUniqueMethodName(methodName))
                       .addModifiers(PRIVATE)
-                      .addParameters(parameters)
-                      .addCode(toJavaPoet(concat(partition)))
+                      .addJavaParameters(parameters)
+                      .addCode(concat(partition))
                       .build())
           .collect(toImmutableList());
     }

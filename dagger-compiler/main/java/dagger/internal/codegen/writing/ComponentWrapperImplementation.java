@@ -16,19 +16,20 @@
 
 package dagger.internal.codegen.writing;
 
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static dagger.internal.codegen.writing.ComponentNames.getTopLevelClassName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XTypeSpecs.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind;
@@ -47,7 +48,7 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   private final UniqueNameSet componentClassNames = new UniqueNameSet();
   private final ListMultimap<FieldSpecKind, FieldSpec> fieldSpecsMap =
       MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
-  private final ListMultimap<MethodSpecKind, MethodSpec> methodSpecsMap =
+  private final ListMultimap<MethodSpecKind, XFunSpec> methodSpecsMap =
       MultimapBuilder.enumKeys(MethodSpecKind.class).arrayListValues().build();
   private final ListMultimap<TypeSpecKind, XTypeSpec> typeSpecsMap =
       MultimapBuilder.enumKeys(TypeSpecKind.class).arrayListValues().build();
@@ -75,7 +76,7 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   }
 
   @Override
-  public void addMethod(MethodSpecKind methodKind, MethodSpec methodSpec) {
+  public void addMethod(MethodSpecKind methodKind, XFunSpec methodSpec) {
     methodSpecsMap.put(methodKind, methodSpec);
   }
 
@@ -92,18 +93,17 @@ public final class ComponentWrapperImplementation implements GeneratedImplementa
   @Override
   public XTypeSpec generate() {
     XTypeSpecs.Builder builder =
-        XTypeSpecs.classBuilder(getTopLevelClassName(graph.componentDescriptor()))
-            .addModifiers(FINAL);
+        classBuilder(getTopLevelClassName(graph.componentDescriptor())).addModifiers(FINAL);
 
     if (graph.componentTypeElement().isPublic()) {
       builder.addModifiers(PUBLIC);
     }
 
     fieldSpecsMap.asMap().values().forEach(builder::addFields);
-    methodSpecsMap.asMap().values().forEach(builder::addMethods);
+    methodSpecsMap.asMap().values().forEach(builder::addFunctions);
     typeSpecsMap.asMap().values().forEach(builder::addTypes);
     typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
 
-    return builder.addMethod(constructorBuilder().addModifiers(PRIVATE).build()).build();
+    return builder.addFunction(constructorBuilder().addModifiers(PRIVATE).build()).build();
   }
 }

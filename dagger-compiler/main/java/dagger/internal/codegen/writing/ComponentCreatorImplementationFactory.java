@@ -21,28 +21,32 @@ import static androidx.room.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
-import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
+import static dagger.internal.codegen.xprocessing.XTypeNames.rawJavaTypeName;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
-import dagger.internal.Preconditions;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
 import dagger.internal.codegen.binding.ComponentDescriptor;
@@ -50,6 +54,7 @@ import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.ComponentRequirement.NullPolicy;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.XElements;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -157,7 +162,7 @@ final class ComponentCreatorImplementationFactory {
 
     /** Adds a constructor for the creator type, if needed. */
     protected void addConstructor() {
-      MethodSpec.Builder constructor = MethodSpec.constructorBuilder().addModifiers(PRIVATE);
+      XFunSpecs.Builder constructor = constructorBuilder().addModifiers(PRIVATE);
       componentImplementation
           .creatorComponentFields()
           .forEach(
@@ -165,9 +170,9 @@ final class ComponentCreatorImplementationFactory {
                 fieldNames.claim(field.name);
                 classBuilder.addField(field);
                 constructor.addParameter(field.type, field.name);
-                constructor.addStatement("this.$1N = $1N", field);
+                constructor.addStatement("this.%1N = %1N", field.name);
               });
-      classBuilder.addMethod(constructor.build());
+      classBuilder.addFunction(constructor.build());
     }
 
     private ImmutableMap<ComponentRequirement, FieldSpec> addFields() {
@@ -189,13 +194,13 @@ final class ComponentCreatorImplementationFactory {
       Maps.filterKeys(userSettableRequirements(), setterMethods()::contains)
           .forEach(
               (requirement, status) ->
-                  createSetterMethod(requirement, status).ifPresent(classBuilder::addMethod));
+                  createSetterMethod(requirement, status).ifPresent(classBuilder::addFunction));
     }
 
     /** Creates a new setter method builder, with no method body, for the given requirement. */
-    protected abstract MethodSpec.Builder setterMethodBuilder(ComponentRequirement requirement);
+    protected abstract XFunSpecs.Builder setterMethodBuilder(ComponentRequirement requirement);
 
-    private Optional<MethodSpec> createSetterMethod(
+    private Optional<XFunSpec> createSetterMethod(
         ComponentRequirement requirement, RequirementStatus status) {
       switch (status) {
         case NEEDED:
@@ -224,61 +229,62 @@ final class ComponentCreatorImplementationFactory {
       throw new AssertionError();
     }
 
-    private MethodSpec normalSetterMethod(ComponentRequirement requirement) {
-      MethodSpec.Builder method = setterMethodBuilder(requirement);
+    private XFunSpec normalSetterMethod(ComponentRequirement requirement) {
+      XFunSpecs.Builder method = setterMethodBuilder(requirement);
       ParameterSpec parameter = parameter(method.build());
       method.addStatement(
-          "this.$N = $L",
-          fields.get(requirement),
-          toJavaPoet(
-              requirement.nullPolicy().equals(NullPolicy.ALLOW)
-                  ? XCodeBlock.of("%N", parameter.name)
-                  : XCodeBlock.of(
-                      "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name)));
+          "this.%N = %L",
+          fields.get(requirement).name,
+          requirement.nullPolicy().equals(NullPolicy.ALLOW)
+              ? XCodeBlock.of("%N", parameter.name)
+              : XCodeBlock.of(
+                  "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name));
       return maybeReturnThis(method);
     }
 
-    private MethodSpec noopSetterMethod(ComponentRequirement requirement) {
-      MethodSpec.Builder method = setterMethodBuilder(requirement);
+    private XFunSpec noopSetterMethod(ComponentRequirement requirement) {
+      XFunSpecs.Builder method = setterMethodBuilder(requirement);
       ParameterSpec parameter = parameter(method.build());
       method
           .addAnnotation(Deprecated.class)
           .addJavadoc(
               "@deprecated This module is declared, but an instance is not used in the component. "
                   + "This method is a no-op. For more, see https://dagger.dev/unused-modules.\n")
-          .addStatement("$T.checkNotNull($N)", Preconditions.class, parameter);
+          .addStatement("%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name);
       return maybeReturnThis(method);
     }
 
-    private MethodSpec repeatedModuleSetterMethod(ComponentRequirement requirement) {
+    private XFunSpec repeatedModuleSetterMethod(ComponentRequirement requirement) {
       return setterMethodBuilder(requirement)
           .addStatement(
-              "throw new $T($T.format($S, $T.class.getCanonicalName()))",
-              UnsupportedOperationException.class,
-              String.class,
-              "%s cannot be set because it is inherited from the enclosing component",
-              XTypeNames.rawJavaTypeName(toJavaPoet(requirement.type().asTypeName())))
+              "throw %L",
+              XCodeBlock.ofNewInstance(
+                  XTypeNames.UNSUPPORTED_OPERATION_EXCEPTION,
+                  "%T.format(%S, %T.class.getCanonicalName())",
+                  XTypeName.STRING,
+                  "%s cannot be set because it is inherited from the enclosing component",
+                  requirement.type().getTypeElement().asClassName()))
           .build();
     }
 
-    private ParameterSpec parameter(MethodSpec method) {
-      return getOnlyElement(method.parameters);
+    private ParameterSpec parameter(XFunSpec method) {
+      return getOnlyElement(toJavaPoet(method).parameters);
     }
 
-    private MethodSpec maybeReturnThis(MethodSpec.Builder method) {
-      MethodSpec built = method.build();
-      if (built.returnType.equals(TypeName.VOID)) {
+    private XFunSpec maybeReturnThis(XFunSpecs.Builder method) {
+      XFunSpec built = method.build();
+      if (toJavaPoet(built).returnType.equals(TypeName.VOID)) {
         return built;
       }
       return method.addStatement("return this").build();
     }
 
     private void addFactoryMethod() {
-      classBuilder.addMethod(factoryMethod());
+      classBuilder.addFunction(factoryMethod());
     }
 
-    MethodSpec factoryMethod() {
-      MethodSpec.Builder factoryMethod = factoryMethodBuilder();
+    XFunSpec factoryMethod() {
+      XFunSpecs.Builder factoryMethod = factoryMethodBuilder();
       factoryMethod
           .returns(componentDescriptor().typeElement().getClassName())
           .addModifiers(PUBLIC);
@@ -298,30 +304,32 @@ final class ComponentCreatorImplementationFactory {
                 }
               });
       factoryMethod.addStatement(
-          "return new $T($L)",
-          toJavaPoet(componentImplementation.name()),
-          toJavaPoet(componentConstructorArgs(factoryMethodParameters)));
+          "return %L",
+          XCodeBlock.ofNewInstance(
+              componentImplementation.name(),
+              "%L",
+              componentConstructorArgs(factoryMethodParameters)));
       return factoryMethod.build();
     }
 
     private void addNullHandlingForField(
-        ComponentRequirement requirement, FieldSpec field, MethodSpec.Builder factoryMethod) {
+        ComponentRequirement requirement, FieldSpec field, XFunSpecs.Builder factoryMethod) {
       switch (requirement.nullPolicy()) {
         case NEW:
           checkState(requirement.kind().isModule());
           factoryMethod
-              .beginControlFlow("if ($N == null)", field)
-              .addStatement("this.$N = $L", field, toJavaPoet(newModuleInstance(requirement)))
+              .beginControlFlow("if (%N == null)", field.name)
+              .addStatement("this.%N = %L", field.name, newModuleInstance(requirement))
               .endControlFlow();
           break;
         case THROW:
           // TODO(cgdecker,ronshapiro): ideally this should use the key instead of a class for
           // @BindsInstance requirements, but that's not easily proguardable.
           factoryMethod.addStatement(
-              "$T.checkBuilderRequirement($N, $T.class)",
-              Preconditions.class,
-              field,
-              XTypeNames.rawJavaTypeName(field.type.withoutAnnotations()));
+              "%T.checkBuilderRequirement(%N, %L)",
+              XTypeNames.DAGGER_PRECONDITIONS,
+              field.name,
+              toXPoet(CodeBlock.of("$T.class", rawJavaTypeName(field.type.withoutAnnotations()))));
           break;
         case ALLOW:
           break;
@@ -329,16 +337,17 @@ final class ComponentCreatorImplementationFactory {
     }
 
     private void addNullHandlingForParameter(
-        ComponentRequirement requirement, String parameter, MethodSpec.Builder factoryMethod) {
+        ComponentRequirement requirement, String parameter, XFunSpecs.Builder factoryMethod) {
       if (!requirement.nullPolicy().equals(NullPolicy.ALLOW)) {
         // Factory method parameters are always required unless they are a nullable
         // binds-instance (i.e. ALLOW)
-        factoryMethod.addStatement("$T.checkNotNull($L)", Preconditions.class, parameter);
+        factoryMethod.addStatement(
+            "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter);
       }
     }
 
     /** Returns a builder for the creator's factory method. */
-    protected abstract MethodSpec.Builder factoryMethodBuilder();
+    protected abstract XFunSpecs.Builder factoryMethodBuilder();
 
     private XCodeBlock componentConstructorArgs(
         ImmutableMap<ComponentRequirement, String> factoryMethodParameters) {
@@ -412,7 +421,7 @@ final class ComponentCreatorImplementationFactory {
     }
 
     @Override
-    protected MethodSpec.Builder factoryMethodBuilder() {
+    protected XFunSpecs.Builder factoryMethodBuilder() {
       return overriding(creatorDescriptor.factoryMethod(), creatorType());
     }
 
@@ -443,9 +452,9 @@ final class ComponentCreatorImplementationFactory {
     }
 
     @Override
-    protected MethodSpec.Builder setterMethodBuilder(ComponentRequirement requirement) {
+    protected XFunSpecs.Builder setterMethodBuilder(ComponentRequirement requirement) {
       XMethodElement supertypeMethod = creatorDescriptor.setterMethods().get(requirement);
-      MethodSpec.Builder method = overriding(supertypeMethod, creatorType());
+      XFunSpecs.Builder method = overriding(supertypeMethod, creatorType());
       if (!isVoid(supertypeMethod.getReturnType())) {
         // Take advantage of covariant returns so that we don't have to worry about type variables
         method.returns(toJavaPoet(componentImplementation.getCreatorName()));
@@ -493,17 +502,17 @@ final class ComponentCreatorImplementationFactory {
     }
 
     @Override
-    protected MethodSpec.Builder factoryMethodBuilder() {
+    protected XFunSpecs.Builder factoryMethodBuilder() {
       return methodBuilder("build");
     }
 
     @Override
-    protected MethodSpec.Builder setterMethodBuilder(ComponentRequirement requirement) {
+    protected XFunSpecs.Builder setterMethodBuilder(ComponentRequirement requirement) {
       String name = simpleVariableName(requirement.typeElement().asClassName());
       return methodBuilder(name)
           .addModifiers(PUBLIC)
           .addParameter(toJavaPoet(requirement.type().asTypeName()), name)
-          .returns(toJavaPoet(componentImplementation.getCreatorName()));
+          .returns(componentImplementation.getCreatorName());
     }
   }
 

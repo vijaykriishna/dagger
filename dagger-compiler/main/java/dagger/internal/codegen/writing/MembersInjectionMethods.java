@@ -16,21 +16,20 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.MEMBERS_INJECTION_METHOD;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
@@ -43,6 +42,7 @@ import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -114,15 +114,15 @@ final class MembersInjectionMethods {
                 // using NameAllocator which has a clone method in the future.
                 shardImplementation.getUniqueFieldName("instance"))
             .build();
-    MethodSpec.Builder methodBuilder =
+    XFunSpecs.Builder methodBuilder =
         methodBuilder(methodName)
             .addModifiers(PRIVATE)
-            .returns(membersInjectedType.getTypeName())
+            .returns(membersInjectedType.asTypeName())
             .addParameter(parameter);
     XTypeElement canIgnoreReturnValue =
         processingEnv.findTypeElement("com.google.errorprone.annotations.CanIgnoreReturnValue");
     if (canIgnoreReturnValue != null) {
-      methodBuilder.addAnnotation(canIgnoreReturnValue.getClassName());
+      methodBuilder.addAnnotation(canIgnoreReturnValue.asClassName());
     }
     XCodeBlock instance = XCodeBlock.of("%N", parameter.name);
     XCodeBlock invokeInjectionSites =
@@ -135,13 +135,11 @@ final class MembersInjectionMethods {
                 bindingExpressions
                     .getDependencyArgumentExpression(request, shardImplementation.name())
                     .codeBlock());
-    methodBuilder
-        .addCode(toJavaPoet(invokeInjectionSites))
-        .addStatement("return $L", toJavaPoet(instance));
+    methodBuilder.addCode(invokeInjectionSites).addStatement("return %L", instance);
 
-    MethodSpec method = methodBuilder.build();
+    XFunSpec method = methodBuilder.build();
     shardImplementation.addMethod(MEMBERS_INJECTION_METHOD, method);
-    return XExpression.create(membersInjectedType, XCodeBlock.of("%N", method.name));
+    return XExpression.create(membersInjectedType, XCodeBlock.of("%N", method));
   }
 
   private static ImmutableSet<InjectionSite> injectionSites(Binding binding) {

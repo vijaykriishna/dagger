@@ -17,29 +17,27 @@
 package dagger.internal.codegen.processingstep;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.setOf;
+import static dagger.internal.codegen.xprocessing.XTypeSpecs.classBuilder;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.MethodSpec;
-import dagger.Module;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.MonitoringModules;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import dagger.internal.codegen.xprocessing.XTypeSpecs;
-import dagger.multibindings.Multibinds;
 import javax.inject.Inject;
 
 /** Generates a monitoring module for use with production components. */
@@ -65,40 +63,39 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
     XClassName name = generatedMonitoringModuleName(componentElement);
     monitoringModules.add(name);
     return ImmutableList.of(
-        XTypeSpecs.classBuilder(name)
-            .addAnnotation(Module.class)
+        classBuilder(name)
+            .addAnnotation(XTypeNames.MODULE)
             .addModifiers(ABSTRACT)
-            .addMethod(privateConstructor())
-            .addMethod(setOfFactories())
-            .addMethod(monitor(componentElement))
+            .addFunction(privateConstructor())
+            .addFunction(setOfFactories())
+            .addFunction(monitor(componentElement))
             .build());
   }
 
-  private MethodSpec privateConstructor() {
+  private XFunSpec privateConstructor() {
     return constructorBuilder().addModifiers(PRIVATE).build();
   }
 
-  private MethodSpec setOfFactories() {
+  private XFunSpec setOfFactories() {
     return methodBuilder("setOfFactories")
-        .addAnnotation(Multibinds.class)
+        .addAnnotation(XTypeNames.MULTIBINDS)
         .addModifiers(ABSTRACT)
-        .returns(toJavaPoet(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY)))
+        .returns(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY))
         .build();
   }
 
-  private MethodSpec monitor(XTypeElement componentElement) {
+  private XFunSpec monitor(XTypeElement componentElement) {
     return methodBuilder("monitor")
-        .returns(toJavaPoet(XTypeNames.PRODUCTION_COMPONENT_MONITOR))
+        .returns(XTypeNames.PRODUCTION_COMPONENT_MONITOR)
         .addModifiers(STATIC)
-        .addAnnotation(toJavaPoet(XTypeNames.PROVIDES))
-        .addAnnotation(toJavaPoet(XTypeNames.PRODUCTION_SCOPE))
+        .addAnnotation(XTypeNames.PROVIDES)
+        .addAnnotation(XTypeNames.PRODUCTION_SCOPE)
         .addParameter(toJavaPoet(providerOf(componentElement.getType().asTypeName())), "component")
         .addParameter(
             toJavaPoet(providerOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY))),
             "factories")
         .addStatement(
-            "return $T.createMonitorForComponent(component, factories)",
-            toJavaPoet(XTypeNames.MONITORS))
+            "return %T.createMonitorForComponent(component, factories)", XTypeNames.MONITORS)
         .build();
   }
 }

@@ -164,9 +164,12 @@ object XTypeNames {
 
   // Other classnames
   @JvmField val EXECUTOR = XClassName.get("java.util.concurrent", "Executor")
+  @JvmField val ASSERTION_ERROR = XClassName.get("java.lang", "AssertionError")
   @JvmField val ERROR = XClassName.get("java.lang", "Error")
   @JvmField val EXCEPTION = XClassName.get("java.lang", "Exception")
   @JvmField val RUNTIME_EXCEPTION = XClassName.get("java.lang", "RuntimeException")
+  @JvmField
+  val UNSUPPORTED_OPERATION_EXCEPTION = XClassName.get("java.lang", "UnsupportedOperationException")
 
   @JvmField val KOTLIN_METADATA = XClassName.get("kotlin", "Metadata")
   @JvmField val IMMUTABLE_MAP = XClassName.get("com.google.common.collect", "ImmutableMap")

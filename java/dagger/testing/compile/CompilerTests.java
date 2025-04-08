@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.annotation.processing.Processor;
 import org.junit.rules.TemporaryFolder;
 
@@ -111,6 +112,16 @@ public final class CompilerTests {
   /** Returns a {@link Source.JavaSource} with the given file name and content. */
   public static Source.JavaSource javaSource(String fileName, String... srcLines) {
     return (Source.JavaSource) Source.Companion.java(fileName, String.join("\n", srcLines));
+  }
+
+  /** Returns a new {@link Source} with the content transformed by the given function. */
+  public static Source transformContent(
+      Source source, Function<String, String> contentTransformer) {
+    return Source.Companion.java(
+        // Remove the extension from the file name so that the file name.
+        source.getRelativePath()
+            .substring(0, source.getRelativePath().lastIndexOf('.')),
+        contentTransformer.apply(source.getContents()));
   }
 
   /** Returns a {@link Compiler} instance with the given sources. */

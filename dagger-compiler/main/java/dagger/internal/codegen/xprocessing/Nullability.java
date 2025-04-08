@@ -100,7 +100,7 @@ public abstract class Nullability {
             .collect(toImmutableList()));
   }
 
-  private static ImmutableSet<XClassName> getNullableAnnotations(XAnnotated annotated) {
+  static ImmutableSet<XClassName> getNullableAnnotations(XAnnotated annotated) {
     return annotated.getAllAnnotations().stream()
         .map(XAnnotations::asClassName)
         .filter(annotation -> annotation.getSimpleName().contentEquals("Nullable"))

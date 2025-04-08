@@ -19,12 +19,12 @@ package dagger.internal.codegen.writing;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static dagger.internal.codegen.binding.AnnotationExpression.createMethodName;
 import static dagger.internal.codegen.binding.AnnotationExpression.getAnnotationCreatorClassName;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
@@ -35,6 +35,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
@@ -45,8 +46,8 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
+import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.LinkedHashSet;
@@ -100,23 +101,22 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
     XTypeSpecs.Builder annotationCreatorBuilder =
         XTypeSpecs.classBuilder(generatedTypeName)
             .addModifiers(PUBLIC, FINAL)
-            .addMethod(constructorBuilder().addModifiers(PRIVATE).build());
+            .addFunction(constructorBuilder().addModifiers(PRIVATE).build());
 
     for (XTypeElement annotationElement : annotationsToCreate(annotationType)) {
-      annotationCreatorBuilder.addMethod(buildCreateMethod(generatedTypeName, annotationElement));
+      annotationCreatorBuilder.addFunction(buildCreateMethod(generatedTypeName, annotationElement));
     }
 
     return ImmutableList.of(annotationCreatorBuilder.build());
   }
 
-  private MethodSpec buildCreateMethod(
-      XClassName generatedTypeName, XTypeElement annotationElement) {
+  private XFunSpec buildCreateMethod(XClassName generatedTypeName, XTypeElement annotationElement) {
     String createMethodName = createMethodName(annotationElement);
-    MethodSpec.Builder createMethod =
+    XFunSpecs.Builder createMethod =
         methodBuilder(createMethodName)
-            .addAnnotation(toJavaPoet(AUTO_ANNOTATION))
+            .addAnnotation(AUTO_ANNOTATION)
             .addModifiers(PUBLIC, STATIC)
-            .returns(annotationElement.getType().getTypeName());
+            .returns(annotationElement.getType().asTypeName());
 
     ImmutableList.Builder<XCodeBlock> parameters = ImmutableList.builder();
     for (XMethodElement annotationMember : annotationElement.getDeclaredMethods()) {
@@ -130,9 +130,9 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
         generatedTypeName.peerClass(
             "AutoAnnotation_" + generatedTypeName.getSimpleName() + "_" + createMethodName);
     createMethod.addStatement(
-        "return new $T($L)",
-        toJavaPoet(autoAnnotationClass),
-        toJavaPoet(makeParametersCodeBlock(parameters.build())));
+        "return %L",
+        XCodeBlock.ofNewInstance(
+            autoAnnotationClass, "%L", makeParametersCodeBlock(parameters.build())));
     return createMethod.build();
   }
 

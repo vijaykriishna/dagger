@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.truth.Truth.assertThat;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static org.junit.Assert.assertThrows;
 
 import androidx.room.compiler.codegen.XTypeSpec;
@@ -25,14 +25,11 @@ import androidx.room.compiler.processing.util.CompilationResultSubject;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.MethodSpec;
-import dagger.MembersInjector;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;
 import java.util.Collection;
-import javax.inject.Inject;
 import javax.tools.Diagnostic;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,10 +53,7 @@ public class ComponentProcessorTest {
 
   private static final XTypeSpec GENERATED_INJECT_TYPE =
       XTypeSpecs.classBuilder("GeneratedInjectType")
-          .addMethod(
-              MethodSpec.constructorBuilder()
-                  .addAnnotation(toJavaPoet(XTypeNames.INJECT_JAVAX))
-                  .build())
+          .addFunction(constructorBuilder().addAnnotation(XTypeNames.INJECT_JAVAX).build())
           .build();
 
   private static final XTypeSpec GENERATED_QUALIFIER =

@@ -16,13 +16,12 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethod;
 import static dagger.internal.codegen.writing.AssistedInjectionParameters.assistedFactoryParameterSpecs;
-import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.overridingWithoutParameters;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
@@ -30,7 +29,6 @@ import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.squareup.javapoet.MethodSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -86,22 +84,14 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
     XType factoryType = binding.key().type().xprocessing();
     XMethodElement factoryMethod = assistedFactoryMethod(factory);
 
-    // We can't use MethodSpec.overriding directly because we need to control the parameter names.
-    MethodSpec factoryOverride = overriding(factoryMethod, factoryType).build();
     XTypeSpecs.Builder builder =
         XTypeSpecs.anonymousClassBuilder()
-            .addMethod(
-                // We're overriding the method so we have to use the jvm name here.
-                MethodSpec.methodBuilder(factoryMethod.getJvmName())
-                    .addModifiers(factoryOverride.modifiers)
-                    .addTypeVariables(factoryOverride.typeVariables)
-                    .returns(factoryOverride.returnType)
-                    .addAnnotations(factoryOverride.annotations)
-                    .addExceptions(factoryOverride.exceptions)
-                    .addParameters(
+            .addFunction(
+                overridingWithoutParameters(factoryMethod, factoryType)
+                    .addJavaParameters(
                         assistedFactoryParameterSpecs(
                             binding, componentImplementation.shardImplementation(assistedBinding)))
-                    .addStatement("return $L", toJavaPoet(assistedInjectionExpression.codeBlock()))
+                    .addStatement("return %L", assistedInjectionExpression.codeBlock())
                     .build());
 
     if (factory.isInterface()) {

@@ -17,10 +17,10 @@
 package dagger.internal.codegen.writing;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.common.base.Supplier;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
 import dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind;
 import dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind;
 import dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind;
@@ -37,7 +37,7 @@ public interface GeneratedImplementation {
   void addField(FieldSpecKind fieldKind, FieldSpec fieldSpec);
 
   /** Adds the given method to the generated implementation. */
-  void addMethod(MethodSpecKind methodKind, MethodSpec methodSpec);
+  void addMethod(MethodSpecKind methodKind, XFunSpec methodSpec);
 
   /** Adds the given type to the generated implementation. */
   void addType(TypeSpecKind typeKind, XTypeSpec typeSpec);

@@ -22,11 +22,13 @@ import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assis
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectedConstructors;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.javapoet.CodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.langmodel.Accessibility.accessibleTypeName;
-import static dagger.internal.codegen.xprocessing.MethodSpecs.overriding;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
@@ -53,11 +55,8 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
@@ -298,73 +297,63 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
               FieldSpec.builder(delegateFactoryParam.type, delegateFactoryParam.name)
                   .addModifiers(PRIVATE, FINAL)
                   .build())
-          .addMethod(
-              MethodSpec.constructorBuilder()
+          .addFunction(
+              constructorBuilder()
                   .addParameter(delegateFactoryParam)
-                  .addStatement("this.$1N = $1N", delegateFactoryParam)
+                  .addStatement("this.%1N = %1N", delegateFactoryParam.name)
                   .build())
-          .addMethod(
+          .addFunction(
               overriding(metadata.factoryMethod(), metadata.factoryType())
                   .addStatement(
-                      "return $N.get($L)",
-                      delegateFactoryParam,
+                      "return %N.get(%L)",
+                      delegateFactoryParam.name,
                       // Use the order of the parameters from the @AssistedInject constructor but
                       // use the parameter names of the @AssistedFactory method.
                       metadata.assistedInjectAssistedParameters().stream()
                           .map(metadata.assistedFactoryAssistedParametersMap()::get)
-                          .map(param -> CodeBlock.of("$L", param.getJvmName()))
+                          .map(param -> XCodeBlock.of("%N", param.getJvmName()))
                           .collect(toParametersCodeBlock()))
                   .build())
           // In a future release, we should delete this javax method. This will still be a breaking
           // change, but keeping compatibility for a while should reduce the likelihood of breakages
           // as it would require components built at much older versions using factories built at
           // newer versions to break.
-          .addMethod(
-              MethodSpec.methodBuilder("create")
+          .addFunction(
+              methodBuilder("create")
                   .addModifiers(PUBLIC, STATIC)
                   .addParameter(delegateFactoryParam)
-                  .addTypeVariables(
-                      typeVariableNames(metadata.assistedInjectElement()).stream()
-                          .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
-                          .collect(toImmutableList()))
-                  .returns(toJavaPoet(providerOf(factory.getType().asTypeName())))
+                  .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
+                  .returns(providerOf(factory.getType().asTypeName()))
                   .addStatement(
-                      "return $T.$Lcreate(new $T($N))",
-                      toJavaPoet(XTypeNames.INSTANCE_FACTORY),
+                      "return %T.%Lcreate(%L)",
+                      XTypeNames.INSTANCE_FACTORY,
                       // Java 7 type inference requires the method call provide the exact type here.
-                      toJavaPoet(
-                          isPreJava8SourceVersion(processingEnv)
-                              ? XCodeBlock.of(
-                                  "<%T>",
-                                  accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                              : XCodeBlock.of("")),
-                      toJavaPoet(name),
-                      delegateFactoryParam)
+                      isPreJava8SourceVersion(processingEnv)
+                          ? XCodeBlock.of(
+                              "<%T>",
+                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
+                          : XCodeBlock.of(""),
+                      XCodeBlock.ofNewInstance(name, "%N", delegateFactoryParam.name))
                   .build())
           // Normally we would have called this just "create", but because of backwards
           // compatibility we can't have two methods with the same name/arguments returning
           // different Provider types.
-          .addMethod(
-              MethodSpec.methodBuilder("createFactoryProvider")
+          .addFunction(
+              methodBuilder("createFactoryProvider")
                   .addModifiers(PUBLIC, STATIC)
                   .addParameter(delegateFactoryParam)
-                  .addTypeVariables(
-                      typeVariableNames(metadata.assistedInjectElement()).stream()
-                          .map(typeName -> (TypeVariableName) toJavaPoet(typeName))
-                          .collect(toImmutableList()))
-                  .returns(toJavaPoet(daggerProviderOf(factory.getType().asTypeName())))
+                  .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
+                  .returns(daggerProviderOf(factory.getType().asTypeName()))
                   .addStatement(
-                      "return $T.$Lcreate(new $T($N))",
-                      toJavaPoet(XTypeNames.INSTANCE_FACTORY),
+                      "return %T.%Lcreate(%L)",
+                      XTypeNames.INSTANCE_FACTORY,
                       // Java 7 type inference requires the method call provide the exact type here.
-                      toJavaPoet(
-                          isPreJava8SourceVersion(processingEnv)
-                              ? XCodeBlock.of(
-                                  "<%T>",
-                                  accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                              : XCodeBlock.of("")),
-                      toJavaPoet(name),
-                      delegateFactoryParam)
+                      isPreJava8SourceVersion(processingEnv)
+                          ? XCodeBlock.of(
+                              "<%T>",
+                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
+                          : XCodeBlock.of(""),
+                      XCodeBlock.ofNewInstance(name, "%N", delegateFactoryParam.name))
                   .build());
       return ImmutableList.of(builder.build());
     }

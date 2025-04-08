@@ -23,24 +23,24 @@ import javax.annotation.processing.Generated;
     "nullness:initialization.field.uninitialized"
 })
 public final class FieldInjection_MembersInjector implements MembersInjector<FieldInjection> {
-  private final Provider<String> stringProvider;
+  private final Provider<String> nullableStringProvider;
 
-  public FieldInjection_MembersInjector(Provider<String> stringProvider) {
-    this.stringProvider = stringProvider;
+  public FieldInjection_MembersInjector(Provider<String> nullableStringProvider) {
+    this.nullableStringProvider = nullableStringProvider;
   }
 
-  public static MembersInjector<FieldInjection> create(Provider<String> stringProvider) {
-    return new FieldInjection_MembersInjector(stringProvider);
+  public static MembersInjector<FieldInjection> create(Provider<String> nullableStringProvider) {
+    return new FieldInjection_MembersInjector(nullableStringProvider);
   }
 
   @Override
   public void injectMembers(FieldInjection instance) {
-    injectString(instance, stringProvider.get());
+    injectNullableString(instance, nullableStringProvider.get());
   }
 
-  @InjectedFieldSignature("test.FieldInjection.string")
-  public static void injectString(Object instance, String string) {
-    ((FieldInjection) (instance)).string = string;
+  @InjectedFieldSignature("test.FieldInjection.nullableString")
+  public static void injectNullableString(Object instance, @Nullable String nullableString) {
+    ((FieldInjection) (instance)).nullableString = nullableString;
   }
 }
 
