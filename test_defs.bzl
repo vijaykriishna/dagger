@@ -343,6 +343,7 @@ def _is_hjar_test_supported(bazel_rule):
     return bazel_rule not in (
         kt_jvm_library,
         kt_jvm_test,
+        # TODO(ronshapiro): figure out why android_library has a different set up of compile jars
         android_library,
         android_local_test,
     )
