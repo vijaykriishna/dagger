@@ -170,6 +170,8 @@ maven.install(
         "org.ow2.asm:asm-tree:%s" % ASM_VERSION,
         "org.ow2.asm:asm-commons:%s" % ASM_VERSION,
     ],
+    fail_if_repin_required = True,
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
