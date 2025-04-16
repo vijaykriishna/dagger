@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethods;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectedConstructors;
@@ -43,6 +42,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
@@ -55,7 +55,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
@@ -65,6 +64,7 @@ import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.validation.ValidationReport;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -287,26 +287,29 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
       }
 
       AssistedFactoryMetadata metadata = AssistedFactoryMetadata.create(factory.getType());
-      ParameterSpec delegateFactoryParam =
-          ParameterSpec.builder(
-                  toJavaPoet(
-                      delegateFactoryTypeName(metadata.assistedInjectType())), "delegateFactory")
-              .build();
+      XParameterSpec delegateFactoryParam =
+          XParameterSpecs.of(
+              "delegateFactory",
+              delegateFactoryTypeName(metadata.assistedInjectType()));
       builder
           .addProperty(
-              XPropertySpecs.builder(delegateFactoryParam.type, delegateFactoryParam.name)
+              XPropertySpecs.builder(
+                      delegateFactoryParam.getName(), // SUPPRESS_GET_NAME_CHECK
+                      delegateFactoryParam.getType())
                   .addModifiers(PRIVATE, FINAL)
                   .build())
           .addFunction(
               constructorBuilder()
                   .addParameter(delegateFactoryParam)
-                  .addStatement("this.%1N = %1N", delegateFactoryParam.name)
+                  .addStatement(
+                      "this.%1N = %1N",
+                      delegateFactoryParam.getName()) // SUPPRESS_GET_NAME_CHECK
                   .build())
           .addFunction(
               overriding(metadata.factoryMethod(), metadata.factoryType())
                   .addStatement(
                       "return %N.get(%L)",
-                      delegateFactoryParam.name,
+                      delegateFactoryParam.getName(), // SUPPRESS_GET_NAME_CHECK
                       // Use the order of the parameters from the @AssistedInject constructor but
                       // use the parameter names of the @AssistedFactory method.
                       metadata.assistedInjectAssistedParameters().stream()
@@ -333,7 +336,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                               "<%T>",
                               accessibleTypeName(metadata.factoryType(), name, processingEnv))
                           : XCodeBlock.of(""),
-                      XCodeBlock.ofNewInstance(name, "%N", delegateFactoryParam.name))
+                      XCodeBlock.ofNewInstance(
+                          name, "%N", delegateFactoryParam.getName())) // SUPPRESS_GET_NAME_CHECK
                   .build())
           // Normally we would have called this just "create", but because of backwards
           // compatibility we can't have two methods with the same name/arguments returning
@@ -353,7 +357,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                               "<%T>",
                               accessibleTypeName(metadata.factoryType(), name, processingEnv))
                           : XCodeBlock.of(""),
-                      XCodeBlock.ofNewInstance(name, "%N", delegateFactoryParam.name))
+                      XCodeBlock.ofNewInstance(
+                          name, "%N", delegateFactoryParam.getName())) // SUPPRESS_GET_NAME_CHECK
                   .build());
       return ImmutableList.of(builder.build());
     }

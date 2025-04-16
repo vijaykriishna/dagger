@@ -26,12 +26,12 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XType;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterSpec;
 import java.util.stream.Collector;
 
 /** Convenience methods for creating {@link XCodeBlock}s. */
@@ -71,10 +71,10 @@ public final class XCodeBlocks {
    * Returns a comma-separated {@link XCodeBlock} using the name of every parameter in {@code
    * parameters}.
    */
-  public static XCodeBlock parameterNames(Iterable<ParameterSpec> parameters) {
+  public static XCodeBlock parameterNames(Iterable<XParameterSpec> parameters) {
     // TODO(ronshapiro): Add DaggerStreams.stream(Iterable)
     return stream(parameters)
-        .map(p -> XCodeBlock.of("%N", p.name))
+        .map(p -> XCodeBlock.of("%N", p.getName())) // SUPPRESS_GET_NAME_CHECK
         .collect(toParametersCodeBlock());
   }
 

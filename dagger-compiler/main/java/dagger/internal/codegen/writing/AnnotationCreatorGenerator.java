@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XTypeKt.isArray;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static dagger.internal.codegen.binding.AnnotationExpression.createMethodName;
@@ -122,7 +121,7 @@ public class AnnotationCreatorGenerator extends SourceFileGenerator<XTypeElement
     for (XMethodElement annotationMember : annotationElement.getDeclaredMethods()) {
       String parameterName = getSimpleName(annotationMember);
       XTypeName parameterType = maybeRewrapKClass(annotationMember.getReturnType()).asTypeName();
-      createMethod.addParameter(toJavaPoet(parameterType), parameterName);
+      createMethod.addParameter(parameterName, parameterType);
       parameters.add(XCodeBlock.of("%N", parameterName));
     }
 

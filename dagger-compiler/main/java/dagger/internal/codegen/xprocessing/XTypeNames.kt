@@ -16,14 +16,15 @@
 
 package dagger.internal.codegen.xprocessing
 
+import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.box
+import androidx.room.compiler.codegen.compat.XConverters.toJavaPoet
+import androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet
 import androidx.room.compiler.codegen.compat.XConverters.toXPoet
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.compiler.codegen.toKotlinPoet
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 
@@ -285,26 +286,27 @@ object XTypeNames {
 
   @JvmStatic
   fun XTypeName.withTypeNullability(nullability: Nullability): XTypeName {
-    return if (nullability.typeUseNullableAnnotations().isEmpty()) {
-      this
-    } else {
-      toXPoet(
-        this.toJavaPoet().withTypeNullability(nullability),
-        // TODO(bcorso): Check if we need to add nullability to the Kotlin type.
-        this.toKotlinPoet(),
-      )
+    var result = this
+    for (nullable in nullability.typeUseNullableAnnotations()) {
+      result = result.withTypeNullability(XAnnotationSpec.of(nullable))
     }
+    return result
   }
 
   @JvmStatic
-  fun TypeName.withTypeNullability(nullability: Nullability): TypeName {
-    return if (nullability.typeUseNullableAnnotations().isEmpty()) {
+  fun XTypeName.withTypeNullability(nullable: XAnnotationSpec): XTypeName {
+    nullable.toJavaPoet().type.apply {
+      check(this is ClassName)
+      check(this.simpleName() == "Nullable")
+    }
+    // Only add the annotation if it isn't already present.
+    return if (this.toJavaPoet().annotations.contains(nullable.toJavaPoet())) {
       this
     } else {
-      this.annotated(
-        nullability.typeUseNullableAnnotations().map {
-          AnnotationSpec.builder(it.toJavaPoet()).build()
-        }
+      toXPoet(
+        this.toJavaPoet().annotated(nullable.toJavaPoet()),
+        // TODO(bcorso): Check if we need to add nullability to the Kotlin type.
+        this.toKotlinPoet()
       )
     }
   }

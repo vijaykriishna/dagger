@@ -36,6 +36,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XMethodElement;
@@ -45,7 +46,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
@@ -231,28 +231,34 @@ final class ComponentCreatorImplementationFactory {
     }
 
     private XFunSpec normalSetterMethod(ComponentRequirement requirement) {
-      XFunSpecs.Builder method = setterMethodBuilder(requirement);
-      ParameterSpec parameter = parameter(method.build());
-      method.addStatement(
-          "this.%N = %L",
-          fields.get(requirement),
-          requirement.nullPolicy().equals(NullPolicy.ALLOW)
-              ? XCodeBlock.of("%N", parameter.name)
-              : XCodeBlock.of(
-                  "%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name));
-      return maybeReturnThis(method);
+      XFunSpecs.Builder builder = setterMethodBuilder(requirement);
+      XParameterSpec parameter = getOnlyElement(builder.getParameters());
+      builder
+          .addStatement(
+              "this.%N = %L",
+              fields.get(requirement),
+              requirement.nullPolicy().equals(NullPolicy.ALLOW)
+                  ? XCodeBlock.of("%N", parameter.getName()) // SUPPRESS_GET_NAME_CHECK
+                  : XCodeBlock.of(
+                      "%T.checkNotNull(%N)",
+                      XTypeNames.DAGGER_PRECONDITIONS,
+                      parameter.getName())); // SUPPRESS_GET_NAME_CHECK
+      return maybeReturnThis(builder);
     }
 
     private XFunSpec noopSetterMethod(ComponentRequirement requirement) {
-      XFunSpecs.Builder method = setterMethodBuilder(requirement);
-      ParameterSpec parameter = parameter(method.build());
-      method
+      XFunSpecs.Builder builder = setterMethodBuilder(requirement);
+      XParameterSpec parameter = getOnlyElement(builder.getParameters());
+      builder
           .addAnnotation(Deprecated.class)
           .addJavadoc(
               "@deprecated This module is declared, but an instance is not used in the component. "
                   + "This method is a no-op. For more, see https://dagger.dev/unused-modules.\n")
-          .addStatement("%T.checkNotNull(%N)", XTypeNames.DAGGER_PRECONDITIONS, parameter.name);
-      return maybeReturnThis(method);
+          .addStatement(
+              "%T.checkNotNull(%N)",
+              XTypeNames.DAGGER_PRECONDITIONS,
+              parameter.getName()); // SUPPRESS_GET_NAME_CHECK
+      return maybeReturnThis(builder);
     }
 
     private XFunSpec repeatedModuleSetterMethod(ComponentRequirement requirement) {
@@ -266,10 +272,6 @@ final class ComponentCreatorImplementationFactory {
                   "%s cannot be set because it is inherited from the enclosing component",
                   requirement.type().getTypeElement().asClassName()))
           .build();
-    }
-
-    private ParameterSpec parameter(XFunSpec method) {
-      return getOnlyElement(toJavaPoet(method).parameters);
     }
 
     private XFunSpec maybeReturnThis(XFunSpecs.Builder method) {
@@ -514,7 +516,7 @@ final class ComponentCreatorImplementationFactory {
       String name = simpleVariableName(requirement.typeElement().asClassName());
       return methodBuilder(name)
           .addModifiers(PUBLIC)
-          .addParameter(toJavaPoet(requirement.type().asTypeName()), name)
+          .addParameter(name, requirement.type().asTypeName())
           .returns(componentImplementation.getCreatorName());
     }
   }

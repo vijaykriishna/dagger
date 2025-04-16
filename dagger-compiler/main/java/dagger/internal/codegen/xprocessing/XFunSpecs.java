@@ -34,10 +34,10 @@ import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XType;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.kotlinpoet.KModifier;
@@ -57,7 +57,7 @@ public final class XFunSpecs {
     for (int i = 0; i < methodType.getParameterTypes().size(); i++) {
       XExecutableParameterElement parameter = method.getParameters().get(i);
       XType parameterType = methodType.getParameterTypes().get(i);
-      builder.addParameter(JavaPoetExt.toParameterSpec(parameter, parameterType));
+      builder.addParameter(XParameterSpecs.parameterSpecOf(parameter, parameterType));
     }
     return builder;
   }
@@ -110,15 +110,19 @@ public final class XFunSpecs {
     private boolean isOverride = false;
     private boolean isVarArgs = false;
     private final List<XCodeBlock> javadocs = new ArrayList<>();
+    private final List<XParameterSpec> parameters = new ArrayList<>();
     // For now, we use a Object to allow for both XPoet and JavaPoet types.
     private Object returnType = null;
     private final List<Object> annotations = new ArrayList<>();
-    private final List<Object> parameters = new ArrayList<>();
     private final List<Object> typeVariableNames = new ArrayList<>();
     private final List<Object> exceptionNames = new ArrayList<>();
 
     Builder(Kind kind) {
       this.kind = kind;
+    }
+
+    public ImmutableList<XParameterSpec> getParameters() {
+      return ImmutableList.copyOf(parameters);
     }
 
     @CanIgnoreReturnValue
@@ -345,18 +349,6 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Adds the given parameters to the method.
-     *
-     * @deprecated Use {@link #addParameter(XParameterSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaParameters(Collection<ParameterSpec> parameters) {
-      parameters.forEach(this::addParameter);
-      return this;
-    }
-
     /** Adds the given parameter to the method. */
     @CanIgnoreReturnValue
     public Builder addParameter(XParameterSpec parameter) {
@@ -374,30 +366,6 @@ public final class XFunSpecs {
     @CanIgnoreReturnValue
     public Builder addParameter(String name, XTypeName typeName) {
       return addParameter(XParameterSpecs.of(name, typeName));
-    }
-
-    /**
-     * Adds the given parameter to the method.
-     *
-     * @deprecated Use {@link #addParameter(XParameterSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addParameter(ParameterSpec parameter) {
-      parameters.add(parameter);
-      return this;
-    }
-
-    /**
-     * Adds the given parameter to the method.
-     *
-     * @deprecated Use {@link #addParameter(XParameterSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addParameter(TypeName typeName, String name) {
-      parameters.add(ParameterSpec.builder(typeName, name).build());
-      return this;
     }
 
     /** Adds the given exceptions to the method. */
@@ -597,15 +565,7 @@ public final class XFunSpecs {
         }
       }
 
-      for (Object parameter : parameters) {
-        if (parameter instanceof XParameterSpec) {
-          builder.addParameter((XParameterSpec) parameter);
-        } else if (parameter instanceof ParameterSpec) {
-          toJavaPoet(builder).addParameter((ParameterSpec) parameter);
-        } else {
-          throw new AssertionError("Unexpected parameter class: " + parameter.getClass());
-        }
-      }
+      builder.addParameters(parameters);
 
       for (Object typeVariableName : typeVariableNames) {
         if (typeVariableName instanceof XTypeName) {

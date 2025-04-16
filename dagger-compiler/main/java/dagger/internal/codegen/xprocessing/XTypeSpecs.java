@@ -20,7 +20,6 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkState;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 
 import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XAnnotationSpec;
@@ -30,14 +29,12 @@ import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -156,7 +153,7 @@ public final class XTypeSpecs {
     /** Sets the originating element of the type. */
     @CanIgnoreReturnValue
     public Builder addJavadoc(String format, Object... args) {
-      javadocs.add(toXPoet(CodeBlock.of(format, args)));
+      javadocs.add(XCodeBlock.of(format, args));
       return this;
     }
 
@@ -546,7 +543,7 @@ public final class XTypeSpecs {
           break;
         case INTERFACE:
           // TODO(bcorso): Add support for interfaces in XPoet.
-          builder = XConverters.toXPoet(
+          builder = toXPoet(
               com.squareup.javapoet.TypeSpec.interfaceBuilder(name),
               com.squareup.kotlinpoet.TypeSpec.interfaceBuilder(name));
           if (isOpen) {
@@ -557,7 +554,7 @@ public final class XTypeSpecs {
           break;
         case ANNOTATION:
           // TODO(bcorso): Add support for annotations in XPoet.
-          builder = XConverters.toXPoet(
+          builder = toXPoet(
               com.squareup.javapoet.TypeSpec.annotationBuilder(name),
               com.squareup.kotlinpoet.TypeSpec.annotationBuilder(name));
           break;
@@ -625,7 +622,8 @@ public final class XTypeSpecs {
         } else if (typeVariableName instanceof TypeVariableName) {
           toJavaPoet(builder).addTypeVariable((TypeVariableName) typeVariableName);
         } else {
-          throw new AssertionError("Unexpected typeVariableName class: " + typeVariableName.getClass());
+          throw new AssertionError(
+              "Unexpected typeVariableName class: " + typeVariableName.getClass());
         }
       }
 

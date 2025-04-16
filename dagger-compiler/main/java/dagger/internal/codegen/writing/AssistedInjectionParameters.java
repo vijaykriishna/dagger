@@ -21,6 +21,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XConstructorType;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -28,24 +29,24 @@ import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedFactoryMetadata;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import java.util.List;
 
 /** Utility class for generating unique assisted parameter names for a component shard. */
 final class AssistedInjectionParameters {
   /**
-   * Returns the list of assisted factory parameters as {@link ParameterSpec}s.
+   * Returns the list of assisted factory parameters as {@link XParameterSpec}s.
    *
    * <p>The type of each parameter will be the resolved type given by the binding key, and the name
    * of each parameter will be the name given in the {@link
    * dagger.assisted.AssistedInject}-annotated constructor.
    */
-  public static ImmutableList<ParameterSpec> assistedFactoryParameterSpecs(
+  public static ImmutableList<XParameterSpec> assistedFactoryParameterSpecs(
       Binding binding, ShardImplementation shardImplementation) {
     checkArgument(binding.kind() == BindingKind.ASSISTED_FACTORY);
     XTypeElement factory = asTypeElement(binding.bindingElement().get());
@@ -63,13 +64,13 @@ final class AssistedInjectionParameters {
   }
 
   /**
-   * Returns the list of assisted parameters as {@link ParameterSpec}s.
+   * Returns the list of assisted parameters as {@link XParameterSpec}s.
    *
    * <p>The type of each parameter will be the resolved type given by the binding key, and the name
    * of each parameter will be the name given in the {@link
    * dagger.assisted.AssistedInject}-annotated constructor.
    */
-  public static ImmutableList<ParameterSpec> assistedParameterSpecs(
+  public static ImmutableList<XParameterSpec> assistedParameterSpecs(
       Binding binding, ShardImplementation shardImplementation) {
     checkArgument(binding.kind() == BindingKind.ASSISTED_INJECTION);
     XConstructorElement constructor = asConstructor(binding.bindingElement().get());
@@ -78,20 +79,19 @@ final class AssistedInjectionParameters {
         constructor.getParameters(), constructorType.getParameterTypes(), shardImplementation);
   }
 
-  private static ImmutableList<ParameterSpec> assistedParameterSpecs(
+  private static ImmutableList<XParameterSpec> assistedParameterSpecs(
       List<XExecutableParameterElement> paramElements,
       List<XType> paramTypes,
       ShardImplementation shardImplementation) {
-    ImmutableList.Builder<ParameterSpec> assistedParameterSpecs = ImmutableList.builder();
+    ImmutableList.Builder<XParameterSpec> assistedParameterSpecs = ImmutableList.builder();
     for (int i = 0; i < paramElements.size(); i++) {
       XExecutableParameterElement paramElement = paramElements.get(i);
       XType paramType = paramTypes.get(i);
       if (AssistedInjectionAnnotations.isAssistedParameter(paramElement)) {
         assistedParameterSpecs.add(
-            ParameterSpec.builder(
-                    paramType.getTypeName(),
-                    shardImplementation.getUniqueFieldNameForAssistedParam(paramElement))
-                .build());
+            XParameterSpecs.of(
+                shardImplementation.getUniqueFieldNameForAssistedParam(paramElement),
+                paramType.asTypeName()));
       }
     }
     return assistedParameterSpecs.build();

@@ -125,7 +125,7 @@ final class DependencyMethodProviderCreationExpression
             .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
             .addFunction(
                 constructorBuilder()
-                    .addParameter(toJavaPoet(dependencyClassName), dependency().variableName())
+                    .addParameter(dependency().variableName(), dependencyClassName)
                     .addStatement("this.%1N = %1N", dependency().variableName())
                     .build())
             .addFunction(getMethod.build())

@@ -23,6 +23,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XConstructorType;
 import androidx.room.compiler.processing.XElement;
@@ -38,11 +39,11 @@ import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.internal.codegen.model.BindingKind;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
@@ -76,42 +77,41 @@ public final class AssistedInjectionAnnotations {
   }
 
   /**
-   * Returns the list of assisted parameters as {@link ParameterSpec}s.
+   * Returns the list of assisted parameters as {@link XParameterSpec}s.
    *
    * <p>The type of each parameter will be the resolved type given by the binding key, and the name
    * of each parameter will be the name given in the {@link
    * dagger.assisted.AssistedInject}-annotated constructor.
    */
-  public static ImmutableList<ParameterSpec> assistedParameterSpecs(Binding binding) {
+  public static ImmutableList<XParameterSpec> assistedParameterSpecs(Binding binding) {
     checkArgument(binding.kind() == BindingKind.ASSISTED_INJECTION);
     XConstructorElement constructor = asConstructor(binding.bindingElement().get());
     XConstructorType constructorType = constructor.asMemberOf(binding.key().type().xprocessing());
     return assistedParameterSpecs(constructor.getParameters(), constructorType.getParameterTypes());
   }
 
-  private static ImmutableList<ParameterSpec> assistedParameterSpecs(
+  private static ImmutableList<XParameterSpec> assistedParameterSpecs(
       List<? extends XExecutableParameterElement> paramElements, List<XType> paramTypes) {
-    ImmutableList.Builder<ParameterSpec> assistedParameterSpecs = ImmutableList.builder();
+    ImmutableList.Builder<XParameterSpec> assistedParameterSpecs = ImmutableList.builder();
     for (int i = 0; i < paramElements.size(); i++) {
       XExecutableParameterElement paramElement = paramElements.get(i);
       XType paramType = paramTypes.get(i);
       if (isAssistedParameter(paramElement)) {
         assistedParameterSpecs.add(
-            ParameterSpec.builder(paramType.getTypeName(), paramElement.getJvmName())
-                .build());
+            XParameterSpecs.of(paramElement.getJvmName(), paramType.asTypeName()));
       }
     }
     return assistedParameterSpecs.build();
   }
 
   /**
-   * Returns the list of assisted factory parameters as {@link ParameterSpec}s.
+   * Returns the list of assisted factory parameters as {@link XParameterSpec}s.
    *
    * <p>The type of each parameter will be the resolved type given by the binding key, and the name
    * of each parameter will be the name given in the {@link
    * dagger.assisted.AssistedInject}-annotated constructor.
    */
-  public static ImmutableList<ParameterSpec> assistedFactoryParameterSpecs(Binding binding) {
+  public static ImmutableList<XParameterSpec> assistedFactoryParameterSpecs(Binding binding) {
     checkArgument(binding.kind() == BindingKind.ASSISTED_FACTORY);
 
     XTypeElement factory = asTypeElement(binding.bindingElement().get());

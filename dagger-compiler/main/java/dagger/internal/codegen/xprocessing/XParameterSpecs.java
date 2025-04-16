@@ -17,6 +17,7 @@
 package dagger.internal.codegen.xprocessing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 
 import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
@@ -27,6 +28,7 @@ import androidx.room.compiler.processing.XType;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.kotlinpoet.KModifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -80,12 +82,34 @@ public final class XParameterSpecs {
   public static class Builder {
     private final String name;
     private final XTypeName typeName;
+    private Boolean isFinal = null;
     // For now, we use a Object to allow for both XPoet and JavaPoet types.
     private final List<Object> annotations = new ArrayList<>();
 
     Builder(String name, XTypeName typeName) {
       this.name = name;
       this.typeName = typeName;
+    }
+
+    /** Sets the modifiers of the method. */
+    @CanIgnoreReturnValue
+    public Builder addModifiers(Collection<Modifier> modifiers) {
+      return addModifiers(modifiers.toArray(new Modifier[0]));
+    }
+
+    /** Sets the modifiers of the method. */
+    @CanIgnoreReturnValue
+    public Builder addModifiers(Modifier... modifiers) {
+      for (Modifier modifier : modifiers) {
+        switch (modifier) {
+          case FINAL:
+            isFinal = true;
+            break;
+          default:
+            throw new AssertionError("Unexpected modifier: " + modifier);
+        }
+      }
+      return this;
     }
 
     /** Adds the given annotations to the method. */
@@ -156,8 +180,16 @@ public final class XParameterSpecs {
       XParameterSpec.Builder builder =
           XParameterSpec.builder(name, typeName, /* addJavaNullabilityAnnotation= */ false);
 
-      // Remove the final modifier for JavaPoet to match the existing behavior.
-      toJavaPoet(builder).modifiers.remove(Modifier.FINAL);
+      // XPoet makes all parameters final by default for both JavaPoet and KotlinPoet so rather than
+      // adding the final modifier if it is final, we need to remove the modifier if it's not final.
+      if (isFinal == null) {
+        // If the final modifier isn't set explicitly, then default to false for JavaPoet but leave
+        // it as final for KotlinPoet since that's the default behavior in Kotlin.
+        toJavaPoet(builder).modifiers.remove(Modifier.FINAL);
+      } else if (!isFinal) {
+        toJavaPoet(builder).modifiers.remove(Modifier.FINAL);
+        toKotlinPoet(builder).getModifiers().remove(KModifier.FINAL);
+      }
 
       for (Object annotation : annotations) {
         if (annotation instanceof XAnnotationSpec) {

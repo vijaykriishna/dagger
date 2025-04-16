@@ -26,11 +26,11 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
@@ -43,6 +43,7 @@ import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementati
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -104,15 +105,13 @@ final class MembersInjectionMethods {
     // TODO(ronshapiro): include type parameters in this name e.g. injectFooOfT, and outer class
     // simple names Foo.Builder -> injectFooBuilder
     String methodName = shardImplementation.getUniqueMethodName("inject" + bindingTypeName);
-    ParameterSpec parameter =
-        ParameterSpec.builder(
-                membersInjectedType.getTypeName(),
+    XParameterSpec parameter =
+        XParameterSpecs.builder(
                 // Technically this usage only needs to be unique within this method, but this will
-                // allocate
-                // a unique name within the shard. We could optimize this by cloning the
-                // UniqueNameSet or
-                // using NameAllocator which has a clone method in the future.
-                shardImplementation.getUniqueFieldName("instance"))
+                // allocate a unique name within the shard. We could optimize this by cloning the
+                // UniqueNameSet or using NameAllocator which has a clone method in the future.
+                shardImplementation.getUniqueFieldName("instance"),
+                membersInjectedType.asTypeName())
             .build();
     XFunSpecs.Builder methodBuilder =
         methodBuilder(methodName)
@@ -124,7 +123,7 @@ final class MembersInjectionMethods {
     if (canIgnoreReturnValue != null) {
       methodBuilder.addAnnotation(canIgnoreReturnValue.asClassName());
     }
-    XCodeBlock instance = XCodeBlock.of("%N", parameter.name);
+    XCodeBlock instance = XCodeBlock.of("%N", parameter.getName()); // SUPPRESS_GET_NAME_CHECK
     XCodeBlock invokeInjectionSites =
         InjectionSiteMethod.invokeAll(
             injectionSites(binding),

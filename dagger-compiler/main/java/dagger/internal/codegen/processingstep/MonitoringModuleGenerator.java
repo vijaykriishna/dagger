@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
@@ -90,10 +89,9 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
         .addModifiers(STATIC)
         .addAnnotation(XTypeNames.PROVIDES)
         .addAnnotation(XTypeNames.PRODUCTION_SCOPE)
-        .addParameter(toJavaPoet(providerOf(componentElement.getType().asTypeName())), "component")
+        .addParameter("component", providerOf(componentElement.getType().asTypeName()))
         .addParameter(
-            toJavaPoet(providerOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY))),
-            "factories")
+            "factories", providerOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY)))
         .addStatement(
             "return %T.createMonitorForComponent(component, factories)", XTypeNames.MONITORS)
         .build();

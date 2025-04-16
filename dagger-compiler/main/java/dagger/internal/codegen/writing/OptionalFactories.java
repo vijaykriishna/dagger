@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -29,7 +28,6 @@ import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKi
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeNames.abstractProducerOf;
@@ -42,14 +40,11 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.codegen.compat.XConverters;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.OptionalType.OptionalKind;
@@ -58,6 +53,7 @@ import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.OptionalBinding;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XAnnotationSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -212,12 +208,12 @@ final class OptionalFactories {
     }
 
     /** The type of the factory. */
-    ParameterizedTypeName factoryType() {
+    XTypeName factoryType() {
       return frameworkType().frameworkClassOf(optionalType());
     }
 
     /** The type of the delegate provider or producer. */
-    ParameterizedTypeName delegateType() {
+    XTypeName delegateType() {
       return frameworkType().frameworkClassOf(typeVariable());
     }
 
@@ -239,7 +235,7 @@ final class OptionalFactories {
     }
 
     /** Returns the superinterface the generated factory should have, if any. */
-    Optional<ParameterizedTypeName> superinterface() {
+    Optional<XTypeName> superinterface() {
       switch (frameworkType()) {
         case PROVIDER:
           return Optional.of(factoryType());
@@ -315,19 +311,17 @@ final class OptionalFactories {
 
   private XTypeSpec presentOptionalFactoryClass(PresentFactorySpec spec) {
     XPropertySpec delegateField =
-        XPropertySpecs.builder(spec.delegateType(), "delegate", PRIVATE, FINAL).build();
-    ParameterSpec delegateParameter =
-        ParameterSpec.builder(toJavaPoet(delegateField).type, "delegate").build();
+        XPropertySpecs.of("delegate", spec.delegateType(), PRIVATE, FINAL);
+    XParameterSpec delegateParameter = XParameterSpecs.of("delegate", delegateField.getType());
     XTypeSpecs.Builder factoryClassBuilder =
         XTypeSpecs.classBuilder(spec.factoryClassName())
             .addTypeVariable(spec.typeVariable())
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addJavadoc(
-                "A {@code $T} that uses a delegate {@code $T}.",
-                spec.factoryType(),
-                toJavaPoet(delegateField).type);
+                "A {@code %T} that uses a delegate {@code %T}.",
+                spec.factoryType(), delegateField.getType());
 
-    spec.superclass().map(XConverters::toJavaPoet).ifPresent(factoryClassBuilder::superclass);
+    spec.superclass().ifPresent(factoryClassBuilder::superclass);
     spec.superinterface().ifPresent(factoryClassBuilder::addSuperinterface);
 
     return factoryClassBuilder
@@ -338,7 +332,9 @@ final class OptionalFactories {
                 .addParameter(delegateParameter)
                 .addCode(
                     "this.%N = %T.checkNotNull(%N);",
-                    delegateField, XTypeNames.DAGGER_PRECONDITIONS, delegateParameter.name)
+                    delegateField,
+                    XTypeNames.DAGGER_PRECONDITIONS,
+                    delegateParameter.getName()) // SUPPRESS_GET_NAME_CHECK
                 .build())
         .addFunction(presentOptionalFactoryGetMethod(spec, delegateField))
         .addFunction(
@@ -348,13 +344,13 @@ final class OptionalFactories {
                 .returns(spec.factoryType())
                 .addParameter(delegateParameter)
                 .addStatement(
-                    // TODO(bcorso): Convert this to XCodeBlock.ofNewInstance().
-                    toXPoet(
-                        CodeBlock.of(
-                            "return new $L<$T>($N)",
-                            spec.factoryClassName(),
-                            toJavaPoet(spec.typeVariable()),
-                            delegateParameter)))
+                    "return %L",
+                    XCodeBlock.ofNewInstance(
+                        topLevelImplementation.name()
+                            .nestedClass(spec.factoryClassName())
+                            .parametrizedBy(spec.typeVariable()),
+                        "%N",
+                        delegateParameter.getName())) // SUPPRESS_GET_NAME_CHECK
                 .build())
         .build();
   }

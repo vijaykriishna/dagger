@@ -63,7 +63,7 @@ final class ProducerNodeInstanceRequestRepresentation
             "%T.cancel(%L, %N);",
             XTypeNames.PRODUCERS,
             result.codeBlock(),
-            ComponentImplementation.MAY_INTERRUPT_IF_RUNNING_PARAM.name));
+            ComponentImplementation.MAY_INTERRUPT_IF_RUNNING_PARAM.getName())); // SUPPRESS_GET_NAME_CHECK
     return result;
   }
 

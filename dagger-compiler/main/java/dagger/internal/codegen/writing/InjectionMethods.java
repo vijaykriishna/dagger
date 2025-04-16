@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedParameter;
@@ -39,7 +38,6 @@ import static dagger.internal.codegen.xprocessing.XTypes.erasedTypeName;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XType;
@@ -47,8 +45,6 @@ import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
@@ -60,6 +56,7 @@ import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import java.util.Optional;
@@ -274,14 +271,7 @@ final class InjectionMethods {
     XTypeName typeName =
         XTypeNames.withTypeNullability(
             useObject ? XTypeName.ANY_OBJECT : type.asTypeName(), nullability);
-    methodBuilder.addParameter(
-        ParameterSpec.builder(toJavaPoet(typeName), name)
-            .addAnnotations(
-                nullability.nonTypeUseNullableAnnotations().stream()
-                    .map(XConverters::toJavaPoet)
-                    .map(it -> AnnotationSpec.builder(it).build())
-                    .collect(toImmutableList()))
-            .build());
+    methodBuilder.addParameter(XParameterSpecs.of(name, typeName, nullability));
     return useObject
         ? XCodeBlock.ofCast(type.asTypeName(), XCodeBlock.of("%L", name))
         : XCodeBlock.of("%L", name);

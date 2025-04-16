@@ -16,9 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedParameters;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
@@ -29,7 +26,6 @@ import static dagger.internal.codegen.binding.SourceFiles.parameterizedGenerated
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
-import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
@@ -38,6 +34,7 @@ import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
 import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
@@ -55,10 +52,10 @@ import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
@@ -71,8 +68,6 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
@@ -91,6 +86,7 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -200,8 +196,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         .forEach(
             field ->
                 constructor
-                    .addParameter(
-                        toJavaPoet(field.getType()), field.getName()) // SUPPRESS_GET_NAME_CHECK
+                    .addParameter(field.getName(), field.getType()) // SUPPRESS_GET_NAME_CHECK
                     .addStatement("this.%1N = %1N", field));
     return constructor.build();
   }
@@ -234,17 +229,16 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       }
       createMethodBuilder.addStatement("return %T.INSTANCE", instanceHolderClassName(binding));
     } else {
-      ImmutableList<ParameterSpec> parameters =
+      ImmutableList<XParameterSpec> parameters =
           factoryFields.getAll().stream()
               .map(
                   field ->
-                      ParameterSpec.builder(
-                              toJavaPoet(field.getType()),
-                              field.getName()) // SUPPRESS_GET_NAME_CHECK
-                          .build())
+                      XParameterSpecs.of(
+                          field.getName(), // SUPPRESS_GET_NAME_CHECK
+                          field.getType()))
               .collect(toImmutableList());
       createMethodBuilder
-          .addJavaParameters(parameters)
+          .addParameters(parameters)
           .addStatement(
               "return %L",
               XCodeBlock.ofNewInstance(
@@ -273,19 +267,18 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     factoryFields
         .getAll()
         .forEach(field -> uniqueFieldNames.claim(field.getName())); // SUPPRESS_GET_NAME_CHECK
-    ImmutableMap<XExecutableParameterElement, ParameterSpec> assistedParameters =
+    ImmutableMap<XExecutableParameterElement, XParameterSpec> assistedParameters =
         assistedParameters(binding).stream()
             .collect(
                 toImmutableMap(
                     parameter -> parameter,
                     parameter ->
-                        ParameterSpec.builder(
-                                parameter.getType().getTypeName(),
-                                uniqueFieldNames.getUniqueName(parameter.getJvmName()))
-                            .build()));
+                        XParameterSpecs.of(
+                            uniqueFieldNames.getUniqueName(parameter.getJvmName()),
+                            parameter.getType().asTypeName())));
     XTypeName providedTypeName = providedTypeName(binding);
     XFunSpecs.Builder getMethod =
-        methodBuilder("get").addModifiers(PUBLIC).addJavaParameters(assistedParameters.values());
+        methodBuilder("get").addModifiers(PUBLIC).addParameters(assistedParameters.values());
 
     if (factoryTypeName(binding).isPresent()) {
       getMethod.addAnnotation(Override.class);
@@ -296,7 +289,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             request ->
                 sourceFiles.frameworkTypeUsageStatement(
                     XCodeBlock.of("%N", factoryFields.get(request)), request.kind()),
-            param -> assistedParameters.get(param).name,
+            param -> assistedParameters.get(param).getName(), // SUPPRESS_GET_NAME_CHECK
             generatedClassNameForBinding(binding),
             factoryFields.moduleField.map(module -> XCodeBlock.of("%N", module)),
             compilerOptions);
@@ -473,15 +466,8 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   private static XTypeName providedTypeName(ContributionBinding binding) {
-    XTypeName typeName = binding.contributedType().asTypeName();
-    return toXPoet(
-        toJavaPoet(typeName)
-            .annotated(
-                binding.nullability().typeUseNullableAnnotations().stream()
-                    .map(XConverters::toJavaPoet)
-                    .map(annotation -> AnnotationSpec.builder(annotation).build())
-                    .collect(toImmutableList())),
-        toKotlinPoet(typeName));
+    return XTypeNames.withTypeNullability(
+        binding.contributedType().asTypeName(), binding.nullability());
   }
 
   private static Optional<XTypeName> factoryTypeName(ContributionBinding binding) {

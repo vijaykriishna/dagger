@@ -53,6 +53,7 @@ import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
@@ -66,7 +67,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
@@ -79,9 +79,9 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -228,23 +228,29 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   //   this.dep3Provider = dep3Provider;
   // }
   private XFunSpec constructor(ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
-    ImmutableList<ParameterSpec> dependencyParameters =
-        frameworkFields.values().stream()
-            .map(
-                field ->
-                    ParameterSpec.builder(
-                            toJavaPoet(field.getType()), field.getName()) // SUPPRESS_GET_NAME_CHECK
-                        .addAnnotations(toJavaPoet(field).annotations)
-                        .build())
-            .collect(toImmutableList());
+    ImmutableList<XParameterSpec> parameters = constructorParameters(frameworkFields);
     return constructorBuilder()
         .addModifiers(PUBLIC)
-        .addJavaParameters(dependencyParameters)
+        .addParameters(parameters)
         .addCode(
-            dependencyParameters.stream()
-                .map(parameter -> XCodeBlock.of("this.%1L = %1L;", parameter.name))
+            parameters.stream()
+                .map(
+                    parameter ->
+                        XCodeBlock.of(
+                            "this.%1N = %1N;", parameter.getName())) // SUPPRESS_GET_NAME_CHECK
                 .collect(toConcatenatedCodeBlock()))
         .build();
+  }
+
+  private ImmutableList<XParameterSpec> constructorParameters(
+      ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
+    return frameworkFields.values().stream()
+        .map(
+            field ->
+                XParameterSpecs.builder(field.getName(), field.getType()) // SUPPRESS_GET_NAME_CHECK
+                    .addJavaAnnotations(toJavaPoet(field).annotations)
+                    .build())
+        .collect(toImmutableList());
   }
 
   // public static MyClass_MembersInjector create(
@@ -259,7 +265,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   private XFunSpec createMethod(
       MembersInjectionBinding binding,
       ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
-    List<ParameterSpec> params = toJavaPoet(constructor(frameworkFields)).parameters;
+    ImmutableList<XParameterSpec> params = constructorParameters(frameworkFields);
     // We use a static create method so that generated components can avoid having
     // to refer to the generic types of the factory.
     // (Otherwise they may have visibility problems referring to the types.)
@@ -267,7 +273,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         .addModifiers(PUBLIC, STATIC)
         .addTypeVariableNames(bindingTypeElementTypeVariableNames(binding))
         .returns(membersInjectorOf(binding.key().type().xprocessing().asTypeName()))
-        .addJavaParameters(params)
+        .addParameters(params)
         .addStatement(
             "return %L",
             XCodeBlock.ofNewInstance(
@@ -298,7 +304,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     return methodBuilder("injectMembers")
         .addModifiers(PUBLIC)
         .addAnnotation(Override.class)
-        .addParameter(toJavaPoet(instanceType.asTypeName()), "instance")
+        .addParameter("instance", instanceType.asTypeName())
         .addCode(invokeInjectionSites)
         .build();
   }

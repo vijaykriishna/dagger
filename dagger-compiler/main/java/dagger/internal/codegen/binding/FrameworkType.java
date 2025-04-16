@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
@@ -24,7 +23,6 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.ParameterizedTypeName;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XExpression;
@@ -193,8 +191,8 @@ public enum FrameworkType {
   }
 
   /** Returns the {@link #frameworkClassName()} parameterized with a type. */
-  public ParameterizedTypeName frameworkClassOf(XTypeName valueType) {
-    return ParameterizedTypeName.get(toJavaPoet(frameworkClassName()), toJavaPoet(valueType));
+  public XTypeName frameworkClassOf(XTypeName valueType) {
+    return frameworkClassName().parametrizedBy(valueType);
   }
 
   /** The request kind that an instance of this framework type can satisfy directly, if any. */

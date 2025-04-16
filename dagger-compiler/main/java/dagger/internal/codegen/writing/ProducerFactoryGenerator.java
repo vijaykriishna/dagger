@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
@@ -59,7 +58,6 @@ import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.base.SourceFileGenerator;
@@ -74,7 +72,6 @@ import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -147,32 +144,40 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   //   this.barProducer = Producers.nonCancellationPropagatingViewOf(barProducer);
   // }
   private XFunSpec constructorMethod(ProductionBinding binding, FactoryFields factoryFields) {
-    XFunSpecs.Builder constructorBuilder = constructorBuilder().addModifiers(PRIVATE);
+    XFunSpecs.Builder constructorBuilder =
+        constructorBuilder()
+            .addModifiers(PRIVATE)
+            .addParameters(constructorParameters(binding, factoryFields));
     constructorBuilder.addStatement(
         "super(%N, %L, %N)",
         factoryFields.monitorField,
         producerTokenConstruction(generatedClassNameForBinding(binding), binding),
         factoryFields.executorField);
-    factoryFields
-        .getAll()
+    factoryFields.getAll().stream()
+        // The executor and monitor fields belong to the super class so they don't need a field
+        // assignment here.
+        .filter(field -> !field.equals(factoryFields.executorField))
+        .filter(field -> !field.equals(factoryFields.monitorField))
         .forEach(
             field -> {
-              constructorBuilder.addParameter(
-                  toJavaPoet(field.getType()), field.getName()); // SUPPRESS_GET_NAME_CHECK
-              // The executor and monitor fields belong to the super class so they don't need a
-              // field assignment here.
-              if (!field.equals(factoryFields.executorField)
-                  && !field.equals(factoryFields.monitorField)) {
-                if (field.getType().getRawTypeName().equals(XTypeNames.PRODUCER)) {
-                  constructorBuilder.addStatement(
-                      "this.%1N = %2T.nonCancellationPropagatingViewOf(%1N)",
-                      field, XTypeNames.PRODUCERS);
-                } else {
-                  constructorBuilder.addStatement("this.%1N = %1N", field);
-                }
+              if (field.getType().getRawTypeName().equals(XTypeNames.PRODUCER)) {
+                constructorBuilder.addStatement(
+                    "this.%1N = %2T.nonCancellationPropagatingViewOf(%1N)",
+                    field, XTypeNames.PRODUCERS);
+              } else {
+                constructorBuilder.addStatement("this.%1N = %1N", field);
               }
             });
     return constructorBuilder.build();
+  }
+
+  ImmutableList<XParameterSpec> constructorParameters(
+      ProductionBinding binding, FactoryFields factoryFields) {
+    return factoryFields.getAll().stream()
+        .map(
+            field ->
+                XParameterSpecs.of(field.getName(), field.getType())) // SUPPRESS_GET_NAME_CHECK
+        .collect(toImmutableList());
   }
 
   // public static FooModule_ProducesFooFactory create(
@@ -185,12 +190,12 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   //       module, executorProvider, productionComponentMonitorProvider, fooProducer, barProducer);
   // }
   private XFunSpec staticCreateMethod(ProductionBinding binding, FactoryFields factoryFields) {
-    List<ParameterSpec> params = toJavaPoet(constructorMethod(binding, factoryFields)).parameters;
+    ImmutableList<XParameterSpec> params = constructorParameters(binding, factoryFields);
     return XFunSpecs.methodBuilder("create")
         .addModifiers(PUBLIC, STATIC)
         .returns(parameterizedGeneratedTypeNameForBinding(binding))
         .addTypeVariableNames(bindingTypeElementTypeVariableNames(binding))
-        .addJavaParameters(params)
+        .addParameters(params)
         .addStatement(
             "return %L",
             XCodeBlock.ofNewInstance(
@@ -290,7 +295,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
             .addExceptions(asMethod(binding.bindingElement().get()).getThrownTypes())
-            .addParameter(toJavaPoet(parameter));
+            .addParameter(parameter);
     ImmutableList<DependencyRequest> asyncDependencies = asyncDependencies(binding);
     ImmutableList.Builder<XCodeBlock> parameterCodeBlocks = ImmutableList.builder();
     for (DependencyRequest dependency : binding.explicitDependencies()) {

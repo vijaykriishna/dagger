@@ -24,16 +24,17 @@ import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.isNested;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
@@ -186,8 +187,8 @@ public abstract class ComponentRequirement {
   public abstract String variableName();
 
   /** Returns a parameter spec for this requirement. */
-  public ParameterSpec toParameterSpec() {
-    return ParameterSpec.builder(type().getTypeName(), variableName()).build();
+  public XParameterSpec toParameterSpec() {
+    return XParameterSpecs.of(variableName(), type().asTypeName());
   }
 
   public static ComponentRequirement forDependency(ComponentDependencyBinding binding) {
