@@ -36,6 +36,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
@@ -44,7 +45,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.UniqueNameSet;
@@ -55,6 +55,7 @@ import dagger.internal.codegen.binding.ComponentRequirement.NullPolicy;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -97,7 +98,7 @@ final class ComponentCreatorImplementationFactory {
     private final XTypeSpecs.Builder classBuilder =
         XTypeSpecs.classBuilder(componentImplementation.getCreatorName());
     private final UniqueNameSet fieldNames = new UniqueNameSet();
-    private ImmutableMap<ComponentRequirement, FieldSpec> fields;
+    private ImmutableMap<ComponentRequirement, XPropertySpec> fields;
 
     /** Builds the {@link ComponentCreatorImplementation}. */
     ComponentCreatorImplementation build() {
@@ -167,26 +168,26 @@ final class ComponentCreatorImplementationFactory {
           .creatorComponentFields()
           .forEach(
               field -> {
-                fieldNames.claim(field.name);
-                classBuilder.addField(field);
-                constructor.addParameter(field.type, field.name);
-                constructor.addStatement("this.%1N = %1N", field.name);
+                fieldNames.claim(toJavaPoet(field).name);
+                classBuilder.addProperty(field);
+                constructor.addParameter(field.getName(), field.getType()); // SUPPRESS_GET_NAME_CHECK
+                constructor.addStatement("this.%1N = %1N", field);
               });
       classBuilder.addFunction(constructor.build());
     }
 
-    private ImmutableMap<ComponentRequirement, FieldSpec> addFields() {
+    private ImmutableMap<ComponentRequirement, XPropertySpec> addFields() {
       // Fields in an abstract creator class need to be visible from subclasses.
-      ImmutableMap<ComponentRequirement, FieldSpec> result =
+      ImmutableMap<ComponentRequirement, XPropertySpec> result =
           Maps.toMap(
               Sets.intersection(neededUserSettableRequirements(), setterMethods()),
               requirement ->
-                  FieldSpec.builder(
+                  XPropertySpecs.builder(
                           requirement.type().getTypeName(),
                           fieldNames.getUniqueName(requirement.variableName()),
                           PRIVATE)
                       .build());
-      classBuilder.addFields(result.values());
+      classBuilder.addProperties(result.values());
       return result;
     }
 
@@ -234,7 +235,7 @@ final class ComponentCreatorImplementationFactory {
       ParameterSpec parameter = parameter(method.build());
       method.addStatement(
           "this.%N = %L",
-          fields.get(requirement).name,
+          fields.get(requirement),
           requirement.nullPolicy().equals(NullPolicy.ALLOW)
               ? XCodeBlock.of("%N", parameter.name)
               : XCodeBlock.of(
@@ -296,7 +297,7 @@ final class ComponentCreatorImplementationFactory {
           .forEach(
               requirement -> {
                 if (fields.containsKey(requirement)) {
-                  FieldSpec field = fields.get(requirement);
+                  XPropertySpec field = fields.get(requirement);
                   addNullHandlingForField(requirement, field, factoryMethod);
                 } else if (factoryMethodParameters.containsKey(requirement)) {
                   String parameterName = factoryMethodParameters.get(requirement);
@@ -313,13 +314,13 @@ final class ComponentCreatorImplementationFactory {
     }
 
     private void addNullHandlingForField(
-        ComponentRequirement requirement, FieldSpec field, XFunSpecs.Builder factoryMethod) {
+        ComponentRequirement requirement, XPropertySpec field, XFunSpecs.Builder factoryMethod) {
       switch (requirement.nullPolicy()) {
         case NEW:
           checkState(requirement.kind().isModule());
           factoryMethod
-              .beginControlFlow("if (%N == null)", field.name)
-              .addStatement("this.%N = %L", field.name, newModuleInstance(requirement))
+              .beginControlFlow("if (%N == null)", field)
+              .addStatement("this.%N = %L", field, newModuleInstance(requirement))
               .endControlFlow();
           break;
         case THROW:
@@ -328,8 +329,10 @@ final class ComponentCreatorImplementationFactory {
           factoryMethod.addStatement(
               "%T.checkBuilderRequirement(%N, %L)",
               XTypeNames.DAGGER_PRECONDITIONS,
-              field.name,
-              toXPoet(CodeBlock.of("$T.class", rawJavaTypeName(field.type.withoutAnnotations()))));
+              field,
+              toXPoet(
+                  CodeBlock.of(
+                      "$T.class", rawJavaTypeName(toJavaPoet(field).type.withoutAnnotations()))));
           break;
         case ALLOW:
           break;
@@ -353,12 +356,12 @@ final class ComponentCreatorImplementationFactory {
         ImmutableMap<ComponentRequirement, String> factoryMethodParameters) {
       return Stream.concat(
               componentImplementation.creatorComponentFields().stream()
-                  .map(field -> XCodeBlock.of("%N", field.name)),
+                  .map(field -> XCodeBlock.of("%N", field)),
               componentConstructorRequirements().stream()
                   .map(
                       requirement -> {
                         if (fields.containsKey(requirement)) {
-                          return XCodeBlock.of("%N", fields.get(requirement).name);
+                          return XCodeBlock.of("%N", fields.get(requirement));
                         } else if (factoryMethodParameters.containsKey(requirement)) {
                           return XCodeBlock.of("%N", factoryMethodParameters.get(requirement));
                         } else {

@@ -30,6 +30,7 @@ import com.squareup.javapoet.ClassName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.lang.model.element.Modifier;
 
 // TODO(bcorso): Consider moving these methods into XProcessing library.
 /** A utility class for {@link XParameterSpec} helper methods. */
@@ -48,10 +49,29 @@ public final class XParameterSpecs {
         .build();
   }
 
+  /**
+   * Creates a {@link XParameterSpec} with the given {@code name} and {@code typeName} and adds the
+   * type-use nullability annotations to the type and the non-type-use annotations to the parameter.
+   */
+  public static XParameterSpec of(String name, XTypeName typeName, Nullability nullability) {
+    return builder(name, typeName, nullability).build();
+  }
+
+  /** Creates a {@link XParameterSpec} with the given {@code name} and {@code typeName}. */
   public static XParameterSpec of(String name, XTypeName typeName) {
     return builder(name, typeName).build();
   }
 
+  /**
+   * Creates a {@link Builder} with the given {@code name} and {@code typeName} and adds the
+   * type-use nullability annotations to the type and the non-type-use annotations to the parameter.
+   */
+  public static Builder builder(String name, XTypeName typeName, Nullability nullability) {
+    return new Builder(name, XTypeNames.withTypeNullability(typeName, nullability))
+        .addAnnotationNames(nullability.nonTypeUseNullableAnnotations());
+  }
+
+  /** Creates a {@link Builder} with the given {@code name} and {@code typeName}. */
   public static Builder builder(String name, XTypeName typeName) {
     return new Builder(name, typeName);
   }
@@ -135,6 +155,9 @@ public final class XParameterSpecs {
     public XParameterSpec build() {
       XParameterSpec.Builder builder =
           XParameterSpec.builder(name, typeName, /* addJavaNullabilityAnnotation= */ false);
+
+      // Remove the final modifier for JavaPoet to match the existing behavior.
+      toJavaPoet(builder).modifiers.remove(Modifier.FINAL);
 
       for (Object annotation : annotations) {
         if (annotation instanceof XAnnotationSpec) {

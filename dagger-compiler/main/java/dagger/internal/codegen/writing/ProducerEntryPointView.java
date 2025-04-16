@@ -16,6 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.FRAMEWORK_FIELD;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
@@ -23,13 +24,14 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XExpression;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
@@ -81,10 +83,10 @@ final class ProducerEntryPointView {
     // Though I don't think we need the once-only behavior of that, since I think
     // getComponentMethodImplementation will only be called once anyway
     String methodName = getSimpleName(componentMethod.methodElement());
-    FieldSpec field =
-        FieldSpec.builder(
-                fieldType(componentMethod).getTypeName(),
+    XPropertySpec field =
+        XPropertySpecs.builder(
                 shardImplementation.getUniqueFieldName(methodName + "EntryPoint"),
+                fieldType(componentMethod).asTypeName(),
                 PRIVATE)
             .build();
     shardImplementation.addField(FRAMEWORK_FIELD, field);
@@ -92,7 +94,7 @@ final class ProducerEntryPointView {
     XCodeBlock fieldInitialization =
         XCodeBlock.of(
             "this.%N = %T.entryPointViewOf(%L, %L);",
-            field.name,
+            field,
             XTypeNames.PRODUCERS,
             producerExpression.getDependencyExpression(shardImplementation.name()).codeBlock(),
             // Always pass in the componentShard reference here rather than the owning shard for
@@ -105,7 +107,7 @@ final class ProducerEntryPointView {
                     .shardFieldReference());
     shardImplementation.addInitialization(fieldInitialization);
 
-    return MemberSelect.localField(shardImplementation, field.name);
+    return MemberSelect.localField(shardImplementation, toJavaPoet(field).name);
   }
 
   // TODO(cgdecker): Can we use producerExpression.getDependencyExpression().type() instead of

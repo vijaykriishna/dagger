@@ -50,6 +50,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
@@ -69,9 +70,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.UniqueNameSet;
@@ -93,6 +92,8 @@ import dagger.internal.codegen.model.BindingGraph.Node;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XParameterSpecs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -262,7 +263,8 @@ public final class ComponentImplementation {
 
   private final ShardImplementation componentShard;
   private final Supplier<ImmutableMap<Binding, ShardImplementation>> shardsByBinding;
-  private final Map<ShardImplementation, FieldSpec> shardFieldsByImplementation = new HashMap<>();
+  private final Map<ShardImplementation, XPropertySpec> shardFieldsByImplementation =
+      new HashMap<>();
   private final List<XCodeBlock> shardInitializations = new ArrayList<>();
   private final List<XCodeBlock> shardCancellations = new ArrayList<>();
   private final Optional<ComponentImplementation> parent;
@@ -274,7 +276,8 @@ public final class ComponentImplementation {
   private final BindingGraph graph;
   private final ComponentNames componentNames;
   private final CompilerOptions compilerOptions;
-  private final ImmutableMap<ComponentImplementation, FieldSpec> componentFieldsByImplementation;
+  private final ImmutableMap<ComponentImplementation, XPropertySpec>
+      componentFieldsByImplementation;
   private final XMessager messager;
   private final CompilerMode compilerMode;
   private final XProcessingEnv processingEnv;
@@ -352,23 +355,23 @@ public final class ComponentImplementation {
     // TODO(bcorso): This currently relies on all requesting classes having a reference to the
     // component with the same name, which is kind of sketchy. Try to think of a better way that
     // can accomodate the component missing in some classes if it's not used.
-    return XCodeBlock.of("%N", componentFieldsByImplementation.get(this).name);
+    return XCodeBlock.of("%N", componentFieldsByImplementation.get(this));
   }
 
   /** Returns the fields for all components in the component path. */
-  public ImmutableList<FieldSpec> componentFields() {
+  public ImmutableList<XPropertySpec> componentFields() {
     return ImmutableList.copyOf(componentFieldsByImplementation.values());
   }
 
   /** Returns the fields for all components in the component path except the current component. */
-  public ImmutableList<FieldSpec> creatorComponentFields() {
+  public ImmutableList<XPropertySpec> creatorComponentFields() {
     return componentFieldsByImplementation.entrySet().stream()
         .filter(entry -> !this.equals(entry.getKey()))
         .map(Map.Entry::getValue)
         .collect(toImmutableList());
   }
 
-  private static ImmutableMap<ComponentImplementation, FieldSpec>
+  private static ImmutableMap<ComponentImplementation, XPropertySpec>
       createComponentFieldsByImplementation(
           ComponentImplementation componentImplementation, CompilerOptions compilerOptions) {
     checkArgument(
@@ -388,7 +391,9 @@ public final class ComponentImplementation {
                 componentImpl -> componentImpl,
                 componentImpl -> {
                   XClassName component =
-                      componentImpl.graph.componentPath()
+                      componentImpl
+                          .graph
+                          .componentPath()
                           .currentComponent()
                           .xprocessing()
                           .asClassName();
@@ -397,12 +402,12 @@ public final class ComponentImplementation {
                       componentImpl.isNested()
                           ? simpleVariableName(componentImpl.name())
                           : simpleVariableName(component);
-                  FieldSpec.Builder field =
-                      FieldSpec.builder(
-                          toJavaPoet(fieldType),
+                  XPropertySpecs.Builder field =
+                      XPropertySpecs.builder(
                           fieldName.equals(componentImpl.name().getSimpleName())
                               ? "_" + fieldName
                               : fieldName,
+                          fieldType,
                           PRIVATE,
                           FINAL);
                   componentImplementation.componentShard.componentFieldNames.claim(fieldName);
@@ -479,7 +484,7 @@ public final class ComponentImplementation {
     private final Map<XVariableElement, String> uniqueAssistedName = new LinkedHashMap<>();
     private final List<XCodeBlock> componentRequirementInitializations = new ArrayList<>();
     private final ImmutableMap<ComponentRequirement, ParameterSpec> constructorParameters;
-    private final ListMultimap<FieldSpecKind, FieldSpec> fieldSpecsMap =
+    private final ListMultimap<FieldSpecKind, XPropertySpec> fieldSpecsMap =
         MultimapBuilder.enumKeys(FieldSpecKind.class).arrayListValues().build();
     private final ListMultimap<MethodSpecKind, XFunSpec> methodSpecsMap =
         MultimapBuilder.enumKeys(MethodSpecKind.class).arrayListValues().build();
@@ -503,30 +508,11 @@ public final class ComponentImplementation {
                   toImmutableMap(
                       requirement -> requirement,
                       requirement ->
-                          ParameterSpec.builder(
-                                  requirement
-                                      .type()
-                                      .getTypeName()
-                                      .annotated(
-                                          requirement
-                                              .getNullability()
-                                              .typeUseNullableAnnotations()
-                                              .stream()
-                                              .map(XConverters::toJavaPoet)
-                                              .map(AnnotationSpec::builder)
-                                              .map(AnnotationSpec.Builder::build)
-                                              .collect(toImmutableList())),
-                                  getUniqueFieldName(requirement.variableName() + "Param"))
-                              .addAnnotations(
-                                  requirement
-                                      .getNullability()
-                                      .nonTypeUseNullableAnnotations()
-                                      .stream()
-                                      .map(XConverters::toJavaPoet)
-                                      .map(AnnotationSpec::builder)
-                                      .map(AnnotationSpec.Builder::build)
-                                      .collect(toImmutableList()))
-                              .build()));
+                          toJavaPoet(
+                              XParameterSpecs.of(
+                                  getUniqueFieldName(requirement.variableName() + "Param"),
+                                  requirement.type().asTypeName(),
+                                  requirement.getNullability()))));
     }
 
     private ShardImplementation createShard() {
@@ -558,7 +544,7 @@ public final class ComponentImplementation {
     }
 
     /** Returns the fields for all components in the component path by component implementation. */
-    public ImmutableMap<ComponentImplementation, FieldSpec> componentFieldsByImplementation() {
+    public ImmutableMap<ComponentImplementation, XPropertySpec> componentFieldsByImplementation() {
       return componentFieldsByImplementation;
     }
 
@@ -568,7 +554,7 @@ public final class ComponentImplementation {
         // Add the shard if this is the first time it's requested by something.
         String shardFieldName =
             componentShard.getUniqueFieldName(UPPER_CAMEL.to(LOWER_CAMEL, name.getSimpleName()));
-        FieldSpec shardField = FieldSpec.builder(toJavaPoet(name), shardFieldName).build();
+        XPropertySpec shardField = XPropertySpecs.builder(shardFieldName, name).build();
 
         shardFieldsByImplementation.put(this, shardField);
       }
@@ -578,7 +564,7 @@ public final class ComponentImplementation {
       return isComponentShard()
           ? componentFieldReference()
           : XCodeBlock.of(
-              "%L.%N", componentFieldReference(), shardFieldsByImplementation.get(this).name);
+              "%L.%N", componentFieldReference(), shardFieldsByImplementation.get(this));
     }
 
     // TODO(ronshapiro): see if we can remove this method and instead inject it in the objects that
@@ -625,10 +611,11 @@ public final class ComponentImplementation {
       return Accessibility.isTypeAccessibleFrom(type, name.getPackageName());
     }
 
-    // TODO(dpb): Consider taking FieldSpec, and returning identical FieldSpec with unique name?
+    // TODO(dpb): Consider taking XPropertySpec, and returning identical XPropertySpec with unique
+    // name?
     /** Adds the given field to the component. */
     @Override
-    public void addField(FieldSpecKind fieldKind, FieldSpec fieldSpec) {
+    public void addField(FieldSpecKind fieldKind, XPropertySpec fieldSpec) {
       fieldSpecsMap.put(fieldKind, fieldSpec);
     }
 
@@ -683,7 +670,7 @@ public final class ComponentImplementation {
         // newly created unique name will then be added to the set.
         componentFieldsByImplementation()
             .values()
-            .forEach(fieldSpec -> assistedParamNames.getUniqueName(fieldSpec.name));
+            .forEach(fieldSpec -> assistedParamNames.getUniqueName(toJavaPoet(fieldSpec).name));
         initialized = true;
       }
       return assistedParamNames.getUniqueName(name);
@@ -772,7 +759,7 @@ public final class ComponentImplementation {
       }
 
       modifiers().forEach(builder::addModifiers);
-      fieldSpecsMap.asMap().values().forEach(builder::addFields);
+      fieldSpecsMap.asMap().values().forEach(builder::addProperties);
       methodSpecsMap.asMap().values().forEach(builder::addFunctions);
       typeSpecsMap.asMap().values().forEach(builder::addTypes);
       typeSuppliers.stream().map(Supplier::get).forEach(builder::addType);
@@ -915,6 +902,7 @@ public final class ComponentImplementation {
                   ImmutableList.<ParameterSpec>builder()
                       .addAll(
                           creatorComponentFields().stream()
+                              .map(XConverters::toJavaPoet)
                               .map(field -> ParameterSpec.builder(field.type, field.name).build())
                               .collect(toImmutableList()))
                       .addAll(toJavaPoet(method.build()).parameters)
@@ -979,11 +967,14 @@ public final class ComponentImplementation {
                   // just initialize it in the initializer.
                   addField(
                       FieldSpecKind.COMPONENT_REQUIREMENT_FIELD,
-                      field.toBuilder().initializer("this").build());
+                      XPropertySpecs.builder(field.getName(), field.getType()) // SUPPRESS_GET_NAME_CHECK
+                          .addModifiers(toJavaPoet(field).modifiers)
+                          .initializer("this")
+                          .build());
                 } else {
                   addField(FieldSpecKind.COMPONENT_REQUIREMENT_FIELD, field);
-                  constructor.addStatement("this.%1N = %1N", field.name);
-                  constructor.addParameter(field.type, field.name);
+                  constructor.addStatement("this.%1N = %1N", field);
+                  constructor.addParameter(field.getName(), field.getType());  // SUPPRESS_GET_NAME_CHECK
                 }
               });
       if (isComponentShard()) {
@@ -1031,12 +1022,12 @@ public final class ComponentImplementation {
             parameterNames(componentShard.constructorParameters.values().asList());
         XCodeBlock componentFields =
             componentFieldsByImplementation().values().stream()
-                .map(field -> XCodeBlock.of("%N", field.name))
+                .map(field -> XCodeBlock.of("%N", field))
                 .collect(toParametersCodeBlock());
         shardInitializations.add(
             XCodeBlock.of(
                 "%N = %L;",
-                shardFieldsByImplementation.get(this).name,
+                shardFieldsByImplementation.get(this),
                 XCodeBlock.ofNewInstance(
                     name,
                     "%L",
@@ -1071,7 +1062,7 @@ public final class ComponentImplementation {
         shardCancellations.add(
             XCodeBlock.of(
                 "%N.%N(%N);",
-                shardFieldsByImplementation.get(this).name,
+                shardFieldsByImplementation.get(this),
                 CANCELLATION_LISTENER_METHOD_NAME,
                 MAY_INTERRUPT_IF_RUNNING_PARAM.name));
       }

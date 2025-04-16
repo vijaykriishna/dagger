@@ -16,22 +16,22 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XTypeSpecs.classBuilder;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.MapKeys;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -67,13 +67,13 @@ public final class InaccessibleMapKeyProxyGenerator
                       .addModifiers(PUBLIC, FINAL)
                       .addFunction(constructorBuilder().addModifiers(PRIVATE).build())
                       .addFunction(method);
-              lazyClassKeyField(binding).ifPresent(builder::addField);
+              lazyClassKeyField(binding).ifPresent(builder::addProperty);
               return ImmutableList.of(builder.build());
             })
         .orElse(ImmutableList.<XTypeSpec>of());
   }
 
-  private Optional<FieldSpec> lazyClassKeyField(ContributionBinding binding) {
+  private Optional<XPropertySpec> lazyClassKeyField(ContributionBinding binding) {
     // In proguard, we need to keep the classes referenced by @LazyClassKey, we do that by
     // generating a field referencing the type, and then applying @KeepFieldType to the
     // field. Here, we generate the field in the proxy class. For classes that are
@@ -84,8 +84,8 @@ public final class InaccessibleMapKeyProxyGenerator
         .filter(mapKey -> mapKey.getTypeElement().asClassName().equals(XTypeNames.LAZY_CLASS_KEY))
         .map(
             mapKey ->
-                FieldSpec.builder(mapKey.getAsType("value").getTypeName(), "className")
-                    .addAnnotation(toJavaPoet(XTypeNames.KEEP_FIELD_TYPE))
+                XPropertySpecs.builder("className", mapKey.getAsType("value").asTypeName())
+                    .addAnnotation(XTypeNames.KEEP_FIELD_TYPE)
                     .build());
   }
 }

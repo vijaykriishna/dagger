@@ -29,15 +29,15 @@ import static dagger.internal.codegen.binding.SourceFiles.parameterizedGenerated
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.UNCHECKED;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.javapoet.CodeBlocks.parameterNames;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
@@ -72,8 +72,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.base.UniqueNameSet;
@@ -93,6 +91,7 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -167,17 +166,17 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   //       new FooModule_ProvidesFooFactory();
   // }
   private XTypeSpec staticInstanceHolderType(ContributionBinding binding) {
-    ClassName generatedClassName = toJavaPoet(generatedClassNameForBinding(binding));
-    FieldSpec.Builder instanceHolderFieldBuilder =
-        FieldSpec.builder(generatedClassName, "INSTANCE", STATIC, FINAL)
-            .initializer("new $T()", generatedClassName);
+    XClassName generatedClassName = generatedClassNameForBinding(binding);
+    XPropertySpecs.Builder instanceHolderFieldBuilder =
+        XPropertySpecs.builder("INSTANCE", generatedClassName, STATIC, FINAL)
+            .initializer(XCodeBlock.ofNewInstance(generatedClassName, ""));
     if (!bindingTypeElementTypeVariableNames(binding).isEmpty()) {
       // If the factory has type parameters, ignore them in the field declaration & initializer
       instanceHolderFieldBuilder.addAnnotation(suppressWarnings(RAWTYPES));
     }
     return XTypeSpecs.classBuilder(instanceHolderClassName(binding))
         .addModifiers(PRIVATE, STATIC, FINAL)
-        .addField(instanceHolderFieldBuilder.build())
+        .addProperty(instanceHolderFieldBuilder.build())
         .build();
   }
 

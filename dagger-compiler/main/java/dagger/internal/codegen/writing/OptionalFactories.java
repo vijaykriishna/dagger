@@ -28,6 +28,7 @@ import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpec
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.PRESENT_FACTORY;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
@@ -41,16 +42,15 @@ import static javax.lang.model.element.Modifier.STATIC;
 import androidx.room.compiler.codegen.VisibilityModifier;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.codegen.compat.XConverters;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeVariableName;
-import dagger.internal.InstanceFactory;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.OptionalType.OptionalKind;
 import dagger.internal.codegen.binding.BindingType;
@@ -58,6 +58,7 @@ import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.OptionalBinding;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XAnnotationSpecs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Comparator;
@@ -95,7 +96,7 @@ final class OptionalFactories {
      * The static fields for {@code Provider<Optional<T>>} objects that always return an absent
      * value.
      */
-    private final Map<OptionalKind, FieldSpec> absentOptionalProviderFields = new TreeMap<>();
+    private final Map<OptionalKind, XPropertySpec> absentOptionalProviderFields = new TreeMap<>();
 
     @Inject
     PerGeneratedFileCache() {}
@@ -153,13 +154,12 @@ final class OptionalFactories {
             "%1T provider = (%1T) %2N",
             daggerProviderOf(optionalKind.of(typeVariable)),
             perGeneratedFileCache.absentOptionalProviderFields.computeIfAbsent(
-                    optionalKind,
-                    kind -> {
-                      FieldSpec field = absentOptionalProviderField(kind);
-                      topLevelImplementation.addField(ABSENT_OPTIONAL_FIELD, field);
-                      return field;
-                    })
-                .name)
+                optionalKind,
+                kind -> {
+                  XPropertySpec field = absentOptionalProviderField(kind);
+                  topLevelImplementation.addField(ABSENT_OPTIONAL_FIELD, field);
+                  return field;
+                }))
         .addStatement("return provider")
         .build();
   }
@@ -168,22 +168,19 @@ final class OptionalFactories {
    * Creates a field specification for a {@code Provider<Optional<T>>} that always returns an absent
    * value.
    */
-  private FieldSpec absentOptionalProviderField(OptionalKind optionalKind) {
-    return FieldSpec.builder(
-            toJavaPoet(XTypeNames.DAGGER_PROVIDER),
+  private XPropertySpec absentOptionalProviderField(OptionalKind optionalKind) {
+    return XPropertySpecs.builder(
             String.format("ABSENT_%s_PROVIDER", optionalKind.name()),
+            XTypeNames.DAGGER_PROVIDER,
             PRIVATE,
             STATIC,
             FINAL)
-        .addAnnotation(toJavaPoet(XAnnotationSpecs.suppressWarnings(RAWTYPES)))
+        .addAnnotation(suppressWarnings(RAWTYPES))
         .initializer(
-            "$T.create($L)",
-            InstanceFactory.class,
-            toJavaPoet(optionalKind.absentValueExpression()))
+            "%T.create(%L)", XTypeNames.INSTANCE_FACTORY, optionalKind.absentValueExpression())
         .addJavadoc(
-            "A {@link $T} that returns {@code $L}.",
-            toJavaPoet(XTypeNames.DAGGER_PROVIDER),
-            toJavaPoet(optionalKind.absentValueExpression()))
+            "A {@link %T} that returns {@code %L}.",
+            XTypeNames.DAGGER_PROVIDER, optionalKind.absentValueExpression())
         .build();
   }
 
@@ -317,9 +314,10 @@ final class OptionalFactories {
   }
 
   private XTypeSpec presentOptionalFactoryClass(PresentFactorySpec spec) {
-    FieldSpec delegateField =
-        FieldSpec.builder(spec.delegateType(), "delegate", PRIVATE, FINAL).build();
-    ParameterSpec delegateParameter = ParameterSpec.builder(delegateField.type, "delegate").build();
+    XPropertySpec delegateField =
+        XPropertySpecs.builder(spec.delegateType(), "delegate", PRIVATE, FINAL).build();
+    ParameterSpec delegateParameter =
+        ParameterSpec.builder(toJavaPoet(delegateField).type, "delegate").build();
     XTypeSpecs.Builder factoryClassBuilder =
         XTypeSpecs.classBuilder(spec.factoryClassName())
             .addTypeVariable(spec.typeVariable())
@@ -327,20 +325,20 @@ final class OptionalFactories {
             .addJavadoc(
                 "A {@code $T} that uses a delegate {@code $T}.",
                 spec.factoryType(),
-                delegateField.type);
+                toJavaPoet(delegateField).type);
 
     spec.superclass().map(XConverters::toJavaPoet).ifPresent(factoryClassBuilder::superclass);
     spec.superinterface().ifPresent(factoryClassBuilder::addSuperinterface);
 
     return factoryClassBuilder
-        .addField(delegateField)
+        .addProperty(delegateField)
         .addFunction(
             constructorBuilder()
                 .addModifiers(PRIVATE)
                 .addParameter(delegateParameter)
                 .addCode(
                     "this.%N = %T.checkNotNull(%N);",
-                    delegateField.name, XTypeNames.DAGGER_PRECONDITIONS, delegateParameter.name)
+                    delegateField, XTypeNames.DAGGER_PRECONDITIONS, delegateParameter.name)
                 .build())
         .addFunction(presentOptionalFactoryGetMethod(spec, delegateField))
         .addFunction(
@@ -362,7 +360,7 @@ final class OptionalFactories {
   }
 
   private XFunSpec presentOptionalFactoryGetMethod(
-      PresentFactorySpec spec, FieldSpec delegateField) {
+      PresentFactorySpec spec, XPropertySpec delegateField) {
     XFunSpec.Builder getMethodBuilder =
         XFunSpec.builder(
             spec.factoryMethodName(),
@@ -381,7 +379,7 @@ final class OptionalFactories {
                     .presentExpression(
                         FrameworkType.PROVIDER.to(
                             spec.valueKind(),
-                            XCodeBlock.of("%N", delegateField.name))))
+                            XCodeBlock.of("%N", delegateField))))
             .build();
 
       case PRODUCER_NODE:
@@ -398,7 +396,7 @@ final class OptionalFactories {
                         .presentExpression(
                             FrameworkType.PRODUCER_NODE.to(
                                 spec.valueKind(),
-                                XCodeBlock.of("%N", delegateField.name))))
+                                XCodeBlock.of("%N", delegateField))))
                 .build();
 
           case INSTANCE: // return a ListenableFuture<Optional<T>>
@@ -408,7 +406,7 @@ final class OptionalFactories {
                     transformFutureToOptional(
                         spec.optionalKind(),
                         spec.typeVariable(),
-                        XCodeBlock.of("%N.get()", delegateField.name)))
+                        XCodeBlock.of("%N.get()", delegateField)))
                 .build();
 
           case PRODUCED: // return a ListenableFuture<Optional<Produced<T>>>
@@ -420,7 +418,7 @@ final class OptionalFactories {
                         spec.valueType(),
                         XCodeBlock.of(
                             "%T.createFutureProduced(%N.get())",
-                            XTypeNames.PRODUCERS, delegateField.name)))
+                            XTypeNames.PRODUCERS, delegateField)))
                 .build();
 
           default:

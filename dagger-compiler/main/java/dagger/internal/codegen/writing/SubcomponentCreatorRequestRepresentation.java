@@ -48,13 +48,13 @@ final class SubcomponentCreatorRequestRepresentation extends RequestRepresentati
             shardImplementation.getSubcomponentCreatorSimpleName(binding.key()),
             "%L",
             shardImplementation.componentFieldsByImplementation().values().stream()
-                .map(field -> XCodeBlock.of("%N", field.name))
+                .map(field -> XCodeBlock.of("%N", field))
                 .collect(toParametersCodeBlock())));
   }
 
   XCodeBlock getDependencyExpressionArguments() {
     return shardImplementation.componentFieldsByImplementation().values().stream()
-        .map(field -> XCodeBlock.of("%N", field.name))
+        .map(field -> XCodeBlock.of("%N", field))
         .collect(toParametersCodeBlock());
   }
 

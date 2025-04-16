@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -48,12 +47,14 @@ import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementati
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XProcessingEnvs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 /**
  * Keeps track of all provider expression requests for a component.
@@ -148,7 +149,7 @@ final class SwitchingProviders {
                   "%T", shardImplementation.accessibleTypeName(binding.contributedType()))
               : "",
           shardImplementation.componentFieldsByImplementation().values().stream()
-              .map(field -> XCodeBlock.of("%N", field.name))
+              .map(field -> XCodeBlock.of("%N", field))
               .collect(toParametersCodeBlock()),
           switchIds.get(key));
     }
@@ -181,18 +182,15 @@ final class SwitchingProviders {
 
       // The SwitchingProvider constructor lists all component parameters first and switch id last.
       XFunSpecs.Builder constructor = constructorBuilder();
-      shardImplementation
-          .componentFieldsByImplementation()
-          .values()
+      Stream.concat(
+              shardImplementation.componentFieldsByImplementation().values().stream(),
+              Stream.of(XPropertySpecs.of("id", XTypeName.PRIMITIVE_INT, PRIVATE, FINAL)))
           .forEach(
               field -> {
-                builder.addField(field);
-                constructor.addParameter(field.type, field.name);
-                constructor.addStatement("this.%1N = %1N", field.name);
+                builder.addProperty(field);
+                constructor.addParameter(field.getName(), field.getType()); // SUPPRESS_GET_NAME_CHECK
+                constructor.addStatement("this.%1N = %1N", field);
               });
-      builder.addField(toJavaPoet(XTypeName.PRIMITIVE_INT), "id", PRIVATE, FINAL);
-      constructor.addParameter(toJavaPoet(XTypeName.PRIMITIVE_INT), "id")
-          .addStatement("this.id = id");
 
       return builder.addFunction(constructor.build()).build();
     }

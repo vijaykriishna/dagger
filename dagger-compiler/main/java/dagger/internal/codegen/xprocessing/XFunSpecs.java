@@ -27,6 +27,7 @@ import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XName;
 import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -176,7 +177,7 @@ public final class XFunSpecs {
     /**
      * Sets the modifiers of the method.
      *
-     * <p>@deprecated Use the individual setter methods instead.
+     * @deprecated Use the individual setter methods instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
@@ -187,7 +188,7 @@ public final class XFunSpecs {
     /**
      * Sets the modifiers of the method.
      *
-     * <p>@deprecated Use the individual setter methods instead.
+     * @deprecated Use the individual setter methods instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
@@ -262,7 +263,7 @@ public final class XFunSpecs {
     /**
      * Adds the given type variable name to the method.
      *
-     * <p>@deprecated Use {@link #addTypeVariable(XTypeName)} instead.
+     * @deprecated Use {@link #addTypeVariable(XTypeName)} instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
@@ -361,6 +362,12 @@ public final class XFunSpecs {
     public Builder addParameter(XParameterSpec parameter) {
       parameters.add(parameter);
       return this;
+    }
+
+    /** Adds the given parameter to the method. */
+    @CanIgnoreReturnValue
+    public Builder addParameter(XName name, XTypeName typeName) {
+      return addParameter(XParameterSpecs.of(toJavaPoet(name), typeName));
     }
 
     /** Adds the given parameter to the method. */
@@ -504,7 +511,7 @@ public final class XFunSpecs {
     /**
      * Sets the return type of the method.
      *
-     * <p>@deprecated Use {@link #returns(XTypeName)} instead.
+     * @deprecated Use {@link #returns(XTypeName)} instead.
      */
     @Deprecated
     @CanIgnoreReturnValue

@@ -55,7 +55,6 @@ import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
@@ -66,6 +65,7 @@ import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.validation.ValidationReport;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.internal.codegen.xprocessing.XTypes;
@@ -293,8 +293,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       delegateFactoryTypeName(metadata.assistedInjectType())), "delegateFactory")
               .build();
       builder
-          .addField(
-              FieldSpec.builder(delegateFactoryParam.type, delegateFactoryParam.name)
+          .addProperty(
+              XPropertySpecs.builder(delegateFactoryParam.type, delegateFactoryParam.name)
                   .addModifiers(PRIVATE, FINAL)
                   .build())
           .addFunction(

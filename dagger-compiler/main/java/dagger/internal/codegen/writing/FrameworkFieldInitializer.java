@@ -19,21 +19,22 @@ package dagger.internal.codegen.writing;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.generatedClassNameForBinding;
-import static dagger.internal.codegen.javapoet.AnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.FRAMEWORK_FIELD;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
+import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XType;
-import com.squareup.javapoet.FieldSpec;
 import dagger.internal.codegen.binding.BindingType;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkField;
-import dagger.internal.codegen.javapoet.AnnotationSpecs;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
   private final ShardImplementation shardImplementation;
   private final ContributionBinding binding;
   private final FrameworkInstanceCreationExpression frameworkInstanceCreationExpression;
-  private FieldSpec fieldSpec;
+  private XPropertySpec propertySpec;
   private InitializationState fieldInitializationState = InitializationState.UNINITIALIZED;
 
   FrameworkFieldInitializer(
@@ -82,7 +83,8 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
   @Override
   public final MemberSelect memberSelect() {
     initializeField();
-    return MemberSelect.localField(shardImplementation, checkNotNull(fieldSpec).name);
+    return MemberSelect.localField(
+        shardImplementation, checkNotNull(toJavaPoet(propertySpec)).name);
   }
 
   /** Adds the field and its initialization code to the component. */
@@ -94,11 +96,11 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
         XCodeBlock.Builder codeBuilder = XCodeBlock.builder();
         XCodeBlock fieldInitialization = frameworkInstanceCreationExpression.creationExpression();
         XCodeBlock initCode =
-            XCodeBlock.of("this.%N = %L;", getOrCreateField().name, fieldInitialization);
+            XCodeBlock.of("this.%N = %L;", getOrCreateField(), fieldInitialization);
 
         if (fieldInitializationState == InitializationState.DELEGATED) {
           codeBuilder.add(
-              "%T.setDelegate(%N, %L);", delegateType(), fieldSpec.name, fieldInitialization);
+              "%T.setDelegate(%N, %L);", delegateType(), propertySpec, fieldInitialization);
         } else {
           codeBuilder.add(initCode);
         }
@@ -108,7 +110,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
         break;
 
       case INITIALIZING:
-        fieldSpec = getOrCreateField();
+        propertySpec = getOrCreateField();
         // We were recursively invoked, so create a delegate factory instead to break the loop.
 
         // TODO(erichang): For the most part SwitchingProvider takes no dependencies so even if they
@@ -120,7 +122,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
 
         fieldInitializationState = InitializationState.DELEGATED;
         shardImplementation.addInitialization(
-            XCodeBlock.of("this.%N = new %T<>();", fieldSpec.name, delegateType()));
+            XCodeBlock.of("this.%N = new %T<>();", propertySpec, delegateType()));
         break;
 
       case DELEGATED:
@@ -133,9 +135,9 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
    * Adds a field representing the resolved bindings, optionally forcing it to use a particular
    * binding type (instead of the type the resolved bindings would typically use).
    */
-  private FieldSpec getOrCreateField() {
-    if (fieldSpec != null) {
-      return fieldSpec;
+  private XPropertySpec getOrCreateField() {
+    if (propertySpec != null) {
+      return propertySpec;
     }
     boolean useRawType = !shardImplementation.isTypeAccessible(binding.key().type().xprocessing());
     FrameworkField contributionBindingField =
@@ -160,22 +162,21 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
               : generatedClassNameForBinding(binding).parametrizedBy(typeParameters);
     }
 
-    FieldSpec.Builder contributionField =
-        FieldSpec.builder(
-            toJavaPoet(fieldType),
-            shardImplementation.getUniqueFieldName(contributionBindingField.name()));
+    XPropertySpecs.Builder contributionField =
+        XPropertySpecs.builder(
+            shardImplementation.getUniqueFieldName(contributionBindingField.name()), fieldType);
     // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
     if (!shardImplementation.isShardClassPrivate()) {
       contributionField.addModifiers(PRIVATE);
     }
     if (useRawType) {
-      contributionField.addAnnotation(AnnotationSpecs.suppressWarnings(RAWTYPES));
+      contributionField.addAnnotation(suppressWarnings(RAWTYPES));
     }
 
-    fieldSpec = contributionField.build();
-    shardImplementation.addField(FRAMEWORK_FIELD, fieldSpec);
+    propertySpec = contributionField.build();
+    shardImplementation.addField(FRAMEWORK_FIELD, propertySpec);
 
-    return fieldSpec;
+    return propertySpec;
   }
 
   private XClassName delegateType() {

@@ -19,22 +19,21 @@ package dagger.internal.codegen.writing;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Suppliers.memoize;
-import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.COMPONENT_REQUIREMENT_FIELD;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.compat.XConverters;
+import androidx.room.compiler.codegen.XPropertySpec;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Supplier;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
+import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -131,32 +130,16 @@ public final class ComponentRequirementExpressions {
 
     private MemberSelect createField() {
       String fieldName = componentShard.getUniqueFieldName(componentRequirement.variableName());
-      TypeName fieldType = componentRequirement.type().getTypeName();
-      FieldSpec field =
-          FieldSpec.builder(
-                  fieldType.annotated(
-                      componentRequirement.getNullability().typeUseNullableAnnotations().stream()
-                          .map(XConverters::toJavaPoet)
-                          .map(AnnotationSpec::builder)
-                          .map(AnnotationSpec.Builder::build)
-                          .collect(toImmutableList())),
-                  fieldName,
-                  PRIVATE,
-                  FINAL)
-              .addAnnotations(
-                  componentRequirement.getNullability().nonTypeUseNullableAnnotations().stream()
-                      .map(XConverters::toJavaPoet)
-                      .map(AnnotationSpec::builder)
-                      .map(AnnotationSpec.Builder::build)
-                      .collect(toImmutableList()))
-              .build();
+      XTypeName fieldType = componentRequirement.type().asTypeName();
+      Nullability nullability = componentRequirement.getNullability();
+      XPropertySpec field = XPropertySpecs.of(fieldName, fieldType, nullability, PRIVATE, FINAL);
       componentShard.addField(COMPONENT_REQUIREMENT_FIELD, field);
       componentShard.addComponentRequirementInitialization(fieldInitialization(field));
       return MemberSelect.localField(componentShard, fieldName);
     }
 
     /** Returns the {@link XCodeBlock} that initializes the component field during construction. */
-    abstract XCodeBlock fieldInitialization(FieldSpec componentField);
+    abstract XCodeBlock fieldInitialization(XPropertySpec componentField);
   }
 
   /**
@@ -173,11 +156,10 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    XCodeBlock fieldInitialization(FieldSpec componentField) {
+    XCodeBlock fieldInitialization(XPropertySpec componentField) {
       return XCodeBlock.of(
           "this.%N = %L;",
-          componentField.name,
-          ModuleProxies.newModuleInstance(moduleElement, componentShard.name()));
+          componentField, ModuleProxies.newModuleInstance(moduleElement, componentShard.name()));
     }
   }
 
@@ -205,10 +187,10 @@ public final class ComponentRequirementExpressions {
     }
 
     @Override
-    XCodeBlock fieldInitialization(FieldSpec componentField) {
+    XCodeBlock fieldInitialization(XPropertySpec componentField) {
       // Don't checkNotNull here because the parameter may be nullable; if it isn't, the caller
       // should handle checking that before passing the parameter.
-      return XCodeBlock.of("this.%N = %L;", componentField.name, parameterName);
+      return XCodeBlock.of("this.%N = %L;", componentField, parameterName);
     }
   }
 }
