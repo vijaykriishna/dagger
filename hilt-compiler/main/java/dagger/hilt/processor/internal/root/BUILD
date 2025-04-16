@@ -16,16 +16,15 @@
 #   Annotation processor for Hilt.
 
 load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
-    name = "component_tree_deps_plugin",
+compat_processor_plugin(
+    name = "component_tree_deps_processor",
     generates_api = 1,
-    processor_class = "dagger.hilt.processor.internal.root.ComponentTreeDepsProcessor",
-    deps = [
-        ":component_tree_deps_processor_lib",
-    ],
+    processor_base_name = "ComponentTreeDeps",
+    processor_lib_dep = ":component_tree_deps_processor_lib",
 )
 
 java_library(
