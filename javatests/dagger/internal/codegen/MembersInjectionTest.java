@@ -18,12 +18,12 @@ package dagger.internal.codegen;
 
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;
@@ -584,7 +584,10 @@ public class MembersInjectionTest {
             "}");
     XTypeSpec generatedInjectType =
         XTypeSpecs.classBuilder("GeneratedInjectType")
-            .addFunction(constructorBuilder().addAnnotation(XTypeNames.INJECT_JAVAX).build())
+            .addFunction(
+                constructorBuilder()
+                    .addAnnotation(XClassName.get("javax.inject", "Inject"))
+                    .build())
             .build();
 
     CompilerTests.daggerCompiler(nestedTypesFile)

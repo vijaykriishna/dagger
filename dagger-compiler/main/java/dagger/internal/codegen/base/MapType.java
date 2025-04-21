@@ -18,6 +18,7 @@ package dagger.internal.codegen.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
@@ -27,7 +28,6 @@ import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.RequestKind;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 
 /** Information about a {@link java.util.Map} type. */
@@ -106,7 +106,7 @@ public final class MapType {
 
   /** Returns {@code true} if the raw type of {@link #valueType()} is a provider type.*/
   public boolean valuesAreProvider() {
-    return valuesAreTypeOf(XTypeNames.PROVIDER) || valuesAreTypeOf(XTypeNames.JAKARTA_PROVIDER);
+    return providerTypeNames().stream().anyMatch(this::valuesAreTypeOf);
   }
 
   /**

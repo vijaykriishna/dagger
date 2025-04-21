@@ -21,6 +21,9 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.base.RequestKinds.requestType;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
+import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
+import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
@@ -36,7 +39,6 @@ import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import dagger.internal.codegen.xprocessing.XTypes;
 
 /** A {@link dagger.internal.codegen.writing.RequestRepresentation} for {@code @Binds} methods. */
 final class DelegateRequestRepresentation extends RequestRepresentation {
@@ -88,13 +90,14 @@ final class DelegateRequestRepresentation extends RequestRepresentation {
             : delegateExpression;
       default:
         XType requestedType = requestType(requestKind, contributedType, processingEnv);
-        if (XTypes.isTypeOf(requestedType, XTypeNames.PROVIDER)) {
-          // Even though the user may have requested a javax Provider, our generated code and
-          // factories only work in the Dagger Provider type, so swap to that one before doing
-          // a cast.
-          requestedType = XTypes.rewrapType(requestedType, XTypeNames.DAGGER_PROVIDER);
-        }
-        return castToRawTypeIfNecessary(delegateExpression, requestedType);
+        return castToRawTypeIfNecessary(
+            delegateExpression,
+            // Even though the user may have requested a javax/jakarta Provider, our generated code
+            // and factories only work in the Dagger Provider type, so swap to that one before
+            // doing a cast.
+            isTypeOf(requestedType, providerTypeNames())
+                ? rewrapType(requestedType, XTypeNames.DAGGER_PROVIDER)
+                : requestedType);
     }
   }
 

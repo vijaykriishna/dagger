@@ -32,7 +32,7 @@ import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParamet
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 import static dagger.internal.codegen.xprocessing.XTypeElements.typeVariableNames;
 import static dagger.internal.codegen.xprocessing.XTypeNames.daggerProviderOf;
-import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.javaxProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -326,7 +326,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                   .addModifiers(PUBLIC, STATIC)
                   .addParameter(delegateFactoryParam)
                   .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
-                  .returns(providerOf(factory.getType().asTypeName()))
+                  .returns(javaxProviderOf(factory.getType().asTypeName()))
                   .addStatement(
                       "return %T.%Lcreate(%L)",
                       XTypeNames.INSTANCE_FACTORY,

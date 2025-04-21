@@ -91,8 +91,6 @@ object XTypeNames {
   @JvmField val MAP_PROVIDER_FACTORY = XClassName.get("dagger.internal", "MapProviderFactory")
   @JvmField val MEMBERS_INJECTOR = XClassName.get("dagger", "MembersInjector")
   @JvmField val MEMBERS_INJECTORS = XClassName.get("dagger.internal", "MembersInjectors")
-  @JvmField val PROVIDER = XClassName.get("javax.inject", "Provider")
-  @JvmField val JAKARTA_PROVIDER = XClassName.get("jakarta.inject", "Provider")
   @JvmField val DAGGER_PROVIDER = XClassName.get("dagger.internal", "Provider")
   @JvmField val DAGGER_PROVIDERS = XClassName.get("dagger.internal", "Providers")
   @JvmField val PROVIDER_OF_LAZY = XClassName.get("dagger.internal", "ProviderOfLazy")
@@ -174,14 +172,6 @@ object XTypeNames {
 
   @JvmField val KOTLIN_METADATA = XClassName.get("kotlin", "Metadata")
   @JvmField val IMMUTABLE_MAP = XClassName.get("com.google.common.collect", "ImmutableMap")
-  @JvmField val SINGLETON = XClassName.get("jakarta.inject", "Singleton")
-  @JvmField val SINGLETON_JAVAX = XClassName.get("javax.inject", "Singleton")
-  @JvmField val SCOPE = XClassName.get("jakarta.inject", "Scope")
-  @JvmField val SCOPE_JAVAX = XClassName.get("javax.inject", "Scope")
-  @JvmField val INJECT = XClassName.get("jakarta.inject", "Inject")
-  @JvmField val INJECT_JAVAX = XClassName.get("javax.inject", "Inject")
-  @JvmField val QUALIFIER = XClassName.get("jakarta.inject", "Qualifier")
-  @JvmField val QUALIFIER_JAVAX = XClassName.get("javax.inject", "Qualifier")
   @JvmField val IMMUTABLE_SET = XClassName.get("com.google.common.collect", "ImmutableSet")
   @JvmField
   val MORE_EXECUTORS = XClassName.get("com.google.common.util.concurrent", "MoreExecutors")
@@ -197,6 +187,25 @@ object XTypeNames {
   @JvmField val CLASS = XClassName.get("java.lang", "Class")
   @JvmField val KCLASS = XClassName.get("kotlin.reflect", "KClass")
   @JvmField val UNIT_VOID_CLASS = XTypeName.UNIT_VOID.box()
+
+  private val JAKARTA_SINGLETON = XClassName.get("jakarta.inject", "Singleton")
+  private val JAKARTA_SCOPE = XClassName.get("jakarta.inject", "Scope")
+  private val JAKARTA_INJECT = XClassName.get("jakarta.inject", "Inject")
+  private val JAKARTA_QUALIFIER = XClassName.get("jakarta.inject", "Qualifier")
+  private val JAKARTA_PROVIDER = XClassName.get("jakarta.inject", "Provider")
+  private val JAVAX_SINGLETON = XClassName.get("javax.inject", "Singleton")
+  private val JAVAX_SCOPE = XClassName.get("javax.inject", "Scope")
+  private val JAVAX_INJECT = XClassName.get("javax.inject", "Inject")
+  private val JAVAX_QUALIFIER = XClassName.get("javax.inject", "Qualifier")
+  // This is public since a number of places still require explicit usages of javax.inject.Provider.
+  // However, prefer to use the providerTypeNames() set below when possible.
+  @JvmField val JAVAX_PROVIDER = XClassName.get("javax.inject", "Provider")
+
+  @JvmStatic fun singletonTypeNames() = setOf(JAVAX_SINGLETON, JAKARTA_SINGLETON)
+  @JvmStatic fun scopeTypeNames() = setOf(JAVAX_SCOPE, JAKARTA_SCOPE)
+  @JvmStatic fun injectTypeNames() = setOf(JAVAX_INJECT, JAKARTA_INJECT)
+  @JvmStatic fun qualifierTypeNames() = setOf(JAVAX_QUALIFIER, JAKARTA_QUALIFIER)
+  @JvmStatic fun providerTypeNames() = setOf(JAVAX_PROVIDER, JAKARTA_PROVIDER)
 
   @JvmStatic
   fun abstractProducerOf(typeName: XTypeName): XTypeName {
@@ -244,8 +253,8 @@ object XTypeNames {
   }
 
   @JvmStatic
-  fun providerOf(typeName: XTypeName): XTypeName {
-    return PROVIDER.parametrizedBy(typeName)
+  fun javaxProviderOf(typeName: XTypeName): XTypeName {
+    return JAVAX_PROVIDER.parametrizedBy(typeName)
   }
 
   @JvmStatic

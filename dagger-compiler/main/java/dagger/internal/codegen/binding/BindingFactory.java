@@ -421,7 +421,7 @@ public final class BindingFactory {
                 // -Adagger.useFrameworkTypeInMapMultibindingContributionKey.
                 : optionalBindingType.get() == BindingType.PRODUCTION
                     ? keyFactory.forDelegateBinding(delegateDeclaration, XTypeNames.PRODUCER)
-                    : keyFactory.forDelegateBinding(delegateDeclaration, XTypeNames.PROVIDER))
+                    : keyFactory.forDelegateBinding(delegateDeclaration, XTypeNames.JAVAX_PROVIDER))
         .scope(injectionAnnotations.getScope(delegateDeclaration.bindingElement().get()))
         .build();
   }

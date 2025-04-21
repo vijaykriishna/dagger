@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static org.junit.Assert.assertThrows;
 
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.util.CompilationResultSubject;
 import androidx.room.compiler.processing.util.Source;
@@ -53,12 +54,15 @@ public class ComponentProcessorTest {
 
   private static final XTypeSpec GENERATED_INJECT_TYPE =
       XTypeSpecs.classBuilder("GeneratedInjectType")
-          .addFunction(constructorBuilder().addAnnotation(XTypeNames.INJECT_JAVAX).build())
+          .addFunction(
+              constructorBuilder()
+                  .addAnnotation(XClassName.get("javax.inject", "Inject"))
+                  .build())
           .build();
 
   private static final XTypeSpec GENERATED_QUALIFIER =
       XTypeSpecs.annotationBuilder("GeneratedQualifier")
-          .addAnnotation(XTypeNames.QUALIFIER_JAVAX)
+          .addAnnotation(XClassName.get("javax.inject", "Qualifier"))
           .build();
 
   private static final XTypeSpec GENERATED_MODULE =

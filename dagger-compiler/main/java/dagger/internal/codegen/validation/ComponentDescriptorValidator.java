@@ -33,6 +33,8 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSetMult
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XTypeNames.singletonTypeNames;
+import static java.util.Collections.disjoint;
 import static java.util.stream.Collectors.joining;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
@@ -65,7 +67,6 @@ import dagger.internal.codegen.compileroption.ValidationType;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XAnnotations;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -216,8 +217,7 @@ public final class ComponentDescriptorValidator {
       if (!scopes.isEmpty()) {
         // Dagger 1.x scope compatibility requires this be suppress-able.
         if (compilerOptions.scopeCycleValidationType().diagnosticKind().isPresent()
-            && (scopes.contains(XTypeNames.SINGLETON)
-                || scopes.contains(XTypeNames.SINGLETON_JAVAX))) {
+            && !disjoint(scopes, singletonTypeNames())) {
           // Singleton is a special-case representing the longest lifetime, and therefore
           // @Singleton components may not depend on scoped components
           if (!scopedDependencies.isEmpty()) {

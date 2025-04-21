@@ -16,13 +16,13 @@
 
 package dagger.internal.codegen.base;
 
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import java.util.Set;
 
 /**
  * A collection of utility methods for dealing with Dagger framework types. A framework type is any
@@ -31,11 +31,11 @@ import java.util.Set;
 public final class FrameworkTypes {
   // TODO(erichang): Add the Jakarta Provider here
   private static final ImmutableSet<XClassName> PROVISION_TYPES =
-      ImmutableSet.of(
-          XTypeNames.PROVIDER,
-          XTypeNames.JAKARTA_PROVIDER,
-          XTypeNames.LAZY,
-          XTypeNames.MEMBERS_INJECTOR);
+      ImmutableSet.<XClassName>builder()
+          .addAll(providerTypeNames())
+          .add(XTypeNames.LAZY)
+          .add(XTypeNames.MEMBERS_INJECTOR)
+          .build();
 
   // NOTE(beder): ListenableFuture is not considered a producer framework type because it is not
   // defined by the framework, so we can't treat it specially in ordinary Dagger.
@@ -49,11 +49,11 @@ public final class FrameworkTypes {
       ImmutableSet.of(XTypeNames.PRODUCED);
 
   public static final ImmutableSet<XClassName> MAP_VALUE_FRAMEWORK_TYPES =
-      ImmutableSet.of(
-          XTypeNames.PRODUCED,
-          XTypeNames.PRODUCER,
-          XTypeNames.PROVIDER,
-          XTypeNames.JAKARTA_PROVIDER);
+      ImmutableSet.<XClassName>builder()
+          .addAll(providerTypeNames())
+          .add(XTypeNames.PRODUCED)
+          .add(XTypeNames.PRODUCER)
+          .build();
 
   // This is a set of types that are disallowed from use, but also aren't framework types in the
   // sense that they aren't supported. Like we shouldn't try to unwrap these if we see them, though
@@ -63,28 +63,24 @@ public final class FrameworkTypes {
 
   /** Returns true if the type represents a producer-related framework type. */
   public static boolean isProducerType(XType type) {
-    return typeIsOneOf(PRODUCTION_TYPES, type);
+    return isTypeOf(type, PRODUCTION_TYPES);
   }
 
   /** Returns true if the type represents a framework type. */
   public static boolean isFrameworkType(XType type) {
-    return typeIsOneOf(ALL_FRAMEWORK_TYPES, type);
+    return isTypeOf(type, ALL_FRAMEWORK_TYPES);
   }
 
   public static boolean isSetValueFrameworkType(XType type) {
-    return typeIsOneOf(SET_VALUE_FRAMEWORK_TYPES, type);
+    return isTypeOf(type, SET_VALUE_FRAMEWORK_TYPES);
   }
 
   public static boolean isMapValueFrameworkType(XType type) {
-    return typeIsOneOf(MAP_VALUE_FRAMEWORK_TYPES, type);
+    return isTypeOf(type, MAP_VALUE_FRAMEWORK_TYPES);
   }
 
   public static boolean isDisallowedType(XType type) {
-    return typeIsOneOf(DISALLOWED_TYPES, type);
-  }
-
-  private static boolean typeIsOneOf(Set<XClassName> classNames, XType type) {
-    return classNames.stream().anyMatch(className -> isTypeOf(type, className));
+    return isTypeOf(type, DISALLOWED_TYPES);
   }
 
   private FrameworkTypes() {}

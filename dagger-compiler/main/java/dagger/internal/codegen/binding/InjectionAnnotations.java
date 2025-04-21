@@ -35,6 +35,10 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
+import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
+import static dagger.internal.codegen.xprocessing.XTypeNames.injectTypeNames;
+import static dagger.internal.codegen.xprocessing.XTypeNames.qualifierTypeNames;
+import static dagger.internal.codegen.xprocessing.XTypeNames.scopeTypeNames;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
@@ -331,27 +335,25 @@ public final class InjectionAnnotations {
   }
 
   private static boolean hasQualifierAnnotation(XAnnotation annotation) {
-    return annotation
-        .getType()
-        .getTypeElement()
-        .hasAnyAnnotation(XTypeNames.QUALIFIER, XTypeNames.QUALIFIER_JAVAX);
+    return hasAnyAnnotation(annotation.getType().getTypeElement(), qualifierTypeNames());
   }
 
   private static boolean hasScopeAnnotation(XAnnotation annotation) {
-    return annotation
-        .getType()
-        .getTypeElement()
-        .hasAnyAnnotation(XTypeNames.SCOPE, XTypeNames.SCOPE_JAVAX);
+    return hasAnyAnnotation(annotation.getType().getTypeElement(), scopeTypeNames());
+  }
+
+  private static boolean hasInjectOrAssistedInjectAnnotation(XElement element) {
+    return hasInjectAnnotation(element) || hasAssistedInjectAnnotation(element);
   }
 
   /** Returns true if the given element is annotated with {@link Inject}. */
   public static boolean hasInjectAnnotation(XElement element) {
-    return element.hasAnyAnnotation(XTypeNames.INJECT, XTypeNames.INJECT_JAVAX);
+    return hasAnyAnnotation(element, injectTypeNames());
   }
 
-  private static boolean hasInjectOrAssistedInjectAnnotation(XElement element) {
-    return element.hasAnyAnnotation(
-        XTypeNames.INJECT, XTypeNames.INJECT_JAVAX, XTypeNames.ASSISTED_INJECT);
+  /** Returns true if the given element is annotated with {@link Inject}. */
+  public static boolean hasAssistedInjectAnnotation(XElement element) {
+    return element.hasAnnotation(XTypeNames.ASSISTED_INJECT);
   }
 
   /**
@@ -397,13 +399,10 @@ public final class InjectionAnnotations {
             "No MembersInjector found for " + field.getEnclosingElement());
       }
     } else {
-      return Stream.concat(
-              kotlinMetadataUtil
-                  .getSyntheticPropertyAnnotations(field, XTypeNames.QUALIFIER)
-                  .stream(),
-              kotlinMetadataUtil
-                  .getSyntheticPropertyAnnotations(field, XTypeNames.QUALIFIER_JAVAX)
-                  .stream())
+      return qualifierTypeNames().stream()
+          .flatMap(
+              qualifier ->
+                  kotlinMetadataUtil.getSyntheticPropertyAnnotations(field, qualifier).stream())
           .collect(toImmutableSet());
     }
   }

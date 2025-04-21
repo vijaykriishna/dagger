@@ -130,7 +130,7 @@ public final class KeyFactory {
 
   public Key forProvidesMethod(XMethodElement method, XTypeElement contributingModule) {
     checkArgument(method.hasAnnotation(XTypeNames.PROVIDES));
-    return forBindingMethod(method, contributingModule, Optional.of(XTypeNames.PROVIDER));
+    return forBindingMethod(method, contributingModule, Optional.of(XTypeNames.JAVAX_PROVIDER));
   }
 
   public Key forProducesMethod(XMethodElement method, XTypeElement contributingModule) {
@@ -188,7 +188,7 @@ public final class KeyFactory {
         MapType.isMap(returnType)
             ? mapOfFrameworkType(
                 MapType.from(returnType).keyType(),
-                XTypeNames.PROVIDER,
+                XTypeNames.JAVAX_PROVIDER,
                 MapType.from(returnType).valueType())
             : returnType;
     return forMethod(method, keyType);

@@ -187,7 +187,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     return binding.bindingType().equals(BindingType.PROVISION)
         && frameworkInstanceCreationExpression
             .alternativeFrameworkClass()
-            .map(XTypeNames.PROVIDER::equals)
+            .map(XTypeNames.JAVAX_PROVIDER::equals)
             .orElse(true);
   }
 

@@ -26,6 +26,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
+import static dagger.internal.codegen.xprocessing.XTypeNames.injectTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -197,10 +198,11 @@ public final class InjectValidator implements ClearableCache {
 
       XClassName injectAnnotation =
           getAnyAnnotation(
-                  constructorElement,
-                  XTypeNames.INJECT,
-                  XTypeNames.INJECT_JAVAX,
-                  XTypeNames.ASSISTED_INJECT)
+              constructorElement,
+              ImmutableSet.<XClassName>builder()
+                  .addAll(injectTypeNames())
+                  .add(XTypeNames.ASSISTED_INJECT)
+                  .build())
               .map(XAnnotations::asClassName)
               .get();
 
@@ -229,8 +231,7 @@ public final class InjectValidator implements ClearableCache {
                 "@Scope annotations are not allowed on @%s constructors",
                 injectAnnotation.getSimpleName());
 
-        if (injectAnnotation.equals(XTypeNames.INJECT)
-            || injectAnnotation.equals(XTypeNames.INJECT_JAVAX)) {
+        if (InjectionAnnotations.hasInjectAnnotation(constructorElement)) {
           scopeErrorMsg += "; annotate the class instead";
         }
 
@@ -277,7 +278,7 @@ public final class InjectValidator implements ClearableCache {
       // Note: superficial validation of the annotations is done as part of getting the scopes.
       ImmutableSet<Scope> scopes =
           injectionAnnotations.getScopes(constructorElement.getEnclosingElement());
-      if (injectAnnotation.equals(XTypeNames.ASSISTED_INJECT)) {
+      if (InjectionAnnotations.hasAssistedInjectAnnotation(constructorElement)) {
         for (Scope scope : scopes) {
           builder.addError(
               "A type with an @AssistedInject-annotated constructor cannot be scoped",

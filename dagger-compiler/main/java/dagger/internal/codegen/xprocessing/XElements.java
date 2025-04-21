@@ -309,6 +309,12 @@ public final class XElements {
 
   /** Returns all annotations from {@code annotations} that annotate {@code annotated}. */
   public static ImmutableSet<XAnnotation> getAllAnnotations(
+      XAnnotated annotated, XClassName... annotations) {
+    return getAllAnnotations(annotated, ImmutableSet.copyOf(annotations));
+  }
+
+  /** Returns all annotations from {@code annotations} that annotate {@code annotated}. */
+  public static ImmutableSet<XAnnotation> getAllAnnotations(
       XAnnotated annotated, Collection<XClassName> annotations) {
     return annotations.stream()
         .filter(annotated::hasAnnotation)

@@ -19,6 +19,7 @@ package dagger.internal.codegen.base;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.valuesOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
@@ -156,12 +157,7 @@ public final class OptionalType {
   }
 
   public static boolean isOptionalProviderType(XType type) {
-    if (OptionalType.isOptional(type)) {
-      OptionalType optionalType = OptionalType.from(type);
-      if (isTypeOf(optionalType.valueType(), XTypeNames.PROVIDER)) {
-        return true;
-      }
-    }
-    return false;
+    return OptionalType.isOptional(type)
+        && isTypeOf(OptionalType.from(type).valueType(), providerTypeNames());
   }
 }

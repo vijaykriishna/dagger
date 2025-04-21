@@ -22,6 +22,7 @@ import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asConstructor;
 import static dagger.internal.codegen.xprocessing.XElements.asField;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
+import static dagger.internal.codegen.xprocessing.XTypeNames.injectTypeNames;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XElement;
@@ -50,7 +51,10 @@ final class InjectProcessingStep extends TypeCheckingProcessingStep<XElement> {
 
   @Override
   public ImmutableSet<XClassName> annotationClassNames() {
-    return ImmutableSet.of(XTypeNames.INJECT, XTypeNames.INJECT_JAVAX, XTypeNames.ASSISTED_INJECT);
+    return ImmutableSet.<XClassName>builder()
+        .addAll(injectTypeNames())
+        .add(XTypeNames.ASSISTED_INJECT)
+        .build();
   }
 
   // Override to avoid prevalidation. The InjectProcessingStep does all of the required validation

@@ -206,7 +206,7 @@ final class InjectBindingRegistryImpl implements InjectBindingRegistry {
   }
 
   private final BindingsCollection<ContributionBinding> injectionBindings =
-      new BindingsCollection<>(XTypeNames.PROVIDER);
+      new BindingsCollection<>(XTypeNames.JAVAX_PROVIDER);
   private final BindingsCollection<MembersInjectionBinding> membersInjectionBindings =
       new BindingsCollection<>(XTypeNames.MEMBERS_INJECTOR);
 

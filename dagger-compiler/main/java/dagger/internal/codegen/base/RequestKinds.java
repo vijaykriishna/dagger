@@ -23,11 +23,12 @@ import static dagger.internal.codegen.model.RequestKind.PRODUCED;
 import static dagger.internal.codegen.model.RequestKind.PRODUCER;
 import static dagger.internal.codegen.model.RequestKind.PROVIDER;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.wrapType;
+import static dagger.internal.codegen.xprocessing.XTypeNames.javaxProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.lazyOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.producedOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.producerOf;
-import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.checkTypePresent;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
@@ -56,7 +57,8 @@ public final class RequestKinds {
         return type;
 
       case PROVIDER_OF_LAZY:
-        return wrapType(XTypeNames.PROVIDER, requestType(LAZY, type, processingEnv), processingEnv);
+        return wrapType(
+            XTypeNames.JAVAX_PROVIDER, requestType(LAZY, type, processingEnv), processingEnv);
 
       case FUTURE:
         return wrapType(XTypeNames.LISTENABLE_FUTURE, type, processingEnv);
@@ -73,13 +75,13 @@ public final class RequestKinds {
         return keyType;
 
       case PROVIDER:
-        return providerOf(keyType);
+        return javaxProviderOf(keyType);
 
       case LAZY:
         return lazyOf(keyType);
 
       case PROVIDER_OF_LAZY:
-        return providerOf(lazyOf(keyType));
+        return javaxProviderOf(lazyOf(keyType));
 
       case PRODUCER:
         return producerOf(keyType);
@@ -99,7 +101,7 @@ public final class RequestKinds {
       ImmutableMap.of(
           // Default to the javax Provider since that is what is used for the binding graph
           // representation.
-          PROVIDER, XTypeNames.PROVIDER,
+          PROVIDER, XTypeNames.JAVAX_PROVIDER,
           LAZY, XTypeNames.LAZY,
           PRODUCER, XTypeNames.PRODUCER,
           PRODUCED, XTypeNames.PRODUCED);
@@ -113,13 +115,13 @@ public final class RequestKinds {
       return RequestKind.INSTANCE;
     }
 
-    if ((isTypeOf(type, XTypeNames.PROVIDER) || isTypeOf(type, XTypeNames.JAKARTA_PROVIDER))
-        && isTypeOf(unwrapType(type), XTypeNames.LAZY)) {
-      return RequestKind.PROVIDER_OF_LAZY;
-    }
-
-    if (isTypeOf(type, XTypeNames.JAKARTA_PROVIDER)) {
-      return RequestKind.PROVIDER;
+    // The Jakarta Provider won't be matched on the check via framework classes so look for
+    // Provider types here. Similarly, Provider<Lazy<>> will not be correctly matched either so
+    // explicitly look for it here as well.
+    if (isTypeOf(type, providerTypeNames())) {
+      return isTypeOf(unwrapType(type), XTypeNames.LAZY)
+          ? RequestKind.PROVIDER_OF_LAZY
+          : RequestKind.PROVIDER;
     }
 
     return FRAMEWORK_CLASSES.keySet().stream()

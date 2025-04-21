@@ -19,7 +19,7 @@ package dagger.internal.codegen.processingstep;
 import static dagger.internal.codegen.binding.SourceFiles.generatedMonitoringModuleName;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
-import static dagger.internal.codegen.xprocessing.XTypeNames.providerOf;
+import static dagger.internal.codegen.xprocessing.XTypeNames.javaxProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.setOf;
 import static dagger.internal.codegen.xprocessing.XTypeSpecs.classBuilder;
 import static javax.lang.model.element.Modifier.ABSTRACT;
@@ -89,9 +89,9 @@ final class MonitoringModuleGenerator extends SourceFileGenerator<XTypeElement> 
         .addModifiers(STATIC)
         .addAnnotation(XTypeNames.PROVIDES)
         .addAnnotation(XTypeNames.PRODUCTION_SCOPE)
-        .addParameter("component", providerOf(componentElement.getType().asTypeName()))
+        .addParameter("component", javaxProviderOf(componentElement.getType().asTypeName()))
         .addParameter(
-            "factories", providerOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY)))
+            "factories", javaxProviderOf(setOf(XTypeNames.PRODUCTION_COMPONENT_MONITOR_FACTORY)))
         .addStatement(
             "return %T.createMonitorForComponent(component, factories)", XTypeNames.MONITORS)
         .build();

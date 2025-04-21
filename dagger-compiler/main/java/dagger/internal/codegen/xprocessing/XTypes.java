@@ -50,6 +50,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -282,6 +283,14 @@ public final class XTypes {
   /** Returns {@code true} if the raw type of {@code type} is equal to {@code className}. */
   public static boolean isTypeOf(XType type, XClassName className) {
     return isDeclared(type) && type.getTypeElement().asClassName().equals(className);
+  }
+
+  /**
+   * Returns {@code true} if the raw type of {@code type} is equal to any of the given {@code
+   * classNames}.
+   */
+  public static boolean isTypeOf(XType type, Collection<XClassName> classNames) {
+    return classNames.stream().anyMatch(className -> isTypeOf(type, className));
   }
 
   /** Returns {@code true} if the given type represents the {@code null} type. */
