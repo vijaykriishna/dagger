@@ -36,10 +36,10 @@ import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.internal.codegen.model.BindingKind;
@@ -222,24 +222,22 @@ public final class AssistedInjectionAnnotations {
               Optional.ofNullable(parameter.getAnnotation(XTypeNames.ASSISTED))
                   .map(assisted -> assisted.getAsString("value"))
                   .orElse(""),
-              parameterType.getTypeName());
+              XTypes.equivalence().wrap(parameterType));
       assistedParameter.parameterElement = parameter;
-      assistedParameter.parameterType = parameterType;
       return assistedParameter;
     }
 
     private XExecutableParameterElement parameterElement;
-    private XType parameterType;
 
     /** Returns the string qualifier from the {@link Assisted#value()}. */
     public abstract String qualifier();
 
-    /** Returns the type annotated with {@link Assisted}. */
-    abstract TypeName typeName();
+    /** Returns the equivalence wrapper for the type annotated with {@link Assisted}. */
+    abstract Equivalence.Wrapper<XType> wrappedType();
 
     /** Returns the type annotated with {@link Assisted}. */
     public final XType type() {
-      return parameterType;
+      return wrappedType().get();
     }
 
     public final XExecutableParameterElement element() {

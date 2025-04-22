@@ -46,11 +46,11 @@ import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
+import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
 import dagger.internal.codegen.binding.ComponentDescriptor;
@@ -338,7 +338,7 @@ public final class ComponentDescriptorValidator {
       }
 
       // Validate that declared creator requirements (modules, dependencies) have unique types.
-      ImmutableSetMultimap<TypeName, XElement> declaredRequirementsByType =
+      ImmutableSetMultimap<Equivalence.Wrapper<XType>, XElement> declaredRequirementsByType =
           Multimaps.filterKeys(
                   creator.unvalidatedRequirementElements(),
                   creatorModuleAndDependencyRequirements::contains)
@@ -346,11 +346,11 @@ public final class ComponentDescriptorValidator {
               .stream()
               .collect(
                   toImmutableSetMultimap(
-                      entry -> entry.getKey().type().getTypeName(), Entry::getValue));
+                      entry -> XTypes.equivalence().wrap(entry.getKey().type()), Entry::getValue));
       declaredRequirementsByType
           .asMap()
           .forEach(
-              (type, elementsForType) -> {
+              (wrappedType, elementsForType) -> {
                 if (elementsForType.size() > 1) {
                   // TODO(cgdecker): Attach this error message to the factory method rather than
                   // the component type if the elements are factory method parameters AND the
@@ -359,7 +359,7 @@ public final class ComponentDescriptorValidator {
                       .addError(
                           String.format(
                               messages.multipleSettersForModuleOrDependencyType(),
-                              type,
+                              XTypes.toStableString(wrappedType.get()),
                               transform(
                                   elementsForType, element -> formatElement(element, container))),
                           creator.typeElement());

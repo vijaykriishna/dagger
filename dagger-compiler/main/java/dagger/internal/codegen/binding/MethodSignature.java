@@ -23,9 +23,10 @@ import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableList;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
+import dagger.internal.codegen.xprocessing.XTypes;
 
 /** A class that defines proper {@code equals} and {@code hashcode} for a method signature. */
 @AutoValue
@@ -33,9 +34,9 @@ public abstract class MethodSignature {
 
   abstract String name();
 
-  abstract ImmutableList<TypeName> parameterTypes();
+  abstract ImmutableList<Equivalence.Wrapper<XType>> parameterTypes();
 
-  abstract ImmutableList<TypeName> thrownTypes();
+  abstract ImmutableList<Equivalence.Wrapper<XType>> thrownTypes();
 
   public static MethodSignature forComponentMethod(
       ComponentMethodDescriptor componentMethod,
@@ -44,12 +45,14 @@ public abstract class MethodSignature {
     XMethodType methodType = componentMethod.methodElement().asMemberOf(componentType);
     return new AutoValue_MethodSignature(
         getSimpleName(componentMethod.methodElement()),
-        methodType.getParameterTypes().stream().map(XType::getTypeName).collect(toImmutableList()),
+        methodType.getParameterTypes().stream()
+            .map(XTypes.equivalence()::wrap)
+            .collect(toImmutableList()),
         // Using the thrown types of the method element, which should be the same as the method type
         // since thrown types can't use type variables.
         // TODO(bcorso): Support getting thrown types from XExecutableType in XProcessing.
         componentMethod.methodElement().getThrownTypes().stream()
-            .map(XType::getTypeName)
+            .map(XTypes.equivalence()::wrap)
             .collect(toImmutableList()));
   }
 }

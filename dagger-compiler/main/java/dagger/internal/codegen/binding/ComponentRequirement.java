@@ -30,13 +30,14 @@ import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.TypeName;
+import com.google.common.base.Equivalence;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.Optional;
 
 /** A type that a component needs an instance of. */
@@ -65,8 +66,6 @@ public abstract class ComponentRequirement {
     }
   }
 
-  private XType type;
-
   /** The kind of requirement. */
   public abstract Kind kind();
 
@@ -76,17 +75,17 @@ public abstract class ComponentRequirement {
     return kind().isBoundInstance();
   }
 
-  /** The type of the instance the component must have. */
-  abstract TypeName typeName();
+  /** Returns the equivalence wrapper for the component requirement type. */
+  abstract Equivalence.Wrapper<XType> wrappedType();
 
   /** The type of the instance the component must have. */
   public XType type() {
-    return type;
+    return wrappedType().get();
   }
 
   /** The element associated with the type of this requirement. */
   public XTypeElement typeElement() {
-    return type.getTypeElement();
+    return type().getTypeElement();
   }
 
   /** The action a component builder should take if it {@code null} is passed. */
@@ -241,9 +240,8 @@ public abstract class ComponentRequirement {
       String variableName) {
     ComponentRequirement requirement =
         new AutoValue_ComponentRequirement(
-            kind, type.getTypeName(), overrideNullPolicy, key, variableName);
+            kind, XTypes.equivalence().wrap(type), overrideNullPolicy, key, variableName);
     requirement.nullability = nullability;
-    requirement.type = type;
     return requirement;
   }
 
