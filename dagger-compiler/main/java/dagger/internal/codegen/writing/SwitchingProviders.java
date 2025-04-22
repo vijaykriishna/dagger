@@ -198,7 +198,7 @@ final class SwitchingProviders {
     private ImmutableList<XFunSpec> getMethods() {
       ImmutableList<XCodeBlock> switchCodeBlockPartitions = switchCodeBlockPartitions();
       if (switchCodeBlockPartitions.size() == 1) {
-        // There are less than MAX_CASES_PER_SWITCH cases, so no need for extra get methods.
+        // The case amount does not exceed MAX_CASES_PER_SWITCH, so no need for extra get methods.
         return ImmutableList.of(
             methodBuilder("get")
                 .addModifiers(PUBLIC)
