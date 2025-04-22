@@ -14,22 +14,16 @@
 # Description:
 #   Hilt android processors.
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "plugin",
     generates_api = 1,
-    processor_class = "dagger.hilt.android.processor.internal.androidentrypoint.AndroidEntryPointProcessor",
-    tags = [
-        "annotation=dagger.hilt.android.AndroidEntryPoint;" +
-        "genclass=${package}.Hilt_${outerclasses}${classname};" +
-        "genclass=${package}.${outerclasses}${classname}_EntryPoint",
-    ],
-    deps = [
-        ":processor_lib",
-    ],
+    processor_base_name = "AndroidEntryPoint",
+    processor_lib_dep = ":processor_lib",
 )
 
 java_library(

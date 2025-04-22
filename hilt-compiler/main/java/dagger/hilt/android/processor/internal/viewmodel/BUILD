@@ -16,14 +16,15 @@
 #   ViewModelInject processor.
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("@rules_java//java:defs.bzl", "java_plugin")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    processor_class = "dagger.hilt.android.processor.internal.viewmodel.ViewModelProcessor",
-    deps = [":processor_lib"],
+    processor_base_name = "ViewModel",
+    processor_lib_dep = ":processor_lib",
 )
 
 kt_jvm_library(

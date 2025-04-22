@@ -15,18 +15,19 @@
 # Description:
 #   A processor for @dagger.hilt.DefineComponent.
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    processor_class = "dagger.hilt.processor.internal.definecomponent.DefineComponentProcessor",
+    processor_base_name = "DefineComponent",
+    processor_lib_dep = ":processor_lib",
     visibility = [
         "//hilt-core/main/java/dagger/hilt:__pkg__",
     ],
-    deps = [":processor_lib"],
 )
 
 java_library(

@@ -15,15 +15,16 @@
 # Description:
 #   A processor that aggregates metadata about Hilt @InstallIn annotations
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "plugin",
     generates_api = 1,
-    processor_class = "dagger.hilt.processor.internal.aggregateddeps.AggregatedDepsProcessor",
-    deps = [":processor_lib"],
+    processor_base_name = "AggregatedDeps",
+    processor_lib_dep = ":processor_lib",
 )
 
 java_library(

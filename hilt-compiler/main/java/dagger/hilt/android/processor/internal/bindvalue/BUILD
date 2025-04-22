@@ -14,17 +14,16 @@
 # Description:
 #   Hilt android library for binding values in test processors.
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "bind_value_processor",
     generates_api = 1,
-    processor_class = "dagger.hilt.android.processor.internal.bindvalue.BindValueProcessor",
-    deps = [
-        ":bind_value_processor_lib",
-    ],
+    processor_base_name = "BindValue",
+    processor_lib_dep = ":bind_value_processor_lib",
 )
 
 java_library(

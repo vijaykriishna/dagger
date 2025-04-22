@@ -15,15 +15,16 @@
 # Description:
 #   A processor for @dagger.hilt.android.EarlyEntryPoint.
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = ["//:src"])
 
-java_plugin(
+compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    processor_class = "dagger.hilt.processor.internal.earlyentrypoint.EarlyEntryPointProcessor",
-    deps = [":processor_lib"],
+    processor_base_name = "EarlyEntryPoint",
+    processor_lib_dep = ":processor_lib",
 )
 
 java_library(
