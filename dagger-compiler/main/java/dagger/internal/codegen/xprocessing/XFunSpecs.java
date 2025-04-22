@@ -30,6 +30,7 @@ import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XName;
 import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
@@ -66,9 +67,6 @@ public final class XFunSpecs {
   public static Builder overridingWithoutParameters(XMethodElement method, XType owner) {
     XMethodType methodType = method.asMemberOf(owner);
     Nullability nullability = Nullability.of(method);
-    TypeName returnType =
-        Nullability.getTypeNameWithNullableAnnotations(methodType.getReturnType());
-
     Builder builder =
         // We're overriding the method so we have to use the jvm name here.
         methodBuilder(method.getJvmName())
@@ -76,7 +74,7 @@ public final class XFunSpecs {
             .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
             .addTypeVariables(methodType.getTypeVariables())
             .varargs(method.isVarArgs())
-            .returns(returnType);
+            .returns(Nullability.getTypeNameWithNullableAnnotations(methodType.getReturnType()));
     if (method.isPublic()) {
       builder.addModifiers(PUBLIC);
     } else if (method.isProtected()) {
@@ -109,10 +107,10 @@ public final class XFunSpecs {
     private boolean isOpen = false;
     private boolean isOverride = false;
     private boolean isVarArgs = false;
+    private XTypeName returnType = null;
     private final List<XCodeBlock> javadocs = new ArrayList<>();
     private final List<XParameterSpec> parameters = new ArrayList<>();
     // For now, we use a Object to allow for both XPoet and JavaPoet types.
-    private Object returnType = null;
     private final List<Object> annotations = new ArrayList<>();
     private final List<Object> typeVariableNames = new ArrayList<>();
     private final List<Object> exceptionNames = new ArrayList<>();
@@ -123,6 +121,10 @@ public final class XFunSpecs {
 
     public ImmutableList<XParameterSpec> getParameters() {
       return ImmutableList.copyOf(parameters);
+    }
+
+    public XTypeName getReturnType() {
+      return returnType;
     }
 
     @CanIgnoreReturnValue
@@ -178,23 +180,13 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Sets the modifiers of the method.
-     *
-     * @deprecated Use the individual setter methods instead.
-     */
-    @Deprecated
+    /** Sets the modifiers of the method. */
     @CanIgnoreReturnValue
     public Builder addModifiers(Collection<Modifier> modifiers) {
       return addModifiers(modifiers.toArray(new Modifier[0]));
     }
 
-    /**
-     * Sets the modifiers of the method.
-     *
-     * @deprecated Use the individual setter methods instead.
-     */
-    @Deprecated
+    /** Sets the modifiers of the method. */
     @CanIgnoreReturnValue
     public Builder addModifiers(Modifier... modifiers) {
       for (Modifier modifier : modifiers) {
@@ -300,6 +292,12 @@ public final class XFunSpecs {
     public Builder addAnnotationNames(Collection<XClassName> annotationNames) {
       annotationNames.forEach(this::addAnnotation);
       return this;
+    }
+
+    /** Adds the given annotation to the method. */
+    @CanIgnoreReturnValue
+    public Builder addAnnotation(XAnnotation annotation) {
+      return addAnnotation(XAnnotationSpecs.of(annotation));
     }
 
     /** Adds the given annotation to the method. */
@@ -476,19 +474,6 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Sets the return type of the method.
-     *
-     * @deprecated Use {@link #returns(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder returns(TypeName returnType) {
-      checkState(kind != Kind.CONSTRUCTOR);
-      this.returnType = returnType;
-      return this;
-    }
-
     /** Builds the method and returns an {@link XFunSpec}. */
     public XFunSpec build() {
       // TODO(bcorso): XPoet currently doesn't have a way to set default visibility (e.g.
@@ -556,13 +541,7 @@ public final class XFunSpecs {
       }
 
       if (returnType != null) {
-        if (returnType instanceof XTypeName) {
-          builder.returns((XTypeName) returnType);
-        } else if (returnType instanceof TypeName) {
-          toJavaPoet(builder).returns((TypeName) returnType);
-        } else {
-          throw new AssertionError("Unexpected returnType class: " + returnType.getClass());
-        }
+        builder.returns(returnType);
       }
 
       builder.addParameters(parameters);

@@ -45,6 +45,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static java.util.Comparator.comparing;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XMethodElement;
@@ -58,7 +59,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.TypeName;
 import dagger.Component;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ComponentAnnotation;
@@ -412,7 +412,7 @@ public final class ComponentValidator implements ClearableCache {
       private ImmutableSet<XTypeElement> includesFromSuperclasses(XTypeElement element) {
         ImmutableSet.Builder<XTypeElement> builder = ImmutableSet.builder();
         XType superclass = element.getSuperType();
-        while (superclass != null && !superclass.getTypeName().equals(TypeName.OBJECT)) {
+        while (superclass != null && !superclass.asTypeName().equals(XTypeName.ANY_OBJECT)) {
           element = superclass.getTypeElement();
           moduleAnnotation(element, superficialValidation)
               .ifPresent(moduleAnnotation -> builder.addAll(moduleAnnotation.includes()));

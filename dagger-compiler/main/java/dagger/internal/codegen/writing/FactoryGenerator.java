@@ -346,7 +346,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         methodBuilder(generatedProxyMethodName(binding))
             .addModifiers(PUBLIC, STATIC)
             .varargs(constructor.isVarArgs())
-            .returns(enclosingType.getType().getTypeName())
+            .returns(enclosingType.getType().asTypeName())
             .addTypeVariableNames(typeVariableNames(enclosingType))
             .addExceptions(constructor.getThrownTypes());
     XCodeBlock arguments =

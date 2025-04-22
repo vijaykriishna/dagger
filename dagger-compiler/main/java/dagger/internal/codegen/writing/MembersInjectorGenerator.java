@@ -77,7 +77,6 @@ import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
-import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -194,7 +193,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                     .build())
             .addTypeVariableNames(typeVariableNames(enclosingType));
 
-    qualifier.map(XAnnotations::getAnnotationSpec).ifPresent(builder::addAnnotation);
+    qualifier.ifPresent(builder::addAnnotation);
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
     XCodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());

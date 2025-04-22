@@ -16,27 +16,22 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.codegen.XTypeNameKt.toJavaPoet;
-import static androidx.room.compiler.codegen.XTypeNameKt.toKotlinPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static androidx.room.compiler.processing.XElementKt.isConstructor;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static com.google.common.collect.Iterables.getLast;
-import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.model.BindingKind.MEMBERS_INJECTOR;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import com.google.common.base.CaseFormat;
-import com.squareup.javapoet.AnnotationSpec;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /**
@@ -113,17 +108,7 @@ public final class FrameworkField {
 
     XTypeName fieldType =
         type.map(XType::asTypeName)
-            .map(
-                typeName ->
-                    toXPoet(
-                        toJavaPoet(typeName)
-                            .annotated(
-                                nullability.typeUseNullableAnnotations().stream()
-                                    .map(XConverters::toJavaPoet)
-                                    .map(AnnotationSpec::builder)
-                                    .map(AnnotationSpec.Builder::build)
-                                    .collect(toImmutableList())),
-                        toKotlinPoet(typeName)))
+            .map(typeName -> XTypeNames.withTypeNullability(typeName, nullability))
             .map(frameworkClassName::parametrizedBy)
             .orElse(frameworkClassName);
 

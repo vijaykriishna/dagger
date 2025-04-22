@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static com.google.common.base.Verify.verify;
@@ -45,7 +44,6 @@ import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import com.google.auto.value.AutoValue;
-import com.squareup.javapoet.TypeVariableName;
 import dagger.internal.codegen.base.OptionalType;
 import dagger.internal.codegen.base.OptionalType.OptionalKind;
 import dagger.internal.codegen.binding.BindingType;
@@ -135,7 +133,7 @@ final class OptionalFactories {
    * absent value.
    */
   private XFunSpec absentOptionalProviderMethod(OptionalKind optionalKind) {
-    XTypeName typeVariable = toXPoet(TypeVariableName.get("T"));
+    XTypeName typeVariable = XTypeNames.getTypeVariableName("T");
     return methodBuilder(
             String.format(
                 "absent%sProvider", UPPER_UNDERSCORE.to(UPPER_CAMEL, optionalKind.name())))
@@ -194,7 +192,7 @@ final class OptionalFactories {
 
     /** The type variable for the factory class. */
     XTypeName typeVariable() {
-      return toXPoet(TypeVariableName.get("T"));
+      return XTypeNames.getTypeVariableName("T");
     }
 
     /** The type contained by the {@code Optional}. */

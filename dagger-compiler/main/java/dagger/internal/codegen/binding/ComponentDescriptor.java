@@ -39,6 +39,7 @@ import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplemen
 import static dagger.internal.codegen.xprocessing.XTypeNames.isFutureType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XMethodType;
@@ -56,7 +57,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
-import com.squareup.javapoet.TypeName;
 import dagger.Component;
 import dagger.Module;
 import dagger.Subcomponent;
@@ -495,7 +495,7 @@ public abstract class ComponentDescriptor {
   private static boolean isComponentContributionMethod(XMethodElement method) {
     return method.getParameters().isEmpty()
         && !isVoid(method.getReturnType())
-        && !method.getEnclosingElement().getClassName().equals(TypeName.OBJECT)
+        && !method.getEnclosingElement().asClassName().equals(XTypeName.ANY_OBJECT)
         && !NON_CONTRIBUTING_OBJECT_METHOD_NAMES.contains(getSimpleName(method));
   }
 

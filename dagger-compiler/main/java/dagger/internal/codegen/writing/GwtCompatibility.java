@@ -18,9 +18,9 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
-import com.squareup.javapoet.AnnotationSpec;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import java.util.Optional;
@@ -31,14 +31,15 @@ final class GwtCompatibility {
    * Returns a {@code @GwtIncompatible} annotation that is applied to {@code binding}'s {@link
    * Binding#bindingElement()} or any enclosing type.
    */
-  static Optional<AnnotationSpec> gwtIncompatibleAnnotation(Binding binding) {
+  static Optional<XAnnotationSpec> gwtIncompatibleAnnotation(Binding binding) {
     checkArgument(binding.bindingElement().isPresent());
     XElement element = binding.bindingElement().get();
     while (element != null) {
-      Optional<AnnotationSpec> gwtIncompatible =
+      Optional<XAnnotationSpec> gwtIncompatible =
           element.getAllAnnotations().stream()
               .filter(GwtCompatibility::isGwtIncompatible)
-              .map(XAnnotations::getAnnotationSpec)
+              .map(XAnnotations::asClassName)
+              .map(XAnnotationSpec::of)
               .findFirst();
       if (gwtIncompatible.isPresent()) {
         return gwtIncompatible;

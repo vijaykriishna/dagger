@@ -16,10 +16,14 @@
 
 package dagger.internal.codegen.xprocessing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XTypeName;
+import androidx.room.compiler.processing.JavaPoetExtKt;
+import androidx.room.compiler.processing.XAnnotation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -27,6 +31,16 @@ import com.squareup.javapoet.AnnotationSpec;
 
 /** Static factories to create {@link AnnotationSpec}s. */
 public final class XAnnotationSpecs {
+  public static XAnnotationSpec of(XAnnotation annotation) {
+    return toXPoet(
+        JavaPoetExtKt.toAnnotationSpec(annotation, /* includeDefaultValues= */ false),
+        // TODO(b/411661393): Add support for annotation values. For now, the KotlinPoet
+        // implementation only copies the class name and ignores the annotation values.
+        com.squareup.kotlinpoet.AnnotationSpec
+            .builder(toKotlinPoet(XAnnotations.asClassName(annotation)))
+            .build());
+  }
+
   /** Values for an {@link SuppressWarnings} annotation. */
   public enum Suppression {
     RAWTYPES("rawtypes"),

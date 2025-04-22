@@ -24,16 +24,16 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.simpleVariableName;
 import static dagger.internal.codegen.langmodel.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
-import static dagger.internal.codegen.xprocessing.XTypeNames.rawJavaTypeName;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
+import androidx.room.compiler.codegen.XAnnotationSpec;
+import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XParameterSpec;
@@ -45,14 +45,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.ComponentCreatorDescriptor;
 import dagger.internal.codegen.binding.ComponentDescriptor;
 import dagger.internal.codegen.binding.ComponentRequirement;
 import dagger.internal.codegen.binding.ComponentRequirement.NullPolicy;
 import dagger.internal.codegen.compileroption.CompilerOptions;
+import dagger.internal.codegen.xprocessing.XCodeBlocks;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
@@ -66,6 +65,8 @@ import javax.lang.model.element.Modifier;
 
 /** Factory for creating {@link ComponentCreatorImplementation} instances. */
 final class ComponentCreatorImplementationFactory {
+  private static final XAnnotationSpec JSPECIFY_NULLABLE =
+      XAnnotationSpec.of(XClassName.get("org.jspecify.annotations", "Nullable"));
 
   private final CompilerOptions compilerOptions;
   private final ComponentImplementation componentImplementation;
@@ -181,12 +182,11 @@ final class ComponentCreatorImplementationFactory {
       ImmutableMap<ComponentRequirement, XPropertySpec> result =
           Maps.toMap(
               Sets.intersection(neededUserSettableRequirements(), setterMethods()),
-              requirement ->
-                  XPropertySpecs.builder(
-                          requirement.type().getTypeName(),
-                          fieldNames.getUniqueName(requirement.variableName()),
-                          PRIVATE)
-                      .build());
+              requirement -> {
+                XTypeName typeName = requirement.type().asTypeName();
+                return XPropertySpecs.of(
+                    fieldNames.getUniqueName(requirement.variableName()), typeName, PRIVATE);
+              });
       classBuilder.addProperties(result.values());
       return result;
     }
@@ -276,7 +276,7 @@ final class ComponentCreatorImplementationFactory {
 
     private XFunSpec maybeReturnThis(XFunSpecs.Builder method) {
       XFunSpec built = method.build();
-      if (toJavaPoet(built).returnType.equals(TypeName.VOID)) {
+      if (method.getReturnType().equals(XTypeName.UNIT_VOID)) {
         return built;
       }
       return method.addStatement("return this").build();
@@ -287,10 +287,10 @@ final class ComponentCreatorImplementationFactory {
     }
 
     XFunSpec factoryMethod() {
-      XFunSpecs.Builder factoryMethod = factoryMethodBuilder();
-      factoryMethod
-          .returns(componentDescriptor().typeElement().getClassName())
-          .addModifiers(PUBLIC);
+      XFunSpecs.Builder factoryMethod =
+          factoryMethodBuilder()
+              .returns(componentDescriptor().typeElement().asClassName())
+              .addModifiers(PUBLIC);
 
       ImmutableMap<ComponentRequirement, String> factoryMethodParameters =
           factoryMethodParameters();
@@ -332,9 +332,7 @@ final class ComponentCreatorImplementationFactory {
               "%T.checkBuilderRequirement(%N, %L)",
               XTypeNames.DAGGER_PRECONDITIONS,
               field,
-              toXPoet(
-                  CodeBlock.of(
-                      "$T.class", rawJavaTypeName(toJavaPoet(field).type.withoutAnnotations()))));
+              XCodeBlocks.ofJavaClassLiteral(field.getType().getRawTypeName()));
           break;
         case ALLOW:
           break;
@@ -462,7 +460,7 @@ final class ComponentCreatorImplementationFactory {
       XFunSpecs.Builder method = overriding(supertypeMethod, creatorType());
       if (!isVoid(supertypeMethod.getReturnType())) {
         // Take advantage of covariant returns so that we don't have to worry about type variables
-        method.returns(toJavaPoet(componentImplementation.getCreatorName()));
+        method.returns(componentImplementation.getCreatorName());
       }
       return method;
     }

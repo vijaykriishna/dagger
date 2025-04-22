@@ -20,13 +20,13 @@ import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 
 import androidx.room.compiler.codegen.CodeLanguage;
 import androidx.room.compiler.codegen.XFileSpec;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFiler;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XProcessingStep;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ final class GeneratingProcessingStep implements XProcessingStep {
       // Add an arbitrary orginating element, otherwise XProcessing will output a warning in KSP.
       XTypeSpec generatedTypeSpec =
           XTypeSpecs.toBuilder(typeSpec)
-              .addOriginatingElement(env.requireTypeElement(TypeName.OBJECT))
+              .addOriginatingElement(env.requireTypeElement(XTypeName.ANY_OBJECT))
               .build();
       XFileSpec.builder(pkgName, generatedTypeSpec)
           .build()

@@ -45,7 +45,6 @@ import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.ContributionBinding;
@@ -196,7 +195,7 @@ final class InjectionMethods {
                 // Object as the first parameter. If so, cast to the supertype which is accessible
                 // from within generatedTypeName
                 XCodeBlock maybeCastedInstance =
-                    instanceType.getTypeName().equals(TypeName.OBJECT)
+                    instanceType.asTypeName().equals(XTypeName.ANY_OBJECT)
                             && isRawTypeAccessible(
                                 injectSiteType, generatedTypeName.getPackageName())
                         ? XCodeBlock.ofCast(

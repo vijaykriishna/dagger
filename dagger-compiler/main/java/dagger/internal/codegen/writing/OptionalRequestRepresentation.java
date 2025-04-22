@@ -23,8 +23,8 @@ import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8Sour
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
-import com.squareup.javapoet.TypeName;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -93,7 +93,7 @@ final class OptionalRequestRepresentation extends RequestRepresentation {
         : XExpression.create(
             processingEnv.getDeclaredType(
                 processingEnv.findTypeElement(optionalKind.className()),
-                processingEnv.findType(TypeName.OBJECT)),
+                processingEnv.findType(XTypeName.ANY_OBJECT)),
             optionalKind.presentObjectExpression(dependencyExpression));
   }
 

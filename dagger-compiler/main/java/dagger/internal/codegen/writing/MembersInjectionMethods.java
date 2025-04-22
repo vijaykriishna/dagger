@@ -27,11 +27,11 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
 import androidx.room.compiler.codegen.XParameterSpec;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
-import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
@@ -100,7 +100,7 @@ final class MembersInjectionMethods {
     XType membersInjectedType =
         isTypeAccessibleFrom(keyType, shardImplementation.name().getPackageName())
             ? keyType
-            : processingEnv.requireType(TypeName.OBJECT);
+            : processingEnv.requireType(XTypeName.ANY_OBJECT);
     String bindingTypeName = getSimpleName(binding.bindingTypeElement().get());
     // TODO(ronshapiro): include type parameters in this name e.g. injectFooOfT, and outer class
     // simple names Foo.Builder -> injectFooBuilder

@@ -24,6 +24,7 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asVariable;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.compat.XConverters;
 import androidx.room.compiler.processing.XAnnotated;
 import androidx.room.compiler.processing.XElement;
@@ -75,8 +76,8 @@ public abstract class Nullability {
         isKotlinTypeNullable);
   }
 
-  static TypeName getTypeNameWithNullableAnnotations(XType type) {
-    return type.getTypeName();
+  static XTypeName getTypeNameWithNullableAnnotations(XType type) {
+    return type.asTypeName();
   }
 
   private static TypeName getAnnotatedTypeName(XType type, TypeName typeName) {

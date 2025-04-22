@@ -163,6 +163,13 @@ public final class XCodeBlocks {
     return toJavaPoet(codeBlock).isEmpty();
   }
 
+  public static XCodeBlock ofJavaClassLiteral(XTypeName typeName) {
+    XCodeBlock.Builder builder = XCodeBlock.builder();
+    toJavaPoet(builder).add("$T.class", toJavaPoet(typeName));
+    toKotlinPoet(builder).add("%T::class.java", toKotlinPoet(typeName));
+    return builder.build();
+  }
+
   private static final class XCodeBlockJoiner {
     private final String delimiter;
     private final XCodeBlock.Builder builder;

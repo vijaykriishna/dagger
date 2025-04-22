@@ -36,7 +36,6 @@ import static dagger.internal.codegen.xprocessing.XCodeBlocks.isEmpty;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
-import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
@@ -70,7 +69,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MultimapBuilder;
-import com.squareup.javapoet.CodeBlock;
 import dagger.internal.codegen.base.ComponentCreatorKind;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.Binding;
@@ -846,10 +844,11 @@ public final class ComponentImplementation {
                     .returns(graph.componentTypeElement().asClassName())
                     .addModifiers(PUBLIC, STATIC)
                     .addStatement(
-                        // TODO(bcorso): Convert this to XCodeBlock.ofNewInstance().
-                        toXPoet(
-                            CodeBlock.of(
-                                "return new $L().$L()", creatorKind.typeName(), factoryMethodName)))
+                        "return %L.%N()",
+                        XCodeBlock.ofNewInstance(
+                            topLevelImplementation().name().nestedClass(creatorKind.typeName()),
+                            ""),
+                        factoryMethodName)
                     .build());
       }
     }
