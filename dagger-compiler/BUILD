@@ -47,6 +47,7 @@ gen_maven_artifact(
         "//dagger-compiler/main/java/dagger/internal/codegen/validation",
         "//dagger-compiler/main/java/dagger/internal/codegen/writing",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
+        "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xpoet",
     ],
     artifact_target_maven_deps = [
         "com.google.code.findbugs:jsr305",

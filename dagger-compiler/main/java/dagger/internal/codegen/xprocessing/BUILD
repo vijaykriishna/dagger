@@ -20,14 +20,40 @@ load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
 
 package(default_visibility = ["//:src"])
 
+XPOET_SRCS = [
+    "XAnnotationSpecs.java",
+    "XCodeBlocks.java",
+    "XExpression.java",
+    "XFunSpecs.java",
+    "XParameterSpecs.java",
+    "XPropertySpecs.java",
+    "XTypeSpecs.java",
+]
+
+java_library(
+    name = "xpoet",
+    srcs = XPOET_SRCS,
+    deps = [
+        ":xprocessing",
+        "//third_party/java/error_prone:annotations",
+        "//third_party/java/guava/base",
+        "//third_party/java/guava/collect",
+        "//third_party/java/javapoet",
+        "//third_party/kotlin/kotlinpoet",
+    ],
+)
+
 compat_kt_jvm_library(
     name = "xprocessing",
     # TODO(b/181056551): Ideally, all of the methods in these utility classes
     # will move directly into XProcessing, and we can then remove these classes.
-    srcs = glob([
-        "*.java",
-        "*.kt",
-    ]),
+    srcs = glob(
+        [
+            "*.java",
+            "*.kt",
+        ],
+        exclude = XPOET_SRCS,
+    ),
     exports = [
         ":xprocessing-lib",
     ],

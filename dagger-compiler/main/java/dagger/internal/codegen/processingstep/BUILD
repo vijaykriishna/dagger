@@ -32,12 +32,12 @@ java_library(
         "//dagger-compiler/main/java/dagger/internal/codegen/validation",
         "//dagger-compiler/main/java/dagger/internal/codegen/writing",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
+        "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xpoet",
         "//dagger-runtime/main/java/dagger:core",
         "//dagger-spi",
         "//third_party/java/auto:common",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
-        "//third_party/java/javapoet",
         "//third_party/java/jsr330_inject",
     ],
 )

@@ -30,6 +30,7 @@ java_library(
         "//dagger-compiler/main/java/dagger/internal/codegen/langmodel",
         "//dagger-compiler/main/java/dagger/internal/codegen/writing",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
+        "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xpoet",
         "//dagger-runtime/main/java/dagger:core",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
