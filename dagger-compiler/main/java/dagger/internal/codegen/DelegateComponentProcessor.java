@@ -45,6 +45,7 @@ import dagger.internal.codegen.componentgenerator.ComponentGeneratorModule;
 import dagger.internal.codegen.kotlin.KotlinMetadataFactory;
 import dagger.internal.codegen.processingstep.ProcessingStepsModule;
 import dagger.internal.codegen.validation.AnyBindingMethodValidator;
+import dagger.internal.codegen.validation.AssistedValidator;
 import dagger.internal.codegen.validation.BindingMethodValidatorsModule;
 import dagger.internal.codegen.validation.ComponentCreatorValidator;
 import dagger.internal.codegen.validation.ComponentValidator;
@@ -185,6 +186,10 @@ final class DelegateComponentProcessor {
     @Binds
     @IntoSet
     ClearableCache componentCreatorValidator(ComponentCreatorValidator cache);
+
+    @Binds
+    @IntoSet
+    ClearableCache assistedValidator(AssistedValidator cache);
 
     @Binds
     @IntoSet

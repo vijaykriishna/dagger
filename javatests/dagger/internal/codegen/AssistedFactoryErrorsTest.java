@@ -769,6 +769,32 @@ public class AssistedFactoryErrorsTest {
   }
 
   @Test
+  public void testInjectWithAssistedAnnotations() {
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import dagger.assisted.Assisted;",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo {",
+            "  @Inject",
+            "  Foo(@Assisted int i) {}",
+            "}");
+
+    CompilerTests.daggerCompiler(foo)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  "@Assisted parameters can only be used within an @AssistedInject-annotated "
+                      + "constructor");
+            });
+  }
+
+  @Test
   public void testAssistedInjectWithNoAssistedParametersIsNotInjectable() {
     Source foo =
         CompilerTests.javaSource(

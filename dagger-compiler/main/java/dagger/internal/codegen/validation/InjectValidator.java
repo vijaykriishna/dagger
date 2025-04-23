@@ -19,17 +19,15 @@ package dagger.internal.codegen.validation;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectedConstructors;
+import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedParameter;
 import static dagger.internal.codegen.binding.InjectionAnnotations.injectedConstructors;
 import static dagger.internal.codegen.binding.SourceFiles.factoryNameForElement;
 import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameForType;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
-import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
-import static dagger.internal.codegen.xprocessing.XTypeNames.injectTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
-import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
@@ -49,7 +47,6 @@ import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.langmodel.Accessibility;
 import dagger.internal.codegen.model.Scope;
-import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +69,7 @@ public final class InjectValidator implements ClearableCache {
   private final MethodSignatureFormatter methodSignatureFormatter;
   private final InternalValidator validator;
   private final InternalValidator validatorWhenGeneratingCode;
+  private final AssistedValidator assistedValidator;
 
   @Inject
   InjectValidator(
@@ -80,12 +78,14 @@ public final class InjectValidator implements ClearableCache {
       CompilerOptions compilerOptions,
       InjectionAnnotations injectionAnnotations,
       DaggerSuperficialValidation superficialValidation,
-      MethodSignatureFormatter methodSignatureFormatter) {
+      MethodSignatureFormatter methodSignatureFormatter,
+      AssistedValidator assistedValidator) {
     this.processingEnv = processingEnv;
     this.dependencyRequestValidator = dependencyRequestValidator;
     this.injectionAnnotations = injectionAnnotations;
     this.superficialValidation = superficialValidation;
     this.methodSignatureFormatter = methodSignatureFormatter;
+    this.assistedValidator = assistedValidator;
 
     // When validating types that require a generated factory class we need to error on private and
     // static inject members even if the compiler options are set to not error.
@@ -191,20 +191,23 @@ public final class InjectValidator implements ClearableCache {
       ValidationReport.Builder builder =
           ValidationReport.about(constructorElement.getEnclosingElement());
 
-      if (InjectionAnnotations.hasInjectAnnotation(constructorElement)
-          && constructorElement.hasAnnotation(XTypeNames.ASSISTED_INJECT)) {
+      boolean isInjectConstructor = InjectionAnnotations.hasInjectAnnotation(constructorElement);
+      boolean isAssistedInjectConstructor =
+          InjectionAnnotations.hasAssistedInjectAnnotation(constructorElement);
+      final String injectAnnotationName;
+      if (isInjectConstructor && isAssistedInjectConstructor) {
         builder.addError("Constructors cannot be annotated with both @Inject and @AssistedInject");
+        // The rest of the validation assumes that only one of the annotations is present so return
+        // early if there are both.
+        return builder.build();
+      } else if (isInjectConstructor) {
+        injectAnnotationName = "Inject";
+      } else if (isAssistedInjectConstructor) {
+        injectAnnotationName = "AssistedInject";
+      } else {
+        throw new AssertionError(
+            "No @Inject or @AssistedInject annotation found: " + constructorElement);
       }
-
-      XClassName injectAnnotation =
-          getAnyAnnotation(
-              constructorElement,
-              ImmutableSet.<XClassName>builder()
-                  .addAll(injectTypeNames())
-                  .add(XTypeNames.ASSISTED_INJECT)
-                  .build())
-              .map(XAnnotations::asClassName)
-              .get();
 
       if (constructorElement.isPrivate()) {
         builder.addError(
@@ -221,7 +224,7 @@ public final class InjectValidator implements ClearableCache {
           builder.addError(
               String.format(
                   "@Qualifier annotations are not allowed on @%s constructors",
-                  injectAnnotation.getSimpleName()),
+                  injectAnnotationName),
               constructorElement,
               qualifier);
         }
@@ -229,7 +232,7 @@ public final class InjectValidator implements ClearableCache {
         String scopeErrorMsg =
             String.format(
                 "@Scope annotations are not allowed on @%s constructors",
-                injectAnnotation.getSimpleName());
+                injectAnnotationName);
 
         if (InjectionAnnotations.hasInjectAnnotation(constructorElement)) {
           scopeErrorMsg += "; annotate the class instead";
@@ -243,14 +246,19 @@ public final class InjectValidator implements ClearableCache {
 
       for (XExecutableParameterElement parameter : constructorElement.getParameters()) {
         superficialValidation.validateTypeOf(parameter);
-        validateDependencyRequest(builder, parameter);
+        if (isAssistedParameter(parameter)) {
+          builder.addSubreport(assistedValidator.validate(parameter));
+        } else {
+          // Only validate dependency requests for non-assisted parameters.
+          validateDependencyRequest(builder, parameter);
+        }
       }
 
       if (throwsCheckedExceptions(constructorElement)) {
         builder.addItem(
             String.format(
                 "Dagger does not support checked exceptions on @%s constructors",
-                injectAnnotation.getSimpleName()),
+                injectAnnotationName),
             privateMemberDiagnosticKind,
             constructorElement);
       }
@@ -262,7 +270,7 @@ public final class InjectValidator implements ClearableCache {
         builder.addError(
             String.format(
                 "@%s is nonsense on the constructor of an abstract class",
-                injectAnnotation.getSimpleName()),
+                injectAnnotationName),
             constructorElement);
       }
 
@@ -271,7 +279,7 @@ public final class InjectValidator implements ClearableCache {
             String.format(
                 "@%s constructors are invalid on inner classes. "
                     + "Did you mean to make the class static?",
-                injectAnnotation.getSimpleName()),
+                injectAnnotationName),
             constructorElement);
       }
 
