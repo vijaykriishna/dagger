@@ -201,9 +201,9 @@ final class SwitchingProviders {
         // The case amount does not exceed MAX_CASES_PER_SWITCH, so no need for extra get methods.
         return ImmutableList.of(
             methodBuilder("get")
+                .isOverride(true)
                 .addModifiers(PUBLIC)
                 .addAnnotation(suppressWarnings(UNCHECKED))
-                .addAnnotation(Override.class)
                 .returns(typeVariable)
                 .addCode(getOnlyElement(switchCodeBlockPartitions))
                 .build());
@@ -212,8 +212,8 @@ final class SwitchingProviders {
       // This is the main public "get" method that will route to private getter methods.
       XFunSpecs.Builder routerMethod =
           methodBuilder("get")
+              .isOverride(true)
               .addModifiers(PUBLIC)
-              .addAnnotation(Override.class)
               .returns(typeVariable)
               .beginControlFlow("switch (id / %L)", MAX_CASES_PER_SWITCH);
 

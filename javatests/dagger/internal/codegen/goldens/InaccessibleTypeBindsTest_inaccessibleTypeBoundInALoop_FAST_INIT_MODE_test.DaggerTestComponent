@@ -80,8 +80,8 @@ final class DaggerTestComponent {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
           case 0: // other.FooImpl

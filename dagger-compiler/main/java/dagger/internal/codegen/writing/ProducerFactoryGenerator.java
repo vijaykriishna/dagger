@@ -222,7 +222,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
   public XFunSpec collectDependenciesMethod(
       ProductionBinding binding, FactoryFields factoryFields) {
     XFunSpecs.Builder methodBuilder =
-        methodBuilder("collectDependencies").addAnnotation(Override.class).addModifiers(PROTECTED);
+        methodBuilder("collectDependencies").isOverride(true).addModifiers(PROTECTED);
     ImmutableList<DependencyRequest> asyncDependencies = asyncDependencies(binding);
     switch (asyncDependencies.size()) {
       case 0:
@@ -292,7 +292,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     XFunSpecs.Builder methodBuilder =
         methodBuilder("callProducesMethod")
             .returns(listenableFutureOf(contributedTypeName))
-            .addAnnotation(Override.class)
+            .isOverride(true)
             .addModifiers(PUBLIC)
             .addExceptions(asMethod(binding.bindingElement().get()).getThrownTypes())
             .addParameter(parameter);

@@ -279,11 +279,11 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                             parameter.getType().asTypeName())));
     XTypeName providedTypeName = providedTypeName(binding);
     XFunSpecs.Builder getMethod =
-        methodBuilder("get").addModifiers(PUBLIC).addParameters(assistedParameters.values());
+        methodBuilder("get")
+            .addModifiers(PUBLIC)
+            .isOverride(factoryTypeName(binding).isPresent())
+            .addParameters(assistedParameters.values());
 
-    if (factoryTypeName(binding).isPresent()) {
-      getMethod.addAnnotation(Override.class);
-    }
     XCodeBlock invokeNewInstance =
         ProvisionMethod.invoke(
             binding,

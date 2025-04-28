@@ -78,8 +78,8 @@ final class DaggerMyComponent {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
           case 0: // test.MySubcomponentAssistedFactory
@@ -132,8 +132,8 @@ final class DaggerMyComponent {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
           case 0: // test.MyComponentAssistedFactory

@@ -89,8 +89,8 @@ final class DaggerTestComponent {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
           case 0: // java.util.Map<java.lang.Long,java.lang.Long> test.SubcomponentMapModule#provideLong3
@@ -178,8 +178,8 @@ final class DaggerTestComponent {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
           case 0: // java.util.Map<java.lang.Integer,java.lang.Integer> test.MapModule#provideInt

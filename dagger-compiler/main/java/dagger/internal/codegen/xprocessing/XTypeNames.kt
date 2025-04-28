@@ -16,12 +16,9 @@
 
 package dagger.internal.codegen.xprocessing
 
-import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.box
-import androidx.room.compiler.codegen.compat.XConverters.toJavaPoet
-import androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet
 import androidx.room.compiler.codegen.compat.XConverters.toXPoet
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.ClassName
@@ -99,6 +96,7 @@ object XTypeNames {
   @JvmField val SET_BUILDER = XClassName.get("dagger.internal", "SetBuilder")
   @JvmField val SET_FACTORY = XClassName.get("dagger.internal", "SetFactory")
   @JvmField val SINGLE_CHECK = XClassName.get("dagger.internal", "SingleCheck")
+  @JvmField val WEAK = XClassName.get("dagger.internal", "Weak")
   @JvmField val LAZY = XClassName.get("dagger", "Lazy")
 
   // Dagger Producers classnames
@@ -169,6 +167,13 @@ object XTypeNames {
   @JvmField val RUNTIME_EXCEPTION = XClassName.get("java.lang", "RuntimeException")
   @JvmField
   val UNSUPPORTED_OPERATION_EXCEPTION = XClassName.get("java.lang", "UnsupportedOperationException")
+  @JvmField
+  val DEPRECATED = toXPoet(
+    ClassName.get("java.lang", "Deprecated"),
+    com.squareup.kotlinpoet.ClassName("kotlin", "Deprecated")
+  )
+  @JvmField val CAN_IGNORE_RETURN_VALUE =
+   XClassName.get("com.google.errorprone.annotations", "CanIgnoreReturnValue")
 
   @JvmField val KOTLIN_METADATA = XClassName.get("kotlin", "Metadata")
   @JvmField val IMMUTABLE_MAP = XClassName.get("com.google.common.collect", "ImmutableMap")

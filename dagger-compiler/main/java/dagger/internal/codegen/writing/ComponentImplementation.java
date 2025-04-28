@@ -1042,8 +1042,8 @@ public final class ComponentImplementation {
     private void addCancellationListenerImplementation() {
       XFunSpecs.Builder methodBuilder =
           methodBuilder(CANCELLATION_LISTENER_METHOD_NAME)
+              .isOverride(true)
               .addModifiers(PUBLIC)
-              .addAnnotation(Override.class)
               .addParameter(MAY_INTERRUPT_IF_RUNNING_PARAM);
 
       // Reversing should order cancellations starting from entry points and going down to leaves

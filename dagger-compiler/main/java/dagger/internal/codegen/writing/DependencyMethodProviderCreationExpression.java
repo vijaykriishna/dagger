@@ -104,7 +104,7 @@ final class DependencyMethodProviderCreationExpression
             compilerOptions);
     XFunSpecs.Builder getMethod =
         methodBuilder("get")
-            .addAnnotation(Override.class)
+            .isOverride(true)
             .addModifiers(PUBLIC)
             .returns(returnType)
             .addStatement("return %L", invocation)

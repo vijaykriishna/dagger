@@ -38,8 +38,6 @@ import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.kotlinpoet.KModifier;
@@ -75,7 +73,7 @@ public final class XFunSpecs {
     Builder builder =
         // We're overriding the method so we have to use the jvm name here.
         methodBuilder(method.getJvmName())
-            .addAnnotation(Override.class)
+            .isOverride(true)
             .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
             .addTypeVariables(methodType.getTypeVariables())
             .varargs(method.isVarArgs())
@@ -115,8 +113,8 @@ public final class XFunSpecs {
     private XTypeName returnType = null;
     private final List<XCodeBlock> javadocs = new ArrayList<>();
     private final List<XParameterSpec> parameters = new ArrayList<>();
+    private final List<XAnnotationSpec> annotations = new ArrayList<>();
     // For now, we use a Object to allow for both XPoet and JavaPoet types.
-    private final List<Object> annotations = new ArrayList<>();
     private final List<Object> typeVariableNames = new ArrayList<>();
     private final List<Object> exceptionNames = new ArrayList<>();
 
@@ -280,18 +278,6 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Adds the given annotations to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaAnnotations(Collection<AnnotationSpec> annotations) {
-      annotations.forEach(this::addAnnotation);
-      return this;
-    }
-
     /** Adds the given annotation names to the method. */
     @CanIgnoreReturnValue
     public Builder addAnnotationNames(Collection<XClassName> annotationNames) {
@@ -305,42 +291,15 @@ public final class XFunSpecs {
       return addAnnotation(XAnnotationSpecs.of(annotation));
     }
 
-    /** Adds the given annotation to the method. */
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(XAnnotationSpec annotation) {
-      annotations.add(annotation);
-      return this;
-    }
-
     /** Adds the given annotation name to the method. */
     @CanIgnoreReturnValue
     public Builder addAnnotation(XClassName annotationName) {
       return addAnnotation(XAnnotationSpec.of(annotationName));
     }
 
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XClassName)} instead.
-     */
-    @Deprecated
+    /** Adds the given annotation to the method. */
     @CanIgnoreReturnValue
-    public Builder addAnnotation(Class<?> clazz) {
-      if (clazz.equals(Override.class)) {
-        isOverride(true);
-      }
-      addAnnotation(AnnotationSpec.builder(ClassName.get(clazz)).build());
-      return this;
-    }
-
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(AnnotationSpec annotation) {
+    public Builder addAnnotation(XAnnotationSpec annotation) {
       annotations.add(annotation);
       return this;
     }
@@ -505,12 +464,6 @@ public final class XFunSpecs {
                   isOpen,
                   isOverride,
                   /* addJavaNullabilityAnnotation= */ false);
-          // If the override annotation exists, remove it from the builder and it will be added
-          // with the other annotations to avoid unnecessary diffs during the migration.
-          AnnotationSpec overrideAnnotation = AnnotationSpec.builder(Override.class).build();
-          if (annotations.contains(overrideAnnotation)) {
-            toJavaPoet(builder).annotations.remove(overrideAnnotation);
-          }
           break;
         case CONSTRUCTOR:
           checkState(name == null);
@@ -570,15 +523,7 @@ public final class XFunSpecs {
         }
       }
 
-      for (Object annotation : annotations) {
-        if (annotation instanceof XAnnotationSpec) {
-          builder.addAnnotation((XAnnotationSpec) annotation);
-        } else if (annotation instanceof AnnotationSpec) {
-          toJavaPoet(builder).addAnnotation((AnnotationSpec) annotation);
-        } else {
-          throw new AssertionError("Unexpected annotation class: " + annotation.getClass());
-        }
-      }
+      annotations.forEach(builder::addAnnotation);
 
       for (Object exceptionName : exceptionNames) {
         if (exceptionName instanceof XTypeName) {

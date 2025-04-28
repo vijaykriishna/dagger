@@ -250,7 +250,7 @@ final class ComponentCreatorImplementationFactory {
       XFunSpecs.Builder builder = setterMethodBuilder(requirement);
       XParameterSpec parameter = getOnlyElement(builder.getParameters());
       builder
-          .addAnnotation(Deprecated.class)
+          .addAnnotation(XTypeNames.DEPRECATED)
           .addJavadoc(
               "@deprecated This module is declared, but an instance is not used in the component. "
                   + "This method is a no-op. For more, see https://dagger.dev/unused-modules.\n")

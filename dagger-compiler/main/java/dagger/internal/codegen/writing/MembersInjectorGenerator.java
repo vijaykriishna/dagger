@@ -315,7 +315,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             dependencyCodeBlocks::get);
     return methodBuilder("injectMembers")
         .addModifiers(PUBLIC)
-        .addAnnotation(Override.class)
+        .isOverride(true)
         .addParameter("instance", instanceType.asTypeName())
         .addCode(invokeInjectionSites)
         .build();
