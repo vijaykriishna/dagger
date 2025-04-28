@@ -306,7 +306,7 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
                       delegateFactoryParam.getName()) // SUPPRESS_GET_NAME_CHECK
                   .build())
           .addFunction(
-              overriding(metadata.factoryMethod(), metadata.factoryType())
+              overriding(metadata.factoryMethod(), metadata.factoryType(), compilerOptions)
                   .addStatement(
                       "return %N.get(%L)",
                       delegateFactoryParam.getName(), // SUPPRESS_GET_NAME_CHECK

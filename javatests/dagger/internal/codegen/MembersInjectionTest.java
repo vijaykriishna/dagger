@@ -36,15 +36,6 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class MembersInjectionTest {
 
-  private static final Source TYPE_USE_NULLABLE =
-      CompilerTests.javaSource(
-          "test.Nullable", // force one-string-per-line format
-          "package test;",
-          "import static java.lang.annotation.ElementType.TYPE_USE;",
-          "import java.lang.annotation.Target;",
-          "",
-          "@Target(TYPE_USE)",
-          "public @interface Nullable {}");
   private static final Source NON_TYPE_USE_NULLABLE =
       CompilerTests.javaSource(
           "test.Nullable", // force one-string-per-line format
@@ -345,33 +336,6 @@ public class MembersInjectionTest {
               subject.hasErrorCount(0);
               subject.generatedSource(
                   goldenFileRule.goldenSource("test/FieldInjection_MembersInjector"));
-            });
-  }
-
-  @Test
-  public void typeUseNullableFieldInjection() {
-    Source file =
-        CompilerTests.javaSource(
-            "test.FieldInjection",
-            "package test;",
-            "",
-            "import dagger.Lazy;",
-            "import javax.inject.Inject;",
-            "import javax.inject.Provider;",
-            "",
-            "class FieldInjection {",
-            "  @Inject @Nullable String nullableString;",
-            "}");
-    CompilerTests.daggerCompiler(file, TYPE_USE_NULLABLE)
-        .withProcessingOptions(compilerMode.processorOptions())
-        .compile(
-            subject -> {
-              subject.hasErrorCount(0);
-              subject.generatedSource(
-                  CompilerTests.transformContent(
-                      goldenFileRule.goldenSource("test/FieldInjection_MembersInjector"),
-                      content -> content.replace(
-                          "@Nullable String nullableString", "String nullableString")));
             });
   }
 

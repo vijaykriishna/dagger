@@ -29,6 +29,7 @@ import dagger.internal.codegen.binding.BindingRequest;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.DelegateBinding;
 import dagger.internal.codegen.binding.FrameworkType;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.RequestKind;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ import java.util.Map;
 /** Returns request representation that wraps a framework instance expression */
 final class FrameworkInstanceBindingRepresentation {
   private final ContributionBinding binding;
+  private final CompilerOptions compilerOptions;
   private final DerivedFromFrameworkInstanceRequestRepresentation.Factory
       derivedFromFrameworkInstanceRequestRepresentationFactory;
   private final ImmediateFutureRequestRepresentation.Factory
@@ -48,6 +50,7 @@ final class FrameworkInstanceBindingRepresentation {
   FrameworkInstanceBindingRepresentation(
       @Assisted ContributionBinding binding,
       BindingGraph graph,
+      CompilerOptions compilerOptions,
       ComponentImplementation componentImplementation,
       DelegateRequestRepresentation.Factory delegateRequestRepresentationFactory,
       DerivedFromFrameworkInstanceRequestRepresentation.Factory
@@ -59,6 +62,7 @@ final class FrameworkInstanceBindingRepresentation {
       ProducerFromProviderCreationExpression.Factory
           producerFromProviderCreationExpressionFactory) {
     this.binding = binding;
+    this.compilerOptions = compilerOptions;
     this.derivedFromFrameworkInstanceRequestRepresentationFactory =
         derivedFromFrameworkInstanceRequestRepresentationFactory;
     this.immediateFutureRequestRepresentationFactory = immediateFutureRequestRepresentationFactory;
@@ -71,6 +75,7 @@ final class FrameworkInstanceBindingRepresentation {
         producerNodeInstanceRequestRepresentationFactory.create(
             binding,
             new FrameworkFieldInitializer(
+                compilerOptions,
                 componentImplementation,
                 binding,
                 producerFromProviderCreationExpressionFactory.create(

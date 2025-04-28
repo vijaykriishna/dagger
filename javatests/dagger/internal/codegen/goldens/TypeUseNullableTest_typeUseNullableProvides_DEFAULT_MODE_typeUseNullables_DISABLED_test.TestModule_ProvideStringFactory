@@ -22,7 +22,7 @@ import javax.annotation.processing.Generated;
     "deprecation",
     "nullness:initialization.field.uninitialized"
 })
-public final class TestModule_ProvideStringFactory implements Factory<@Nullable String> {
+public final class TestModule_ProvideStringFactory implements Factory<String> {
   private final TestModule module;
 
   public TestModule_ProvideStringFactory(TestModule module) {
@@ -30,7 +30,7 @@ public final class TestModule_ProvideStringFactory implements Factory<@Nullable 
   }
 
   @Override
-  public @Nullable String get() {
+  public String get() {
     return provideString(module);
   }
 
@@ -38,7 +38,7 @@ public final class TestModule_ProvideStringFactory implements Factory<@Nullable 
     return new TestModule_ProvideStringFactory(module);
   }
 
-  public static @Nullable String provideString(TestModule instance) {
+  public static String provideString(TestModule instance) {
     return instance.provideString();
   }
 }

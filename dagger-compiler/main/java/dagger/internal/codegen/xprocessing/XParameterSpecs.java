@@ -18,6 +18,7 @@ package dagger.internal.codegen.xprocessing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 
 import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
@@ -29,6 +30,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.kotlinpoet.KModifier;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,21 +44,25 @@ public final class XParameterSpecs {
   }
 
   public static XParameterSpec parameterSpecOf(
-      XExecutableParameterElement parameter, XType parameterType) {
-    Nullability nullability = Nullability.of(parameter);
-    return builder(
-            parameter.getJvmName(),
-            XTypeNames.withTypeNullability(parameterType.asTypeName(), nullability))
-        .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
-        .build();
+      XExecutableParameterElement parameter, XType parameterType, CompilerOptions compilerOptions) {
+    return of(parameter.getJvmName(), parameterType, Nullability.of(parameter), compilerOptions);
   }
 
   /**
    * Creates a {@link XParameterSpec} with the given {@code name} and {@code typeName} and adds the
    * type-use nullability annotations to the type and the non-type-use annotations to the parameter.
+   *
+   * @deprecated Use {@link #of(String, XType, Nullability, CompilerOptions)}.
    */
-  public static XParameterSpec of(String name, XTypeName typeName, Nullability nullability) {
-    return builder(name, typeName, nullability).build();
+  @Deprecated
+  public static XParameterSpec of(
+      String name, XTypeName typeName, Nullability nullability, CompilerOptions compilerOptions) {
+    return builder(name, typeName, nullability, compilerOptions).build();
+  }
+
+  public static XParameterSpec of(
+      String name, XType type, Nullability nullability, CompilerOptions compilerOptions) {
+    return builder(name, type, nullability, compilerOptions).build();
   }
 
   /** Creates a {@link XParameterSpec} with the given {@code name} and {@code typeName}. */
@@ -67,9 +73,19 @@ public final class XParameterSpecs {
   /**
    * Creates a {@link Builder} with the given {@code name} and {@code typeName} and adds the
    * type-use nullability annotations to the type and the non-type-use annotations to the parameter.
+   *
+   * @deprecated Use {@link #builder(String, XType, Nullability, CompilerOptions)}.
    */
-  public static Builder builder(String name, XTypeName typeName, Nullability nullability) {
-    return new Builder(name, XTypeNames.withTypeNullability(typeName, nullability))
+  @Deprecated
+  public static Builder builder(
+      String name, XTypeName typeName, Nullability nullability, CompilerOptions compilerOptions) {
+    return new Builder(name, asNullableTypeName(typeName, nullability, compilerOptions))
+        .addAnnotationNames(nullability.nonTypeUseNullableAnnotations());
+  }
+
+  public static Builder builder(
+      String name, XType type, Nullability nullability, CompilerOptions compilerOptions) {
+    return builder(name, asNullableTypeName(type, compilerOptions))
         .addAnnotationNames(nullability.nonTypeUseNullableAnnotations());
   }
 

@@ -31,6 +31,7 @@ import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNCHECKED;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
@@ -138,7 +139,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             .addAnnotation(qualifierMetadataAnnotation(binding));
 
     factoryTypeName(binding).ifPresent(factoryBuilder::addSuperinterface);
-    FactoryFields factoryFields = FactoryFields.create(binding);
+    FactoryFields factoryFields = FactoryFields.create(binding, compilerOptions);
     // If the factory has no input fields we can use a static instance holder to create a
     // singleton instance of the factory. Otherwise, we create a new instance via the constructor.
     if (factoryFields.isEmpty()) {
@@ -339,7 +340,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   // public static Foo newInstance(Bar bar, Baz baz) {
   //   return new Foo(bar, baz);
   // }
-  private static XFunSpec staticProxyMethodForInjection(ContributionBinding binding) {
+  private XFunSpec staticProxyMethodForInjection(ContributionBinding binding) {
     XConstructorElement constructor = asConstructor(binding.bindingElement().get());
     XTypeElement enclosingType = constructor.getEnclosingElement();
     XFunSpecs.Builder builder =
@@ -350,7 +351,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             .addTypeVariableNames(typeVariableNames(enclosingType))
             .addExceptions(constructor.getThrownTypes());
     XCodeBlock arguments =
-        copyParameters(builder, new UniqueNameSet(), constructor.getParameters());
+        copyParameters(builder, new UniqueNameSet(), constructor.getParameters(), compilerOptions);
     return builder
         .addStatement(
             "return %L",
@@ -384,13 +385,15 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
       builder.addTypeVariableNames(typeVariableNames(enclosingType));
       module = copyInstance(builder, parameterNameSet, enclosingType.getType());
     }
-    XCodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    XCodeBlock arguments =
+        copyParameters(builder, parameterNameSet, method.getParameters(), compilerOptions);
     XCodeBlock invocation = XCodeBlock.of("%L.%L(%L)", module, method.getJvmName(), arguments);
 
     Nullability nullability = Nullability.of(method);
     return builder
         .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
-        .returns(XTypeNames.withTypeNullability(method.getReturnType().asTypeName(), nullability))
+        .returns(
+            asNullableTypeName(method.getReturnType().asTypeName(), nullability, compilerOptions))
         .addStatement("return %L", maybeWrapInCheckForNull(binding, invocation))
         .build();
   }
@@ -402,14 +405,15 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         : codeBlock;
   }
 
-  private static XCodeBlock copyInstance(
+  private XCodeBlock copyInstance(
       XFunSpecs.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
     return copyParameter(
         methodBuilder,
         type,
         parameterNameSet.getUniqueName("instance"),
         /* useObject= */ false,
-        Nullability.NOT_NULLABLE);
+        Nullability.NOT_NULLABLE,
+        compilerOptions);
   }
 
   private XAnnotationSpec scopeMetadataAnnotation(ContributionBinding binding) {
@@ -465,12 +469,12 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     }
   }
 
-  private static XTypeName providedTypeName(ContributionBinding binding) {
-    return XTypeNames.withTypeNullability(
-        binding.contributedType().asTypeName(), binding.nullability());
+  private XTypeName providedTypeName(ContributionBinding binding) {
+    return asNullableTypeName(
+        binding.contributedType().asTypeName(), binding.nullability(), compilerOptions);
   }
 
-  private static Optional<XTypeName> factoryTypeName(ContributionBinding binding) {
+  private Optional<XTypeName> factoryTypeName(ContributionBinding binding) {
     return binding.kind() == BindingKind.ASSISTED_INJECTION
         ? Optional.empty()
         : Optional.of(factoryOf(providedTypeName(binding)));
@@ -478,7 +482,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
 
   /** Represents the available fields in the generated factory class. */
   private static final class FactoryFields {
-    static FactoryFields create(ContributionBinding binding) {
+    static FactoryFields create(ContributionBinding binding, CompilerOptions compilerOptions) {
       UniqueNameSet nameSet = new UniqueNameSet();
       // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
       Optional<XPropertySpec> moduleField =
@@ -491,11 +495,11 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
 
       ImmutableMap.Builder<DependencyRequest, XPropertySpec> frameworkFields =
           ImmutableMap.builder();
-      generateBindingFieldsForDependencies(binding).forEach(
-          (dependency, field) ->
-              frameworkFields.put(
-                  dependency,
-                  createField(field.type(), nameSet.getUniqueName(field.name()))));
+      generateBindingFieldsForDependencies(binding, compilerOptions)
+          .forEach(
+              (dependency, field) ->
+                  frameworkFields.put(
+                      dependency, createField(field.type(), nameSet.getUniqueName(field.name()))));
 
       return new FactoryFields(moduleField, frameworkFields.buildOrThrow());
     }

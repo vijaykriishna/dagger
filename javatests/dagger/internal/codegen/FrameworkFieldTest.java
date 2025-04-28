@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.XType;
 import com.google.testing.compile.CompilationRule;
 import dagger.Component;
 import dagger.internal.codegen.binding.FrameworkField;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.javac.JavacPluginModule;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,6 +45,7 @@ public class FrameworkFieldTest {
   @Rule public CompilationRule compilationRule = new CompilationRule();
 
   @Inject XProcessingEnv processingEnv;
+  @Inject CompilerOptions compilerOptions;
 
   private XType type;
 
@@ -58,15 +60,16 @@ public class FrameworkFieldTest {
   }
 
   @Test public void frameworkType() {
-    assertThat(FrameworkField.create("test", JAVAX_PROVIDER, type).type())
+    assertThat(FrameworkField.create("test", JAVAX_PROVIDER, type, compilerOptions).type())
         .isEqualTo(javaxProviderOf(type.asTypeName()));
-    assertThat(FrameworkField.create("test", MEMBERS_INJECTOR, type).type())
+    assertThat(FrameworkField.create("test", MEMBERS_INJECTOR, type, compilerOptions).type())
         .isEqualTo(membersInjectorOf(type.asTypeName()));
   }
 
   @Test public void nameSuffix() {
-    assertThat(FrameworkField.create("foo", JAVAX_PROVIDER, type).name()).isEqualTo("fooProvider");
-    assertThat(FrameworkField.create("fooProvider", JAVAX_PROVIDER, type).name())
+    assertThat(FrameworkField.create("foo", JAVAX_PROVIDER, type, compilerOptions).name())
+        .isEqualTo("fooProvider");
+    assertThat(FrameworkField.create("fooProvider", JAVAX_PROVIDER, type, compilerOptions).name())
         .isEqualTo("fooProvider");
   }
 

@@ -32,6 +32,7 @@ import androidx.room.compiler.processing.XType;
 import dagger.internal.codegen.binding.BindingType;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkField;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
@@ -61,6 +62,7 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     }
   }
 
+  private final CompilerOptions compilerOptions;
   private final ShardImplementation shardImplementation;
   private final ContributionBinding binding;
   private final FrameworkInstanceCreationExpression frameworkInstanceCreationExpression;
@@ -68,9 +70,11 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
   private InitializationState fieldInitializationState = InitializationState.UNINITIALIZED;
 
   FrameworkFieldInitializer(
+      CompilerOptions compilerOptions,
       ComponentImplementation componentImplementation,
       ContributionBinding binding,
       FrameworkInstanceCreationExpression frameworkInstanceCreationExpression) {
+    this.compilerOptions = checkNotNull(compilerOptions);
     this.binding = checkNotNull(binding);
     this.shardImplementation = checkNotNull(componentImplementation).shardImplementation(binding);
     this.frameworkInstanceCreationExpression = checkNotNull(frameworkInstanceCreationExpression);
@@ -142,7 +146,9 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     boolean useRawType = !shardImplementation.isTypeAccessible(binding.key().type().xprocessing());
     FrameworkField contributionBindingField =
         FrameworkField.forBinding(
-            binding, frameworkInstanceCreationExpression.alternativeFrameworkClass());
+            binding,
+            frameworkInstanceCreationExpression.alternativeFrameworkClass(),
+            compilerOptions);
 
     XTypeName fieldType =
         useRawType

@@ -509,7 +509,8 @@ public final class ComponentImplementation {
                           XParameterSpecs.of(
                               getUniqueFieldName(requirement.variableName() + "Param"),
                               requirement.type().asTypeName(),
-                              requirement.getNullability())));
+                              requirement.getNullability(),
+                              compilerOptions)));
     }
 
     private ShardImplementation createShard() {
@@ -881,7 +882,7 @@ public final class ComponentImplementation {
     private void createSubcomponentFactoryMethod(XMethodElement factoryMethod) {
       checkState(parent.isPresent());
       XType parentType = parent.get().graph().componentTypeElement().getType();
-      XFunSpecs.Builder method = overriding(factoryMethod, parentType);
+      XFunSpecs.Builder method = overriding(factoryMethod, parentType, compilerOptions);
       // Use the parameter names from the overriding method, which may be different from the
       // parameter names at the declaration site if it is pulled in as a class dependency from a
       // separate build unit (see https://github.com/google/dagger/issues/3401).

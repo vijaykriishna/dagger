@@ -39,8 +39,7 @@ public final class FieldInjection_MembersInjector implements MembersInjector<Fie
   }
 
   @InjectedFieldSignature("test.FieldInjection.nullableString")
-  public static void injectNullableString(Object instance, @Nullable String nullableString) {
+  public static void injectNullableString(Object instance, String nullableString) {
     ((FieldInjection) (instance)).nullableString = nullableString;
   }
 }
-

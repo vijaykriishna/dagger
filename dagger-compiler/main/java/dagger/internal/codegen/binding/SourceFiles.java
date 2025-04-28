@@ -47,6 +47,7 @@ import com.google.common.collect.Maps;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -73,7 +74,7 @@ public final class SourceFiles {
    * @param binding must be an unresolved binding (type parameters must match its type element's)
    */
   public static ImmutableMap<DependencyRequest, FrameworkField>
-      generateBindingFieldsForDependencies(Binding binding) {
+      generateBindingFieldsForDependencies(Binding binding, CompilerOptions compilerOptions) {
     checkArgument(!binding.unresolved().isPresent(), "binding must be unresolved: %s", binding);
 
     FrameworkTypeMapper frameworkTypeMapper =
@@ -87,7 +88,8 @@ public final class SourceFiles {
           return FrameworkField.create(
               DependencyVariableNamer.name(dependency),
               frameworkClassName,
-              dependency.key().type().xprocessing());
+              dependency.key().type().xprocessing(),
+              compilerOptions);
         });
   }
 

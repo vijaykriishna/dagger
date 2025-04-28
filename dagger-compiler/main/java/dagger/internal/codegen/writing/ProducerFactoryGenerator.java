@@ -103,7 +103,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
     checkArgument(!binding.unresolved().isPresent());
     checkArgument(binding.bindingElement().isPresent());
 
-    FactoryFields factoryFields = FactoryFields.create(binding);
+    FactoryFields factoryFields = FactoryFields.create(binding, compilerOptions);
     XTypeSpecs.Builder factoryBuilder =
         XTypeSpecs.classBuilder(generatedClassNameForBinding(binding))
             .superclass(
@@ -412,7 +412,7 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
 
   /** Represents the available fields in the generated factory class. */
   private static final class FactoryFields {
-    static FactoryFields create(ProductionBinding binding) {
+    static FactoryFields create(ProductionBinding binding, CompilerOptions compilerOptions) {
       UniqueNameSet nameSet = new UniqueNameSet();
       // TODO(bcorso, dpb): Add a test for the case when a Factory parameter is named "module".
       Optional<XPropertySpec> moduleField =
@@ -424,12 +424,11 @@ public final class ProducerFactoryGenerator extends SourceFileGenerator<Producti
               : Optional.empty();
 
       ImmutableMap.Builder<DependencyRequest, XPropertySpec> builder = ImmutableMap.builder();
-      generateBindingFieldsForDependencies(binding)
+      generateBindingFieldsForDependencies(binding, compilerOptions)
           .forEach(
               (dependency, field) ->
                   builder.put(
-                      dependency,
-                      createField(field.type(), nameSet.getUniqueName(field.name()))));
+                      dependency, createField(field.type(), nameSet.getUniqueName(field.name()))));
       return new FactoryFields(binding, moduleField, builder.buildOrThrow());
     }
 

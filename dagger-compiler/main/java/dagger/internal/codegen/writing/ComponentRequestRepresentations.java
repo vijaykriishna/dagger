@@ -44,6 +44,7 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.FrameworkTypeMapper;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XCodeBlocks;
@@ -70,6 +71,7 @@ public final class ComponentRequestRepresentations {
   private final ProductionBindingRepresentation.Factory productionBindingRepresentationFactory;
   private final Map<Binding, BindingRepresentation> representations = new HashMap<>();
   private final XProcessingEnv processingEnv;
+  private final CompilerOptions compilerOptions;
 
   @Inject
   ComponentRequestRepresentations(
@@ -80,7 +82,8 @@ public final class ComponentRequestRepresentations {
       MembersInjectionBindingRepresentation.Factory membersInjectionBindingRepresentationFactory,
       ProvisionBindingRepresentation.Factory provisionBindingRepresentationFactory,
       ProductionBindingRepresentation.Factory productionBindingRepresentationFactory,
-      XProcessingEnv processingEnv) {
+      XProcessingEnv processingEnv,
+      CompilerOptions compilerOptions) {
     this.parent = parent;
     this.graph = graph;
     this.componentImplementation = componentImplementation;
@@ -90,6 +93,7 @@ public final class ComponentRequestRepresentations {
     this.productionBindingRepresentationFactory = productionBindingRepresentationFactory;
     this.componentRequirementExpressions = checkNotNull(componentRequirementExpressions);
     this.processingEnv = processingEnv;
+    this.compilerOptions = compilerOptions;
   }
 
   /**
@@ -183,7 +187,10 @@ public final class ComponentRequestRepresentations {
 
   /** Returns the implementation of a component method. */
   public XFunSpec getComponentMethod(ComponentMethodDescriptor componentMethod) {
-    return overriding(componentMethod.methodElement(), graph.componentTypeElement().getType())
+    return overriding(
+            componentMethod.methodElement(),
+            graph.componentTypeElement().getType(),
+            compilerOptions)
         .addCode(getComponentMethodCodeBlock(componentMethod))
         .build();
   }

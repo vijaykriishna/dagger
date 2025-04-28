@@ -36,6 +36,7 @@ import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -49,17 +50,20 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
   private final BindingGraph graph;
   private final SimpleMethodRequestRepresentation.Factory simpleMethodRequestRepresentationFactory;
   private final ComponentImplementation componentImplementation;
+  private final CompilerOptions compilerOptions;
 
   @AssistedInject
   AssistedFactoryRequestRepresentation(
       @Assisted AssistedFactoryBinding binding,
       BindingGraph graph,
       ComponentImplementation componentImplementation,
-      SimpleMethodRequestRepresentation.Factory simpleMethodRequestRepresentationFactory) {
+      SimpleMethodRequestRepresentation.Factory simpleMethodRequestRepresentationFactory,
+      CompilerOptions compilerOptions) {
     this.binding = checkNotNull(binding);
     this.graph = graph;
     this.componentImplementation = componentImplementation;
     this.simpleMethodRequestRepresentationFactory = simpleMethodRequestRepresentationFactory;
+    this.compilerOptions = compilerOptions;
   }
 
   @Override
@@ -87,7 +91,7 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
     XTypeSpecs.Builder builder =
         XTypeSpecs.anonymousClassBuilder()
             .addFunction(
-                overridingWithoutParameters(factoryMethod, factoryType)
+                overridingWithoutParameters(factoryMethod, factoryType, compilerOptions)
                     .addParameters(
                         assistedFactoryParameterSpecs(
                             binding, componentImplementation.shardImplementation(assistedBinding)))

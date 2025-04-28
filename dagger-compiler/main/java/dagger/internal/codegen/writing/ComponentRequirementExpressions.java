@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Suppliers.memoize;
 import static dagger.internal.codegen.writing.ComponentImplementation.FieldSpecKind.COMPONENT_REQUIREMENT_FIELD;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
@@ -31,6 +32,7 @@ import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Supplier;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ComponentRequirement;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
@@ -55,16 +57,19 @@ public final class ComponentRequirementExpressions {
       componentRequirementExpressions = new HashMap<>();
   private final BindingGraph graph;
   private final ShardImplementation componentShard;
+  private final CompilerOptions compilerOptions;
 
   @Inject
   ComponentRequirementExpressions(
       @ParentComponent Optional<ComponentRequirementExpressions> parent,
       BindingGraph graph,
-      ComponentImplementation componentImplementation) {
+      ComponentImplementation componentImplementation,
+      CompilerOptions compilerOptions) {
     this.parent = parent;
     this.graph = graph;
     // All component requirements go in the componentShard.
     this.componentShard = componentImplementation.getComponentShard();
+    this.compilerOptions = compilerOptions;
   }
 
   /**
@@ -130,9 +135,14 @@ public final class ComponentRequirementExpressions {
 
     private MemberSelect createField() {
       String fieldName = componentShard.getUniqueFieldName(componentRequirement.variableName());
-      XTypeName fieldType = componentRequirement.type().asTypeName();
       Nullability nullability = componentRequirement.getNullability();
-      XPropertySpec field = XPropertySpecs.of(fieldName, fieldType, nullability, PRIVATE, FINAL);
+      XTypeName fieldType =
+          asNullableTypeName(
+              componentRequirement.type().asTypeName(), nullability, compilerOptions);
+      XPropertySpec field =
+          XPropertySpecs.builder(fieldName, fieldType, PRIVATE, FINAL)
+              .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
+              .build();
       componentShard.addField(COMPONENT_REQUIREMENT_FIELD, field);
       componentShard.addComponentRequirementInitialization(fieldInitialization(field));
       return MemberSelect.localField(componentShard, fieldName);

@@ -23,6 +23,7 @@ import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
@@ -34,12 +35,14 @@ import dagger.internal.codegen.xprocessing.XTypeNames;
  */
 final class SwitchingProviderInstanceSupplier implements FrameworkInstanceSupplier {
   private final FrameworkInstanceSupplier frameworkInstanceSupplier;
+  private final CompilerOptions compilerOptions;
 
   @AssistedInject
   SwitchingProviderInstanceSupplier(
       @Assisted ContributionBinding binding,
       BindingGraph graph,
       ComponentImplementation componentImplementation,
+      CompilerOptions compilerOptions,
       UnscopedDirectInstanceRequestRepresentationFactory
           unscopedDirectInstanceRequestRepresentationFactory) {
     ShardImplementation shardImplementation = componentImplementation.shardImplementation(binding);
@@ -50,7 +53,11 @@ final class SwitchingProviderInstanceSupplier implements FrameworkInstanceSuppli
                 binding, unscopedDirectInstanceRequestRepresentationFactory.create(binding));
     this.frameworkInstanceSupplier =
         new FrameworkFieldInitializer(
-            componentImplementation, binding, scope(binding, frameworkInstanceCreationExpression));
+            compilerOptions,
+            componentImplementation,
+            binding,
+            scope(binding, frameworkInstanceCreationExpression));
+    this.compilerOptions = compilerOptions;
   }
 
   @Override

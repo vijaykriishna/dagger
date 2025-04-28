@@ -28,6 +28,7 @@ import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.FrameworkType;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.RequestKind;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,7 @@ final class ProductionBindingRepresentation implements BindingRepresentation {
   @AssistedInject
   ProductionBindingRepresentation(
       @Assisted ContributionBinding binding,
+      CompilerOptions compilerOptions,
       ComponentImplementation componentImplementation,
       DerivedFromFrameworkInstanceRequestRepresentation.Factory
           derivedFromFrameworkInstanceRequestRepresentationFactory,
@@ -63,6 +65,7 @@ final class ProductionBindingRepresentation implements BindingRepresentation {
         staticMethod.isPresent()
             ? staticMethod::get
             : new FrameworkFieldInitializer(
+                compilerOptions,
                 componentImplementation,
                 binding,
                 binding.scope().isPresent()

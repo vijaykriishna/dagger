@@ -27,6 +27,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
@@ -56,7 +57,6 @@ import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XParameterSpecs;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -245,7 +245,8 @@ final class InjectionMethods {
   static XCodeBlock copyParameters(
       XFunSpecs.Builder methodBuilder,
       UniqueNameSet parameterNameSet,
-      List<? extends XVariableElement> parameters) {
+      List<? extends XVariableElement> parameters,
+      CompilerOptions compilerOptions) {
     return parameters.stream()
         .map(
             parameter -> {
@@ -256,7 +257,12 @@ final class InjectionMethods {
                           : getSimpleName(parameter));
               boolean useObject = !isRawTypePubliclyAccessible(parameter.getType());
               return copyParameter(
-                  methodBuilder, parameter.getType(), name, useObject, Nullability.of(parameter));
+                  methodBuilder,
+                  parameter.getType(),
+                  name,
+                  useObject,
+                  Nullability.of(parameter),
+                  compilerOptions);
             })
         .collect(toParametersCodeBlock());
   }
@@ -266,11 +272,12 @@ final class InjectionMethods {
       XType type,
       String name,
       boolean useObject,
-      Nullability nullability) {
+      Nullability nullability,
+      CompilerOptions compilerOptions) {
     XTypeName typeName =
-        XTypeNames.withTypeNullability(
-            useObject ? XTypeName.ANY_OBJECT : type.asTypeName(), nullability);
-    methodBuilder.addParameter(XParameterSpecs.of(name, typeName, nullability));
+        asNullableTypeName(
+            useObject ? XTypeName.ANY_OBJECT : type.asTypeName(), nullability, compilerOptions);
+    methodBuilder.addParameter(XParameterSpecs.of(name, typeName, nullability, compilerOptions));
     return useObject
         ? XCodeBlock.ofCast(type.asTypeName(), XCodeBlock.of("%L", name))
         : XCodeBlock.of("%L", name);

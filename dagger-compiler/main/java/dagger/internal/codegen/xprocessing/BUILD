@@ -21,6 +21,7 @@ load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
 package(default_visibility = ["//:src"])
 
 XPOET_SRCS = [
+    "NullableTypeNames.java",
     "XAnnotationSpecs.java",
     "XCodeBlocks.java",
     "XExpression.java",
@@ -35,6 +36,8 @@ java_library(
     srcs = XPOET_SRCS,
     deps = [
         ":xprocessing",
+        "//dagger-compiler/main/java/dagger/internal/codegen/compileroption",
+        "//dagger-spi",
         "//third_party/java/error_prone:annotations",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",

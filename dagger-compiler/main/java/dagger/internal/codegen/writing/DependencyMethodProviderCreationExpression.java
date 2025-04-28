@@ -23,6 +23,7 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.writing.ComponentImplementation.TypeSpecKind.COMPONENT_PROVISION_FACTORY;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
@@ -47,7 +48,6 @@ import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 
 /**
@@ -97,12 +97,16 @@ final class DependencyMethodProviderCreationExpression
             compilerOptions,
             XCodeBlock.of("%N.%N()", dependency().variableName(), provisionMethod.getJvmName()));
     XClassName dependencyClassName = dependency().typeElement().asClassName();
-    XTypeName keyType = binding.key().type().xprocessing().asTypeName();
+    XTypeName returnType =
+        asNullableTypeName(
+            binding.key().type().xprocessing().asTypeName(),
+            binding.nullability(),
+            compilerOptions);
     XFunSpecs.Builder getMethod =
         methodBuilder("get")
             .addAnnotation(Override.class)
             .addModifiers(PUBLIC)
-            .returns(XTypeNames.withTypeNullability(keyType, binding.nullability()))
+            .returns(returnType)
             .addStatement("return %L", invocation)
             .addAnnotationNames(binding.nullability().nonTypeUseNullableAnnotations());
 
@@ -119,8 +123,7 @@ final class DependencyMethodProviderCreationExpression
     componentShard.addType(
         COMPONENT_PROVISION_FACTORY,
         XTypeSpecs.classBuilder(factoryClassName)
-            .addSuperinterface(
-                daggerProviderOf(XTypeNames.withTypeNullability(keyType, binding.nullability())))
+            .addSuperinterface(daggerProviderOf(returnType))
             .addModifiers(PRIVATE, STATIC, FINAL)
             .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
             .addFunction(

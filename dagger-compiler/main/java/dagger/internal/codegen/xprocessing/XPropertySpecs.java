@@ -43,31 +43,10 @@ public final class XPropertySpecs {
 
   /**
    * Creates a {@code XPropertySpec} with the given {@code name}, {@code typeName}, and {@code
-   * modifiers} and adds the given type-use nullability annotations to the type and the non-type-use
-   * annotations to the parameter.
-   */
-  public static XPropertySpec of(
-      String name, XTypeName typeName, Nullability nullability, Modifier... modifiers) {
-    return builder(name, typeName, nullability, modifiers).build();
-  }
-
-  /**
-   * Creates a {@code XPropertySpec} with the given {@code name}, {@code typeName}, and {@code
    * modifiers}.
    */
   public static XPropertySpec of(String name, XTypeName typeName, Modifier... modifiers) {
     return builder(name, typeName, modifiers).build();
-  }
-
-  /**
-   * Creates a builder with the given {@code name}, {@code typeName}, and {@code modifiers} and adds
-   * the given type-use nullability annotations to the type and the non-type-use annotations to the
-   * parameter.
-   */
-  public static Builder builder(
-      String name, XTypeName typeName, Nullability nullability, Modifier... modifiers) {
-    return Builder.create(name, XTypeNames.withTypeNullability(typeName, nullability), modifiers)
-        .addAnnotationNames(nullability.nonTypeUseNullableAnnotations());
   }
 
   /** Creates a builder with the given {@code name}, {@code typeName}, and {@code modifiers}. */

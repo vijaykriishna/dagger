@@ -19,6 +19,7 @@ package dagger.internal.codegen.xprocessing;
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static com.google.common.base.Preconditions.checkState;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
@@ -42,6 +43,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.kotlinpoet.KModifier;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,19 +54,22 @@ import javax.lang.model.element.Modifier;
 public final class XFunSpecs {
 
   /** Returns a {@link Builder} that overrides the given method. */
-  public static Builder overriding(XMethodElement method, XType owner) {
-    Builder builder = overridingWithoutParameters(method, owner);
+  public static Builder overriding(
+      XMethodElement method, XType owner, CompilerOptions compilerOptions) {
+    Builder builder = overridingWithoutParameters(method, owner, compilerOptions);
     XMethodType methodType = method.asMemberOf(owner);
     for (int i = 0; i < methodType.getParameterTypes().size(); i++) {
       XExecutableParameterElement parameter = method.getParameters().get(i);
       XType parameterType = methodType.getParameterTypes().get(i);
-      builder.addParameter(XParameterSpecs.parameterSpecOf(parameter, parameterType));
+      builder.addParameter(
+          XParameterSpecs.parameterSpecOf(parameter, parameterType, compilerOptions));
     }
     return builder;
   }
 
   /** Returns a {@link Builder} that overrides the given method without parameters. */
-  public static Builder overridingWithoutParameters(XMethodElement method, XType owner) {
+  public static Builder overridingWithoutParameters(
+      XMethodElement method, XType owner, CompilerOptions compilerOptions) {
     XMethodType methodType = method.asMemberOf(owner);
     Nullability nullability = Nullability.of(method);
     Builder builder =
@@ -74,7 +79,7 @@ public final class XFunSpecs {
             .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
             .addTypeVariables(methodType.getTypeVariables())
             .varargs(method.isVarArgs())
-            .returns(Nullability.getTypeNameWithNullableAnnotations(methodType.getReturnType()));
+            .returns(methodType.getReturnType(), compilerOptions);
     if (method.isPublic()) {
       builder.addModifiers(PUBLIC);
     } else if (method.isProtected()) {
@@ -463,6 +468,14 @@ public final class XFunSpecs {
     @CanIgnoreReturnValue
     public Builder varargs(boolean isVarArgs) {
       this.isVarArgs = isVarArgs;
+      return this;
+    }
+
+    /** Sets the return type of the method. */
+    @CanIgnoreReturnValue
+    public Builder returns(XType returnType, CompilerOptions compilerOptions) {
+      checkState(kind != Kind.CONSTRUCTOR);
+      this.returnType = asNullableTypeName(returnType, compilerOptions);
       return this;
     }
 

@@ -167,7 +167,7 @@ final class ComponentHjarGenerator extends SourceFileGenerator<ComponentDescript
   }
 
   private XFunSpec emptyComponentMethod(XTypeElement typeElement, XMethodElement baseMethod) {
-    return XFunSpecs.overriding(baseMethod, typeElement.getType()).build();
+    return XFunSpecs.overriding(baseMethod, typeElement.getType(), compilerOptions).build();
   }
 
   private static XFunSpec privateConstructor() {

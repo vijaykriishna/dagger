@@ -22,6 +22,7 @@ import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static androidx.room.compiler.processing.XElementKt.isTypeElement;
 import static com.google.common.collect.Iterables.getLast;
 import static dagger.internal.codegen.model.BindingKind.MEMBERS_INJECTOR;
+import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -30,8 +31,8 @@ import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import com.google.common.base.CaseFormat;
 import dagger.internal.codegen.base.MapType;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.xprocessing.Nullability;
-import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.Optional;
 
 /**
@@ -55,9 +56,17 @@ public final class FrameworkField {
    * @param frameworkClassName the framework class that wraps the type (e.g., {@code Provider}).
    * @param type the base type of the field (e.g., {@code Foo}).
    */
-  public static FrameworkField create(String fieldName, XClassName frameworkClassName, XType type) {
+  public static FrameworkField create(
+      String fieldName,
+      XClassName frameworkClassName,
+      XType type,
+      CompilerOptions compilerOptions) {
     return createInternal(
-        fieldName, frameworkClassName, Optional.of(type), Nullability.NOT_NULLABLE);
+        fieldName,
+        frameworkClassName,
+        Optional.of(type),
+        Nullability.NOT_NULLABLE,
+        compilerOptions);
   }
 
   /**
@@ -67,12 +76,15 @@ public final class FrameworkField {
    *     one for the binding's type.
    */
   public static FrameworkField forBinding(
-      ContributionBinding binding, Optional<XClassName> frameworkClassName) {
+      ContributionBinding binding,
+      Optional<XClassName> frameworkClassName,
+      CompilerOptions compilerOptions) {
     return createInternal(
         bindingName(binding),
         frameworkClassName.orElse(binding.frameworkType().frameworkClassName()),
         bindingType(binding),
-        binding.nullability());
+        binding.nullability(),
+        compilerOptions);
   }
 
   private static String bindingName(ContributionBinding binding) {
@@ -104,11 +116,11 @@ public final class FrameworkField {
       String fieldName,
       XClassName frameworkClassName,
       Optional<XType> type,
-      Nullability nullability) {
-
+      Nullability nullability,
+      CompilerOptions compilerOptions) {
     XTypeName fieldType =
         type.map(XType::asTypeName)
-            .map(typeName -> XTypeNames.withTypeNullability(typeName, nullability))
+            .map(typeName -> asNullableTypeName(typeName, nullability, compilerOptions))
             .map(frameworkClassName::parametrizedBy)
             .orElse(frameworkClassName);
 

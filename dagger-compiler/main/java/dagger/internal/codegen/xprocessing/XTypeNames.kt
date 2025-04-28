@@ -294,33 +294,6 @@ object XTypeNames {
   }
 
   @JvmStatic
-  fun XTypeName.withTypeNullability(nullability: Nullability): XTypeName {
-    var result = this
-    for (nullable in nullability.typeUseNullableAnnotations()) {
-      result = result.withTypeNullability(XAnnotationSpec.of(nullable))
-    }
-    return result
-  }
-
-  @JvmStatic
-  fun XTypeName.withTypeNullability(nullable: XAnnotationSpec): XTypeName {
-    nullable.toJavaPoet().type.apply {
-      check(this is ClassName)
-      check(this.simpleName() == "Nullable")
-    }
-    // Only add the annotation if it isn't already present.
-    return if (this.toJavaPoet().annotations.contains(nullable.toJavaPoet())) {
-      this
-    } else {
-      toXPoet(
-        this.toJavaPoet().annotated(nullable.toJavaPoet()),
-        // TODO(bcorso): Check if we need to add nullability to the Kotlin type.
-        this.toKotlinPoet()
-      )
-    }
-  }
-
-  @JvmStatic
   fun enclosingClassName(className: XClassName): XClassName? {
     return if (className.simpleNames.size > 1) {
       XClassName.get(className.packageName, *className.simpleNames.dropLast(1).toTypedArray())

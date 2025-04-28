@@ -425,7 +425,7 @@ final class ComponentCreatorImplementationFactory {
 
     @Override
     protected XFunSpecs.Builder factoryMethodBuilder() {
-      return overriding(creatorDescriptor.factoryMethod(), creatorType());
+      return overriding(creatorDescriptor.factoryMethod(), creatorType(), compilerOptions);
     }
 
     private RequirementStatus requirementStatus(ComponentRequirement requirement) {
@@ -457,7 +457,7 @@ final class ComponentCreatorImplementationFactory {
     @Override
     protected XFunSpecs.Builder setterMethodBuilder(ComponentRequirement requirement) {
       XMethodElement supertypeMethod = creatorDescriptor.setterMethods().get(requirement);
-      XFunSpecs.Builder method = overriding(supertypeMethod, creatorType());
+      XFunSpecs.Builder method = overriding(supertypeMethod, creatorType(), compilerOptions);
       if (!isVoid(supertypeMethod.getReturnType())) {
         // Take advantage of covariant returns so that we don't have to worry about type variables
         method.returns(componentImplementation.getCreatorName());

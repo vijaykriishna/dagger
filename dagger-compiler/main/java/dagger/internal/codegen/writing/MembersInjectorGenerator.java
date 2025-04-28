@@ -72,6 +72,7 @@ import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.SourceFiles;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
@@ -88,14 +89,17 @@ import javax.inject.Inject;
  * Generates {@link MembersInjector} implementations from {@link MembersInjectionBinding} instances.
  */
 public final class MembersInjectorGenerator extends SourceFileGenerator<MembersInjectionBinding> {
+  private final CompilerOptions compilerOptions;
   private final SourceFiles sourceFiles;
 
   @Inject
   MembersInjectorGenerator(
       XFiler filer,
+      CompilerOptions compilerOptions,
       SourceFiles sourceFiles,
       XProcessingEnv processingEnv) {
     super(filer, processingEnv);
+    this.compilerOptions = compilerOptions;
     this.sourceFiles = sourceFiles;
   }
 
@@ -115,7 +119,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
 
     XClassName generatedTypeName = membersInjectorNameForType(binding.membersInjectedType());
     ImmutableList<XTypeName> typeParameters = bindingTypeElementTypeVariableNames(binding);
-    ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields = frameworkFields(binding);
+    ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields =
+        frameworkFields(binding, compilerOptions);
     XTypeSpecs.Builder injectorTypeBuilder =
         XTypeSpecs.classBuilder(generatedTypeName)
             .addModifiers(PUBLIC, FINAL)
@@ -130,7 +135,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
                 binding.injectionSites().stream()
                     .filter(
                         site -> site.enclosingTypeElement().equals(binding.membersInjectedType()))
-                    .map(MembersInjectorGenerator::membersInjectionMethod)
+                    .map(this::membersInjectionMethod)
                     .collect(toImmutableList()));
 
     gwtIncompatibleAnnotation(binding).ifPresent(injectorTypeBuilder::addAnnotation);
@@ -138,7 +143,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     return ImmutableList.of(injectorTypeBuilder.build());
   }
 
-  private static XFunSpec membersInjectionMethod(InjectionSite injectionSite) {
+  private XFunSpec membersInjectionMethod(InjectionSite injectionSite) {
     String methodName = membersInjectorMethodName(injectionSite);
     switch (injectionSite.kind()) {
       case METHOD:
@@ -160,7 +165,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   // public static void injectMethod(Instance instance, Foo foo, Bar bar) {
   //   instance.injectMethod(foo, bar);
   // }
-  private static XFunSpec methodInjectionMethod(XMethodElement method, String methodName) {
+  private XFunSpec methodInjectionMethod(XMethodElement method, String methodName) {
     XTypeElement enclosingType = asTypeElement(method.getEnclosingElement());
     XFunSpecs.Builder builder =
         methodBuilder(methodName)
@@ -170,8 +175,10 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             .addExceptions(method.getThrownTypes());
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
-    XCodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
-    XCodeBlock arguments = copyParameters(builder, parameterNameSet, method.getParameters());
+    XCodeBlock instance =
+        copyInstance(builder, parameterNameSet, enclosingType.getType(), compilerOptions);
+    XCodeBlock arguments =
+        copyParameters(builder, parameterNameSet, method.getParameters(), compilerOptions);
     return builder.addStatement("%L.%N(%L)", instance, method.getJvmName(), arguments).build();
   }
 
@@ -180,7 +187,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   // public static void injectFoo(Instance instance, Foo foo) {
   //   instance.foo = foo;
   // }
-  private static XFunSpec fieldInjectionMethod(
+  private XFunSpec fieldInjectionMethod(
       XFieldElement field, String methodName, Optional<XAnnotation> qualifier) {
     XTypeElement enclosingType = asTypeElement(field.getEnclosingElement());
 
@@ -196,13 +203,18 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
     qualifier.ifPresent(builder::addAnnotation);
 
     UniqueNameSet parameterNameSet = new UniqueNameSet();
-    XCodeBlock instance = copyInstance(builder, parameterNameSet, enclosingType.getType());
-    XCodeBlock argument = copyParameters(builder, parameterNameSet, ImmutableList.of(field));
+    XCodeBlock instance =
+        copyInstance(builder, parameterNameSet, enclosingType.getType(), compilerOptions);
+    XCodeBlock argument =
+        copyParameters(builder, parameterNameSet, ImmutableList.of(field), compilerOptions);
     return builder.addStatement("%L.%N = %L", instance, getSimpleName(field), argument).build();
   }
 
   private static XCodeBlock copyInstance(
-      XFunSpecs.Builder methodBuilder, UniqueNameSet parameterNameSet, XType type) {
+      XFunSpecs.Builder methodBuilder,
+      UniqueNameSet parameterNameSet,
+      XType type,
+      CompilerOptions compilerOptions) {
     boolean useObject = !isRawTypePubliclyAccessible(type);
     XCodeBlock instance =
         copyParameter(
@@ -210,7 +222,8 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
             type,
             parameterNameSet.getUniqueName("instance"),
             useObject,
-            Nullability.NOT_NULLABLE);
+            Nullability.NOT_NULLABLE,
+            compilerOptions);
     // If we had to cast the instance add an extra parenthesis incase we're calling a method on it.
     return useObject ? XCodeBlock.of("(%L)", instance) : instance;
   }
@@ -328,11 +341,11 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   }
 
   private static ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields(
-      MembersInjectionBinding binding) {
+      MembersInjectionBinding binding, CompilerOptions compilerOptions) {
     UniqueNameSet fieldNames = new UniqueNameSet();
     XClassName membersInjectorTypeName = membersInjectorNameForType(binding.membersInjectedType());
     ImmutableMap.Builder<DependencyRequest, XPropertySpec> builder = ImmutableMap.builder();
-    generateBindingFieldsForDependencies(binding)
+    generateBindingFieldsForDependencies(binding, compilerOptions)
         .forEach(
             (request, bindingField) -> {
               // If the dependency type is not visible to this members injector, then use the raw
