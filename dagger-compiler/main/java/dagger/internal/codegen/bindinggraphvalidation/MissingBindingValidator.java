@@ -16,9 +16,7 @@
 
 package dagger.internal.codegen.bindinggraphvalidation;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.google.common.base.Verify.verify;
-import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.base.Formatter.INDENT;
 import static dagger.internal.codegen.base.Keys.isValidImplicitProvisionKey;
@@ -32,19 +30,14 @@ import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 import androidx.room.compiler.processing.XType;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.WildcardTypeName;
 import dagger.internal.codegen.binding.ComponentNodeImpl;
 import dagger.internal.codegen.binding.InjectBindingRegistry;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.DependencyEdge;
 import dagger.internal.codegen.model.BindingGraph.MissingBinding;
-import dagger.internal.codegen.model.DaggerType;
 import dagger.internal.codegen.model.DiagnosticReporter;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.validation.DiagnosticMessageGenerator;
@@ -52,7 +45,6 @@ import dagger.internal.codegen.validation.ValidationBindingGraphPlugin;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Iterator;
 import javax.inject.Inject;
 
 /** Reports errors for missing bindings. */
@@ -112,45 +104,45 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
 
   private static ImmutableSet<Binding> getSimilarTypeBindings(
       BindingGraph graph, Key missingBindingKey) {
-    ImmutableList<TypeName> flatMissingBindingType = flattenBindingType(missingBindingKey.type());
-    if (flatMissingBindingType.size() <= 1) {
-      return ImmutableSet.of();
-    }
     return graph.bindings().stream()
         // Filter out multibinding contributions (users can't request these directly).
         .filter(binding -> binding.key().multibindingContributionIdentifier().isEmpty())
-        // Filter out keys with the exact same type (those are reported elsewhere).
-        .filter(binding -> !binding.key().type().equals(missingBindingKey.type()))
-        // Filter out keys with different qualifiers.
-        // TODO(bcorso): We should consider allowing keys with different qualifiers here, as that
-        // could actually be helpful when users forget a qualifier annotation on the request.
-        .filter(binding -> binding.key().qualifier().equals(missingBindingKey.qualifier()))
-        // Filter out keys that don't have a similar type (i.e. same type if ignoring wildcards).
-        .filter(binding -> isSimilarType(binding.key().type(), flatMissingBindingType))
+        // Filter out keys that are identical to the missing key (i.e. the binding exists in another
+        // component, but we don't need to include those here because they're reported elsewhere).
+        .filter(binding -> !binding.key().equals(missingBindingKey))
+        .filter(binding -> isSimilar(binding.key(), missingBindingKey))
         .collect(toImmutableSet());
   }
 
   /**
-   * Unwraps a parameterized type to a list of {@link TypeName}s. e.g. {@code Map<Foo, List<Bar>>}
-   * to {@code [Map, Foo, List, Bar]}.
+   * Returns {@code true} if the two keys are similar.
+   *
+   * <p>Two keys are considered similar if they are equal except for the following differences:
+   *
+   * <ul>
+   *   <li> qualifiers: (e.g. {@code @Qualified Foo} and {@code Foo} are similar)
+   *   <li> variances: (e.g. {@code List<Foo>} and {@code List<? extends Foo>} are similar)
+   *   <li> raw types: (e.g. {@code Set} and {@code Set<Foo>} are similar)
+   * </ul>
    */
-  private static ImmutableList<TypeName> flattenBindingType(DaggerType type) {
-    return ImmutableList.copyOf(new TypeDfsIterator(type));
-  }
-
-  private static boolean isSimilarType(DaggerType type, ImmutableList<TypeName> flatTypeNames) {
-    return Iterators.elementsEqual(flatTypeNames.iterator(), new TypeDfsIterator(type));
-  }
-
-  private static TypeName getBound(WildcardTypeName wildcardType) {
-    // Note: The javapoet API returns a list to be extensible, but there's currently no way to get
-    // multiple bounds, and it's not really clear what we should do if there were multiple bounds
-    // so we just assume there's only one for now. The javapoet API also guarantees that there will
-    // always be at least one upper bound -- in the absence of an explicit upper bound the Object
-    // type is used (e.g. Set<?> has an upper bound of Object).
-    return !wildcardType.lowerBounds.isEmpty()
-        ? getOnlyElement(wildcardType.lowerBounds)
-        : getOnlyElement(wildcardType.upperBounds);
+  private static boolean isSimilar(Key key, Key otherKey) {
+    TypeDfsIterator typeIterator = new TypeDfsIterator(key.type().xprocessing());
+    TypeDfsIterator otherTypeIterator = new TypeDfsIterator(otherKey.type().xprocessing());
+    while (typeIterator.hasNext() || otherTypeIterator.hasNext()) {
+      if (typeIterator.stack.size() != otherTypeIterator.stack.size()) {
+        // Exit early if the stacks don't align. This implies the types have a different number
+        // of type arguments, so we know the types must be dissimilar without checking further.
+        return false;
+      }
+      // If next type is a raw type, don't add the type arguments of either type to the stack.
+      boolean skipTypeArguments = typeIterator.isNextTypeRaw() || otherTypeIterator.isNextTypeRaw();
+      TypeName typeName = typeIterator.next(skipTypeArguments);
+      TypeName otherTypeName = otherTypeIterator.next(skipTypeArguments);
+      if (!typeName.equals(otherTypeName)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private String missingBindingErrorMessage(MissingBinding missingBinding, BindingGraph graph) {
@@ -260,45 +252,33 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
    *
    * <p>The iterator returns the bound when encounters a wildcard type.
    */
-  private static class TypeDfsIterator implements Iterator<TypeName> {
+  private static class TypeDfsIterator {
     final Deque<XType> stack = new ArrayDeque<>();
 
-    TypeDfsIterator(DaggerType root) {
-      stack.push(root.xprocessing());
+    TypeDfsIterator(XType type) {
+      stack.push(type);
     }
 
-    @Override
     public boolean hasNext() {
       return !stack.isEmpty();
     }
 
-    @Override
-    public TypeName next() {
-      XType next = stack.pop();
-      if (isDeclared(next)) {
-        if (XTypes.isRawParameterizedType(next)) {
-          XType obj = getProcessingEnv(next).requireType(TypeName.OBJECT);
-          for (int i = 0; i < next.getTypeElement().getType().getTypeArguments().size(); i++) {
-            stack.push(obj);
-          }
-        } else {
-          for (XType arg : Lists.reverse(next.getTypeArguments())) {
-            stack.push(arg);
-          }
-        }
-      }
-      return getBaseTypeName(next);
+    public boolean isNextTypeRaw() {
+      return XTypes.isRawParameterizedType(stack.peek());
     }
 
-    private static TypeName getBaseTypeName(XType type) {
-      if (isDeclared(type)) {
-        return type.getRawType().getTypeName();
+    public TypeName next(boolean skipTypeArguments) {
+      XType next = stack.pop();
+      if (isDeclared(next)) {
+        if (!skipTypeArguments) {
+          for (XType typeArgument : next.getTypeArguments()) {
+            stack.push(typeArgument.extendsBoundOrSelf());
+          }
+        }
+        return next.getTypeElement().getClassName();
       }
-      TypeName typeName = type.getTypeName();
-      if (typeName instanceof WildcardTypeName) {
-        return getBound((WildcardTypeName) typeName);
-      }
-      return typeName;
+      // TODO(bcorso): consider handling other types like arrays.
+      return next.getTypeName();
     }
   }
 }

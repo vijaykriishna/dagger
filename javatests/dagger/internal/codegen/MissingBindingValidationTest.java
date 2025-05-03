@@ -349,6 +349,11 @@ public class MissingBindingValidationTest {
                       "    Foo<Bar<String>> is requested at",
                       "        [TestComponent] TestComponent.getFooBarString()",
                       "",
+                      "Note: A similar binding is provided in the following other components:",
+                      "    Foo<? extends Bar<? extends String>> is provided at:",
+                      "        [TestComponent] TestModule.provideFooBarString()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                      "",
                       "======================"));
             });
   }
@@ -378,6 +383,129 @@ public class MissingBindingValidationTest {
             "interface TestModule {",
             "  @Provides",
             "  static Foo<Bar<Baz<String>>> provideFooBarBazString() {",
+            "    return null;",
+            "  }",
+            "}");
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "interface Foo<T> {}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar<T> {}");
+    Source baz =
+        CompilerTests.javaSource(
+            "test.Baz",
+            "package test;",
+            "",
+            "interface Baz<T> {}");
+    CompilerTests.daggerCompiler(component, module, foo, bar, baz)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  String.join(
+                      "\n",
+                      "Foo<Bar<Baz>> cannot be provided without an @Provides-annotated method.",
+                      "",
+                      "    Foo<Bar<Baz>> is requested at",
+                      "        [TestComponent] TestComponent.getFooBarBaz()",
+                      "",
+                      "Note: A similar binding is provided in the following other components:",
+                      "    Foo<Bar<Baz<String>>> is provided at:",
+                      "        [TestComponent] TestModule.provideFooBarBazString()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                      "",
+                      "======================"));
+            });
+  }
+
+  @Test
+  public void requestSimilarKey_complexRawType() {
+    Source component =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import java.util.List;",
+            "import java.util.Map;",
+            "",
+            "@Component(modules = TestModule.class)",
+            "interface TestComponent {",
+            "  Map<List, Map<List, Map>> getRawComplex();",
+            "}");
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "import java.util.Map;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Provides",
+            "  static Map<List<String>, Map<List<String>, Map<String, String>>> provideComplex() {",
+            "    return null;",
+            "  }",
+            "}");
+    CompilerTests.daggerCompiler(component, module)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              subject.hasErrorContaining(
+                  String.join(
+                      "\n",
+                      "Map<List,Map<List,Map>> cannot be provided without an @Provides-annotated "
+                          + "method.",
+                      "",
+                      "    Map<List,Map<List,Map>> is requested at",
+                      "        [TestComponent] TestComponent.getRawComplex()",
+                      "",
+                      "Note: A similar binding is provided in the following other components:",
+                      "    Map<List<String>,Map<List<String>,Map<String,String>>> is provided at:",
+                      "        [TestComponent] TestModule.provideComplex()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                      "",
+                      "======================"));
+            });
+  }
+
+  @Test
+  public void noSimilarKey_withRawTypeArgument() {
+    Source component =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "",
+            "@Component(modules = TestModule.class)",
+            "interface TestComponent {",
+            "  Foo<Bar<Baz>> getFooBarBaz();",
+            "}");
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Provides",
+            "  static Foo<Bar<Bar>> provideFooBarBar() {",
             "    return null;",
             "  }",
             "}");
@@ -466,6 +594,11 @@ public class MissingBindingValidationTest {
                       "    @Named(\"requested\") Foo is requested at",
                       "        [TestComponent] TestComponent.getNamedRequestedFoo()",
                       "",
+                      "Note: A similar binding is provided in the following other components:",
+                      "    @Named(\"provided\") Foo is provided at:",
+                      "        [TestComponent] TestModule.provideNamedProvidedFoo()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
+                      "",
                       "======================"));
             });
   }
@@ -517,6 +650,11 @@ public class MissingBindingValidationTest {
                       "",
                       "    Foo is requested at",
                       "        [TestComponent] TestComponent.getFoo()",
+                      "",
+                      "Note: A similar binding is provided in the following other components:",
+                      "    @Named(\"provided\") Foo is provided at:",
+                      "        [TestComponent] TestModule.provideNamedProvidedFoo()",
+                      JVM_SUPPRESS_WILDCARDS_MESSAGE,
                       "",
                       "======================"));
             });
