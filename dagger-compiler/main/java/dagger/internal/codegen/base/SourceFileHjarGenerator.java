@@ -44,7 +44,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
@@ -52,6 +51,7 @@ import javax.lang.model.element.Modifier;
  * A source file generator that only writes the relevant code necessary for Bazel to create a
  * correct header (ABI) jar.
  */
+// TODO(b/414394222): Handle KotlinPoet implementation (once header-compilation is supported).
 public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
   public static <T> SourceFileGenerator<T> wrap(
       SourceFileGenerator<T> delegate, XProcessingEnv processingEnv) {
@@ -81,33 +81,34 @@ public final class SourceFileHjarGenerator<T> extends SourceFileGenerator<T> {
   }
 
   private XTypeSpec skeletonType(String packageName, TypeSpec completeType) {
-    XTypeSpecs.Builder skeleton =
-        XTypeSpecs.classBuilder(completeType.name)
-            .addJavaSuperinterfaces(completeType.superinterfaces)
-            .addJavaTypeVariableNames(completeType.typeVariables)
-            .addModifiers(completeType.modifiers.toArray(new Modifier[0]))
-            .addJavaAnnotations(completeType.annotations);
+    boolean isOpen = !completeType.modifiers.contains(Modifier.FINAL);
+    XTypeSpec.Builder skeleton = XTypeSpec.Companion.classBuilder(completeType.name, isOpen);
+    toJavaPoet(skeleton)
+        .addSuperinterfaces(completeType.superinterfaces)
+        .addTypeVariables(completeType.typeVariables)
+        .addModifiers(completeType.modifiers.toArray(new Modifier[0]))
+        .addAnnotations(completeType.annotations);
 
     if (!completeType.superclass.equals(ClassName.OBJECT)) {
-      skeleton.superclass(completeType.superclass);
+      toJavaPoet(skeleton).superclass(completeType.superclass);
     }
 
     completeType.methodSpecs.stream()
         .filter(method -> !method.modifiers.contains(PRIVATE) || method.isConstructor())
         .map(completeMethod -> skeletonMethod(packageName, completeType, completeMethod))
-        .forEach(skeleton::addMethod);
+        .forEach(method -> toJavaPoet(skeleton).addMethod(method));
 
     completeType.fieldSpecs.stream()
         .filter(field -> !field.modifiers.contains(PRIVATE))
         .map(this::skeletonField)
-        .forEach(skeleton::addField);
+        .forEach(field -> toJavaPoet(skeleton).addField(field));
 
     completeType.typeSpecs.stream()
         .map(type -> skeletonType(packageName, type))
         .forEach(skeleton::addType);
 
     completeType.alwaysQualifiedNames
-        .forEach(skeleton::alwaysQualify);
+        .forEach(names -> toJavaPoet(skeleton).alwaysQualify(names));
 
     return skeleton.build();
   }

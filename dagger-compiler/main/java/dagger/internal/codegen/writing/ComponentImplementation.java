@@ -963,12 +963,7 @@ public final class ComponentImplementation {
                   // just initialize it in the initializer.
                   addField(
                       FieldSpecKind.COMPONENT_REQUIREMENT_FIELD,
-                      XPropertySpecs.builder(
-                              field.getName(), field.getType()) // SUPPRESS_GET_NAME_CHECK
-                          .addJavaAnnotations(toJavaPoet(field).annotations)
-                          .addModifiers(toJavaPoet(field).modifiers)
-                          .initializer("this")
-                          .build());
+                      field.toBuilder().initializer(XCodeBlock.of("this")).build());
                 } else {
                   addField(FieldSpecKind.COMPONENT_REQUIREMENT_FIELD, field);
                   constructor.addStatement("this.%1N = %1N", field);

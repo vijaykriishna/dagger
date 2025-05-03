@@ -99,9 +99,9 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
                     .build());
 
     if (factory.isInterface()) {
-      builder.addSuperinterface(factoryType.getTypeName());
+      builder.addSuperinterface(factoryType.asTypeName());
     } else {
-      builder.superclass(factoryType.getTypeName());
+      builder.superclass(factoryType.asTypeName());
     }
 
     return builder.build();

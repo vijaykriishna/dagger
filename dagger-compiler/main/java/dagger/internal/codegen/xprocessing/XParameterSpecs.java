@@ -23,12 +23,11 @@ import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTy
 import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XParameterSpec;
+import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XType;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.kotlinpoet.KModifier;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.ArrayList;
@@ -39,11 +38,34 @@ import javax.lang.model.element.Modifier;
 // TODO(bcorso): Consider moving these methods into XProcessing library.
 /** A utility class for {@link XParameterSpec} helper methods. */
 public final class XParameterSpecs {
-  public static XParameterSpec parameterSpecOf(XExecutableParameterElement parameter) {
+
+  /**
+   * Creates a {@link XParameterSpec} from the given {@code property} with the same name, type, and
+   * annotations.
+   */
+  public static XParameterSpec from(XPropertySpec property) {
+    XParameterSpec.Builder builder =
+        of(property.getName(), property.getType()).toBuilder(); // SUPPRESS_GET_NAME_CHECK
+    // Copy the annotations from the property to the parameter.
+    toJavaPoet(builder).annotations.addAll(toJavaPoet(property).annotations);
+    toKotlinPoet(builder).addAnnotations(toKotlinPoet(property).getAnnotations());
+    return builder.build();
+  }
+
+  /**
+   * Creates a {@link XParameterSpec} from the given {@code parameter} with the same name, type,
+   * and nullable annotations.
+   */
+  public static XParameterSpec from(XExecutableParameterElement parameter) {
     return builder(parameter.getJvmName(), parameter.getType().asTypeName()).build();
   }
 
-  public static XParameterSpec parameterSpecOf(
+  /**
+   * Creates a {@link XParameterSpec} from the given {@code parameter} and {@code parameterType}
+   * with the same name and nullable annotations as the {@code parameter}, and the same type as
+   * {@code parameterType}.
+   */
+  public static XParameterSpec from(
       XExecutableParameterElement parameter, XType parameterType, CompilerOptions compilerOptions) {
     return of(parameter.getJvmName(), parameterType, Nullability.of(parameter), compilerOptions);
   }
@@ -99,8 +121,7 @@ public final class XParameterSpecs {
     private final String name;
     private final XTypeName typeName;
     private Boolean isFinal = null;
-    // For now, we use a Object to allow for both XPoet and JavaPoet types.
-    private final List<Object> annotations = new ArrayList<>();
+    private final List<XAnnotationSpec> annotations = new ArrayList<>();
 
     Builder(String name, XTypeName typeName) {
       this.name = name;
@@ -135,29 +156,10 @@ public final class XParameterSpecs {
       return this;
     }
 
-    /**
-     * Adds the given annotations to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaAnnotations(Collection<AnnotationSpec> annotations) {
-      annotations.forEach(this::addAnnotation);
-      return this;
-    }
-
     /** Adds the given annotation names to the method. */
     @CanIgnoreReturnValue
     public Builder addAnnotationNames(Collection<XClassName> annotationNames) {
       annotationNames.forEach(this::addAnnotation);
-      return this;
-    }
-
-    /** Adds the given annotation to the method. */
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(XAnnotationSpec annotation) {
-      annotations.add(annotation);
       return this;
     }
 
@@ -167,31 +169,14 @@ public final class XParameterSpecs {
       return addAnnotation(XAnnotationSpec.of(annotationName));
     }
 
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XClassName)} instead.
-     */
-    @Deprecated
+    /** Adds the given annotation to the method. */
     @CanIgnoreReturnValue
-    public Builder addAnnotation(Class<?> clazz) {
-      addAnnotation(AnnotationSpec.builder(ClassName.get(clazz)).build());
-      return this;
-    }
-
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(AnnotationSpec annotation) {
+    public Builder addAnnotation(XAnnotationSpec annotation) {
       annotations.add(annotation);
       return this;
     }
 
-    /** Builds the method and returns an {@link XFunSpec}. */
+    /** Builds the parameter and returns an {@link XParameterSpec}. */
     public XParameterSpec build() {
       XParameterSpec.Builder builder =
           XParameterSpec.builder(name, typeName, /* addJavaNullabilityAnnotation= */ false);
@@ -207,17 +192,7 @@ public final class XParameterSpecs {
         toKotlinPoet(builder).getModifiers().remove(KModifier.FINAL);
       }
 
-      for (Object annotation : annotations) {
-        if (annotation instanceof XAnnotationSpec) {
-          builder.addAnnotation((XAnnotationSpec) annotation);
-        } else if (annotation instanceof AnnotationSpec) {
-          toJavaPoet(builder).addAnnotation((AnnotationSpec) annotation);
-        } else {
-          throw new AssertionError("Unexpected annotation class: " + annotation.getClass());
-        }
-      }
-
-      return builder.build();
+      return builder.addAnnotations(annotations).build();
     }
   }
 

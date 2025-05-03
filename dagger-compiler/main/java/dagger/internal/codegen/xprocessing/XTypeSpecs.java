@@ -33,13 +33,6 @@ import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
 import com.squareup.kotlinpoet.KModifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,14 +96,13 @@ public final class XTypeSpecs {
     private XElement originatingElement;
     private final Set<String> alwaysQualifyNames = new LinkedHashSet<>();
     private final List<XCodeBlock> javadocs = new ArrayList<>();
-    // For migration purposes, use a Object to allow for both XPoet and JavaPoet types.
-    private Object superclass;
-    private final List<Object> superinterfaces = new ArrayList<>();
-    private final List<Object> typeVariableNames = new ArrayList<>();
-    private final List<Object> annotations = new ArrayList<>();
-    private final List<Object> types = new ArrayList<>();
-    private final List<Object> properties = new ArrayList<>();
-    private final List<Object> functions = new ArrayList<>();
+    private XTypeName superclass;
+    private final List<XTypeName> superinterfaces = new ArrayList<>();
+    private final List<XTypeName> typeVariableNames = new ArrayList<>();
+    private final List<XAnnotationSpec> annotations = new ArrayList<>();
+    private final List<XTypeSpec> types = new ArrayList<>();
+    private final List<XPropertySpec> properties = new ArrayList<>();
+    private final List<XFunSpec> functions = new ArrayList<>();
 
     private Builder(Kind kind) {
       this.kind = kind;
@@ -208,33 +200,9 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Sets the super class of the type.
-     *
-     * <p>@deprecated Use {@link #superclass(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder superclass(TypeName superclass) {
-      this.superclass = superclass;
-      return this;
-    }
-
     /** Adds the super interfaces to the type. */
     @CanIgnoreReturnValue
     public Builder addSuperinterfaces(Collection<XTypeName> superinterfaces) {
-      superinterfaces.forEach(this::addSuperinterface);
-      return this;
-    }
-
-    /**
-     * Adds the super interfaces to the type.
-     *
-     * <p>@deprecated Use {@link #addSuperinterfaces(Collection<XTypeName>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaSuperinterfaces(Collection<TypeName> superinterfaces) {
       superinterfaces.forEach(this::addSuperinterface);
       return this;
     }
@@ -246,24 +214,7 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Adds the super interface to the type.
-     *
-     * <p>@deprecated Use {@link #addSuperinterface(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addSuperinterface(TypeName superInterface) {
-      this.superinterfaces.add(superInterface);
-      return this;
-    }
-
-    /**
-     * Sets the modifiers of the type.
-     *
-     * <p>@deprecated Use the individual setter methods instead.
-     */
-    @Deprecated
+    /** Sets the modifiers of the type. */
     @CanIgnoreReturnValue
     public Builder addModifiers(Modifier... modifiers) {
       for (Modifier modifier : modifiers) {
@@ -308,18 +259,6 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Adds the given type variable names to the type.
-     *
-     * @deprecated Use {@link #addTypeVariableNames(Collection<XTypeName>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaTypeVariableNames(Collection<TypeVariableName> typeVariableNames) {
-      typeVariableNames.forEach(this::addTypeVariable);
-      return this;
-    }
-
     /** Adds the given type variable to the type. */
     @CanIgnoreReturnValue
     public Builder addTypeVariable(XType type) {
@@ -333,33 +272,9 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Adds the given type variable name to the type.
-     *
-     * <p>@deprecated Use {@link #addTypeVariable(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addTypeVariable(TypeVariableName typeVariableName) {
-      typeVariableNames.add(typeVariableName);
-      return this;
-    }
-
     /** Adds the given annotations to the type. */
     @CanIgnoreReturnValue
     public Builder addAnnotations(Collection<XAnnotationSpec> annotations) {
-      annotations.forEach(this::addAnnotation);
-      return this;
-    }
-
-    /**
-     * Adds the given annotations to the type.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaAnnotations(Collection<AnnotationSpec> annotations) {
       annotations.forEach(this::addAnnotation);
       return this;
     }
@@ -384,30 +299,6 @@ public final class XTypeSpecs {
       return addAnnotation(XAnnotationSpec.of(annotationName));
     }
 
-    /**
-     * Adds the given annotation to the type.
-     *
-     * @deprecated Use {@link #addAnnotation(XClassName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(Class<?> clazz) {
-      addAnnotation(AnnotationSpec.builder(ClassName.get(clazz)).build());
-      return this;
-    }
-
-    /**
-     * Adds the given annotation to the type.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(AnnotationSpec annotation) {
-      annotations.add(annotation);
-      return this;
-    }
-
     /** Adds the given types to the type. */
     @CanIgnoreReturnValue
     public Builder addTypes(Collection<XTypeSpec> types) {
@@ -415,33 +306,9 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Adds the given types to the type.
-     *
-     * @deprecated Use {@link #addTypes(Collection<XTypeSpec>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaTypes(Collection<TypeSpec> javaTypes) {
-      javaTypes.forEach(this::addType);
-      return this;
-    }
-
     /** Adds the given annotation name to the type. */
     @CanIgnoreReturnValue
     public Builder addType(XTypeSpec type) {
-      types.add(type);
-      return this;
-    }
-
-    /**
-     * Adds the given annotation to the type.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addType(TypeSpec type) {
       types.add(type);
       return this;
     }
@@ -453,46 +320,10 @@ public final class XTypeSpecs {
       return this;
     }
 
-    /**
-     * Adds the given fields to the type.
-     *
-     * @deprecated Use {@link #addProperties(Collection<XPropertySpec>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addFields(Collection<FieldSpec> fields) {
-      fields.forEach(this::addField);
-      return this;
-    }
-
     /** Adds the given property to the type. */
     @CanIgnoreReturnValue
     public Builder addProperty(XPropertySpec property) {
       properties.add(property);
-      return this;
-    }
-
-    /**
-     * Adds the given property to the type.
-     *
-     * @deprecated Use {@link #addProperty(XPropertySpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addField(FieldSpec field) {
-      properties.add(field);
-      return this;
-    }
-
-    /**
-     * Adds the given field to the type.
-     *
-     * @deprecated Use {@link #addProperty(XPropertySpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addField(TypeName type, String name, Modifier... modifiers) {
-      properties.add(FieldSpec.builder(type, name, modifiers).build());
       return this;
     }
 
@@ -507,30 +338,6 @@ public final class XTypeSpecs {
     @CanIgnoreReturnValue
     public Builder addFunction(XFunSpec function) {
       functions.add(function);
-      return this;
-    }
-
-    /**
-     * Adds the given methods to the type.
-     *
-     * @deprecated Use {@link #addFunctions(Collection<XFunSpec>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addMethods(Collection<MethodSpec> methods) {
-      methods.forEach(this::addMethod);
-      return this;
-    }
-
-    /**
-     * Adds the given method to the type.
-     *
-     * @deprecated Use {@link #addFunction(XFunSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addMethod(MethodSpec method) {
-      functions.add(method);
       return this;
     }
 
@@ -597,75 +404,15 @@ public final class XTypeSpecs {
       }
 
       if (superclass != null) {
-        if (superclass instanceof XTypeName) {
-          builder.superclass((XTypeName) superclass);
-        } else if (superclass instanceof TypeName) {
-          toJavaPoet(builder).superclass((TypeName) superclass);
-        } else {
-          throw new AssertionError("Unexpected superclass class: " + superclass.getClass());
-        }
+        builder.superclass(superclass);
       }
 
-      for (Object superinterface : superinterfaces) {
-        if (superinterface instanceof XTypeName) {
-          builder.addSuperinterface((XTypeName) superinterface);
-        } else if (superinterface instanceof TypeName) {
-          toJavaPoet(builder).addSuperinterface((TypeName) superinterface);
-        } else {
-          throw new AssertionError("Unexpected superinterface class: " + superinterface.getClass());
-        }
-      }
-
-      for (Object typeVariableName : typeVariableNames) {
-        if (typeVariableName instanceof XTypeName) {
-          builder.addTypeVariable((XTypeName) typeVariableName);
-        } else if (typeVariableName instanceof TypeVariableName) {
-          toJavaPoet(builder).addTypeVariable((TypeVariableName) typeVariableName);
-        } else {
-          throw new AssertionError(
-              "Unexpected typeVariableName class: " + typeVariableName.getClass());
-        }
-      }
-
-      for (Object annotation : annotations) {
-        if (annotation instanceof XAnnotationSpec) {
-          builder.addAnnotation((XAnnotationSpec) annotation);
-        } else if (annotation instanceof AnnotationSpec) {
-          toJavaPoet(builder).addAnnotation((AnnotationSpec) annotation);
-        } else {
-          throw new AssertionError("Unexpected annotation class: " + annotation.getClass());
-        }
-      }
-
-      for (Object type : types) {
-        if (type instanceof XTypeSpec) {
-          builder.addType((XTypeSpec) type);
-        } else if (type instanceof TypeSpec) {
-          toJavaPoet(builder).addType((TypeSpec) type);
-        } else {
-          throw new AssertionError("Unexpected type class: " + type.getClass());
-        }
-      }
-
-      for (Object property : properties) {
-        if (property instanceof XPropertySpec) {
-          builder.addProperty((XPropertySpec) property);
-        } else if (property instanceof FieldSpec) {
-          toJavaPoet(builder).addField((FieldSpec) property);
-        } else {
-          throw new AssertionError("Unexpected property class: " + property.getClass());
-        }
-      }
-
-      for (Object function : functions) {
-        if (function instanceof XFunSpec) {
-          builder.addFunction((XFunSpec) function);
-        } else if (function instanceof MethodSpec) {
-          toJavaPoet(builder).addMethod((MethodSpec) function);
-        } else {
-          throw new AssertionError("Unexpected function class: " + function.getClass());
-        }
-      }
+      superinterfaces.forEach(builder::addSuperinterface);
+      builder.addTypeVariables(typeVariableNames);
+      annotations.forEach(builder::addAnnotation);
+      types.forEach(builder::addType);
+      properties.forEach(builder::addProperty);
+      functions.forEach(builder::addFunction);
 
       return builder.build();
     }

@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.SourceFiles.bindingTypeElementTypeVariableNames;
@@ -256,13 +255,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
 
   private ImmutableList<XParameterSpec> constructorParameters(
       ImmutableMap<DependencyRequest, XPropertySpec> frameworkFields) {
-    return frameworkFields.values().stream()
-        .map(
-            field ->
-                XParameterSpecs.builder(field.getName(), field.getType()) // SUPPRESS_GET_NAME_CHECK
-                    .addJavaAnnotations(toJavaPoet(field).annotations)
-                    .build())
-        .collect(toImmutableList());
+    return frameworkFields.values().stream().map(XParameterSpecs::from).collect(toImmutableList());
   }
 
   // public static MyClass_MembersInjector create(

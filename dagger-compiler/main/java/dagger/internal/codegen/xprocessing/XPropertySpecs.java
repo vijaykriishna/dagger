@@ -18,7 +18,6 @@ package dagger.internal.codegen.xprocessing;
 
 import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkState;
 
 import androidx.room.compiler.codegen.VisibilityModifier;
@@ -28,9 +27,6 @@ import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.kotlinpoet.KModifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,31 +50,34 @@ public final class XPropertySpecs {
     return Builder.create(name, typeName, modifiers);
   }
 
-  /** Creates a builder with the given {@code name}, {@code typeName}, and {@code modifiers}. */
-  public static Builder builder(TypeName typeName, String name, Modifier... modifiers) {
-    return Builder.create(name, typeName, modifiers);
-  }
-
   /** Builds an {@link XPropertySpec} in a way that is more similar to the JavaPoet API. */
   public static class Builder {
-    private static Builder create(String name, Object typeName, Modifier... modifiers) {
+    private static Builder create(String name, XTypeName typeName, Modifier... modifiers) {
       Builder builder = new Builder(name, typeName);
       builder.addModifiers(modifiers);
       return builder;
     }
 
     private final String name;
-    private final Object typeName;
+    private final XTypeName typeName;
     private boolean isStatic = false;
     private boolean isMutable = true; // The default in JavaPoet is true, i.e. non-final.
     private VisibilityModifier visibility = null;
     private XCodeBlock initializer = null;
     private final List<XCodeBlock> javadocs = new ArrayList<>();
-    private final List<Object> annotations = new ArrayList<>();
+    private final List<XAnnotationSpec> annotations = new ArrayList<>();
 
-    private Builder(String name, Object typeName) {
+    private Builder(String name, XTypeName typeName) {
       this.name = name;
       this.typeName = typeName;
+    }
+
+    public String getName() { // SUPPRESS_GET_NAME_CHECK
+      return name;
+    }
+
+    public XTypeName getType() {
+      return typeName;
     }
 
     /** Sets the visibility of the method. */
@@ -109,23 +108,13 @@ public final class XPropertySpecs {
       return this;
     }
 
-    /**
-     * Sets the modifiers of the method.
-     *
-     * @deprecated Use the individual setter methods instead.
-     */
-    @Deprecated
+    /** Sets the modifiers of the method. */
     @CanIgnoreReturnValue
     public Builder addModifiers(Collection<Modifier> modifiers) {
       return addModifiers(modifiers.toArray(new Modifier[0]));
     }
 
-    /**
-     * Sets the modifiers of the method.
-     *
-     * @deprecated Use the individual setter methods instead.
-     */
-    @Deprecated
+    /** Sets the modifiers of the method. */
     @CanIgnoreReturnValue
     public Builder addModifiers(Modifier... modifiers) {
       for (Modifier modifier : modifiers) {
@@ -159,18 +148,6 @@ public final class XPropertySpecs {
       return this;
     }
 
-    /**
-     * Adds the given annotations to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaAnnotations(Collection<AnnotationSpec> annotations) {
-      annotations.forEach(this::addAnnotation);
-      return this;
-    }
-
     /** Adds the given annotation names to the method. */
     @CanIgnoreReturnValue
     public Builder addAnnotationNames(Collection<XClassName> annotationNames) {
@@ -189,30 +166,6 @@ public final class XPropertySpecs {
     @CanIgnoreReturnValue
     public Builder addAnnotation(XClassName annotationName) {
       return addAnnotation(XAnnotationSpec.of(annotationName));
-    }
-
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XClassName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(Class<?> clazz) {
-      addAnnotation(AnnotationSpec.builder(ClassName.get(clazz)).build());
-      return this;
-    }
-
-    /**
-     * Adds the given annotation to the method.
-     *
-     * @deprecated Use {@link #addAnnotation(XAnnotationSpec)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addAnnotation(AnnotationSpec annotation) {
-      annotations.add(annotation);
-      return this;
     }
 
     /** Adds the given statement to the method. */
@@ -240,15 +193,7 @@ public final class XPropertySpecs {
       XPropertySpec.Builder builder =
           XPropertySpec.builder(
               name,
-              typeName instanceof XTypeName
-                  ? (XTypeName) typeName
-                  : toXPoet(
-                      (TypeName) typeName,
-                      // TODO(bcorso): Remove usages of TypeName. Typically, you might think we
-                      // could just use toKTypeName() here but it can cause infinite recursion
-                      // in some cases (See https://github.com/square/kotlinpoet/issues/2022)
-                      // so for now we just use ANY_OBJECT as a placeholder.
-                      toKotlinPoet(XTypeName.ANY_OBJECT)),
+              typeName,
               initialVisibility,
               isMutable,
               /* addJavaNullabilityAnnotation= */ false);
@@ -273,16 +218,7 @@ public final class XPropertySpecs {
         toJavaPoet(builder).addModifiers(Modifier.STATIC);
       }
 
-      for (Object annotation : annotations) {
-        if (annotation instanceof XAnnotationSpec) {
-          builder.addAnnotation((XAnnotationSpec) annotation);
-        } else if (annotation instanceof AnnotationSpec) {
-          toJavaPoet(builder).addAnnotation((AnnotationSpec) annotation);
-        } else {
-          throw new AssertionError("Unexpected annotation class: " + annotation.getClass());
-        }
-      }
-
+      annotations.forEach(builder::addAnnotation);
       return builder.build();
     }
   }

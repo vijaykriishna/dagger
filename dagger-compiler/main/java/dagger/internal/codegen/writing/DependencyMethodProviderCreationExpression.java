@@ -16,7 +16,6 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
@@ -48,6 +47,7 @@ import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
+import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 
 /**
@@ -125,7 +125,8 @@ final class DependencyMethodProviderCreationExpression
         XTypeSpecs.classBuilder(factoryClassName)
             .addSuperinterface(daggerProviderOf(returnType))
             .addModifiers(PRIVATE, STATIC, FINAL)
-            .addField(toJavaPoet(dependencyClassName), dependency().variableName(), PRIVATE, FINAL)
+            .addProperty(
+                XPropertySpecs.of(dependency().variableName(), dependencyClassName, PRIVATE, FINAL))
             .addFunction(
                 constructorBuilder()
                     .addParameter(dependency().variableName(), dependencyClassName)

@@ -38,8 +38,6 @@ import androidx.room.compiler.processing.XMethodType;
 import androidx.room.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeVariableName;
 import com.squareup.kotlinpoet.KModifier;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.ArrayList;
@@ -60,7 +58,7 @@ public final class XFunSpecs {
       XExecutableParameterElement parameter = method.getParameters().get(i);
       XType parameterType = methodType.getParameterTypes().get(i);
       builder.addParameter(
-          XParameterSpecs.parameterSpecOf(parameter, parameterType, compilerOptions));
+          XParameterSpecs.from(parameter, parameterType, compilerOptions));
     }
     return builder;
   }
@@ -114,9 +112,8 @@ public final class XFunSpecs {
     private final List<XCodeBlock> javadocs = new ArrayList<>();
     private final List<XParameterSpec> parameters = new ArrayList<>();
     private final List<XAnnotationSpec> annotations = new ArrayList<>();
-    // For now, we use a Object to allow for both XPoet and JavaPoet types.
-    private final List<Object> typeVariableNames = new ArrayList<>();
-    private final List<Object> exceptionNames = new ArrayList<>();
+    private final List<XTypeName> typeVariableNames = new ArrayList<>();
+    private final List<XTypeName> exceptionNames = new ArrayList<>();
 
     Builder(Kind kind) {
       this.kind = kind;
@@ -234,18 +231,6 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Adds the given type variable names to the method.
-     *
-     * @deprecated Use {@link #addTypeVariableNames(Collection<XTypeName>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaTypeVariableNames(Collection<TypeVariableName> typeVariableNames) {
-      typeVariableNames.forEach(this::addTypeVariable);
-      return this;
-    }
-
     /** Adds the given type variable to the method. */
     @CanIgnoreReturnValue
     public Builder addTypeVariable(XType type) {
@@ -256,18 +241,6 @@ public final class XFunSpecs {
     @CanIgnoreReturnValue
     public Builder addTypeVariable(XTypeName typeName) {
       typeVariableNames.add(typeName);
-      return this;
-    }
-
-    /**
-     * Adds the given type variable name to the method.
-     *
-     * @deprecated Use {@link #addTypeVariable(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addTypeVariable(TypeVariableName typeVariableName) {
-      typeVariableNames.add(typeVariableName);
       return this;
     }
 
@@ -344,18 +317,6 @@ public final class XFunSpecs {
       return this;
     }
 
-    /**
-     * Adds the given exception names to the method.
-     *
-     * @deprecated Use {@link #addExceptionNames(Collection<XTypeName>)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addJavaExceptionNames(Collection<TypeName> exceptionNames) {
-      exceptionNames.forEach(this::addException);
-      return this;
-    }
-
     /** Adds the given exception to the method. */
     @CanIgnoreReturnValue
     public Builder addException(XType exception) {
@@ -365,18 +326,6 @@ public final class XFunSpecs {
     /** Adds the given exception name to the method. */
     @CanIgnoreReturnValue
     public Builder addException(XTypeName exceptionName) {
-      exceptionNames.add(exceptionName);
-      return this;
-    }
-
-    /**
-     * Adds the given exception name to the method.
-     *
-     * @deprecated Use {@link #addException(XTypeName)} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder addException(TypeName exceptionName) {
       exceptionNames.add(exceptionName);
       return this;
     }
@@ -511,30 +460,11 @@ public final class XFunSpecs {
       }
 
       builder.addParameters(parameters);
-
-      for (Object typeVariableName : typeVariableNames) {
-        if (typeVariableName instanceof XTypeName) {
-          builder.addTypeVariable((XTypeName) typeVariableName);
-        } else if (typeVariableName instanceof TypeVariableName) {
-          toJavaPoet(builder).addTypeVariable((TypeVariableName) typeVariableName);
-        } else {
-          throw new AssertionError(
-              "Unexpected typeVariableName class: " + typeVariableName.getClass());
-        }
-      }
-
+      builder.addTypeVariables(typeVariableNames);
       annotations.forEach(builder::addAnnotation);
-
-      for (Object exceptionName : exceptionNames) {
-        if (exceptionName instanceof XTypeName) {
+      exceptionNames
           // TODO(bcorso): Handle the KotlinPoet side of this implementation.
-          toJavaPoet(builder).addException(toJavaPoet((XTypeName) exceptionName));
-        } else if (exceptionName instanceof TypeName) {
-          toJavaPoet(builder).addException((TypeName) exceptionName);
-        } else {
-          throw new AssertionError("Unexpected exceptionName class: " + exceptionName.getClass());
-        }
-      }
+          .forEach(exceptionName -> toJavaPoet(builder).addException(toJavaPoet(exceptionName)));
 
       return builder.build();
     }
