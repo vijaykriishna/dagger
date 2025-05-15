@@ -61,6 +61,7 @@ interface ShadingSpec {
 }
 
 enum class SoftwareType {
+  ANDROID_LIBRARY,
   JVM_LIBRARY,
   PROCESSOR,
   TEST,

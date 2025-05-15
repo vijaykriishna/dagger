@@ -16,13 +16,18 @@
 
 package dagger.gradle.build
 
+import com.android.build.api.dsl.AndroidSourceSet
+import com.android.build.api.dsl.LibraryExtension
+import com.android.build.gradle.LibraryPlugin
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.api.JavaVersion
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -30,6 +35,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -68,6 +74,7 @@ class DaggerConventionPlugin : Plugin<Project> {
     // Perform different configuration action based on the plugins applied to the project
     project.plugins.configureEach {
       when (this) {
+        is LibraryPlugin -> configureWithAndroidLibraryPlugin(project)
         is KotlinBasePluginWrapper -> configureWithKotlinPlugin(project)
         is ShadowPlugin -> configureWithShadowPlugin(project, daggerExtension)
       }
@@ -75,12 +82,45 @@ class DaggerConventionPlugin : Plugin<Project> {
     project.afterEvaluate { configurePublish(project, daggerExtension) }
   }
 
+  private fun configureWithAndroidLibraryPlugin(project: Project) {
+    val libraryExtension = project.extensions.getByType<LibraryExtension>()
+    libraryExtension.apply {
+      configureAndroidSourceSets(sourceSets)
+      compileOptions {
+        sourceCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
+        targetCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
+      }
+      compileSdk = project.getVersionByName("androidCompileSdk").toInt()
+      defaultConfig.minSdk = project.getVersionByName("androidMinSdk").toInt()
+    }
+  }
+
+  private fun configureAndroidSourceSets(
+    sourceSets: NamedDomainObjectContainer<out AndroidSourceSet>
+  ) {
+    fun setSourceSets(name: String, sourceDir: String, resourceDir: String) {
+      sourceSets.named(name).configure {
+        java.srcDirs("$sourceDir")
+        kotlin.srcDirs("$sourceDir")
+        resources.srcDirs("$resourceDir")
+        manifest.srcFile("$name/AndroidManifest.xml")
+      }
+    }
+    setSourceSets(name = "main", sourceDir = "main/java", resourceDir = "main/res")
+    setSourceSets(name = "test", sourceDir = "test/javatests", resourceDir = "test/res")
+    setSourceSets(
+      name = "androidTest",
+      sourceDir = "androidTest/javatests",
+      resourceDir = "androidTest/res",
+    )
+  }
+
   private fun configureWithKotlinPlugin(project: Project) {
-    configureSourceSets(project)
+    configureKotlinSourceSets(project)
     configureKotlinJvmTarget(project)
   }
 
-  private fun configureSourceSets(project: Project) {
+  private fun configureKotlinSourceSets(project: Project) {
     val kotlinExtension =
       project.extensions.findByType(KotlinProjectExtension::class.java)
         ?: error("Unable to find Kotlin Project Extension")
@@ -173,6 +213,14 @@ class DaggerConventionPlugin : Plugin<Project> {
         project.extensions.getByName("mavenPublishing") as MavenPublishBaseExtension
       publishExtension.apply {
         when (daggerExtension.type) {
+          SoftwareType.ANDROID_LIBRARY ->
+            configure(
+              AndroidSingleVariantLibrary(
+                variant = "release",
+                publishJavadocJar = true,
+                sourcesJar = true,
+              )
+            )
           SoftwareType.JVM_LIBRARY ->
             configure(KotlinJvm(javadocJar = JavadocJar.Javadoc(), sourcesJar = true))
           SoftwareType.PROCESSOR ->

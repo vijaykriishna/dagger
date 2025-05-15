@@ -4,6 +4,7 @@ kotlin { jvmToolchain { languageVersion.set(libs.versions.jdk.map(JavaLanguageVe
 
 dependencies {
   implementation(gradleApi())
+  implementation(libs.androidGradlePlugin)
   implementation(libs.kotlin.gradlePlugin)
   implementation(libs.publishPlugin)
   implementation(libs.shadowPlugin)
