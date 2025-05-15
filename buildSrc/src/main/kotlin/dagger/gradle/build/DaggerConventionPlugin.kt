@@ -35,9 +35,11 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -100,9 +102,9 @@ class DaggerConventionPlugin : Plugin<Project> {
   ) {
     fun setSourceSets(name: String, sourceDir: String, resourceDir: String) {
       sourceSets.named(name).configure {
-        java.srcDirs("$sourceDir")
-        kotlin.srcDirs("$sourceDir")
-        resources.srcDirs("$resourceDir")
+        java.srcDirs(sourceDir)
+        kotlin.srcDirs(sourceDir)
+        resources.srcDirs(resourceDir)
         manifest.srcFile("$name/AndroidManifest.xml")
       }
     }
@@ -121,34 +123,38 @@ class DaggerConventionPlugin : Plugin<Project> {
   }
 
   private fun configureKotlinSourceSets(project: Project) {
-    val kotlinExtension =
-      project.extensions.findByType(KotlinProjectExtension::class.java)
-        ?: error("Unable to find Kotlin Project Extension")
-    val javaExtension =
-      project.extensions.findByType(JavaPluginExtension::class.java)
-        ?: error("Unable to find Java Project Extension")
+    val kotlinExtension = project.extensions.findByType<KotlinProjectExtension>()
+    val javaExtension = project.extensions.findByType<JavaPluginExtension>()
     fun setSourceSets(name: String, sourceDir: String, resourceDir: String) {
-      kotlinExtension.sourceSets.named(name).configure {
-        kotlin.srcDirs("$sourceDir")
-        resources.srcDirs("$resourceDir")
+      kotlinExtension?.sourceSets?.findByName(name)?.apply {
+        kotlin.srcDirs(sourceDir)
+        resources.srcDirs(resourceDir)
       }
-      javaExtension.sourceSets.named(name).configure { java.srcDirs("$sourceDir") }
+      javaExtension?.sourceSets?.findByName(name)?.apply { java.srcDirs(sourceDir) }
     }
     setSourceSets(name = "main", sourceDir = "main/java", resourceDir = "main/resources")
     setSourceSets(name = "test", sourceDir = "test/javatests", resourceDir = "test/resources")
   }
 
   private fun configureKotlinJvmTarget(project: Project) {
-    val kotlinProject = project.extensions.getByName("kotlin") as KotlinJvmProjectExtension
-    kotlinProject.jvmToolchain {
-      languageVersion.set(JavaLanguageVersion.of(project.getVersionByName("jdk")))
+    val kotlinExtension = project.extensions.getByName("kotlin")
+    if (kotlinExtension is KotlinJvmProjectExtension) {
+      kotlinExtension.jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(project.getVersionByName("jdk")))
+      }
     }
-    kotlinProject.compilerOptions.apply {
+    val kotlinCompilerOptions =
+      when (kotlinExtension) {
+        is KotlinJvmProjectExtension -> kotlinExtension.compilerOptions
+        is KotlinAndroidProjectExtension -> kotlinExtension.compilerOptions
+        else -> error("Unknown Kotlin project extension: $kotlinExtension")
+      }
+    kotlinCompilerOptions.apply {
       languageVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
       apiVersion.set(KotlinVersion.fromVersion(project.getVersionByName("kotlinTarget")))
       jvmTarget.set(JvmTarget.fromTarget(project.getVersionByName("jvmTarget")))
     }
-    val javaProject = project.extensions.getByName("java") as JavaPluginExtension
+    val javaProject = project.extensions.getByType<JavaPluginExtension>()
     javaProject.sourceCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
     javaProject.targetCompatibility = JavaVersion.toVersion(project.getVersionByName("jvmTarget"))
   }
