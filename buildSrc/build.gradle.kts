@@ -1,4 +1,7 @@
-plugins { `kotlin-dsl` }
+plugins {
+  `kotlin-dsl`
+  alias(libs.plugins.lint)
+}
 
 kotlin { jvmToolchain { languageVersion.set(libs.versions.jdk.map(JavaLanguageVersion::of)) } }
 
@@ -9,6 +12,8 @@ dependencies {
   implementation(libs.publishPlugin)
   implementation(libs.shadowPlugin)
   implementation(libs.binaryCompatibilityValidatorPlugin)
+
+  lintChecks(libs.androidx.lint)
 }
 
 gradlePlugin {
@@ -18,4 +23,8 @@ gradlePlugin {
       implementationClass = "dagger.gradle.build.DaggerConventionPlugin"
     }
   }
+}
+
+lint {
+  baseline = file("lint-baseline.xml")
 }
