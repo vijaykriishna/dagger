@@ -32,6 +32,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.create
@@ -81,6 +82,14 @@ class DaggerConventionPlugin : Plugin<Project> {
         is ShadowPlugin -> configureWithShadowPlugin(project, daggerExtension)
       }
     }
+
+    // Configure archive task for reproducible jar as recommended in
+    // https://docs.gradle.org/4.9/userguide/working_with_files.html#sec:reproducible_archives
+    project.tasks.withType<AbstractArchiveTask>().configureEach {
+      isPreserveFileTimestamps = false
+      isReproducibleFileOrder = true
+    }
+
     project.afterEvaluate { configurePublish(project, daggerExtension) }
   }
 
@@ -171,7 +180,7 @@ class DaggerConventionPlugin : Plugin<Project> {
     // Shaded dependencies are compile only dependencies
     project.configurations.named("compileOnly").configure { extendsFrom(shadedConfiguration) }
 
-    val shadowTask =
+    val shadowJarTask =
       project.tasks.withType<ShadowJar>().named("shadowJar") {
         // Use no classifier, the shaded jar is the one to be published.
         archiveClassifier.set("")
@@ -186,10 +195,21 @@ class DaggerConventionPlugin : Plugin<Project> {
         daggerExtension.relocateRules.forEach { (from, to) -> relocate(from, to) }
       }
 
-    // Change the default jar task classifier to avoid conflicting with the shaded one.
-    project.tasks.withType<Jar>().named("jar").configure { archiveClassifier.set("before-shade") }
+    val jarTask =
+      project.tasks.withType<Jar>().named("jar") {
+        // Change the default jar task classifier to avoid conflicting with the shaded one.
+        archiveClassifier.set("before-shade")
+      }
 
-    configureOutgoingArtifacts(project, shadowTask)
+    // Configuration for consuming unshaded artifact in Dagger's multi-project setup.
+    project.configurations.create("unshaded") {
+      isCanBeConsumed = true
+      isCanBeResolved = false
+      extendsFrom(project.configurations.named("implementation").get())
+      outgoing.artifact(jarTask)
+    }
+
+    configureOutgoingArtifacts(project, shadowJarTask)
   }
 
   /**

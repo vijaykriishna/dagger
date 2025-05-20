@@ -32,6 +32,8 @@ includeProject(":dagger-android", "dagger-android")
 
 includeProject(":dagger-android-support", "dagger-android-support")
 
+includeProject(":dagger-android-processor", "dagger-android-processor")
+
 includeProject(":dagger-compiler", "dagger-compiler")
 
 includeProject(":dagger-lint", "dagger-lint")
