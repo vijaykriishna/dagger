@@ -109,20 +109,32 @@ class DaggerConventionPlugin : Plugin<Project> {
   private fun configureAndroidSourceSets(
     sourceSets: NamedDomainObjectContainer<out AndroidSourceSet>
   ) {
-    fun setSourceSets(name: String, sourceDir: String, resourceDir: String) {
+    fun setSourceSets(name: String, sourceDir: String, resourceDir: String, resDir: String) {
       sourceSets.named(name).configure {
         java.srcDirs(sourceDir)
         kotlin.srcDirs(sourceDir)
         resources.srcDirs(resourceDir)
+        res.srcDirs(resourceDir)
         manifest.srcFile("$name/AndroidManifest.xml")
       }
     }
-    setSourceSets(name = "main", sourceDir = "main/java", resourceDir = "main/res")
-    setSourceSets(name = "test", sourceDir = "test/javatests", resourceDir = "test/res")
+    setSourceSets(
+      name = "main",
+      sourceDir = "main/java",
+      resourceDir = "main/resources",
+      resDir = "main/res",
+    )
+    setSourceSets(
+      name = "test",
+      sourceDir = "test/javatests",
+      resourceDir = "test/resources",
+      resDir = "test/res",
+    )
     setSourceSets(
       name = "androidTest",
       sourceDir = "androidTest/javatests",
-      resourceDir = "androidTest/res",
+      resourceDir = "androidTest/resources",
+      resDir = "androidTest/res",
     )
   }
 

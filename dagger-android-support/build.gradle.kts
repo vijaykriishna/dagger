@@ -15,6 +15,11 @@ dependencies {
   api(libs.androidx.appcompat)
   api(libs.androidx.fragment)
   compileOnly(libs.errorprone.annotations)
+
+  testImplementation(libs.junit)
+  testImplementation(libs.truth)
+  testImplementation(libs.androidx.test.ext.junit)
+  testImplementation(libs.robolectric)
 }
 
 daggerBuild {
