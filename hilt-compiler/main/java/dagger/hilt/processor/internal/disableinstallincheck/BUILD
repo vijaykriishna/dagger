@@ -23,7 +23,7 @@ package(default_visibility = ["//:src"])
 compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    javac_processor_name = "DisableInstallInCheckProcessor",
+    processor_base_name = "DisableInstallInCheck",
     processor_lib_dep = ":processor_lib",
     visibility = [
         "//hilt-core/main/java/dagger/hilt/migration:__pkg__",
