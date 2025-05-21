@@ -22,7 +22,7 @@ package(default_visibility = ["//:src"])
 compat_processor_plugin(
     name = "plugin",
     generates_api = 1,
-    processor_base_name = "AndroidEntryPoint",
+    javac_processor_name = "AndroidEntryPointProcessor",
     processor_lib_dep = ":processor_lib",
 )
 
