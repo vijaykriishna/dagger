@@ -34,7 +34,7 @@ java_library(
         "//third_party/java/auto:service",
         "//third_party/java/guava/collect",
         "//third_party/java/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
     ],
 )
 

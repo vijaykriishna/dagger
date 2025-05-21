@@ -24,9 +24,8 @@ compiler_test(
     compiler_deps = [
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
         "//hilt-android/main/java/dagger/hilt/android:android_entry_point",
-        "@androidsdk//:platforms/android-34/android.jar",
-        "@maven//:androidx_annotation_annotation",
-        "@maven//:androidx_annotation_annotation_jvm",
+        "//third_party/java/android/android_sdk_linux:android_runtime",
+        "//third_party/java/androidx/annotation",
     ],
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",

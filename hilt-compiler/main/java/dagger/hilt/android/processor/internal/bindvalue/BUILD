@@ -36,7 +36,6 @@ java_library(
         "KspBindValueProcessor.java",
     ],
     deps = [
-        "//:dagger_with_compiler",
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing",
         "//dagger-spi",
         "//hilt-compiler/main/java/dagger/hilt/processor/internal:base_processor",
@@ -47,11 +46,12 @@ java_library(
         "//hilt-compiler/main/java/dagger/hilt/processor/internal/kotlin",
         "//third_party/java/auto:service",
         "//third_party/java/auto:value",
+        "//third_party/java/dagger",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/incap",
         "//third_party/java/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
     ],
 )
 

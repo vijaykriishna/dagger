@@ -57,11 +57,11 @@ java_library(
         "//dagger-producers/main/java/dagger/producers",
         "//dagger-runtime/main/java/dagger:core",
         "//java/dagger/testing/compile",
+        "//third_party/java/auto:value_processor",
         "//third_party/java/compile_testing",
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/truth",
-        "@maven//:com_google_auto_value_auto_value",
     ],
 )
 
@@ -98,7 +98,7 @@ DEPS = [
     "//third_party/java/guava/collect",
     "//third_party/java/guava/util/concurrent",
     "//third_party/java/auto:value",
-    "@maven//:com_google_auto_value_auto_value",
+    "//third_party/java/auto:value_processor",
     "//third_party/java/auto:common",
     "//third_party/java/compile_testing",
     "//third_party/java/javapoet",

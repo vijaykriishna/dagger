@@ -40,6 +40,6 @@ java_library(
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/javapoet",
-        "//third_party/java/jsr330_inject",
+        "//third_party/java/jsr330_inject:jsr330_inject_without_dagger",
     ],
 )

@@ -56,8 +56,8 @@ android_library(
     name = "legacy-deps",
     tags = ["maven_coordinates=com.google.dagger:dagger-android-legacy:" + POM_VERSION],
     exports = [
-        "//:dagger_with_compiler",
         "//third_party/java/auto:value",
+        "//third_party/java/dagger",
         "//third_party/java/error_prone:annotations",
         "@maven//:com_android_support_support_annotations",
     ],

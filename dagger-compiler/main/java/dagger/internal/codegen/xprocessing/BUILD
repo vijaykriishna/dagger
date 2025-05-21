@@ -69,9 +69,9 @@ compat_kt_jvm_library(
         "//third_party/java/guava/collect",
         "//third_party/java/javapoet",
         "//third_party/java/jsr305_annotations",
+        "//third_party/kotlin/kotlin:kotlin_stdlib",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
         "//third_party/kotlin/kotlinpoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
-        "@maven//:org_jetbrains_kotlin_kotlin_stdlib",
     ],
 )
 
@@ -85,9 +85,9 @@ java_import(
     name = "xprocessing-jar",
     jars = ["xprocessing-internal.jar"],
     deps = [
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
         "//third_party/kotlin/kotlinpoet",
         "//third_party/kotlin/kotlinpoet/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
     ],
 )
 

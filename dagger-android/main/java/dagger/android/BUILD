@@ -46,11 +46,10 @@ android_library(
         "//dagger-lint-android:lint-android-artifact-lib",
     ],
     deps = [
-        "//:dagger_with_compiler",
         "//dagger-android-proguard-processor:proguard",
+        "//third_party/java/androidx/annotation",
         "//third_party/java/auto:value",
+        "//third_party/java/dagger",
         "//third_party/java/error_prone:annotations",
-        "@maven//:androidx_annotation_annotation",
-        "@maven//:androidx_annotation_annotation_jvm",
     ],
 )

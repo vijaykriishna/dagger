@@ -36,8 +36,8 @@ compat_kt_jvm_library(
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/jsr305_annotations",
-        "//third_party/java/jsr330_inject",
+        "//third_party/java/jsr330_inject:jsr330_inject_without_dagger",
+        "//third_party/kotlin/kotlin:kotlin_stdlib",
         "//third_party/kotlin/kotlin_metadata_jvm",
-        "@maven//:org_jetbrains_kotlin_kotlin_stdlib",
     ],
 )

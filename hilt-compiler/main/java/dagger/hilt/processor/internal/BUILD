@@ -38,7 +38,7 @@ java_library(
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
     ],
 )
 
@@ -80,8 +80,8 @@ java_library(
         "//third_party/java/guava/base",
         "//third_party/java/guava/collect",
         "//third_party/java/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
-        "@maven//:org_jetbrains_kotlin_kotlin_stdlib",
+        "//third_party/kotlin/kotlin:kotlin_stdlib",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
     ],
 )
 
@@ -188,7 +188,7 @@ kt_jvm_library(
         "//dagger-spi",
         "//third_party/java/auto:common",
         "//third_party/java/javapoet",
-        "@maven//:com_google_devtools_ksp_symbol_processing_api",
+        "//third_party/kotlin/kotlin_symbol_processing:symbol-processing-api",
     ],
 )
 

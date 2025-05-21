@@ -69,7 +69,4 @@ alias(
 alias(
     name = "plugin",
     actual = "//dagger-android-processor/main/java/dagger/android/processor:plugin",
-    visibility = [
-        "//:__pkg__",
-    ],
 )
