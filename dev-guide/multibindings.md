@@ -235,7 +235,7 @@ The `@LazyClassKey` map does not support returning `keySet()` or `entrySet()` as
 they will load all class keys and degrade the benefit of using the annotation.
 Usage of unqualified `@LazyClassKey` cannot co-exist with `@ClassKey`.
 This feature works by using the class names, and so is paired with configuration
-for R8--> to ensure the strings are also obfuscated
+for R8 to ensure the strings are also obfuscated
 when classes are obfuscated.
 For Proguard, configuration is included so names of classes used
 as keys will be kept.
@@ -382,7 +382,7 @@ abstract class MyModule {
 A given set or map multibinding can be declared any number of times without
 error. Dagger never implements or calls any [`@Multibinds`] methods.
 
-<!-- TODO(dpb): Render as footnote once Github supports them.
+<!-- TODO(dpb): Render as footnote once Github supports them. -->
 
 ### Alternative: `@ElementsIntoSet` returning an empty set
 
