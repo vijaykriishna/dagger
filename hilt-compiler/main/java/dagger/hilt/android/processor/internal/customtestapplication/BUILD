@@ -23,7 +23,7 @@ package(default_visibility = ["//:src"])
 compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    processor_base_name = "CustomTestApplication",
+    javac_processor_name = "CustomTestApplicationProcessor",
     processor_lib_dep = ":processor_lib",
 )
 

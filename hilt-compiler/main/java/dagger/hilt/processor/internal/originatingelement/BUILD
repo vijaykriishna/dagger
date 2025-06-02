@@ -23,7 +23,7 @@ package(default_visibility = ["//:src"])
 compat_processor_plugin(
     name = "processor",
     generates_api = 1,
-    processor_base_name = "OriginatingElement",
+    javac_processor_name = "OriginatingElementProcessor",
     processor_lib_dep = ":processor_lib",
 )
 
