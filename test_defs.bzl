@@ -60,8 +60,7 @@ def GenKtLibrary(
         deps = None,
         gen_library_deps = None,
         plugins = None,
-        javacopts = None,
-        require_jdk7_syntax = True):
+        javacopts = None):
     _GenTestsWithVariants(
         library_rule_type = kt_jvm_library,
         test_rule_type = None,
@@ -73,7 +72,6 @@ def GenKtLibrary(
         shard_count = None,
         plugins = plugins,
         javacopts = javacopts,
-        require_jdk7_syntax = require_jdk7_syntax,
     )
 
 def GenKtTests(
@@ -84,8 +82,7 @@ def GenKtTests(
         test_only_deps = None,
         plugins = None,
         javacopts = None,
-        shard_count = None,
-        require_jdk7_syntax = True):
+        shard_count = None):
     _GenTestsWithVariants(
         library_rule_type = kt_jvm_library,
         test_rule_type = kt_jvm_test,
@@ -97,7 +94,6 @@ def GenKtTests(
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
-        require_jdk7_syntax = require_jdk7_syntax,
     )
 
 def GenJavaLibrary(
@@ -106,8 +102,7 @@ def GenJavaLibrary(
         deps = None,
         gen_library_deps = None,
         plugins = None,
-        javacopts = None,
-        require_jdk7_syntax = True):
+        javacopts = None):
     if any([src for src in srcs if src.endswith(".kt")]):
         fail("GenJavaLibrary ':{0}' should not contain kotlin sources.".format(name))
     _GenTestsWithVariants(
@@ -121,7 +116,6 @@ def GenJavaLibrary(
         plugins = plugins,
         javacopts = javacopts,
         shard_count = None,
-        require_jdk7_syntax = require_jdk7_syntax,
     )
 
 def GenJavaTests(
@@ -132,8 +126,7 @@ def GenJavaTests(
         test_only_deps = None,
         plugins = None,
         javacopts = None,
-        shard_count = None,
-        require_jdk7_syntax = True):
+        shard_count = None):
     if any([src for src in srcs if src.endswith(".kt")]):
         fail("GenJavaTests ':{0}' should not contain kotlin sources.".format(name))
     _GenTestsWithVariants(
@@ -147,7 +140,6 @@ def GenJavaTests(
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
-        require_jdk7_syntax = require_jdk7_syntax,
     )
 
 def GenRobolectricTests(
@@ -158,7 +150,6 @@ def GenRobolectricTests(
         plugins = None,
         javacopts = None,
         shard_count = None,
-        require_jdk7_syntax = True,
         manifest_values = TEST_MANIFEST_VALUES):
     deps = (deps or []) + ["//:android_local_test_exports"]
     _GenTestsWithVariants(
@@ -172,7 +163,6 @@ def GenRobolectricTests(
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
-        require_jdk7_syntax = require_jdk7_syntax,
         test_kwargs = {"manifest_values": manifest_values},
     )
 
@@ -187,7 +177,6 @@ def _GenTestsWithVariants(
         plugins,
         javacopts,
         shard_count,
-        require_jdk7_syntax,
         test_kwargs = None):
     test_files = [src for src in srcs if _is_test(src)]
     supporting_files = [src for src in srcs if not _is_test(src)]
@@ -215,6 +204,9 @@ def _GenTestsWithVariants(
 
     if javacopts == None:
         javacopts = []
+
+    # Ensure that the source code is compatible with the minimum supported Java version.
+    javacopts = javacopts + JAVA_RELEASE_MIN
 
     for (variant_name, variant_javacopts) in _FUNCTIONAL_BUILD_VARIANTS.items():
         merged_javacopts = javacopts + variant_javacopts
@@ -245,7 +237,6 @@ def _GenTestsWithVariants(
                     deps = deps + variant_deps,
                     plugins = plugins,
                     javacopts = merged_javacopts,
-                    require_jdk7_syntax = require_jdk7_syntax,
                 )
                 test_deps.append(supporting_files_name)
 
@@ -273,17 +264,8 @@ def _GenLibraryWithVariant(
         tags,
         deps,
         plugins,
-        javacopts,
-        require_jdk7_syntax):
-    if require_jdk7_syntax:
-        # TODO(b/261894425): Decide if we still want to apply JAVA_RELEASE_MIN by default.
-        # Note: Technically, we should also apply JAVA_RELEASE_MIN to tests too, since we have
-        # Dagger code in there as well, but we keep it only on libraries for legacy reasons, and
-        # fixing tests to be jdk7 compatible would require a bit of work. We should decide on
-        # b/261894425 before committing to that work.
-        library_javacopts_kwargs = {"javacopts": javacopts + JAVA_RELEASE_MIN}
-    else:
-        library_javacopts_kwargs = {"javacopts": javacopts}
+        javacopts):
+    library_javacopts_kwargs = {"javacopts": javacopts}
 
     # TODO(bcorso): Add javacopts explicitly once kt_jvm_test supports them.
     if library_rule_type in [kt_jvm_library]:
