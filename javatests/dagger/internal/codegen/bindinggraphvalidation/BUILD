@@ -16,14 +16,13 @@
 #   Tests for dagger.internal.codegen.bindinggraphvalidation
 
 load("//:build_defs.bzl", "DOCLINT_HTML_AND_SYNTAX")
-load("//:test_defs.bzl", "GenJavaTests")
+load("//:test_defs.bzl", "GenCompilerTests")
 
 package(default_visibility = ["//:src"])
 
-GenJavaTests(
+GenCompilerTests(
     name = "bindinggraphvalidation_tests",
     srcs = glob(["*.java"]),
-    functional = False,
     javacopts = DOCLINT_HTML_AND_SYNTAX,
     shard_count = 3,
     deps = [
