@@ -68,7 +68,6 @@ def GenKtLibrary(
         srcs = srcs,
         deps = deps,
         gen_library_deps = gen_library_deps,
-        test_only_deps = None,
         shard_count = None,
         plugins = plugins,
         javacopts = javacopts,
@@ -79,7 +78,6 @@ def GenKtTests(
         srcs,
         deps = None,
         gen_library_deps = None,
-        test_only_deps = None,
         plugins = None,
         javacopts = None,
         shard_count = None):
@@ -90,7 +88,6 @@ def GenKtTests(
         srcs = srcs,
         deps = deps,
         gen_library_deps = gen_library_deps,
-        test_only_deps = test_only_deps,
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
@@ -112,7 +109,6 @@ def GenJavaLibrary(
         srcs = srcs,
         deps = deps,
         gen_library_deps = gen_library_deps,
-        test_only_deps = None,
         plugins = plugins,
         javacopts = javacopts,
         shard_count = None,
@@ -123,7 +119,6 @@ def GenJavaTests(
         srcs,
         deps = None,
         gen_library_deps = None,
-        test_only_deps = None,
         plugins = None,
         javacopts = None,
         shard_count = None):
@@ -136,7 +131,6 @@ def GenJavaTests(
         srcs = srcs,
         deps = deps,
         gen_library_deps = gen_library_deps,
-        test_only_deps = test_only_deps,
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
@@ -146,7 +140,6 @@ def GenRobolectricTests(
         name,
         srcs,
         deps = None,
-        test_only_deps = None,
         plugins = None,
         javacopts = None,
         shard_count = None,
@@ -159,7 +152,6 @@ def GenRobolectricTests(
         srcs = srcs,
         deps = deps,
         gen_library_deps = None,
-        test_only_deps = test_only_deps,
         plugins = plugins,
         javacopts = javacopts,
         shard_count = shard_count,
@@ -173,7 +165,6 @@ def _GenTestsWithVariants(
         srcs,
         deps,
         gen_library_deps,
-        test_only_deps,
         plugins,
         javacopts,
         shard_count,
@@ -195,9 +186,6 @@ def _GenTestsWithVariants(
 
     if gen_library_deps == None:
         gen_library_deps = []
-
-    if test_only_deps == None:
-        test_only_deps = []
 
     if plugins == None:
         plugins = []
@@ -226,7 +214,7 @@ def _GenTestsWithVariants(
                 continue # KSP not yet supported in Bazel
 
             variant_deps = [canonical_dep_name(dep) + suffix for dep in gen_library_deps]
-            test_deps = deps + test_only_deps
+            test_deps = list(deps)
             if supporting_files:
                 supporting_files_name = name + suffix + ("_lib" if test_files else "")
                 _GenLibraryWithVariant(
