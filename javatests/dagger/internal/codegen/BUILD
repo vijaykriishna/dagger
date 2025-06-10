@@ -123,7 +123,6 @@ DEPS = [
     "//dagger-compiler/main/java/dagger/internal/codegen/compileroption",
     "//dagger-compiler/main/java/dagger/internal/codegen/javac",
     "//dagger-compiler/main/java/dagger/internal/codegen/kotlin",
-    "//dagger-compiler/main/java/dagger/internal/codegen/langmodel",
     "//dagger-compiler/main/java/dagger/internal/codegen/model",
     "//dagger-compiler/main/java/dagger/internal/codegen/validation",
     "//dagger-compiler/main/java/dagger/internal/codegen/writing",

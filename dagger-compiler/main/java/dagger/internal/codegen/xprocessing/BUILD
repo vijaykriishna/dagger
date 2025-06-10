@@ -25,6 +25,7 @@ XPOET_SRCS = [
     "XAnnotationSpecs.java",
     "XCodeBlocks.java",
     "XExpression.java",
+    "XExpressionType.java",
     "XFunSpecs.java",
     "XParameterSpecs.java",
     "XPropertySpecs.java",

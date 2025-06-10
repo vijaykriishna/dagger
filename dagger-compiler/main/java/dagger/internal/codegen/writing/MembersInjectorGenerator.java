@@ -26,11 +26,11 @@ import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameFor
 import static dagger.internal.codegen.binding.SourceFiles.parameterizedGeneratedTypeNameForBinding;
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static dagger.internal.codegen.langmodel.Accessibility.isRawTypePubliclyAccessible;
-import static dagger.internal.codegen.langmodel.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
+import static dagger.internal.codegen.xprocessing.Accessibility.isRawTypePubliclyAccessible;
+import static dagger.internal.codegen.xprocessing.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.RAWTYPES;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.suppressWarnings;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
