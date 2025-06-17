@@ -328,6 +328,57 @@ public final class InjectConstructorFactoryGeneratorTest {
             });
   }
 
+  @Test
+  public void inaccessibleMembersInjectorDependency() throws Exception {
+    Source superType =
+        CompilerTests.javaSource(
+            "other.SuperType",
+            "package other;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class SuperType {",
+            "  @Inject InaccessibleType inaccessibleType;",
+            "}");
+    Source inaccessibleType =
+        CompilerTests.javaSource(
+            "other.InaccessibleType",
+            "package other;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "interface InaccessibleType {}");
+    Source subType =
+        CompilerTests.javaSource(
+            "test.SubType",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "import other.SuperType;",
+            "",
+            "public class SubType extends SuperType {",
+            "  @Inject SubType() {}",
+            "}");
+    CompilerTests.daggerCompiler(superType, inaccessibleType, subType)
+        .compile(
+            subject -> {
+              // TODO(b/424790811): Once this bug is fixed, there should be no errors.
+              subject.hasErrorCount(4);
+              subject.generatedSource(goldenFileRule.goldenSource("test/SubType_Factory"));
+              subject.hasErrorContaining("other.InaccessibleType is not public in other")
+                  .onSource(goldenFileRule.goldenSource("test/SubType_Factory"))
+                  .onLineContaining("import other.InaccessibleType;")
+                  .onLineContaining(
+                      "private final Provider<InaccessibleType> inaccessibleTypeProvider;")
+                  .onLineContaining(
+                      "private SubType_Factory("
+                          + "Provider<InaccessibleType> inaccessibleTypeProvider)")
+                  .onLineContaining(
+                      "public static SubType_Factory create("
+                          + "Provider<InaccessibleType> inaccessibleTypeProvider)");
+            });
+  }
+
   @Test public void multipleInjectConstructors() {
     Source file =
         CompilerTests.javaSource(
