@@ -37,6 +37,7 @@ import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XFieldElement;
 import androidx.room.compiler.processing.XMethodElement;
+import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -50,7 +51,9 @@ import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.RequestKind;
+import dagger.internal.codegen.xprocessing.Accessibility;
 import dagger.internal.codegen.xprocessing.XTypeNames;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.lang.model.SourceVersion;
 
@@ -80,15 +83,19 @@ public final class SourceFiles {
     FrameworkTypeMapper frameworkTypeMapper =
         FrameworkTypeMapper.forBindingType(binding.bindingType());
 
+    XClassName requestingClass = binding.bindingTypeElement().get().asClassName();
     return Maps.toMap(
         binding.dependencies(),
         dependency -> {
           XClassName frameworkClassName =
               frameworkTypeMapper.getFrameworkType(dependency.kind()).frameworkClassName();
+          XType type = dependency.key().type().xprocessing();
           return FrameworkField.create(
               DependencyVariableNamer.name(dependency),
               frameworkClassName,
-              dependency.key().type().xprocessing(),
+              Accessibility.isTypeAccessibleFrom(type, requestingClass.getPackageName())
+                  ? Optional.of(type)
+                  : Optional.empty(),
               compilerOptions);
         });
   }

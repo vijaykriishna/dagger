@@ -6,7 +6,6 @@ import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import other.InaccessibleType;
 import other.SuperType_MembersInjector;
 
 @ScopeMetadata
@@ -26,9 +25,9 @@ import other.SuperType_MembersInjector;
     "nullness:initialization.field.uninitialized"
 })
 public final class SubType_Factory implements Factory<SubType> {
-  private final Provider<InaccessibleType> inaccessibleTypeProvider;
+  private final Provider inaccessibleTypeProvider;
 
-  private SubType_Factory(Provider<InaccessibleType> inaccessibleTypeProvider) {
+  private SubType_Factory(Provider inaccessibleTypeProvider) {
     this.inaccessibleTypeProvider = inaccessibleTypeProvider;
   }
 
@@ -39,7 +38,7 @@ public final class SubType_Factory implements Factory<SubType> {
     return instance;
   }
 
-  public static SubType_Factory create(Provider<InaccessibleType> inaccessibleTypeProvider) {
+  public static SubType_Factory create(Provider inaccessibleTypeProvider) {
     return new SubType_Factory(inaccessibleTypeProvider);
   }
 

@@ -362,20 +362,8 @@ public final class InjectConstructorFactoryGeneratorTest {
     CompilerTests.daggerCompiler(superType, inaccessibleType, subType)
         .compile(
             subject -> {
-              // TODO(b/424790811): Once this bug is fixed, there should be no errors.
-              subject.hasErrorCount(4);
+              subject.hasErrorCount(0);
               subject.generatedSource(goldenFileRule.goldenSource("test/SubType_Factory"));
-              subject.hasErrorContaining("other.InaccessibleType is not public in other")
-                  .onSource(goldenFileRule.goldenSource("test/SubType_Factory"))
-                  .onLineContaining("import other.InaccessibleType;")
-                  .onLineContaining(
-                      "private final Provider<InaccessibleType> inaccessibleTypeProvider;")
-                  .onLineContaining(
-                      "private SubType_Factory("
-                          + "Provider<InaccessibleType> inaccessibleTypeProvider)")
-                  .onLineContaining(
-                      "public static SubType_Factory create("
-                          + "Provider<InaccessibleType> inaccessibleTypeProvider)");
             });
   }
 
