@@ -37,7 +37,7 @@ def GenCompilerTests(name, srcs, **kwargs):
     """Generates a java_test or kt_jvm_test for each test source in srcs.
 
     In addition, this macro will append any golden files associated with the test in the form
-    'goldens/{test_name}_*' to the resources attribute of the generated test rule.
+    'goldens/{test_name}/**' to the resources attribute of the generated test rule.
 
     Args:
         name: name of the target
@@ -55,7 +55,7 @@ def GenCompilerTests(name, srcs, **kwargs):
         test_rule_type(
             name = test_name,
             srcs = [src],
-            resources = native.glob(["goldens/%s_*" % test_name]),
+            resources = native.glob(["goldens/%s/**" % test_name]),
             **kwargs
         )
 

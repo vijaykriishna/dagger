@@ -26,7 +26,7 @@ compiler_test(
         "//third_party/java/android/android_sdk_linux:android_runtime",
     ],
     resources = glob([
-        "goldens/ActivityGeneratorTest_*",
+        "goldens/ActivityGeneratorTest/**",
     ]),
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",

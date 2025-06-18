@@ -54,7 +54,7 @@ kt_compiler_test(
         "//hilt-android/main/java/dagger/hilt/android:android_entry_point",
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
     ],
-    resources = glob(["goldens/*"]),
+    resources = glob(["goldens/ViewModelValidationPluginTest/**"]),
     deps = [
         ":test_utils",
         "//dagger-compiler:processor",
@@ -86,7 +86,7 @@ kt_compiler_test(
         "//hilt-android/main/java/dagger/hilt/android:android_entry_point",
         "//hilt-android/main/java/dagger/hilt/android:hilt_android_app",
     ],
-    resources = glob(["goldens/*"]),
+    resources = glob(["goldens/ViewModelValidationPluginWithAssistedInjectTest/**"]),
     deps = [
         ":test_utils",
         "//dagger-compiler:processor",
