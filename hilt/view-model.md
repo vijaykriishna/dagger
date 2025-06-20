@@ -263,8 +263,8 @@ public final class MyActivity extends AppCompatActivity {
       getDefaultViewModelProviderFactory(),
       HiltViewModelExtensions.withCreationCallback(
           getDefaultViewModelCreationExtras(),
-          (MyViewModel.Factory factory) -> factory.create(movieId)))
-      .get(MyInjectedViewModel.class);
+          (MovieViewModelFactory factory) -> factory.create(movieId)))
+      .get(MovieViewModel.class);
   }
 }
 ```
