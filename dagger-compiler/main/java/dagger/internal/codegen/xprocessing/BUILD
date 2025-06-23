@@ -21,6 +21,7 @@ load("//tools:bazel_compat.bzl", "compat_kt_jvm_library")
 package(default_visibility = ["//dagger-compiler:internal"])
 
 XPOET_SRCS = [
+    "Accessibility.java",
     "NullableTypeNames.java",
     "XAnnotationSpecs.java",
     "XCodeBlocks.java",

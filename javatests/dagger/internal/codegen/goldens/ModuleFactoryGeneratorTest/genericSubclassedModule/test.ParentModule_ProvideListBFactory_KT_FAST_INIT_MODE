@@ -46,7 +46,7 @@ public final class ParentModule_ProvideListBFactory<A extends CharSequence, B, C
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> List<B> provideListB(
-      ParentModule<A, B, C> instance, B b) {
-    return Preconditions.checkNotNullFromProvides(instance.provideListB(b));
+      ParentModule<A, B, C> instance, Object b) {
+    return Preconditions.checkNotNullFromProvides(instance.provideListB((B) (b)));
   }
 }

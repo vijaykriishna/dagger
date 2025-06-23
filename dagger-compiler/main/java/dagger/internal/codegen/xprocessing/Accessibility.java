@@ -39,6 +39,7 @@ import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.Optional;
 
 /**
@@ -52,6 +53,11 @@ import java.util.Optional;
  * ensures that using this class will never result in generating code that will not compile.
  */
 public final class Accessibility {
+  /** Returns true if the given type can be referenced from any package. */
+  public static boolean isTypePubliclyAccessible(XType type, CompilerOptions compilerOptions) {
+    return isTypePubliclyAccessible(type);
+  }
+
   /** Returns true if the given type can be referenced from any package. */
   public static boolean isTypePubliclyAccessible(XType type) {
     return isTypeAccessibleFrom(type, Optional.empty());

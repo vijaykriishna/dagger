@@ -62,7 +62,7 @@ public final class Child_MembersInjector<T> implements MembersInjector<Child<T>>
   }
 
   @InjectedFieldSignature("test.Child.t")
-  public static <T> void injectT(Object instance, T t) {
-    ((Child<T>) (instance)).t = t;
+  public static <T> void injectT(Object instance, Object t) {
+    ((Child<T>) (instance)).t = (T) (t);
   }
 }

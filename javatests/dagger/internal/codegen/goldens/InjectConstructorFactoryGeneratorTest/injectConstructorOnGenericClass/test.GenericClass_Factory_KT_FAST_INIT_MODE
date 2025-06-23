@@ -39,7 +39,7 @@ public final class GenericClass_Factory<T> implements Factory<GenericClass<T>> {
     return new GenericClass_Factory<T>(tProvider);
   }
 
-  public static <T> GenericClass<T> newInstance(T t) {
-    return new GenericClass<T>(t);
+  public static <T> GenericClass<T> newInstance(Object t) {
+    return new GenericClass<T>((T) (t));
   }
 }

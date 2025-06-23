@@ -44,11 +44,11 @@ public final class GenericClass_MembersInjector<A, B> implements MembersInjector
   }
 
   @InjectedFieldSignature("test.GenericClass.a")
-  public static <A, B> void injectA(Object instance, A a) {
-    ((GenericClass<A, B>) (instance)).a = a;
+  public static <A, B> void injectA(Object instance, Object a) {
+    ((GenericClass<A, B>) (instance)).a = (A) (a);
   }
 
-  public static <A, B> void injectRegister(Object instance, B b) {
-    ((GenericClass<A, B>) (instance)).register(b);
+  public static <A, B> void injectRegister(Object instance, Object b) {
+    ((GenericClass<A, B>) (instance)).register((B) (b));
   }
 }

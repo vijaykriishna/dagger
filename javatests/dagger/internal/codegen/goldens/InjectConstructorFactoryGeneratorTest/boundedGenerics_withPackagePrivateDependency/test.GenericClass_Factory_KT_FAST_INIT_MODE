@@ -43,7 +43,7 @@ public final class GenericClass_Factory<A extends Bar> implements Factory<Generi
     return new GenericClass_Factory<A>(aProvider, barProvider);
   }
 
-  public static <A extends Bar> GenericClass<A> newInstance(A a, Object bar) {
-    return new GenericClass<A>(a, (Bar) (bar));
+  public static <A extends Bar> GenericClass<A> newInstance(Object a, Object bar) {
+    return new GenericClass<A>((A) (a), (Bar) (bar));
   }
 }

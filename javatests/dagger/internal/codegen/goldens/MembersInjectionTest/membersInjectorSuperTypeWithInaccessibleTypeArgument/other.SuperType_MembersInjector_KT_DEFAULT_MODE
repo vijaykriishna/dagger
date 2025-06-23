@@ -73,28 +73,27 @@ public final class SuperType_MembersInjector<T> implements MembersInjector<Super
   }
 
   @InjectedFieldSignature("other.SuperType.t")
-  public static <T> void injectT(SuperType<T> instance, T t) {
-    instance.t = t;
+  public static <T> void injectT(Object instance, Object t) {
+    ((SuperType<T>) (instance)).t = (T) (t);
   }
 
   @InjectedFieldSignature("other.SuperType.listT")
-  public static <T> void injectListT(SuperType<T> instance, List<T> listT) {
-    instance.listT = listT;
+  public static <T> void injectListT(Object instance, Object listT) {
+    ((SuperType<T>) (instance)).listT = (List<T>) (listT);
   }
 
   @InjectedFieldSignature("other.SuperType.listExtendsT")
-  public static <T> void injectListExtendsT(SuperType<T> instance, List<? extends T> listExtendsT) {
-    instance.listExtendsT = listExtendsT;
+  public static <T> void injectListExtendsT(Object instance, Object listExtendsT) {
+    ((SuperType<T>) (instance)).listExtendsT = (List<? extends T>) (listExtendsT);
   }
 
   @InjectedFieldSignature("other.SuperType.arrayListExtendsT")
-  public static <T> void injectArrayListExtendsT(SuperType<T> instance,
-      List<? extends T>[] arrayListExtendsT) {
-    instance.arrayListExtendsT = arrayListExtendsT;
+  public static <T> void injectArrayListExtendsT(Object instance, Object arrayListExtendsT) {
+    ((SuperType<T>) (instance)).arrayListExtendsT = (List<? extends T>[]) (arrayListExtendsT);
   }
 
-  public static <T> void injectMethod(SuperType<T> instance, T t, List<T> listT,
-      List<? extends T> listExtendsT, List<? extends T>[] arrayListExtendsT) {
-    instance.method(t, listT, listExtendsT, arrayListExtendsT);
+  public static <T> void injectMethod(Object instance, Object t, Object listT, Object listExtendsT,
+      Object arrayListExtendsT) {
+    ((SuperType<T>) (instance)).method((T) (t), (List<T>) (listT), (List<? extends T>) (listExtendsT), (List<? extends T>[]) (arrayListExtendsT));
   }
 }
