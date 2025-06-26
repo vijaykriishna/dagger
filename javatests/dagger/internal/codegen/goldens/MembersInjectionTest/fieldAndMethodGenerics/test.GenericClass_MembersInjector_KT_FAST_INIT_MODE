@@ -32,9 +32,9 @@ public final class GenericClass_MembersInjector<A, B> implements MembersInjector
     this.bProvider = bProvider;
   }
 
-  public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider<A> aProvider,
-      Provider<B> bProvider) {
-    return new GenericClass_MembersInjector<A, B>(aProvider, bProvider);
+  public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider aProvider,
+      Provider bProvider) {
+    return new GenericClass_MembersInjector<A, B>((Provider<A>) (aProvider), (Provider<B>) (bProvider));
   }
 
   @Override

@@ -51,14 +51,13 @@ public final class TestModule_ProvideObjectsFactory implements Factory<List<Obje
     return provideObjects(module, aProvider.get(), bProvider.get(), xInjectorProvider.get());
   }
 
-  public static TestModule_ProvideObjectsFactory create(TestModule module,
-      Provider<Object> aProvider, Provider<Object> bProvider,
-      Provider<MembersInjector<X>> xInjectorProvider) {
-    return new TestModule_ProvideObjectsFactory(module, aProvider, bProvider, xInjectorProvider);
+  public static TestModule_ProvideObjectsFactory create(Object module, Provider<Object> aProvider,
+      Provider<Object> bProvider, Provider xInjectorProvider) {
+    return new TestModule_ProvideObjectsFactory((TestModule) (module), aProvider, bProvider, (Provider<MembersInjector<X>>) (xInjectorProvider));
   }
 
-  public static List<Object> provideObjects(TestModule instance, Object a, Object b,
-      Object xInjector) {
-    return Preconditions.checkNotNullFromProvides(instance.provideObjects(a, b, (MembersInjector<X>) (xInjector)));
+  public static List<Object> provideObjects(Object instance, Object a, Object b,
+      MembersInjector xInjector) {
+    return Preconditions.checkNotNullFromProvides(((TestModule) (instance)).provideObjects(a, b, (MembersInjector<X>) (xInjector)));
   }
 }

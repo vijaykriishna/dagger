@@ -36,11 +36,11 @@ public final class TestModule_ProvideStringsFactory implements Factory<Set<Strin
     return provideStrings(module);
   }
 
-  public static TestModule_ProvideStringsFactory create(TestModule module) {
-    return new TestModule_ProvideStringsFactory(module);
+  public static TestModule_ProvideStringsFactory create(Object module) {
+    return new TestModule_ProvideStringsFactory((TestModule) (module));
   }
 
-  public static Set<String> provideStrings(TestModule instance) {
-    return Preconditions.checkNotNullFromProvides(instance.provideStrings());
+  public static Set<String> provideStrings(Object instance) {
+    return Preconditions.checkNotNullFromProvides(((TestModule) (instance)).provideStrings());
   }
 }

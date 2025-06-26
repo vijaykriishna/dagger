@@ -29,8 +29,8 @@ public final class OuterType_B_MembersInjector implements MembersInjector<OuterT
     this.aProvider = aProvider;
   }
 
-  public static MembersInjector<OuterType.B> create(Provider<OuterType.A> aProvider) {
-    return new OuterType_B_MembersInjector(aProvider);
+  public static MembersInjector<OuterType.B> create(Provider aProvider) {
+    return new OuterType_B_MembersInjector((Provider<OuterType.A>) (aProvider));
   }
 
   @Override

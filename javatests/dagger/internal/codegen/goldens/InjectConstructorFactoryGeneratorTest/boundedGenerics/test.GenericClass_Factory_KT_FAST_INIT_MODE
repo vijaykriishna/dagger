@@ -44,8 +44,8 @@ public final class GenericClass_Factory<A extends Number & Comparable<A>, B exte
   }
 
   public static <A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> GenericClass_Factory<A, B, C> create(
-      Provider<A> aProvider, Provider<B> bProvider, Provider<C> cProvider) {
-    return new GenericClass_Factory<A, B, C>(aProvider, bProvider, cProvider);
+      Provider aProvider, Provider bProvider, Provider cProvider) {
+    return new GenericClass_Factory<A, B, C>((Provider<A>) (aProvider), (Provider<B>) (bProvider), (Provider<C>) (cProvider));
   }
 
   public static <A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> GenericClass<A, B, C> newInstance(

@@ -35,11 +35,11 @@ public final class TestModule_ProvideStringFactory implements Factory<String> {
     return provideString(module);
   }
 
-  public static TestModule_ProvideStringFactory create(TestModule module) {
-    return new TestModule_ProvideStringFactory(module);
+  public static TestModule_ProvideStringFactory create(Object module) {
+    return new TestModule_ProvideStringFactory((TestModule) (module));
   }
 
-  public static String provideString(TestModule instance) {
-    return Preconditions.checkNotNullFromProvides(instance.provideString());
+  public static String provideString(Object instance) {
+    return Preconditions.checkNotNullFromProvides(((TestModule) (instance)).provideString());
   }
 }

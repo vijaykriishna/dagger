@@ -53,6 +53,19 @@ import java.util.Optional;
  * ensures that using this class will never result in generating code that will not compile.
  */
 public final class Accessibility {
+  /**
+   * Returns {@code true} if the given type can be referenced from the public API of a method.
+   *
+   * <p>When generating Java, this method always returns {@code true}, since any type can be
+   * referenced from the public API of a method that has access to it.
+   *
+   * <p>When generating Kotlin, this method only returns {@code true} for public types.
+   */
+  public static boolean isTypeAccessibleFromPublicApi(XType type, CompilerOptions compilerOptions) {
+    // In Java, any type can be referenced from the public API of a method.
+    return true;
+  }
+
   /** Returns true if the given type can be referenced from any package. */
   public static boolean isTypePubliclyAccessible(XType type, CompilerOptions compilerOptions) {
     return isTypePubliclyAccessible(type);

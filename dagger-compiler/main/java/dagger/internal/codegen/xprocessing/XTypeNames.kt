@@ -286,6 +286,14 @@ object XTypeNames {
     return FUTURE_TYPES.contains(typeName.rawTypeName)
   }
 
+  /** Returns `true` if the raw type is equal to the given `className`. */
+  @JvmStatic
+  fun XTypeName.isTypeOf(className: XClassName) = this.rawTypeName == className
+
+  /** Returns `true` if the raw type is equal to any of the given `classNames`. */
+  @JvmStatic
+  fun XTypeName.isTypeOf(classNames: Collection<XClassName>) = classNames.any { isTypeOf(it) }
+
   /**
    * Returns the {@link TypeName} for the raw type of the given {@link TypeName}. If the argument
    * isn't a parameterized type, it returns the argument unchanged.

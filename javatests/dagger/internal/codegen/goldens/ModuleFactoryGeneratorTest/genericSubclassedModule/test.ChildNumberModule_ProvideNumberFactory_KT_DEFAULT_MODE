@@ -35,11 +35,11 @@ public final class ChildNumberModule_ProvideNumberFactory implements Factory<Num
     return provideNumber(module);
   }
 
-  public static ChildNumberModule_ProvideNumberFactory create(ChildNumberModule module) {
-    return new ChildNumberModule_ProvideNumberFactory(module);
+  public static ChildNumberModule_ProvideNumberFactory create(Object module) {
+    return new ChildNumberModule_ProvideNumberFactory((ChildNumberModule) (module));
   }
 
-  public static Number provideNumber(ChildNumberModule instance) {
-    return Preconditions.checkNotNullFromProvides(instance.provideNumber());
+  public static Number provideNumber(Object instance) {
+    return Preconditions.checkNotNullFromProvides(((ChildNumberModule) (instance)).provideNumber());
   }
 }

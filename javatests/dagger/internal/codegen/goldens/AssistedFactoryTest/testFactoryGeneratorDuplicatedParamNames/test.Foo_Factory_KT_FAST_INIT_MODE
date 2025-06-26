@@ -33,8 +33,8 @@ public final class Foo_Factory {
     return newInstance(argProvider.get(), argProvider2);
   }
 
-  public static Foo_Factory create(Provider<Bar> argProvider) {
-    return new Foo_Factory(argProvider);
+  public static Foo_Factory create(Provider argProvider) {
+    return new Foo_Factory((Provider<Bar>) (argProvider));
   }
 
   public static Foo newInstance(Object arg, Integer argProvider) {

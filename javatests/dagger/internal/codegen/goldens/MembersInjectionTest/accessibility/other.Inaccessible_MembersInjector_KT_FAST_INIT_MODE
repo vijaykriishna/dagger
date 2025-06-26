@@ -32,9 +32,8 @@ public final class Inaccessible_MembersInjector implements MembersInjector<Inacc
     this.fooProvider2 = fooProvider2;
   }
 
-  public static MembersInjector<Inaccessible> create(Provider<Foo> fooProvider,
-      Provider<Foo> fooProvider2) {
-    return new Inaccessible_MembersInjector(fooProvider, fooProvider2);
+  public static MembersInjector<Inaccessible> create(Provider fooProvider, Provider fooProvider2) {
+    return new Inaccessible_MembersInjector((Provider<Foo>) (fooProvider), (Provider<Foo>) (fooProvider2));
   }
 
   @Override

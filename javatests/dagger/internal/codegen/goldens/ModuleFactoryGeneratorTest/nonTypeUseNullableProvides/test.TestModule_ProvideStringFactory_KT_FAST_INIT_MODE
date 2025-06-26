@@ -35,12 +35,12 @@ public final class TestModule_ProvideStringFactory implements Factory<String> {
     return provideString(module);
   }
 
-  public static TestModule_ProvideStringFactory create(TestModule module) {
-    return new TestModule_ProvideStringFactory(module);
+  public static TestModule_ProvideStringFactory create(Object module) {
+    return new TestModule_ProvideStringFactory((TestModule) (module));
   }
 
   @Nullable
-  public static String provideString(TestModule instance) {
-    return instance.provideString();
+  public static String provideString(Object instance) {
+    return ((TestModule) (instance)).provideString();
   }
 }

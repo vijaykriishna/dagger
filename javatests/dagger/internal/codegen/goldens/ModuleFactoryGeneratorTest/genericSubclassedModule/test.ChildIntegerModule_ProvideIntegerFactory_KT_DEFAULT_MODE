@@ -35,11 +35,11 @@ public final class ChildIntegerModule_ProvideIntegerFactory implements Factory<I
     return provideInteger(module);
   }
 
-  public static ChildIntegerModule_ProvideIntegerFactory create(ChildIntegerModule module) {
-    return new ChildIntegerModule_ProvideIntegerFactory(module);
+  public static ChildIntegerModule_ProvideIntegerFactory create(Object module) {
+    return new ChildIntegerModule_ProvideIntegerFactory((ChildIntegerModule) (module));
   }
 
-  public static Integer provideInteger(ChildIntegerModule instance) {
-    return Preconditions.checkNotNullFromProvides(instance.provideInteger());
+  public static Integer provideInteger(Object instance) {
+    return Preconditions.checkNotNullFromProvides(((ChildIntegerModule) (instance)).provideInteger());
   }
 }
