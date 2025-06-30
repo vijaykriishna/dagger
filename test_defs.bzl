@@ -22,8 +22,8 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
 _JAVACOPTS = {
     "Shards": "-Adagger.keysPerComponentShard=2",
     "FastInit": "-Adagger.fastInit=enabled",
-    "Javac": "-Adagger.use_ksp=false",
-    "JavaCodegen": "-Adagger.use_kotlin_codegen=disabled",
+    "Javac": "-Adagger.useKspInFunctionalTests=disabled",
+    "JavaCodegen": "-Adagger.useKotlinCodegen=disabled",
 }
 
 _VARIANTS = [
@@ -204,6 +204,8 @@ def _GenTestsWithVariants(
     for variant in _VARIANTS:
         suffix = "_" + variant.backend + "_" + variant.codegen
         variant_javacopts = [_JAVACOPTS[variant.backend], _JAVACOPTS[variant.codegen]]
+        variant_library_rule_type = library_rule_type
+        variant_test_rule_type = test_rule_type
         tags = []
         jvm_flags = []
 
@@ -221,7 +223,7 @@ def _GenTestsWithVariants(
         if supporting_files:
             supporting_files_name = name + suffix + ("_lib" if test_files else "")
             _GenLibraryWithVariant(
-                library_rule_type = library_rule_type,
+                library_rule_type = variant_library_rule_type,
                 name = supporting_files_name,
                 srcs = supporting_files,
                 tags = tags,
@@ -233,12 +235,21 @@ def _GenTestsWithVariants(
 
         for test_file in test_files:
             test_name = test_file.rsplit(".", 1)[0]
+            test_srcs = [test_file]
+            if variant.backend == "Ksp" and not test_file.endswith(".kt"):
+                # Some build rules require a kotlin source to trigger KtCodegen.
+                native.genrule(
+                    name = test_name + suffix + "_kt_stub",
+                    outs = [test_name + suffix + "Stub.kt"],
+                    cmd = "touch $@; echo 'package test; class Stub' > $@",
+                )
+                test_srcs.append(test_name + suffix + "_kt_stub")
 
             _GenTestWithVariant(
-                library_rule_type = library_rule_type,
-                test_rule_type = test_rule_type,
+                library_rule_type = variant_library_rule_type,
+                test_rule_type = variant_test_rule_type,
                 name = test_name + suffix,
-                srcs = [test_file],
+                srcs = test_srcs,
                 tags = tags,
                 deps = test_deps + variant_deps,
                 plugins = plugins,
