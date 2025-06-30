@@ -27,7 +27,7 @@ GenRobolectricTests(
     deps = [
         "//dagger-android/main/java/dagger/android",
         "//third_party/java/dagger",
-        "//third_party/java/guava/collect",
+        "//third_party/java/guava/collect:collect-android",
         "//third_party/java/junit",
         "//third_party/java/truth",
     ],

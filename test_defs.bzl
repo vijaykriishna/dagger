@@ -17,7 +17,11 @@
 load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//:build_defs.bzl", "JAVA_RELEASE_MIN", "TEST_MANIFEST_VALUES")
 load("@rules_android//rules:rules.bzl", "android_library", "android_local_test")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
+load(
+    "@io_bazel_rules_kotlin//kotlin:jvm.bzl",
+    "kt_jvm_library",
+    "kt_jvm_test",
+)
 
 _JAVACOPTS = {
     "Shards": "-Adagger.keysPerComponentShard=2",
@@ -28,6 +32,7 @@ _JAVACOPTS = {
 
 _VARIANTS = [
     # Javac with Java codegen
+    struct(backend = "Javac", codegen = "JavaCodegen", flavors = []),
     struct(backend = "Javac", codegen = "JavaCodegen", flavors = ["Shards"]),
     struct(backend = "Javac", codegen = "JavaCodegen", flavors = ["FastInit"]),
     struct(backend = "Javac", codegen = "JavaCodegen", flavors = ["FastInit", "Shards"]),
@@ -236,14 +241,6 @@ def _GenTestsWithVariants(
         for test_file in test_files:
             test_name = test_file.rsplit(".", 1)[0]
             test_srcs = [test_file]
-            if variant.backend == "Ksp" and not test_file.endswith(".kt"):
-                # Some build rules require a kotlin source to trigger KtCodegen.
-                native.genrule(
-                    name = test_name + suffix + "_kt_stub",
-                    outs = [test_name + suffix + "Stub.kt"],
-                    cmd = "touch $@; echo 'package test; class Stub' > $@",
-                )
-                test_srcs.append(test_name + suffix + "_kt_stub")
 
             _GenTestWithVariant(
                 library_rule_type = variant_library_rule_type,

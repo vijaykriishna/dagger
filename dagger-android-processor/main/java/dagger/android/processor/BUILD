@@ -15,13 +15,14 @@
 # Description:
 #   Public Dagger API for Android
 
-load("@rules_java//java:defs.bzl", "java_library", "java_plugin")
+load("@rules_java//java:defs.bzl", "java_library")
 load(
     "//:build_defs.bzl",
     "DOCLINT_HTML_AND_SYNTAX",
     "DOCLINT_REFERENCES",
     "POM_VERSION",
 )
+load("//tools:processor_compat.bzl", "compat_processor_plugin")
 
 package(default_visibility = [
     "//dagger-android-processor:internal",
@@ -67,9 +68,9 @@ java_library(
     ],
 )
 
-java_plugin(
+compat_processor_plugin(
     name = "plugin",
     generates_api = 1,
-    processor_class = "dagger.android.processor.AndroidProcessor",
-    deps = [":processor"],
+    javac_processor_name = "AndroidProcessor",
+    processor_lib_dep = ":processor",
 )
