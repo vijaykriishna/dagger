@@ -40,7 +40,7 @@ public final class ParentModule_ProvideBElementFactory<A extends CharSequence, B
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideBElementFactory<A, B, C> create(
-      Object module, Provider bProvider) {
+      Object module, Provider<?> bProvider) {
     return new ParentModule_ProvideBElementFactory<A, B, C>((ParentModule<A, B, C>) (module), (Provider<B>) (bProvider));
   }
 

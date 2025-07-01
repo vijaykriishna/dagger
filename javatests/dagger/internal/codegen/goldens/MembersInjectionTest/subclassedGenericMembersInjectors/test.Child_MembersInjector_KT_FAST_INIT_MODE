@@ -42,8 +42,8 @@ public final class Child_MembersInjector<T> implements MembersInjector<Child<T>>
     this.tProvider = tProvider;
   }
 
-  public static <T> MembersInjector<Child<T>> create(Provider xProvider, Provider yProvider,
-      Provider a2Provider, Provider aProvider, Provider tProvider) {
+  public static <T> MembersInjector<Child<T>> create(Provider<?> xProvider, Provider<?> yProvider,
+      Provider<?> a2Provider, Provider<?> aProvider, Provider<?> tProvider) {
     return new Child_MembersInjector<T>((Provider<T>) (xProvider), (Provider<A>) (yProvider), (Provider<A2>) (a2Provider), (Provider<A>) (aProvider), (Provider<T>) (tProvider));
   }
 

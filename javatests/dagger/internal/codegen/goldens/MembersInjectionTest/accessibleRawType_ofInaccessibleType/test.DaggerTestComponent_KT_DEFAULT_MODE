@@ -4,7 +4,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.Provider;
-import java.util.List;
 import javax.annotation.processing.Generated;
 import other.InaccessiblesModule_InaccessiblesFactory;
 import other.UsesInaccessibles;
@@ -70,7 +69,7 @@ final class DaggerTestComponent {
 
     @CanIgnoreReturnValue
     private UsesInaccessibles injectUsesInaccessibles(UsesInaccessibles instance) {
-      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, (List) (inaccessiblesProvider.get()));
+      UsesInaccessibles_MembersInjector.injectInaccessibles(instance, inaccessiblesProvider.get());
       return instance;
     }
   }

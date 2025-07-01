@@ -35,7 +35,7 @@ public final class Foo_Factory implements Factory<Foo> {
     return newInstance(barProvider.get());
   }
 
-  public static Foo_Factory create(Provider barProvider) {
+  public static Foo_Factory create(Provider<?> barProvider) {
     return new Foo_Factory((Provider<Bar>) (barProvider));
   }
 

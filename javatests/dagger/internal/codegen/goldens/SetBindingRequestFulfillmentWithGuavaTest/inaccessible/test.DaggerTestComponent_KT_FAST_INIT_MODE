@@ -57,7 +57,7 @@ final class DaggerTestComponent {
 
     @Override
     public UsesInaccessible usesInaccessible() {
-      return UsesInaccessible_Factory.newInstance((Set) (ImmutableSet.of()), (Set) (setOfInaccessible2()));
+      return UsesInaccessible_Factory.newInstance(ImmutableSet.of(), setOfInaccessible2());
     }
   }
 }

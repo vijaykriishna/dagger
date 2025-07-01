@@ -19,6 +19,8 @@ package dagger.internal.codegen.xprocessing
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.box
+import androidx.room.compiler.codegen.compat.XConverters.toJavaPoet
+import androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet
 import androidx.room.compiler.codegen.compat.XConverters.toXPoet
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.ClassName
@@ -293,6 +295,23 @@ object XTypeNames {
   /** Returns `true` if the raw type is equal to any of the given `classNames`. */
   @JvmStatic
   fun XTypeName.isTypeOf(classNames: Collection<XClassName>) = classNames.any { isTypeOf(it) }
+
+  /**
+   * Returns the [XTypeName] as an [XClassName].
+   *
+   * This should only be used if you know the JavaPoet and KotlinPoet representations are class
+   * names. Otherwise, a [ClassCastException] is thrown.
+   */
+  @JvmStatic
+  fun XTypeName.asClassName(): XClassName {
+    // TODO(b/427261839): Normally, we would just cast to XClassName, but that currently doesn't
+    // work in XProcessing due to b/427261839. Instead, we cast the JavaPoet and KotlinPoet
+    // representations separately and create a new XClassName from the result.
+    return toXPoet(
+      toJavaPoet() as ClassName,
+      toKotlinPoet() as com.squareup.kotlinpoet.ClassName,
+    )
+  }
 
   /**
    * Returns the {@link TypeName} for the raw type of the given {@link TypeName}. If the argument

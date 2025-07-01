@@ -38,8 +38,8 @@ public final class GenericClass_Factory<A extends Bar> implements Factory<Generi
     return newInstance(aProvider.get(), barProvider.get());
   }
 
-  public static <A extends Bar> GenericClass_Factory<A> create(Provider aProvider,
-      Provider barProvider) {
+  public static <A extends Bar> GenericClass_Factory<A> create(Provider<?> aProvider,
+      Provider<?> barProvider) {
     return new GenericClass_Factory<A>((Provider<A>) (aProvider), (Provider<Bar>) (barProvider));
   }
 

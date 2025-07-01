@@ -41,7 +41,7 @@ public final class ParentModule_ProvideListBFactory<A extends CharSequence, B, C
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideListBFactory<A, B, C> create(
-      Object module, Provider bProvider) {
+      Object module, Provider<?> bProvider) {
     return new ParentModule_ProvideListBFactory<A, B, C>((ParentModule<A, B, C>) (module), (Provider<B>) (bProvider));
   }
 

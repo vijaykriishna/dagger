@@ -2,7 +2,6 @@ package test;
 
 import com.google.common.collect.ImmutableMap;
 import dagger.internal.DaggerGenerated;
-import java.util.Map;
 import javax.annotation.processing.Generated;
 import other.UsesInaccessible;
 import other.UsesInaccessible_Factory;
@@ -52,7 +51,7 @@ final class DaggerTestComponent {
 
     @Override
     public UsesInaccessible usesInaccessible() {
-      return UsesInaccessible_Factory.newInstance((Map) (ImmutableMap.of()));
+      return UsesInaccessible_Factory.newInstance(ImmutableMap.of());
     }
   }
 }

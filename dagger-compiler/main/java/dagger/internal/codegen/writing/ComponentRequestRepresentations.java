@@ -176,6 +176,8 @@ public final class ComponentRequestRepresentations {
     BindingRequest bindingRequest = bindingRequest(dependencyRequest);
     XExpression dependencyExpression = getDependencyExpression(bindingRequest, requestingClass);
 
+    // The factory method will use a type like Foo<Innaccessible> at the declaration site so we need
+    // to cast to the raw type, Foo, at the call site if any type arguments are inaccessible.
     if (dependencyRequest.kind().equals(RequestKind.INSTANCE)
         && !isTypeAccessibleFrom(dependencyType, requestingClass.getPackageName())
         && isRawTypeAccessible(dependencyType, requestingClass.getPackageName())) {
