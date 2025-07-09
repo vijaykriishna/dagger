@@ -20,20 +20,30 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.MapKeys.getLazyClassMapKeyExpression;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeyExpression;
 import static dagger.internal.codegen.binding.SourceFiles.mapFactoryClassName;
+import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.INITIALIZE_HELPER_METHOD;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
+import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
+import com.google.common.collect.ImmutableSet;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.base.MapType;
+import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.ContributionBinding;
+import dagger.internal.codegen.binding.KeyVariableNamer;
 import dagger.internal.codegen.binding.MapKeys;
 import dagger.internal.codegen.binding.MultiboundMapBinding;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A factory creation expression for a multibound map. */
@@ -41,9 +51,13 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
 
   private final XProcessingEnv processingEnv;
   private final ComponentImplementation componentImplementation;
+  private final ShardImplementation shardImplementation;
   private final BindingGraph graph;
   private final MultiboundMapBinding binding;
   private final boolean useLazyClassKey;
+  private final XTypeName keyTypeName;
+  private final XTypeName valueTypeName;
+  private String methodName;
 
   @AssistedInject
   MapFactoryCreationExpression(
@@ -56,41 +70,98 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
     this.processingEnv = processingEnv;
     this.binding = checkNotNull(binding);
     this.componentImplementation = componentImplementation;
+    this.shardImplementation = componentImplementation.shardImplementation(binding);
     this.graph = graph;
     this.useLazyClassKey = MapKeys.useLazyClassKey(binding, graph);
+    MapType mapType = MapType.from(binding.key());
+    this.keyTypeName = useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName();
+    this.valueTypeName = mapType.unwrappedFrameworkValueType().asTypeName();
   }
 
   @Override
   public XCodeBlock creationExpression() {
-    XClassName mapFactoryClassName = mapFactoryClassName(binding);
-    XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", mapFactoryClassName);
-    XTypeName valueTypeName = XTypeName.ANY_OBJECT;
-    if (!useRawType()) {
-      MapType mapType = MapType.from(binding.key());
-      valueTypeName = mapType.unwrappedFrameworkValueType().asTypeName();
-      builder.add(
-          "<%T, %T>",
-          useLazyClassKey ? XTypeName.STRING : mapType.keyType().asTypeName(), valueTypeName);
+    return XCodeBlock.of(
+        "%N(%L)", methodName(), parameterNames(shardImplementation.constructorParameters()));
+  }
+
+  private String methodName() {
+    if (methodName == null) {
+      // Have to set methodName field before implementing the method in order to handle recursion.
+      methodName =
+          shardImplementation.getUniqueMethodName(
+              KeyVariableNamer.name(binding.key()) + "Builder");
+
+      UniqueNameSet uniqueNameSet = new UniqueNameSet();
+      shardImplementation.constructorParameters().stream()
+          .map(XParameterSpec::getName) // SUPPRESS_GET_NAME_CHECK
+          .forEach(uniqueNameSet::claim);
+      String builderName = uniqueNameSet.getUniqueName("builder");
+
+      XCodeBlock.Builder builderMethodCalls = XCodeBlock.builder();
+      for (DependencyRequest dependency : binding.dependencies()) {
+        ContributionBinding contributionBinding = graph.contributionBinding(dependency.key());
+        builderMethodCalls.addStatement(
+            "%N.put(%L, %L)",
+            builderName,
+            useLazyClassKey
+                ? getLazyClassMapKeyExpression(graph.contributionBinding(dependency.key()))
+                : getMapKeyExpression(
+                    contributionBinding, componentImplementation.name(), processingEnv),
+            multibindingDependencyExpression(dependency));
+      }
+
+      XFunSpec methodSpec =
+          methodBuilder(methodName)
+              .addParameters(shardImplementation.constructorParameters())
+              // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
+              .addModifiers(
+                  !shardImplementation.isShardClassPrivate()
+                      ? ImmutableSet.of(PRIVATE)
+                      : ImmutableSet.of())
+              .returns(useLazyClassKey ? lazyMapFactoryType() : mapFactoryType())
+              .addCode(
+                  XCodeBlock.builder()
+                      .addStatement(
+                          "%T %N = %T.builder(%L)",
+                          mapFactoryBuilderType(),
+                          builderName,
+                          mapFactoryClassName(binding),
+                          binding.dependencies().size())
+                      .add(builderMethodCalls.build())
+                      .addStatement(
+                          "%L",
+                          useLazyClassKey
+                              ? XCodeBlock.of(
+                                  "return %T.of(%N.build())",
+                                  lazyMapFactoryClassName(binding),
+                                  builderName)
+                              : XCodeBlock.of("return %N.build()", builderName))
+                      .build())
+              .build();
+
+      shardImplementation.addMethod(INITIALIZE_HELPER_METHOD, methodSpec);
     }
+    return methodName;
+  }
 
-    builder.add("builder(%L)", binding.dependencies().size());
+  private XTypeName lazyMapFactoryType() {
+    return useRawType()
+        ? lazyMapFactoryClassName(binding)
+        : lazyMapFactoryClassName(binding).parametrizedBy(valueTypeName);
+  }
 
-    for (DependencyRequest dependency : binding.dependencies()) {
-      ContributionBinding contributionBinding = graph.contributionBinding(dependency.key());
-      builder.add(
-          ".put(%L, %L)",
-          useLazyClassKey
-              ? getLazyClassMapKeyExpression(graph.contributionBinding(dependency.key()))
-              : getMapKeyExpression(
-                  contributionBinding, componentImplementation.name(), processingEnv),
-          multibindingDependencyExpression(dependency));
-    }
+  private XTypeName mapFactoryType() {
+    return useRawType()
+        ? mapFactoryClassName(binding)
+        : mapFactoryClassName(binding).parametrizedBy(keyTypeName, valueTypeName);
+  }
 
-    XCodeBlock creationExpression = builder.add(".build()").build();
-    return useLazyClassKey
-        ? XCodeBlock.of(
-            "%T.<%T>of(%L)", lazyMapFactoryClassName(binding), valueTypeName, creationExpression)
-        : creationExpression;
+  private XTypeName mapFactoryBuilderType() {
+    return useRawType()
+        ? mapFactoryClassName(binding).nestedClass("Builder")
+        : mapFactoryClassName(binding)
+            .nestedClass("Builder")
+            .parametrizedBy(keyTypeName, valueTypeName);
   }
 
   private static XClassName lazyMapFactoryClassName(MultiboundMapBinding binding) {

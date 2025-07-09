@@ -158,6 +158,9 @@ public final class ComponentImplementation {
     /** An initialization method that initializes component requirements and framework types. */
     INITIALIZE_METHOD,
 
+    /** A method called from an initialization method to help initialize a framework field. */
+    INITIALIZE_HELPER_METHOD,
+
     /** An implementation of a component interface method. */
     COMPONENT_METHOD,
 
@@ -521,6 +524,10 @@ public final class ComponentImplementation {
               .nestedClass(
                   topLevelImplementation()
                       .getUniqueClassName(getComponentShard().name().getSimpleName() + "Shard")));
+    }
+
+    public ImmutableList<XParameterSpec> constructorParameters() {
+      return constructorParameters.values().asList();
     }
 
     /** Returns the {@link SwitchingProviders} class for this shard. */

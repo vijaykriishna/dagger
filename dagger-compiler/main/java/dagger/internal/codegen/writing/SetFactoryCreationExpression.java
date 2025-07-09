@@ -18,23 +18,37 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.SourceFiles.setFactoryClassName;
+import static dagger.internal.codegen.writing.ComponentImplementation.MethodSpecKind.INITIALIZE_HELPER_METHOD;
+import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
+import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
+import static javax.lang.model.element.Modifier.PRIVATE;
 
 import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room.compiler.codegen.XFunSpec;
+import androidx.room.compiler.codegen.XParameterSpec;
+import androidx.room.compiler.codegen.XTypeName;
+import com.google.common.collect.ImmutableSet;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.SetType;
+import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.BindingType;
+import dagger.internal.codegen.binding.KeyVariableNamer;
 import dagger.internal.codegen.binding.MultiboundSetBinding;
 import dagger.internal.codegen.model.DependencyRequest;
+import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** A factory creation expression for a multibound set. */
 final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpression {
   private final BindingGraph graph;
   private final MultiboundSetBinding binding;
+  private final ShardImplementation shardImplementation;
+  private final XTypeName valueTypeName;
+  private String methodName;
 
   @AssistedInject
   SetFactoryCreationExpression(
@@ -44,52 +58,105 @@ final class SetFactoryCreationExpression extends MultibindingFactoryCreationExpr
       BindingGraph graph) {
     super(binding, componentImplementation, componentRequestRepresentations);
     this.binding = checkNotNull(binding);
+    this.shardImplementation = componentImplementation.shardImplementation(binding);
     this.graph = graph;
+    SetType setType = SetType.from(binding.key());
+    this.valueTypeName =
+        setType.elementsAreTypeOf(XTypeNames.PRODUCED)
+            ? setType.unwrappedElementType(XTypeNames.PRODUCED).asTypeName()
+            : setType.elementType().asTypeName();
   }
 
   @Override
   public XCodeBlock creationExpression() {
-    XCodeBlock.Builder builder = XCodeBlock.builder().add("%T.", setFactoryClassName(binding));
-    if (!useRawType()) {
-      SetType setType = SetType.from(binding.key());
-      builder.add(
-          "<%T>",
-          setType.elementsAreTypeOf(XTypeNames.PRODUCED)
-              ? setType.unwrappedElementType(XTypeNames.PRODUCED).asTypeName()
-              : setType.elementType().asTypeName());
-    }
+    return XCodeBlock.of(
+        "%N(%L)", methodName(), parameterNames(shardImplementation.constructorParameters()));
+  }
 
-    int individualProviders = 0;
-    int setProviders = 0;
-    XCodeBlock.Builder builderMethodCalls = XCodeBlock.builder();
-    String methodNameSuffix =
-        binding.bindingType().equals(BindingType.PROVISION) ? "Provider" : "Producer";
+  private String methodName() {
+    if (methodName == null) {
+      // Have to set methodName field before implementing the method in order to handle recursion.
+      methodName =
+          shardImplementation.getUniqueMethodName(
+              KeyVariableNamer.name(binding.key()) + "Builder");
 
-    for (DependencyRequest dependency : binding.dependencies()) {
-      ContributionType contributionType =
-          graph.contributionBinding(dependency.key()).contributionType();
-      String methodNamePrefix;
-      switch (contributionType) {
-        case SET:
-          individualProviders++;
-          methodNamePrefix = "add";
-          break;
-        case SET_VALUES:
-          setProviders++;
-          methodNamePrefix = "addCollection";
-          break;
-        default:
-          throw new AssertionError(dependency + " is not a set multibinding");
+      UniqueNameSet uniqueNameSet = new UniqueNameSet();
+      shardImplementation.constructorParameters().stream()
+          .map(XParameterSpec::getName) // SUPPRESS_GET_NAME_CHECK
+          .forEach(uniqueNameSet::claim);
+      String builderName = uniqueNameSet.getUniqueName("builder");
+
+      int individualProviders = 0;
+      int setProviders = 0;
+      XCodeBlock.Builder builderMethodCalls = XCodeBlock.builder();
+      String methodNameSuffix =
+          binding.bindingType().equals(BindingType.PROVISION) ? "Provider" : "Producer";
+
+      for (DependencyRequest dependency : binding.dependencies()) {
+        ContributionType contributionType =
+            graph.contributionBinding(dependency.key()).contributionType();
+        String methodNamePrefix;
+        switch (contributionType) {
+          case SET:
+            individualProviders++;
+            methodNamePrefix = "add";
+            break;
+          case SET_VALUES:
+            setProviders++;
+            methodNamePrefix = "addCollection";
+            break;
+          default:
+            throw new AssertionError(dependency + " is not a set multibinding");
+        }
+
+        builderMethodCalls.addStatement(
+            "%N.%N%N(%L)",
+            builderName,
+            methodNamePrefix,
+            methodNameSuffix,
+            multibindingDependencyExpression(dependency));
       }
 
-      builderMethodCalls.add(
-          ".%N%N(%L)",
-          methodNamePrefix, methodNameSuffix, multibindingDependencyExpression(dependency));
-    }
-    builder.add("builder(%L, %L)", individualProviders, setProviders);
-    builder.add(builderMethodCalls.build());
+      XFunSpec methodSpec =
+          methodBuilder(methodName)
+              .addParameters(shardImplementation.constructorParameters())
+              // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
+              .addModifiers(
+                  !shardImplementation.isShardClassPrivate()
+                      ? ImmutableSet.of(PRIVATE)
+                      : ImmutableSet.of())
+              .returns(setFactoryType())
+              .addCode(
+                  XCodeBlock.builder()
+                      .addStatement(
+                          "%T %N = %T.builder(%L, %L)",
+                          setFactoryBuilderType(),
+                          builderName,
+                          setFactoryClassName(binding),
+                          individualProviders,
+                          setProviders)
+                      .add(builderMethodCalls.build())
+                      .addStatement("return %N.build()", builderName)
+                      .build())
+              .build();
 
-    return builder.add(".build()").build();
+      shardImplementation.addMethod(INITIALIZE_HELPER_METHOD, methodSpec);
+    }
+    return methodName;
+  }
+
+  private XTypeName setFactoryType() {
+    return useRawType()
+        ? setFactoryClassName(binding)
+        : setFactoryClassName(binding).parametrizedBy(valueTypeName);
+  }
+
+  private XTypeName setFactoryBuilderType() {
+    return useRawType()
+        ? setFactoryClassName(binding).nestedClass("Builder")
+        : setFactoryClassName(binding)
+            .nestedClass("Builder")
+            .parametrizedBy(valueTypeName);
   }
 
   @AssistedFactory

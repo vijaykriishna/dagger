@@ -70,8 +70,15 @@ final class DaggerTestComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.setOfObjectProvider = SetFactory.<Object>builder(2, 0).addProvider(ParentModule_ContributionFactory.create()).addProvider(ChildModule_ContributionFactory.create()).build();
+      this.setOfObjectProvider = setOfObjectBuilder();
       this.reliesOnMultibindingProvider = ParentModule_ReliesOnMultibindingFactory.create(testComponentImpl.parentModule, setOfObjectProvider);
+    }
+
+    SetFactory<Object> setOfObjectBuilder() {
+      SetFactory.Builder<Object> builder = SetFactory.builder(2, 0);
+      builder.addProvider(ParentModule_ContributionFactory.create());
+      builder.addProvider(ChildModule_ContributionFactory.create());
+      return builder.build();
     }
 
     @Override
@@ -97,8 +104,14 @@ final class DaggerTestComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ParentModule parentModuleParam) {
-      this.setOfObjectProvider = SetFactory.<Object>builder(1, 0).addProvider(ParentModule_ContributionFactory.create()).build();
+      this.setOfObjectProvider = setOfObjectBuilder(parentModuleParam);
       this.reliesOnMultibindingProvider = ParentModule_ReliesOnMultibindingFactory.create(parentModuleParam, setOfObjectProvider);
+    }
+
+    SetFactory<Object> setOfObjectBuilder(ParentModule parentModuleParam) {
+      SetFactory.Builder<Object> builder = SetFactory.builder(1, 0);
+      builder.addProvider(ParentModule_ContributionFactory.create());
+      return builder.build();
     }
 
     @Override

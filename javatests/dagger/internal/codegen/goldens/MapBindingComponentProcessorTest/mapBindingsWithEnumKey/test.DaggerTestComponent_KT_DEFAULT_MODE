@@ -82,7 +82,15 @@ final class DaggerTestComponent {
         final MapModuleTwo mapModuleTwoParam) {
       this.provideAdminHandlerProvider = MapModuleOne_ProvideAdminHandlerFactory.create(mapModuleOneParam);
       this.provideLoginHandlerProvider = MapModuleTwo_ProvideLoginHandlerFactory.create(mapModuleTwoParam);
-      this.mapOfPathEnumAndProviderOfHandlerProvider = MapProviderFactory.<PathEnum, Handler>builder(2).put(PathEnum.ADMIN, provideAdminHandlerProvider).put(PathEnum.LOGIN, provideLoginHandlerProvider).build();
+      this.mapOfPathEnumAndProviderOfHandlerProvider = mapOfPathEnumAndProviderOfHandlerBuilder(mapModuleOneParam, mapModuleTwoParam);
+    }
+
+    MapProviderFactory<PathEnum, Handler> mapOfPathEnumAndProviderOfHandlerBuilder(
+        MapModuleOne mapModuleOneParam, MapModuleTwo mapModuleTwoParam) {
+      MapProviderFactory.Builder<PathEnum, Handler> builder = MapProviderFactory.builder(2);
+      builder.put(PathEnum.ADMIN, provideAdminHandlerProvider);
+      builder.put(PathEnum.LOGIN, provideLoginHandlerProvider);
+      return builder.build();
     }
 
     @Override

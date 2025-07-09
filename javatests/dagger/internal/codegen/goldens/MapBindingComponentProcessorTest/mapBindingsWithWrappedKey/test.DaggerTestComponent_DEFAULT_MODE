@@ -82,7 +82,15 @@ final class DaggerTestComponent {
         final MapModuleTwo mapModuleTwoParam) {
       this.provideAdminHandlerProvider = MapModuleOne_ProvideAdminHandlerFactory.create(mapModuleOneParam);
       this.provideLoginHandlerProvider = MapModuleTwo_ProvideLoginHandlerFactory.create(mapModuleTwoParam);
-      this.mapOfWrappedClassKeyAndProviderOfHandlerProvider = MapProviderFactory.<WrappedClassKey, Handler>builder(2).put(WrappedClassKeyCreator.createWrappedClassKey(Integer.class), provideAdminHandlerProvider).put(WrappedClassKeyCreator.createWrappedClassKey(Long.class), provideLoginHandlerProvider).build();
+      this.mapOfWrappedClassKeyAndProviderOfHandlerProvider = mapOfWrappedClassKeyAndProviderOfHandlerBuilder(mapModuleOneParam, mapModuleTwoParam);
+    }
+
+    MapProviderFactory<WrappedClassKey, Handler> mapOfWrappedClassKeyAndProviderOfHandlerBuilder(
+        MapModuleOne mapModuleOneParam, MapModuleTwo mapModuleTwoParam) {
+      MapProviderFactory.Builder<WrappedClassKey, Handler> builder = MapProviderFactory.builder(2);
+      builder.put(WrappedClassKeyCreator.createWrappedClassKey(Integer.class), provideAdminHandlerProvider);
+      builder.put(WrappedClassKeyCreator.createWrappedClassKey(Long.class), provideLoginHandlerProvider);
+      return builder.build();
     }
 
     @Override

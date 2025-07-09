@@ -111,6 +111,10 @@ final class SetRequestRepresentation extends RequestRepresentation {
         } else {
           instantiation.add("newSetBuilder(%L)", binding.dependencies().size());
         }
+        // TODO(b/430348351): We should avoid arbitrarily long chaining of methods like this
+        // because it can cause StackOverflow in javac when building the AST for this generated
+        // code. To fix this, we would need to ban direct inlining of the Set expression and wrap
+        // the builder creation in a method that splits the chain into separate statements.
         for (DependencyRequest dependency : binding.dependencies()) {
           String builderMethod = isSingleValue(dependency) ? "add" : "addAll";
           instantiation.add(
