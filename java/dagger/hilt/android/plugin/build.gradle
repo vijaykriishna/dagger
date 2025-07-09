@@ -1,8 +1,8 @@
 buildscript {
   ext {
-    kotlin_version = "2.0.21"
+    kotlin_version = "2.2.0"
     agp_version = System.getenv('AGP_VERSION') ?: "8.1.1"
-    ksp_version = "$kotlin_version-1.0.28"
+    ksp_version = "$kotlin_version-2.0.2"
     pluginArtifactId = 'hilt-android-gradle-plugin'
     pluginId = 'com.google.dagger.hilt.android'
   }

@@ -13,7 +13,6 @@ function shaded_rule() {
 readonly _SHADED_RULES="\
 $(shaded_rule com.google.auto.common);\
 $(shaded_rule androidx.room);\
-$(shaded_rule kotlin.metadata);\
 $(shaded_rule com.squareup.kotlinpoet.javapoet)"
 
 # Builds and deploys the given artifacts to a configured maven goal.

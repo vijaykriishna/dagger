@@ -67,6 +67,7 @@ gen_maven_artifact(
         "javax.inject:javax.inject",
         "net.ltgt.gradle.incap:incap",
         "org.checkerframework:checker-compat-qual",
+        "org.jetbrains.kotlin:kotlin-metadata-jvm",
         "org.jetbrains.kotlin:kotlin-stdlib",
     ],
     javadoc_root_packages = ["dagger.internal.codegen"],

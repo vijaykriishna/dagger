@@ -60,10 +60,12 @@ internal fun addKaptTaskProcessorOptions(
       try {
         // Because of KT-58009, we need to add a `listOf(argProvider)` instead
         // of `argProvider`.
+        @Suppress("DEPRECATION") // b/418799397
         task.annotationProcessorOptionProviders.add(listOf(argProvider))
       } catch (e: Throwable) {
         // Once KT-58009 is fixed, adding `listOf(argProvider)` will fail, we will
         // pass `argProvider` instead, which is the correct way.
+        @Suppress("DEPRECATION") // b/418799397
         task.annotationProcessorOptionProviders.add(argProvider)
       }
     }
