@@ -19,7 +19,6 @@ package dagger.internal.codegen.writing;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.processing.XProcessingEnv;
-import dagger.internal.codegen.binding.ComponentDescriptor.ComponentMethodDescriptor;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XExpressionType;
@@ -27,12 +26,10 @@ import dagger.internal.codegen.xprocessing.XExpressionType;
 /** A binding expression that wraps another in a nullary method on the component. */
 abstract class MethodRequestRepresentation extends RequestRepresentation {
   private final ShardImplementation shardImplementation;
-  private final ProducerEntryPointView producerEntryPointView;
 
   protected MethodRequestRepresentation(
       ShardImplementation shardImplementation, XProcessingEnv processingEnv) {
     this.shardImplementation = shardImplementation;
-    this.producerEntryPointView = new ProducerEntryPointView(shardImplementation, processingEnv);
   }
 
   @Override
@@ -42,15 +39,6 @@ abstract class MethodRequestRepresentation extends RequestRepresentation {
         requestingClass.equals(shardImplementation.name())
             ? methodCall()
             : XCodeBlock.of("%L.%L", shardImplementation.shardFieldReference(), methodCall()));
-  }
-
-  @Override
-  XExpression getDependencyExpressionForComponentMethod(
-      ComponentMethodDescriptor componentMethod, ComponentImplementation component) {
-    return producerEntryPointView
-        .getProducerEntryPointField(this, componentMethod, component.name())
-        .orElseGet(
-            () -> super.getDependencyExpressionForComponentMethod(componentMethod, component));
   }
 
   /** Returns the return type for the dependency request. */

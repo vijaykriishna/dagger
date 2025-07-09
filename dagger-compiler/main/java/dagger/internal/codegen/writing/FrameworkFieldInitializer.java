@@ -60,6 +60,16 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
     default Optional<XClassName> alternativeFrameworkClass() {
       return Optional.empty();
     }
+
+    /**
+     * Returns the preferred name for the framework field.
+     *
+     * <p>The actual name used may be different if there is a naming conflict. If empty, a name will
+     * be generated based on the binding key.
+     */
+    default Optional<String> preferredFieldName() {
+      return Optional.empty();
+    }
   }
 
   private final CompilerOptions compilerOptions;
@@ -170,7 +180,11 @@ class FrameworkFieldInitializer implements FrameworkInstanceSupplier {
 
     XPropertySpecs.Builder contributionField =
         XPropertySpecs.builder(
-            shardImplementation.getUniqueFieldName(contributionBindingField.name()), fieldType);
+            shardImplementation.getUniqueFieldName(
+                frameworkInstanceCreationExpression
+                    .preferredFieldName()
+                    .orElse(contributionBindingField.name())),
+            fieldType);
     // TODO(bcorso): remove once dagger.generatedClassExtendsComponent flag is removed.
     if (!shardImplementation.isShardClassPrivate()) {
       contributionField.addModifiers(PRIVATE);

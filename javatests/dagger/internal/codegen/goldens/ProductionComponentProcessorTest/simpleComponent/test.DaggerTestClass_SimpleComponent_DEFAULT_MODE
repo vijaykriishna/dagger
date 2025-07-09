@@ -72,8 +72,6 @@ final class DaggerTestClass_SimpleComponent {
   private static final class SimpleComponentImpl implements TestClass.SimpleComponent, CancellationListener {
     private final SimpleComponentImpl simpleComponentImpl = this;
 
-    private Producer<TestClass.A> aEntryPoint;
-
     Provider<Executor> executorProvider;
 
     Provider<Executor> productionImplementationExecutorProvider;
@@ -87,6 +85,8 @@ final class DaggerTestClass_SimpleComponent {
     Producer<TestClass.B> bProducer;
 
     Producer<TestClass.A> aProducer;
+
+    Producer<TestClass.A> aEntryPoint;
 
     SimpleComponentImpl(TestClass.AModule aModuleParam, TestClass.BModule bModuleParam) {
 
