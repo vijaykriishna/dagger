@@ -136,7 +136,7 @@ jobs:
             "gpg:sign-and-deploy-file" \
             "${{ env.DAGGER_RELEASE_VERSION }}" \
             "-DrepositoryId=sonatype-nexus-staging" \
-            "-Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            "-Durl=https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
         shell: bash
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}

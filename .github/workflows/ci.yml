@@ -166,7 +166,7 @@ jobs:
             "deploy:deploy-file" \
             "HEAD-SNAPSHOT" \
             "-DrepositoryId=sonatype-nexus-snapshots" \
-            "-Durl=https://oss.sonatype.org/content/repositories/snapshots"
+            "-Durl=https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots"
         shell: bash
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
