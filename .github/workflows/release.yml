@@ -98,7 +98,7 @@ jobs:
         with:
           distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
           java-version: '${{ env.USE_JAVA_VERSION }}'
-          server-id: sonatype-nexus-staging
+          server-id: sonatype-central-staging
           server-username: CI_DEPLOY_USERNAME
           server-password: CI_DEPLOY_PASSWORD
           gpg-private-key: ${{ secrets.CI_GPG_PRIVATE_KEY }}
@@ -135,7 +135,7 @@ jobs:
           util/deploy-all.sh \
             "gpg:sign-and-deploy-file" \
             "${{ env.DAGGER_RELEASE_VERSION }}" \
-            "-DrepositoryId=sonatype-nexus-staging" \
+            "-DrepositoryId=sonatype-central-staging" \
             "-Durl=https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
         shell: bash
         env:

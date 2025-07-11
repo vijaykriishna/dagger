@@ -326,7 +326,7 @@ See [the CONTRIBUTING.md docs][Building Dagger].
 [bazel-external-deps]: https://docs.bazel.build/versions/master/external.html#depending-on-other-bazel-projects
 [`maven_install`]: https://github.com/bazelbuild/rules_jvm_external#exporting-and-consuming-artifacts-from-external-repositories
 [Building Dagger]: CONTRIBUTING.md#building-dagger
-[dagger-snap]: https://oss.sonatype.org/content/repositories/snapshots/com/google/dagger/
+[dagger-snap]: https://central.sonatype.com/repository/maven-snapshots/com/google/dagger/
 [databinding]: https://developer.android.com/topic/libraries/data-binding/
 [gaktalk]: https://www.youtube.com/watch?v=oK_XtfXPkqw
 [GitHub Issues]: https://github.com/google/dagger/issues

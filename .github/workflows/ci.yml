@@ -125,7 +125,7 @@ jobs:
         with:
           distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
           java-version: '${{ env.USE_JAVA_VERSION }}'
-          server-id: sonatype-nexus-snapshots
+          server-id: sonatype-central-snapshots
           server-username: CI_DEPLOY_USERNAME
           server-password: CI_DEPLOY_PASSWORD
       - name: 'Check out repository'
@@ -165,8 +165,8 @@ jobs:
           util/deploy-all.sh \
             "deploy:deploy-file" \
             "HEAD-SNAPSHOT" \
-            "-DrepositoryId=sonatype-nexus-snapshots" \
-            "-Durl=https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots"
+            "-DrepositoryId=sonatype-central-snapshots" \
+            "-Durl=https://central.sonatype.com/repository/maven-snapshots"
         shell: bash
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
