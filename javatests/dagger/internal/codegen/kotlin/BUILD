@@ -17,8 +17,6 @@
 
 load("//java/dagger/testing/compile:macros.bzl", "kt_compiler_test")
 
-package(default_visibility = ["//:src"])
-
 kt_compiler_test(
     name = "KspComponentProcessorTest",
     srcs = ["KspComponentProcessorTest.java"],
