@@ -249,6 +249,12 @@ def addPomTemplate(pom) {
     name = 'Google, Inc.'
     url = 'https://www.google.com'
   }
+  pom.developers {
+    developer {
+      organization = 'Google, Inc.'
+      organizationUrl = 'https://www.google.com'
+    }
+  }
   pom.withXml {
     def projectNode = asNode()
     // Adds:
