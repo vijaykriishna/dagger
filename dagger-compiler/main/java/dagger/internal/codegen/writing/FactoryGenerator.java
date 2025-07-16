@@ -28,6 +28,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.model.BindingKind.INJECTION;
 import static dagger.internal.codegen.model.BindingKind.PROVISION;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.writing.InjectionMethods.copyFrameworkParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
 import static dagger.internal.codegen.xprocessing.Accessibility.isTypeAccessibleFromPublicApi;
@@ -249,7 +250,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                 String parameterName = field.getName(); // SUPPRESS_GET_NAME_CHECK
                 XType dependencyType = dependencyRequest.key().type().xprocessing();
                 arguments.add(
-                    copyParameter(
+                    copyFrameworkParameter(
                         createMethodBuilder,
                         parameterName,
                         field.getType(),

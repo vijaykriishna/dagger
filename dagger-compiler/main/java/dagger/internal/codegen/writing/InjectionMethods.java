@@ -33,6 +33,7 @@ import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBl
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.xprocessing.XTypeNames.asClassName;
 import static dagger.internal.codegen.xprocessing.XTypes.erasedTypeName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -267,6 +268,13 @@ final class InjectionMethods {
         .collect(toParametersCodeBlock());
   }
 
+  /**
+   * Adds the parameter to the given {@code methodBuilder} and returns a code block that can be used
+   * to call the parameter.
+   *
+   * <p>If the given {@code typeName} is not accessible, the {@link Object} type is used as the
+   * parameter type instead, and the code block will contain a cast to the {@code typeName}.
+   */
   static XCodeBlock copyParameter(
       XFunSpecs.Builder methodBuilder,
       String name,
@@ -274,16 +282,57 @@ final class InjectionMethods {
       Nullability nullability,
       boolean isTypeNameAccessible,
       CompilerOptions compilerOptions) {
-    XTypeName accessibleTypeName =
-        isTypeNameAccessible ? typeName : accessibleTypeName(typeName, compilerOptions);
+    return copyParameterInternal(
+        methodBuilder,
+        name,
+        typeName,
+        isTypeNameAccessible,
+        XTypeName.ANY_OBJECT,
+        nullability,
+        compilerOptions);
+  }
+
+  /**
+   * Adds the framework parameter to the given {@code methodBuilder} and returns a code block that
+   * can be used to call the parameter.
+   *
+   * <p>If the given {@code typeName} is not accessible, the unbounded framework type, e.g. {@code
+   * Provider<?>} is used as the parameter type instead, and the code block will contain a cast to
+   * the {@code typeName}.
+   */
+  static XCodeBlock copyFrameworkParameter(
+      XFunSpecs.Builder methodBuilder,
+      String name,
+      XTypeName typeName,
+      Nullability nullability,
+      boolean isTypeNameAccessible,
+      CompilerOptions compilerOptions) {
+    return copyParameterInternal(
+        methodBuilder,
+        name,
+        typeName,
+        isTypeNameAccessible,
+        asClassName(typeName.getRawTypeName()).parametrizedBy(XTypeName.ANY_WILDCARD),
+        nullability,
+        compilerOptions);
+  }
+
+  private static XCodeBlock copyParameterInternal(
+      XFunSpecs.Builder methodBuilder,
+      String name,
+      XTypeName typeName,
+      boolean isTypeNameAccessible,
+      XTypeName accessibleTypeName,
+      Nullability nullability,
+      CompilerOptions compilerOptions) {
     methodBuilder.addParameter(
-        XParameterSpecs.of(name, accessibleTypeName, nullability, compilerOptions));
+        XParameterSpecs.of(
+            name,
+            isTypeNameAccessible ? typeName : accessibleTypeName,
+            nullability,
+            compilerOptions));
     return isTypeNameAccessible
         ? XCodeBlock.of("%L", name)
         : XCodeBlock.ofCast(typeName, XCodeBlock.of("%L", name));
-  }
-
-  private static XTypeName accessibleTypeName(XTypeName typeName, CompilerOptions compilerOptions) {
-    return XTypeName.ANY_OBJECT;
   }
 }

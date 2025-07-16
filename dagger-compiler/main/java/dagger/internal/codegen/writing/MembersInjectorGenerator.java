@@ -27,6 +27,7 @@ import static dagger.internal.codegen.binding.SourceFiles.parameterizedGenerated
 import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.writing.GwtCompatibility.gwtIncompatibleAnnotation;
+import static dagger.internal.codegen.writing.InjectionMethods.copyFrameworkParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameter;
 import static dagger.internal.codegen.writing.InjectionMethods.copyParameters;
 import static dagger.internal.codegen.xprocessing.Accessibility.isRawTypePubliclyAccessible;
@@ -283,7 +284,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
               String parameterName = field.getName(); // SUPPRESS_GET_NAME_CHECK
               XType dependencyType = dependencyRequest.key().type().xprocessing();
               arguments.add(
-                  copyParameter(
+                  copyFrameworkParameter(
                       createMethodBuilder,
                       parameterName,
                       field.getType(),
