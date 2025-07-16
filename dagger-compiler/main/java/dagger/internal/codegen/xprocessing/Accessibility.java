@@ -37,6 +37,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XElement;
+import androidx.room.compiler.processing.XMemberContainer;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -107,12 +108,6 @@ public final class Accessibility {
     return isElementAccessibleFrom(element, Optional.empty());
   }
 
-  /** Returns true if the given element can be referenced from other code in its own package. */
-  public static boolean isElementAccessibleFromOwnPackage(XElement element) {
-    return isElementAccessibleFrom(
-        element, Optional.of(element.getClosestMemberContainer().getClassName().packageName()));
-  }
-
   /** Returns true if the given element can be referenced from code in the given package. */
   // TODO(gak): account for protected
   // TODO(bcorso): account for kotlin srcs (package-private doesn't exist, internal does exist).
@@ -144,12 +139,10 @@ public final class Accessibility {
     } else if (isPrivate(element)) {
       return false;
     }
+    XMemberContainer container = element.getClosestMemberContainer();
     return packageName.isPresent()
-        && element
-            .getClosestMemberContainer()
-            .getClassName()
-            .packageName()
-            .contentEquals(packageName.get());
+        && container.isFromJava()
+        && container.getClassName().packageName().contentEquals(packageName.get());
   }
 
   /** Returns true if the raw type of {@code type} is accessible from the given package. */

@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethod;
 import static dagger.internal.codegen.writing.AssistedInjectionParameters.assistedFactoryParameterSpecs;
+import static dagger.internal.codegen.xprocessing.Accessibility.isTypeAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.overridingWithoutParameters;
 
@@ -37,6 +38,7 @@ import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.compileroption.CompilerOptions;
+import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Optional;
@@ -88,14 +90,24 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
     XType factoryType = binding.key().type().xprocessing();
     XMethodElement factoryMethod = assistedFactoryMethod(factory);
 
+    XType returnType = factoryMethod.asMemberOf(factoryType).getReturnType();
+    ShardImplementation shardImplementation =
+        componentImplementation.shardImplementation(assistedBinding);
     XTypeSpecs.Builder builder =
         XTypeSpecs.anonymousClassBuilder()
             .addFunction(
                 overridingWithoutParameters(factoryMethod, factoryType, compilerOptions)
-                    .addParameters(
-                        assistedFactoryParameterSpecs(
-                            binding, componentImplementation.shardImplementation(assistedBinding)))
-                    .addStatement("return %L", assistedInjectionExpression.codeBlock())
+                    .addParameters(assistedFactoryParameterSpecs(binding, shardImplementation))
+                    .addStatement(
+                        "return %L",
+                        isTypeAccessibleFrom(
+                                returnType, shardImplementation.name().getPackageName())
+                            ? assistedInjectionExpression.codeBlock()
+                            // For cases where isTypeAccessibleFrom() returns false, we need
+                            // to cast, otherwise the expression type won't match the return type.
+                            // TODO(bcorso): this casting should go away once we fix
+                            // https://github.com/google/dagger/issues/3304.
+                            : assistedInjectionExpression.castTo(returnType).codeBlock())
                     .build());
 
     if (factory.isInterface()) {

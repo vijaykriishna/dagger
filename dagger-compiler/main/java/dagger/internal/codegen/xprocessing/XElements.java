@@ -180,6 +180,10 @@ public final class XElements {
     return asHasModifiers(element).isPrivate();
   }
 
+  public static boolean isInternal(XElement element) {
+    return asHasModifiers(element).isInternal();
+  }
+
   public static boolean isStatic(XElement element) {
     return asHasModifiers(element).isStatic();
   }

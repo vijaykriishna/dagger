@@ -26,6 +26,7 @@ import static dagger.internal.codegen.binding.SourceFiles.membersInjectorNameFor
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParameters;
+import static dagger.internal.codegen.xprocessing.XTypeElements.isEffectivelyPrivate;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
 import androidx.room.compiler.codegen.XTypeName;
@@ -46,7 +47,6 @@ import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.Scope;
-import dagger.internal.codegen.xprocessing.Accessibility;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.Map;
@@ -451,7 +451,7 @@ public final class InjectValidator implements ClearableCache {
     }
 
     private void checkInjectIntoPrivateClass(XElement element, ValidationReport.Builder builder) {
-      if (!Accessibility.isElementAccessibleFromOwnPackage(closestEnclosingTypeElement(element))) {
+      if (isEffectivelyPrivate(closestEnclosingTypeElement(element))) {
         builder.addItem(
             "Dagger does not support injection into private classes",
             privateMemberDiagnosticKind,
