@@ -17,8 +17,6 @@
 load("//:build_defs.bzl", "DOCLINT_HTML_AND_SYNTAX")
 load("//:test_defs.bzl", "GenKtLibrary", "GenKtTests")
 
-package(default_visibility = ["//:src"])
-
 GenKtTests(
     name = "KotlinAssistedInjectionTest",
     srcs = ["KotlinAssistedInjectionTest.kt"],
