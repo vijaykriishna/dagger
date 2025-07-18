@@ -191,10 +191,10 @@ public final class HiltCompilerTests {
         new CustomTestApplicationProcessor(),
         new DefineComponentProcessor(),
         new EarlyEntryPointProcessor(),
-        new UninstallModulesProcessor(),
         new GeneratesRootInputProcessor(),
         new OriginatingElementProcessor(),
-        new RootProcessor());
+        new RootProcessor(),
+        new UninstallModulesProcessor());
   }
 
   private static ImmutableList<SymbolProcessorProvider> kspDefaultProcessors() {
@@ -208,10 +208,10 @@ public final class HiltCompilerTests {
         new KspCustomTestApplicationProcessor.Provider(),
         new KspDefineComponentProcessor.Provider(),
         new KspEarlyEntryPointProcessor.Provider(),
-        new KspUninstallModulesProcessor.Provider(),
         new KspGeneratesRootInputProcessor.Provider(),
         new KspOriginatingElementProcessor.Provider(),
-        new KspRootProcessor.Provider());
+        new KspRootProcessor.Provider(),
+        new KspUninstallModulesProcessor.Provider());
   }
 
   /** Used to compile Hilt sources and inspect the compiled results. */
