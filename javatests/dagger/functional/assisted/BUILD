@@ -56,9 +56,11 @@ GenJavaTests(
 GenJavaTests(
     name = "AssistedFactoryInaccessibleTest",
     srcs = ["AssistedFactoryInaccessibleTest.java"],
+    gen_library_deps = [
+        "//javatests/dagger/functional/assisted/subpackage",
+    ],
     javacopts = DOCLINT_HTML_AND_SYNTAX,
     deps = [
-        "//javatests/dagger/functional/assisted/subpackage",
         "//third_party/java/dagger",
         "//third_party/java/junit",
         "//third_party/java/truth",
