@@ -481,11 +481,14 @@ public class AssistedFactoryErrorsTest {
         .compile(
             subject -> {
               subject.hasErrorCount(2);
-              subject.hasErrorContaining(
-                      "[test.Foo] Dagger does not support providing @AssistedInject types.")
+              subject
+                  .hasErrorContaining(
+                      "[test.Foo] Dagger does not support providing @AssistedInject types without a"
+                          + " qualifier.")
                   .onSource(module)
                   .onLine(10);
-              subject.hasErrorContaining(
+              subject
+                  .hasErrorContaining(
                       "[test.Foo.Factory] Dagger does not support providing @AssistedFactory "
                           + "types.")
                   .onSource(module)
@@ -536,11 +539,14 @@ public class AssistedFactoryErrorsTest {
         .compile(
             subject -> {
               subject.hasErrorCount(2);
-              subject.hasErrorContaining(
-                      "[test.Foo] Dagger does not support providing @AssistedInject types.")
+              subject
+                  .hasErrorContaining(
+                      "[test.Foo] Dagger does not support providing @AssistedInject types without a"
+                          + " qualifier.")
                   .onSource(component)
                   .onLine(11);
-              subject.hasErrorContaining(
+              subject
+                  .hasErrorContaining(
                       "[test.Foo.Factory] Dagger does not support providing @AssistedFactory "
                           + "types.")
                   .onSource(component)
@@ -591,11 +597,14 @@ public class AssistedFactoryErrorsTest {
         .compile(
             subject -> {
               subject.hasErrorCount(2);
-              subject.hasErrorContaining(
-                      "[test.Foo] Dagger does not support providing @AssistedInject types.")
+              subject
+                  .hasErrorContaining(
+                      "[test.Foo] Dagger does not support providing @AssistedInject types without a"
+                          + " qualifier.")
                   .onSource(component)
                   .onLine(10);
-              subject.hasErrorContaining(
+              subject
+                  .hasErrorContaining(
                       "[test.Foo.Factory] Dagger does not support providing @AssistedFactory "
                           + "types.")
                   .onSource(component)
@@ -644,11 +653,14 @@ public class AssistedFactoryErrorsTest {
         .compile(
             subject -> {
               subject.hasErrorCount(2);
-              subject.hasErrorContaining(
-                      "[test.Foo] Dagger does not support providing @AssistedInject types.")
+              subject
+                  .hasErrorContaining(
+                      "[test.Foo] Dagger does not support providing @AssistedInject types without a"
+                          + " qualifier.")
                   .onSource(module)
                   .onLine(9);
-              subject.hasErrorContaining(
+              subject
+                  .hasErrorContaining(
                       "[test.Foo.Factory] Dagger does not support providing @AssistedFactory "
                           + "types.")
                   .onSource(module)

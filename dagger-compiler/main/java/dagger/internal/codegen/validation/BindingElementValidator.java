@@ -229,7 +229,9 @@ public abstract class BindingElementValidator<E extends XElement> {
           && isDeclared(bindingElementType().get())) {
         XTypeElement keyElement = bindingElementType().get().getTypeElement();
         if (isAssistedInjectionType(keyElement)) {
-          report.addError("Dagger does not support providing @AssistedInject types.", keyElement);
+          report.addError(
+              "Dagger does not support providing @AssistedInject types without a qualifier.",
+              keyElement);
         }
         if (isAssistedFactoryType(keyElement)) {
           report.addError("Dagger does not support providing @AssistedFactory types.", keyElement);
