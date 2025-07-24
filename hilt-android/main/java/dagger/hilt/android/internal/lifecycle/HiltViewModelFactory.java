@@ -105,6 +105,7 @@ public final class HiltViewModelFactory implements ViewModelProvider.Factory {
             return viewModel;
           }
 
+          @SuppressWarnings("unchecked")
           private <T extends ViewModel> T createViewModel(
               @NonNull ViewModelComponent component,
               @NonNull Class<T> modelClass,
