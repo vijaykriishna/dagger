@@ -40,7 +40,6 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import dagger.hilt.android.processor.internal.AndroidClassNames;
-import dagger.hilt.processor.internal.ClassNames;
 import dagger.hilt.processor.internal.MethodSignature;
 import dagger.hilt.processor.internal.Processors;
 import dagger.internal.codegen.xprocessing.XElements;
@@ -226,19 +225,23 @@ public final class ActivityGenerator {
   //     savedStateHandleHolder.setExtras(getDefaultViewModelCreationExtras());
   //   }
   // }
-  private static MethodSpec initSavedStateHandleHolderMethod() {
-    return MethodSpec.methodBuilder("initSavedStateHandleHolder")
-        .addModifiers(Modifier.PRIVATE)
-        .beginControlFlow(
-            "if (getApplication() instanceof $T)", ClassNames.GENERATED_COMPONENT_MANAGER)
+  private MethodSpec initSavedStateHandleHolderMethod() {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("initSavedStateHandleHolder")
+        .addModifiers(Modifier.PRIVATE);
+    if (metadata.allowsOptionalInjection()) {
+      builder.beginControlFlow("if (optionalInjectParentUsesHilt(optionalInjectGetParent()))");
+    }
+    builder
         .addStatement(
             "$N = componentManager().getSavedStateHandleHolder()", SAVED_STATE_HANDLE_HOLDER_FIELD)
         .beginControlFlow("if ($N.isInvalid())", SAVED_STATE_HANDLE_HOLDER_FIELD)
         .addStatement(
             "$N.setExtras(getDefaultViewModelCreationExtras())", SAVED_STATE_HANDLE_HOLDER_FIELD)
-        .endControlFlow()
-        .endControlFlow()
-        .build();
+        .endControlFlow();
+    if (metadata.allowsOptionalInjection()) {
+      builder.endControlFlow();
+    }
+    return builder.build();
   }
 
   private static boolean isNullable(XExecutableParameterElement element) {
