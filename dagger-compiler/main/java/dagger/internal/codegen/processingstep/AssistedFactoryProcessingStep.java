@@ -273,9 +273,9 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
     public ImmutableList<XTypeSpec> topLevelTypes(AssistedFactoryBinding binding) {
       XTypeElement factory = asTypeElement(binding.bindingElement().get());
 
-      XClassName name = generatedClassNameForBinding(binding);
+      XClassName generatedClassName = generatedClassNameForBinding(binding);
       XTypeSpecs.Builder builder =
-          XTypeSpecs.classBuilder(name)
+          XTypeSpecs.classBuilder(generatedClassName)
               .addModifiers(PUBLIC, FINAL)
               .addTypeVariableNames(typeVariableNames(factory));
 
@@ -301,43 +301,50 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
           // as it would require components built at much older versions using factories built at
           // newer versions to break.
           .addFunction(
-              methodBuilder("create")
-                  .addModifiers(PUBLIC, STATIC)
-                  .addParameter(delegateName, delegateType)
-                  .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
-                  .returns(javaxProviderOf(accessibleFactoryTypeName(factory)))
-                  .addStatement(
-                      "return %T.%Lcreate(%L)",
-                      XTypeNames.INSTANCE_FACTORY,
-                      // Java 7 type inference requires the method call provide the exact type here.
-                      isPreJava8SourceVersion(processingEnv)
-                          ? XCodeBlock.of(
-                              "<%T>",
-                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                          : XCodeBlock.of(""),
-                      XCodeBlock.ofNewInstance(name, "%N", delegateName))
-                  .build())
+              staticCreateMethod(
+                  /* methodName= */"create",
+                  /* returnType= */ javaxProviderOf(accessibleFactoryTypeName(factory)),
+                  generatedClassName,
+                  metadata,
+                  delegateName,
+                  delegateType))
           // Normally we would have called this just "create", but because of backwards
           // compatibility we can't have two methods with the same name/arguments returning
           // different Provider types.
           .addFunction(
-              methodBuilder("createFactoryProvider")
-                  .addModifiers(PUBLIC, STATIC)
-                  .addParameter(delegateName, delegateType)
-                  .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
-                  .returns(daggerProviderOf(accessibleFactoryTypeName(factory)))
-                  .addStatement(
-                      "return %T.%Lcreate(%L)",
-                      XTypeNames.INSTANCE_FACTORY,
-                      // Java 7 type inference requires the method call provide the exact type here.
-                      isPreJava8SourceVersion(processingEnv)
-                          ? XCodeBlock.of(
-                              "<%T>",
-                              accessibleTypeName(metadata.factoryType(), name, processingEnv))
-                          : XCodeBlock.of(""),
-                      XCodeBlock.ofNewInstance(name, "%N", delegateName))
-                  .build());
+              staticCreateMethod(
+                  /* methodName= */ "createFactoryProvider",
+                  /* returnType= */ daggerProviderOf(accessibleFactoryTypeName(factory)),
+                  generatedClassName,
+                  metadata,
+                  delegateName,
+                  delegateType));
       return ImmutableList.of(builder.build());
+    }
+
+    private XFunSpec staticCreateMethod(
+        String methodName,
+        XTypeName returnType,
+        XClassName generatedClassName,
+        AssistedFactoryMetadata metadata,
+        String delegateName,
+        XTypeName delegateType) {
+      return methodBuilder(methodName)
+          .addModifiers(PUBLIC, STATIC)
+          .addParameter(delegateName, delegateType)
+          .addTypeVariableNames(typeVariableNames(metadata.assistedInjectElement()))
+          .returns(returnType)
+          .addStatement(
+              "return %T.%Lcreate(%L)",
+              XTypeNames.INSTANCE_FACTORY,
+              // Java 7 type inference requires the method call provide the exact type here.
+              isPreJava8SourceVersion(processingEnv)
+                  ? XCodeBlock.of(
+                      "<%T>",
+                      accessibleTypeName(metadata.factoryType(), generatedClassName, processingEnv))
+                  : XCodeBlock.of(""),
+              XCodeBlock.ofNewInstance(generatedClassName, "%N", delegateName))
+          .build();
     }
 
     private XTypeName accessibleFactoryTypeName(XTypeElement factory) {
