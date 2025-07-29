@@ -39,7 +39,7 @@ public final class InjectConstructor_Factory implements Factory<Object> {
     return new InjectConstructor_Factory((Provider<String>) (sProvider));
   }
 
-  public static InjectConstructor newInstance(Object s) {
+  public static Object newInstance(Object s) {
     return new InjectConstructor((String) (s));
   }
 }

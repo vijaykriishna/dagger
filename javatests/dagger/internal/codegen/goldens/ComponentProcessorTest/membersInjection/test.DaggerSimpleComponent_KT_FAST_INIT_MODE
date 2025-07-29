@@ -58,7 +58,7 @@ final class DaggerSimpleComponent {
     }
 
     @CanIgnoreReturnValue
-    private SomeInjectedType injectSomeInjectedType(SomeInjectedType instance) {
+    private Object injectSomeInjectedType(Object instance) {
       SomeInjectedType_MembersInjector.injectInjectedField(instance, SomeInjectableType_Factory.newInstance());
       return instance;
     }

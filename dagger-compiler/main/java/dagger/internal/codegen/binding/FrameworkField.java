@@ -133,13 +133,21 @@ public final class FrameworkField {
       Optional<XType> type,
       Nullability nullability,
       CompilerOptions compilerOptions) {
-    XTypeName fieldType =
-        type.map(XType::asTypeName)
-            .map(typeName -> asNullableTypeName(typeName, nullability, compilerOptions))
-            .map(frameworkClassName::parametrizedBy)
-            .orElse(frameworkClassName);
+    return new FrameworkField(
+        frameworkFieldName(fieldName, frameworkClassName),
+        frameworkFieldType(frameworkClassName, type, nullability, compilerOptions));
+  }
 
-    return new FrameworkField(frameworkFieldName(fieldName, frameworkClassName), fieldType);
+  private static XTypeName frameworkFieldType(
+      XClassName frameworkClassName,
+      Optional<XType> type,
+      Nullability nullability,
+      CompilerOptions compilerOptions) {
+    if (type.isEmpty()) {
+      return frameworkClassName;
+    }
+    return frameworkClassName.parametrizedBy(
+        asNullableTypeName(type.get().asTypeName(), nullability, compilerOptions));
   }
 
   private static String frameworkFieldName(String fieldName, XClassName frameworkClassName) {

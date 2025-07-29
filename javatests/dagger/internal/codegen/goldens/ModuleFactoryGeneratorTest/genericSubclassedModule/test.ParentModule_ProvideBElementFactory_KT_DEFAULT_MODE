@@ -44,7 +44,7 @@ public final class ParentModule_ProvideBElementFactory<A extends CharSequence, B
     return new ParentModule_ProvideBElementFactory<A, B, C>((ParentModule<A, B, C>) (module), (Provider<B>) (bProvider));
   }
 
-  public static <A extends CharSequence, B, C extends Number & Comparable<C>> B provideBElement(
+  public static <A extends CharSequence, B, C extends Number & Comparable<C>> Object provideBElement(
       Object instance, Object b) {
     return Preconditions.checkNotNullFromProvides(((ParentModule<A, B, C>) (instance)).provideBElement((B) (b)));
   }

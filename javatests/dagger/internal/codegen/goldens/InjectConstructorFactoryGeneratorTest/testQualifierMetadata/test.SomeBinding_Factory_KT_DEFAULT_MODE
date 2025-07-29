@@ -50,7 +50,7 @@ public final class SomeBinding_Factory implements Factory<Object> {
     return new SomeBinding_Factory((Provider<Double>) (dProvider), (Provider<String>) (injectFieldProvider), (Provider<Float>) (fProvider));
   }
 
-  public static SomeBinding newInstance(Object d) {
+  public static Object newInstance(Object d) {
     return new SomeBinding((Double) (d));
   }
 }

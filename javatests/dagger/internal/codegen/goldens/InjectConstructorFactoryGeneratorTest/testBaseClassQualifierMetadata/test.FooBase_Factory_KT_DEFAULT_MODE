@@ -50,7 +50,7 @@ public final class FooBase_Factory implements Factory<Object> {
     return new FooBase_Factory((Provider<Integer>) (iProvider), (Provider<String>) (injectFieldProvider), (Provider<Float>) (fProvider));
   }
 
-  public static FooBase newInstance(Object i) {
+  public static Object newInstance(Object i) {
     return new FooBase((int) (i));
   }
 }

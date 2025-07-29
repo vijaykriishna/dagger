@@ -39,7 +39,7 @@ public final class InjectConstructor_Factory implements Factory<Object> {
     return new InjectConstructor_Factory((Provider<other.pkg.Factory>) (factoryProvider));
   }
 
-  public static InjectConstructor newInstance(Object factory) {
+  public static Object newInstance(Object factory) {
     return new InjectConstructor((other.pkg.Factory) (factory));
   }
 }

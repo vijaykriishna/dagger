@@ -39,7 +39,7 @@ public final class ChildNumberModule_ProvideNumberFactory implements Factory<Obj
     return new ChildNumberModule_ProvideNumberFactory((ChildNumberModule) (module));
   }
 
-  public static Number provideNumber(Object instance) {
+  public static Object provideNumber(Object instance) {
     return Preconditions.checkNotNullFromProvides(((ChildNumberModule) (instance)).provideNumber());
   }
 }

@@ -32,7 +32,7 @@ public final class ScopedBinding_Factory implements Factory<Object> {
     return InstanceHolder.INSTANCE;
   }
 
-  public static ScopedBinding newInstance() {
+  public static Object newInstance() {
     return new ScopedBinding();
   }
 

@@ -6,7 +6,6 @@ import dagger.internal.Preconditions;
 import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
-import java.util.List;
 import javax.annotation.processing.Generated;
 
 @ScopeMetadata
@@ -45,7 +44,7 @@ public final class ParentModule_ProvideListBFactory<A extends CharSequence, B, C
     return new ParentModule_ProvideListBFactory<A, B, C>((ParentModule<A, B, C>) (module), (Provider<B>) (bProvider));
   }
 
-  public static <A extends CharSequence, B, C extends Number & Comparable<C>> List<B> provideListB(
+  public static <A extends CharSequence, B, C extends Number & Comparable<C>> Object provideListB(
       Object instance, Object b) {
     return Preconditions.checkNotNullFromProvides(((ParentModule<A, B, C>) (instance)).provideListB((B) (b)));
   }

@@ -58,7 +58,7 @@ final class DaggerTestComponent {
     }
 
     @CanIgnoreReturnValue
-    private InjectsMember injectInjectsMember(InjectsMember instance) {
+    private Object injectInjectsMember(Object instance) {
       InjectsMember_MembersInjector.injectMember(instance, TestModule_PrimitiveIntegerFactory.primitiveInteger());
       return instance;
     }

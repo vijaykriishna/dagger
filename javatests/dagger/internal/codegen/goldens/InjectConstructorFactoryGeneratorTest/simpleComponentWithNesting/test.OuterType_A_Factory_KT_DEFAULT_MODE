@@ -32,7 +32,7 @@ public final class OuterType_A_Factory implements Factory<Object> {
     return InstanceHolder.INSTANCE;
   }
 
-  public static OuterType.A newInstance() {
+  public static Object newInstance() {
     return new OuterType.A();
   }
 

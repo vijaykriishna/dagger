@@ -50,7 +50,7 @@ public final class AllInjections_Factory implements Factory<Object> {
     return new AllInjections_Factory((Provider<String>) (sProvider), (Provider<String>) (sProvider2), (Provider<String>) (sProvider3));
   }
 
-  public static AllInjections newInstance(Object s) {
+  public static Object newInstance(Object s) {
     return new AllInjections((String) (s));
   }
 }

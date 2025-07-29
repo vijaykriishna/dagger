@@ -5,7 +5,6 @@ import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
-import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @ScopeMetadata
@@ -34,7 +33,7 @@ public final class ParameterizedModule_ProvideMapStringNumberFactory implements 
     return InstanceHolder.INSTANCE;
   }
 
-  public static Map<String, Number> provideMapStringNumber() {
+  public static Object provideMapStringNumber() {
     return Preconditions.checkNotNullFromProvides(ParameterizedModule.provideMapStringNumber());
   }
 

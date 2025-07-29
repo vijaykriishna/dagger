@@ -40,7 +40,7 @@ public final class TestModule_ProvideStringFactory implements Factory<Object> {
   }
 
   @Nullable
-  public static String provideString(Object instance) {
+  public static Object provideString(Object instance) {
     return ((TestModule) (instance)).provideString();
   }
 }

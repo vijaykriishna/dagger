@@ -32,7 +32,7 @@ public final class SimpleType_Factory implements Factory<Object> {
     return InstanceHolder.INSTANCE;
   }
 
-  public static SimpleType newInstance() {
+  public static Object newInstance() {
     return new SimpleType();
   }
 

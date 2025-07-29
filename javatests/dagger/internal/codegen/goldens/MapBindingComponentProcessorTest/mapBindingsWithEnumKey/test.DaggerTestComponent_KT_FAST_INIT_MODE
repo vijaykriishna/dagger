@@ -80,7 +80,7 @@ final class DaggerTestComponent {
     Provider<?> provideLoginHandlerProvider;
 
     /**
-     * {@code Provider}
+     * {@code Provider<?>}
      */
     Provider<?> mapOfPathEnumAndProviderOfHandlerProvider;
 

@@ -39,7 +39,7 @@ public final class Foo_Factory implements Factory<Object> {
     return new Foo_Factory((Provider<Bar>) (barProvider));
   }
 
-  public static Foo newInstance(Object bar) {
+  public static Object newInstance(Object bar) {
     return new Foo((Bar) (bar));
   }
 }

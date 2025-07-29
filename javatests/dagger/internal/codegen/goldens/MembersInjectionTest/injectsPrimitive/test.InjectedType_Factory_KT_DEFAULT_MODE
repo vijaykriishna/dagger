@@ -47,7 +47,7 @@ public final class InjectedType_Factory implements Factory<Object> {
     return new InjectedType_Factory((Provider<Integer>) (primitiveIntProvider), (Provider<Integer>) (boxedIntProvider));
   }
 
-  public static InjectedType newInstance() {
+  public static Object newInstance() {
     return new InjectedType();
   }
 }

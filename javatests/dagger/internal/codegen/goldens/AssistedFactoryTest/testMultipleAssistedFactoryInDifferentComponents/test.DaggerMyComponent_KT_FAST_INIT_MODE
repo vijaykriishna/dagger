@@ -89,7 +89,7 @@ final class DaggerMyComponent {
           return (T) new MySubcomponentAssistedFactory() {
             @Override
             public MyAssistedClass create(Bar bar, Foo foo) {
-              return MyAssistedClass_Factory.newInstance(foo, Baz_Factory.newInstance(), bar);
+              return (MyAssistedClass) (MyAssistedClass_Factory.newInstance(foo, Baz_Factory.newInstance(), bar));
             }
           };
 
@@ -146,7 +146,7 @@ final class DaggerMyComponent {
           return (T) new MyComponentAssistedFactory() {
             @Override
             public MyAssistedClass create(Bar bar, Foo foo) {
-              return MyAssistedClass_Factory.newInstance(foo, Baz_Factory.newInstance(), bar);
+              return (MyAssistedClass) (MyAssistedClass_Factory.newInstance(foo, Baz_Factory.newInstance(), bar));
             }
           };
 

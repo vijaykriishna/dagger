@@ -40,7 +40,7 @@ public final class InjectConstructor_Factory implements Factory<Object> {
     return new InjectConstructor_Factory((Provider<List<?>>) (objectsProvider));
   }
 
-  public static InjectConstructor newInstance(Object objects) {
+  public static Object newInstance(Object objects) {
     return new InjectConstructor((List<?>) (objects));
   }
 }

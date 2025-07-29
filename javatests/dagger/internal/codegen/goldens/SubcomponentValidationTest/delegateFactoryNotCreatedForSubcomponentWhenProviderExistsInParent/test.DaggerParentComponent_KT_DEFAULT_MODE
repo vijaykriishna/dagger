@@ -68,7 +68,7 @@ final class DaggerParentComponent {
     }
 
     @CanIgnoreReturnValue
-    private A injectA(A instance) {
+    private Object injectA(Object instance) {
       A_MembersInjector.injectMethodA(instance);
       return instance;
     }

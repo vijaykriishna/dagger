@@ -53,7 +53,6 @@ import androidx.room.compiler.codegen.XAnnotationSpec;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XPropertySpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.codegen.XTypeSpec;
@@ -87,7 +86,6 @@ import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
-import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
@@ -288,21 +286,25 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     factoryFields
         .getAll()
         .forEach(field -> uniqueFieldNames.claim(field.getName())); // SUPPRESS_GET_NAME_CHECK
-    ImmutableMap<XExecutableParameterElement, XParameterSpec> assistedParameters =
+    XFunSpecs.Builder getMethod =
+        methodBuilder("get")
+            .addModifiers(PUBLIC)
+            .isOverride(factoryTypeName(binding).isPresent())
+            .returns(providedTypeName(binding));
+    ImmutableMap<XExecutableParameterElement, XCodeBlock> assistedParameterUsages =
         assistedParameters(binding).stream()
             .collect(
                 toImmutableMap(
                     parameter -> parameter,
                     parameter ->
-                        XParameterSpecs.of(
+                        copyParameter(
+                            getMethod,
                             uniqueFieldNames.getUniqueName(parameter.getJvmName()),
-                            parameter.getType().asTypeName())));
-    XTypeName providedTypeName = providedTypeName(binding);
-    XFunSpecs.Builder getMethod =
-        methodBuilder("get")
-            .addModifiers(PUBLIC)
-            .isOverride(factoryTypeName(binding).isPresent())
-            .addParameters(assistedParameters.values());
+                            parameter.getType().asTypeName(),
+                            Nullability.of(parameter),
+                            /* isTypeNameAccessible= */
+                            isTypeAccessibleFromPublicApi(parameter.getType(), compilerOptions),
+                            compilerOptions)));
 
     XCodeBlock invokeNewInstance =
         ProvisionMethod.invoke(
@@ -310,7 +312,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             request ->
                 sourceFiles.frameworkTypeUsageStatement(
                     XCodeBlock.of("%N", factoryFields.get(request)), request.kind()),
-            param -> assistedParameters.get(param).getName(), // SUPPRESS_GET_NAME_CHECK
+            assistedParameterUsages::get,
             generatedClassNameForBinding(binding),
             factoryFields.moduleField.map(module -> XCodeBlock.of("%N", module)),
             compilerOptions);
@@ -318,8 +320,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     if (binding.kind().equals(PROVISION)) {
       getMethod
           .addAnnotationNames(binding.nullability().nonTypeUseNullableAnnotations())
-          .addStatement("return %L", invokeNewInstance)
-          .returns(providedTypeName);
+          .addStatement("return %L", invokeNewInstance);
     } else if (!injectionSites(binding).isEmpty()) {
       XCodeBlock instance = XCodeBlock.of("instance");
       XCodeBlock invokeInjectionSites =
@@ -332,13 +333,12 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
                       binding.dependencies(), factoryFields.frameworkFields)
                   ::get);
       getMethod
-          .returns(providedTypeName)
-          .addStatement("%T %L = %L", providedTypeName, instance, invokeNewInstance)
+          .addStatement("%T %L = %L", providedTypeName(binding), instance, invokeNewInstance)
           .addCode(invokeInjectionSites)
           .addStatement("return %L", instance);
 
     } else {
-      getMethod.returns(providedTypeName).addStatement("return %L", invokeNewInstance);
+      getMethod.addStatement("return %L", invokeNewInstance);
     }
     return getMethod.build();
   }
@@ -367,7 +367,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         methodBuilder(generatedProxyMethodName(binding))
             .addModifiers(PUBLIC, STATIC)
             .varargs(constructor.isVarArgs())
-            .returns(enclosingType.getType().asTypeName())
+            .returns(providedTypeName(binding))
             .addTypeVariableNames(typeVariableNames(enclosingType))
             .addExceptions(constructor.getThrownTypes());
     XCodeBlock arguments =
@@ -412,8 +412,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
     Nullability nullability = Nullability.of(method);
     return builder
         .addAnnotationNames(nullability.nonTypeUseNullableAnnotations())
-        .returns(
-            asNullableTypeName(method.getReturnType().asTypeName(), nullability, compilerOptions))
+        .returns(contributedTypeName(binding))
         .addStatement("return %L", maybeWrapInCheckForNull(binding, invocation))
         .build();
   }
@@ -499,6 +498,21 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             ? binding.contributedType().asTypeName()
             : XTypeName.ANY_OBJECT;
     return asNullableTypeName(typeName, binding.nullability(), compilerOptions);
+  }
+
+  /**
+   * Returns the type contributed by the given {@code binding}.
+   *
+   * <p>This is the same as {@link #providedTypeName} except when the contributed type is a
+   * primitive type, this method will return the primitive type instead of the boxed type.
+   */
+  private XTypeName contributedTypeName(ContributionBinding binding) {
+    return binding.contributedPrimitiveType().isPresent()
+        ? asNullableTypeName(
+            binding.contributedPrimitiveType().get().asTypeName(),
+            binding.nullability(),
+            compilerOptions)
+        : providedTypeName(binding);
   }
 
   private Optional<XTypeName> factoryTypeName(ContributionBinding binding) {

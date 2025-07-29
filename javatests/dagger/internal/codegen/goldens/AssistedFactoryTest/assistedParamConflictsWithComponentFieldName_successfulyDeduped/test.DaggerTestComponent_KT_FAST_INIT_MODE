@@ -88,7 +88,7 @@ final class DaggerTestComponent {
           return (T) new FooFactory() {
             @Override
             public Foo create(String testComponentImpl2) {
-              return Foo_Factory.newInstance(testComponentImpl2, testComponentImpl.barProvider);
+              return (Foo) (Foo_Factory.newInstance(testComponentImpl2, testComponentImpl.barProvider));
             }
           };
 

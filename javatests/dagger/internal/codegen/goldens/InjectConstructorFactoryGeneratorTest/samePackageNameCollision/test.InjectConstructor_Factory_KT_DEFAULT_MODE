@@ -44,7 +44,7 @@ public final class InjectConstructor_Factory implements Factory<Object> {
     return new InjectConstructor_Factory((Provider<other.pkg.CommonName>) (otherPackageProvider), (Provider<CommonName>) (samePackageProvider));
   }
 
-  public static InjectConstructor newInstance(Object otherPackage, Object samePackage) {
+  public static Object newInstance(Object otherPackage, Object samePackage) {
     return new InjectConstructor((other.pkg.CommonName) (otherPackage), (CommonName) (samePackage));
   }
 }

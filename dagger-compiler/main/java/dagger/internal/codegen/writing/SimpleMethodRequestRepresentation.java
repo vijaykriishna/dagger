@@ -103,7 +103,7 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
             ProvisionMethod.invokeArguments(
                 binding,
                 request -> dependencyArgument(request, requestingClass).codeBlock(),
-                shardImplementation::getUniqueFieldNameForAssistedParam));
+                this::assistedArgument));
     XElement bindingElement = binding.bindingElement().get();
     XTypeElement bindingTypeElement = binding.bindingTypeElement().get();
     XCodeBlock invocation;
@@ -143,11 +143,16 @@ final class SimpleMethodRequestRepresentation extends RequestRepresentation {
         ProvisionMethod.invoke(
             binding,
             request -> dependencyArgument(request, requestingClass).codeBlock(),
-            shardImplementation::getUniqueFieldNameForAssistedParam,
+            this::assistedArgument,
             requestingClass,
             moduleReference(requestingClass),
             compilerOptions),
         requestingClass);
+  }
+
+  private XCodeBlock assistedArgument(XExecutableParameterElement assistedParameter) {
+    return XCodeBlock.of(
+        "%N", shardImplementation.getUniqueFieldNameForAssistedParam(assistedParameter));
   }
 
   private XExpression dependencyArgument(DependencyRequest dependency, XClassName requestingClass) {

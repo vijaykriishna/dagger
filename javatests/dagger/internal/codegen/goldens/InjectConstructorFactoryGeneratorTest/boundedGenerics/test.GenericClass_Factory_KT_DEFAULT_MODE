@@ -48,7 +48,7 @@ public final class GenericClass_Factory<A extends Number & Comparable<A>, B exte
     return new GenericClass_Factory<A, B, C>((Provider<A>) (aProvider), (Provider<B>) (bProvider), (Provider<C>) (cProvider));
   }
 
-  public static <A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> GenericClass<A, B, C> newInstance(
+  public static <A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> Object newInstance(
       Object a, Object b, Object c) {
     return new GenericClass<A, B, C>((A) (a), (B) (b), (C) (c));
   }

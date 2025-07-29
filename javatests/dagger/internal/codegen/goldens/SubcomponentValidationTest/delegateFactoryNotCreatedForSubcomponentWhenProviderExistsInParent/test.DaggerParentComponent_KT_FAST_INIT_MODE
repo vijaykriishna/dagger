@@ -68,7 +68,7 @@ final class DaggerParentComponent {
     }
 
     @CanIgnoreReturnValue
-    private A injectA(A instance) {
+    private Object injectA(Object instance) {
       A_MembersInjector.injectMethodA(instance);
       return instance;
     }
@@ -115,13 +115,13 @@ final class DaggerParentComponent {
     }
 
     @CanIgnoreReturnValue
-    private Dep1 injectDep1(Dep1 instance) {
+    private Object injectDep1(Object instance) {
       Dep1_MembersInjector.injectDep1Method(instance);
       return instance;
     }
 
     @CanIgnoreReturnValue
-    private Dep2 injectDep2(Dep2 instance2) {
+    private Object injectDep2(Object instance2) {
       Dep2_MembersInjector.injectDep2Method(instance2);
       return instance2;
     }

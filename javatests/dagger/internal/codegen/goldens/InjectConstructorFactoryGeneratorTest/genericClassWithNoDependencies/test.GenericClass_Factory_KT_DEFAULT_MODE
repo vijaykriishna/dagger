@@ -33,7 +33,7 @@ public final class GenericClass_Factory<T> implements Factory<Object> {
     return InstanceHolder.INSTANCE;
   }
 
-  public static <T> GenericClass<T> newInstance() {
+  public static <T> Object newInstance() {
     return new GenericClass<T>();
   }
 

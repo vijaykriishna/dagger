@@ -54,7 +54,7 @@ public final class Foo_Factory implements Factory<Object> {
     return new Foo_Factory((Provider<Integer>) (iProvider), (Provider<String>) (injectFieldProvider), (Provider<String>) (injectFieldProvider2), (Provider<Float>) (fProvider));
   }
 
-  public static Foo newInstance(Object i) {
+  public static Object newInstance(Object i) {
     return new Foo((int) (i));
   }
 }

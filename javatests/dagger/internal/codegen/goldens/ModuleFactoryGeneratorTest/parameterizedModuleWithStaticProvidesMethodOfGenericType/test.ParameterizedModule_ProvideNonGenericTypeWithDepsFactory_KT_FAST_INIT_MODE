@@ -41,7 +41,7 @@ public final class ParameterizedModule_ProvideNonGenericTypeWithDepsFactory impl
     return new ParameterizedModule_ProvideNonGenericTypeWithDepsFactory((Provider<Object>) (oProvider));
   }
 
-  public static String provideNonGenericTypeWithDeps(Object o) {
+  public static Object provideNonGenericTypeWithDeps(Object o) {
     return Preconditions.checkNotNullFromProvides(ParameterizedModule.provideNonGenericTypeWithDeps((Object) (o)));
   }
 }

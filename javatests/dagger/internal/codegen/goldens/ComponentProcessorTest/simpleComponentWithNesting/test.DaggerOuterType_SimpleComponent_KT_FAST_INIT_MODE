@@ -58,7 +58,7 @@ final class DaggerOuterType_SimpleComponent {
     }
 
     @CanIgnoreReturnValue
-    private OuterType.B injectB(OuterType.B instance) {
+    private Object injectB(Object instance) {
       OuterType_B_MembersInjector.injectA(instance, OuterType_A_Factory.newInstance());
       return instance;
     }

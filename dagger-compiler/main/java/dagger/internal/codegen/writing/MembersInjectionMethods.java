@@ -26,7 +26,6 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.codegen.XCodeBlock;
 import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XParameterSpec;
 import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
@@ -38,12 +37,12 @@ import dagger.internal.codegen.binding.BindingGraph;
 import dagger.internal.codegen.binding.InjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
+import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.XExpression;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
-import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -55,6 +54,7 @@ final class MembersInjectionMethods {
   private final ComponentImplementation componentImplementation;
   private final ComponentRequestRepresentations bindingExpressions;
   private final BindingGraph graph;
+  private final CompilerOptions compilerOptions;
   private final XProcessingEnv processingEnv;
 
   @Inject
@@ -62,10 +62,12 @@ final class MembersInjectionMethods {
       ComponentImplementation componentImplementation,
       ComponentRequestRepresentations bindingExpressions,
       BindingGraph graph,
+      CompilerOptions compilerOptions,
       XProcessingEnv processingEnv) {
     this.componentImplementation = componentImplementation;
     this.bindingExpressions = bindingExpressions;
     this.graph = graph;
+    this.compilerOptions = compilerOptions;
     this.processingEnv = processingEnv;
   }
 
@@ -105,25 +107,22 @@ final class MembersInjectionMethods {
     // TODO(ronshapiro): include type parameters in this name e.g. injectFooOfT, and outer class
     // simple names Foo.Builder -> injectFooBuilder
     String methodName = shardImplementation.getUniqueMethodName("inject" + bindingTypeName);
-    XParameterSpec parameter =
-        XParameterSpecs.builder(
-                // Technically this usage only needs to be unique within this method, but this will
-                // allocate a unique name within the shard. We could optimize this by cloning the
-                // UniqueNameSet or using NameAllocator which has a clone method in the future.
-                shardImplementation.getUniqueFieldName("instance"),
-                membersInjectedType.asTypeName())
-            .build();
+    // Technically this usage only needs to be unique within this method, but this will allocate a
+    // unique name within the shard. We could optimize this by cloning the UniqueNameSet or using
+    // NameAllocator which has a clone method in the future.
+    String instanceName = shardImplementation.getUniqueFieldName("instance");
+    XTypeName instanceTypeName = membersInjectedType.asTypeName();
     XFunSpecs.Builder methodBuilder =
         methodBuilder(methodName)
             .addModifiers(PRIVATE)
-            .returns(membersInjectedType.asTypeName())
-            .addParameter(parameter);
+            .returns(instanceTypeName)
+            .addParameter(instanceName, instanceTypeName);
     XTypeElement canIgnoreReturnValue =
         processingEnv.findTypeElement("com.google.errorprone.annotations.CanIgnoreReturnValue");
     if (canIgnoreReturnValue != null) {
       methodBuilder.addAnnotation(canIgnoreReturnValue.asClassName());
     }
-    XCodeBlock instance = XCodeBlock.of("%N", parameter.getName()); // SUPPRESS_GET_NAME_CHECK
+    XCodeBlock instance = XCodeBlock.of("%N", instanceName);
     XCodeBlock invokeInjectionSites =
         InjectionSiteMethod.invokeAll(
             injectionSites(binding),

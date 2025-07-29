@@ -53,7 +53,7 @@ final class DaggerTestComponent {
     }
 
     @CanIgnoreReturnValue
-    private Child injectChild(Child instance) {
+    private Object injectChild(Object instance) {
       Parent_MembersInjector.injectDep(instance, Dep_Factory.newInstance());
       return instance;
     }

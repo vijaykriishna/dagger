@@ -29,15 +29,15 @@ public final class Foo_Factory {
     this.argProvider = argProvider;
   }
 
-  public Object get(Integer argProvider2) {
-    return newInstance(argProvider.get(), argProvider2);
+  public Object get(Object argProvider2) {
+    return newInstance(argProvider.get(), (Integer) (argProvider2));
   }
 
   public static Foo_Factory create(Provider<?> argProvider) {
     return new Foo_Factory((Provider<Bar>) (argProvider));
   }
 
-  public static Foo newInstance(Object arg, Object argProvider) {
+  public static Object newInstance(Object arg, Object argProvider) {
     return new Foo((Bar) (arg), (Integer) (argProvider));
   }
 }

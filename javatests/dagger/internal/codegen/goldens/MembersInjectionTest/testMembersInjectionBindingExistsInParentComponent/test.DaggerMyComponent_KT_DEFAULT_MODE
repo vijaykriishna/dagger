@@ -65,7 +65,7 @@ public final class DaggerMyComponent {
     }
 
     @CanIgnoreReturnValue
-    private Bar injectBar(Bar instance) {
+    private Object injectBar(Object instance) {
       Bar_MembersInjector.injectMultibindingStrings(instance, setOfString());
       return instance;
     }
@@ -94,7 +94,7 @@ public final class DaggerMyComponent {
     }
 
     @CanIgnoreReturnValue
-    private Bar injectBar(Bar instance) {
+    private Object injectBar(Object instance) {
       Bar_MembersInjector.injectMultibindingStrings(instance, setOfString());
       return instance;
     }

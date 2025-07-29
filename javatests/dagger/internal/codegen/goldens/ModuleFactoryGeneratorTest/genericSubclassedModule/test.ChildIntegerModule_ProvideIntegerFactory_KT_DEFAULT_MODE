@@ -39,7 +39,7 @@ public final class ChildIntegerModule_ProvideIntegerFactory implements Factory<O
     return new ChildIntegerModule_ProvideIntegerFactory((ChildIntegerModule) (module));
   }
 
-  public static Integer provideInteger(Object instance) {
+  public static Object provideInteger(Object instance) {
     return Preconditions.checkNotNullFromProvides(((ChildIntegerModule) (instance)).provideInteger());
   }
 }

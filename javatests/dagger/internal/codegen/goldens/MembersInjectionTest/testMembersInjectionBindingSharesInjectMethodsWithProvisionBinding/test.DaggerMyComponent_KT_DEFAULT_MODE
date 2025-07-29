@@ -58,7 +58,7 @@ public final class DaggerMyComponent {
     }
 
     @CanIgnoreReturnValue
-    private Foo injectFoo(Foo instance) {
+    private Object injectFoo(Object instance) {
       Foo_MembersInjector.injectBar(instance, Bar_Factory.newInstance());
       return instance;
     }

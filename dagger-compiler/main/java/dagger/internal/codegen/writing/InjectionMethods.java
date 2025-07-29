@@ -98,14 +98,14 @@ final class InjectionMethods {
      */
     static XCodeBlock invoke(
         ContributionBinding binding,
-        Function<DependencyRequest, XCodeBlock> dependencyUsage,
-        Function<XExecutableParameterElement, String> uniqueAssistedParameterName,
+        Function<DependencyRequest, XCodeBlock> injectedDependencyUsage,
+        Function<XExecutableParameterElement, XCodeBlock> assistedDependencyUsage,
         XClassName requestingClass,
         Optional<XCodeBlock> moduleReference,
         CompilerOptions compilerOptions) {
       ImmutableList.Builder<XCodeBlock> arguments = ImmutableList.builder();
       moduleReference.ifPresent(arguments::add);
-      invokeArguments(binding, dependencyUsage, uniqueAssistedParameterName)
+      invokeArguments(binding, injectedDependencyUsage, assistedDependencyUsage)
           .forEach(arguments::add);
 
       XClassName enclosingClass = generatedClassNameForBinding(binding);
@@ -115,8 +115,8 @@ final class InjectionMethods {
 
     static ImmutableList<XCodeBlock> invokeArguments(
         ContributionBinding binding,
-        Function<DependencyRequest, XCodeBlock> dependencyUsage,
-        Function<XExecutableParameterElement, String> uniqueAssistedParameterName) {
+        Function<DependencyRequest, XCodeBlock> injectedDependencyUsage,
+        Function<XExecutableParameterElement, XCodeBlock> assistedDependencyUsage) {
       ImmutableMap<XExecutableParameterElement, DependencyRequest> dependencyRequestMap =
           provisionDependencies(binding).stream()
               .collect(
@@ -128,10 +128,10 @@ final class InjectionMethods {
       XExecutableElement method = asExecutable(binding.bindingElement().get());
       for (XExecutableParameterElement parameter : method.getParameters()) {
         if (isAssistedParameter(parameter)) {
-          arguments.add(XCodeBlock.of("%L", uniqueAssistedParameterName.apply(parameter)));
+          arguments.add(assistedDependencyUsage.apply(parameter));
         } else if (dependencyRequestMap.containsKey(parameter)) {
           DependencyRequest request = dependencyRequestMap.get(parameter);
-          arguments.add(dependencyUsage.apply(request));
+          arguments.add(injectedDependencyUsage.apply(request));
         } else {
           throw new AssertionError("Unexpected parameter: " + parameter);
         }

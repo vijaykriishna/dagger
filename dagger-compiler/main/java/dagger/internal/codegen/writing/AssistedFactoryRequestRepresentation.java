@@ -100,14 +100,9 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
                     .addParameters(assistedFactoryParameterSpecs(binding, shardImplementation))
                     .addStatement(
                         "return %L",
-                        isTypeAccessibleFrom(
-                                returnType, shardImplementation.name().getPackageName())
-                            ? assistedInjectionExpression.codeBlock()
-                            // For cases where isTypeAccessibleFrom() returns false, we need
-                            // to cast, otherwise the expression type won't match the return type.
-                            // TODO(bcorso): this casting should go away once we fix
-                            // https://github.com/google/dagger/issues/3304.
-                            : assistedInjectionExpression.castTo(returnType).codeBlock())
+                        requiresCast(returnType, shardImplementation.name())
+                            ? assistedInjectionExpression.castTo(returnType).codeBlock()
+                            : assistedInjectionExpression.codeBlock())
                     .build());
 
     if (factory.isInterface()) {
@@ -117,6 +112,14 @@ final class AssistedFactoryRequestRepresentation extends RequestRepresentation {
     }
 
     return builder.build();
+  }
+
+  private boolean requiresCast(XType returnType, XClassName requestingClass) {
+    // For cases where isTypeAccessibleFrom() returns false, we need to cast, otherwise the
+    // expression type won't match the return type.
+    // TODO(bcorso): this casting should go away once we fix
+    // https://github.com/google/dagger/issues/3304.
+    return !isTypeAccessibleFrom(returnType, requestingClass.getPackageName());
   }
 
   @AssistedFactory
