@@ -29,19 +29,19 @@ import dagger.hilt.android.internal.ThreadUtil;
 
 /** Implementation for SavedStateHandleHolder. */
 public final class SavedStateHandleHolder {
-  private CreationExtras extras;
-  private SavedStateHandle handle;
-  private final boolean nonComponentActivity;
+  @Nullable private CreationExtras extras;
+  @Nullable private SavedStateHandle handle;
+  private final boolean isComponentActivity;
 
   SavedStateHandleHolder(@Nullable CreationExtras extras) {
-    nonComponentActivity = (extras == null);
+    isComponentActivity = (extras != null);
     this.extras = extras;
   }
 
   SavedStateHandle getSavedStateHandle() {
     ThreadUtil.ensureMainThread();
     checkState(
-        !nonComponentActivity,
+        isComponentActivity,
         "Activity that does not extend ComponentActivity cannot use SavedStateHandle");
     if (handle != null) {
       return handle;
@@ -66,6 +66,9 @@ public final class SavedStateHandleHolder {
   }
 
   public void setExtras(CreationExtras extras) {
+    checkState(
+        isComponentActivity,
+        "setExtras should only be called for an Activity that extends ComponentActivity");
     if (handle != null) {
       // If handle is already created, we don't need to store CreationExtras.
       return;
