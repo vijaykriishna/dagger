@@ -43,6 +43,7 @@ public final class FragmentGenerator {
   private static final FieldSpec DISABLE_GET_CONTEXT_FIX_FIELD =
       FieldSpec.builder(TypeName.BOOLEAN, "disableGetContextFix")
           .addModifiers(Modifier.PRIVATE)
+          .initializer("false")
           .build();
 
   private final XProcessingEnv env;
@@ -223,6 +224,11 @@ public final class FragmentGenerator {
         .addModifiers(Modifier.PUBLIC)
         // Note that disableGetContext can only be true if componentContext is set, so if it is
         // true we don't need to check whether componentContext is set or not.
+        .addComment("Even if this is called before $N is set in onAttach(), because this flag is "
+            + "only here to replicate legacy behavior of returning the context and not null after "
+            + "the fragment is removed, it is still correct to use the default flag value and "
+            + "return null since if the flag is still the default value there was never a context "
+            + "set to return anyway.", DISABLE_GET_CONTEXT_FIX_FIELD)
         .beginControlFlow(
             "if (super.getContext() == null && !$N)",
             DISABLE_GET_CONTEXT_FIX_FIELD)
