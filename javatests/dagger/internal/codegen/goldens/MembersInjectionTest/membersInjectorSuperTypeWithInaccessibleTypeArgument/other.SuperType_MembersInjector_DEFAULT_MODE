@@ -55,14 +55,6 @@ public final class SuperType_MembersInjector<T> implements MembersInjector<Super
     this.arrayListExtendsTProvider2 = arrayListExtendsTProvider2;
   }
 
-  public static <T> MembersInjector<SuperType<T>> create(Provider<T> tProvider,
-      Provider<List<T>> listTProvider, Provider<List<? extends T>> listExtendsTProvider,
-      Provider<List<? extends T>[]> arrayListExtendsTProvider, Provider<T> tProvider2,
-      Provider<List<T>> listTProvider2, Provider<List<? extends T>> listExtendsTProvider2,
-      Provider<List<? extends T>[]> arrayListExtendsTProvider2) {
-    return new SuperType_MembersInjector<T>(tProvider, listTProvider, listExtendsTProvider, arrayListExtendsTProvider, tProvider2, listTProvider2, listExtendsTProvider2, arrayListExtendsTProvider2);
-  }
-
   @Override
   public void injectMembers(SuperType<T> instance) {
     injectT(instance, tProvider.get());
@@ -70,6 +62,14 @@ public final class SuperType_MembersInjector<T> implements MembersInjector<Super
     injectListExtendsT(instance, listExtendsTProvider.get());
     injectArrayListExtendsT(instance, arrayListExtendsTProvider.get());
     injectMethod(instance, tProvider2.get(), listTProvider2.get(), listExtendsTProvider2.get(), arrayListExtendsTProvider2.get());
+  }
+
+  public static <T> MembersInjector<SuperType<T>> create(Provider<T> tProvider,
+      Provider<List<T>> listTProvider, Provider<List<? extends T>> listExtendsTProvider,
+      Provider<List<? extends T>[]> arrayListExtendsTProvider, Provider<T> tProvider2,
+      Provider<List<T>> listTProvider2, Provider<List<? extends T>> listExtendsTProvider2,
+      Provider<List<? extends T>[]> arrayListExtendsTProvider2) {
+    return new SuperType_MembersInjector<T>(tProvider, listTProvider, listExtendsTProvider, arrayListExtendsTProvider, tProvider2, listTProvider2, listExtendsTProvider2, arrayListExtendsTProvider2);
   }
 
   @InjectedFieldSignature("other.SuperType.t")

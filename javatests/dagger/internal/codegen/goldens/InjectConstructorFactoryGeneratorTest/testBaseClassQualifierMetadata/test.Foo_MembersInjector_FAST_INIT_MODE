@@ -39,16 +39,16 @@ public final class Foo_MembersInjector implements MembersInjector<Foo> {
     this.fProvider = fProvider;
   }
 
-  public static MembersInjector<Foo> create(Provider<String> injectFieldProvider,
-      Provider<String> injectFieldProvider2, Provider<Float> fProvider) {
-    return new Foo_MembersInjector(injectFieldProvider, injectFieldProvider2, fProvider);
-  }
-
   @Override
   public void injectMembers(Foo instance) {
     FooBase_MembersInjector.injectInjectField(instance, injectFieldProvider.get());
     injectInjectField(instance, injectFieldProvider2.get());
     injectInjectMethod(instance, fProvider.get());
+  }
+
+  public static MembersInjector<Foo> create(Provider<String> injectFieldProvider,
+      Provider<String> injectFieldProvider2, Provider<Float> fProvider) {
+    return new Foo_MembersInjector(injectFieldProvider, injectFieldProvider2, fProvider);
   }
 
   @InjectedFieldSignature("test.Foo.injectField")

@@ -32,15 +32,15 @@ public final class GenericClass_MembersInjector<A, B> implements MembersInjector
     this.bProvider = bProvider;
   }
 
-  public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider<A> aProvider,
-      Provider<B> bProvider) {
-    return new GenericClass_MembersInjector<A, B>(aProvider, bProvider);
-  }
-
   @Override
   public void injectMembers(GenericClass<A, B> instance) {
     injectA(instance, aProvider.get());
     injectRegister(instance, bProvider.get());
+  }
+
+  public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider<A> aProvider,
+      Provider<B> bProvider) {
+    return new GenericClass_MembersInjector<A, B>(aProvider, bProvider);
   }
 
   @InjectedFieldSignature("test.GenericClass.a")

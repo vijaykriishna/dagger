@@ -34,15 +34,15 @@ public final class FieldInjectionWithQualifier_MembersInjector implements Member
     this.bProvider = bProvider;
   }
 
-  public static MembersInjector<FieldInjectionWithQualifier> create(Provider<String> aProvider,
-      Provider<String> bProvider) {
-    return new FieldInjectionWithQualifier_MembersInjector(aProvider, bProvider);
-  }
-
   @Override
   public void injectMembers(FieldInjectionWithQualifier instance) {
     injectA(instance, aProvider.get());
     injectB(instance, bProvider.get());
+  }
+
+  public static MembersInjector<FieldInjectionWithQualifier> create(Provider<String> aProvider,
+      Provider<String> bProvider) {
+    return new FieldInjectionWithQualifier_MembersInjector(aProvider, bProvider);
   }
 
   @InjectedFieldSignature("test.FieldInjectionWithQualifier.a")

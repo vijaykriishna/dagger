@@ -36,15 +36,15 @@ public final class SomeBinding_MembersInjector implements MembersInjector<SomeBi
     this.fProvider = fProvider;
   }
 
-  public static MembersInjector<SomeBinding> create(Provider<?> injectFieldProvider,
-      Provider<?> fProvider) {
-    return new SomeBinding_MembersInjector((Provider<String>) (injectFieldProvider), (Provider<Float>) (fProvider));
-  }
-
   @Override
   public void injectMembers(SomeBinding instance) {
     injectInjectField(instance, injectFieldProvider.get());
     injectInjectMethod(instance, fProvider.get());
+  }
+
+  public static MembersInjector<SomeBinding> create(Provider<?> injectFieldProvider,
+      Provider<?> fProvider) {
+    return new SomeBinding_MembersInjector((Provider<String>) (injectFieldProvider), (Provider<Float>) (fProvider));
   }
 
   @InjectedFieldSignature("test.SomeBinding.injectField")

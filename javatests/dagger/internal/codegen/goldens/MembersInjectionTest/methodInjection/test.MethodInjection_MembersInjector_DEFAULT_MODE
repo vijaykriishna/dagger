@@ -41,17 +41,17 @@ public final class MethodInjection_MembersInjector implements MembersInjector<Me
     this.stringProvider4 = stringProvider4;
   }
 
-  public static MembersInjector<MethodInjection> create(Provider<String> stringProvider,
-      Provider<String> stringProvider2, Provider<String> stringProvider3,
-      Provider<String> stringProvider4) {
-    return new MethodInjection_MembersInjector(stringProvider, stringProvider2, stringProvider3, stringProvider4);
-  }
-
   @Override
   public void injectMembers(MethodInjection instance) {
     injectNoArgs(instance);
     injectOneArg(instance, stringProvider.get());
     injectManyArgs(instance, stringProvider2.get(), DoubleCheck.lazy(stringProvider3), stringProvider4);
+  }
+
+  public static MembersInjector<MethodInjection> create(Provider<String> stringProvider,
+      Provider<String> stringProvider2, Provider<String> stringProvider3,
+      Provider<String> stringProvider4) {
+    return new MethodInjection_MembersInjector(stringProvider, stringProvider2, stringProvider3, stringProvider4);
   }
 
   public static void injectNoArgs(Object instance) {

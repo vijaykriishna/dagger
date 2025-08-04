@@ -29,13 +29,13 @@ public final class B_MembersInjector implements MembersInjector<B> {
     this.sProvider = sProvider;
   }
 
-  public static MembersInjector<B> create(Provider<?> sProvider) {
-    return new B_MembersInjector((Provider<String>) (sProvider));
-  }
-
   @Override
   public void injectMembers(B instance) {
     injectS(instance, sProvider.get());
+  }
+
+  public static MembersInjector<B> create(Provider<?> sProvider) {
+    return new B_MembersInjector((Provider<String>) (sProvider));
   }
 
   @InjectedFieldSignature("test.B.s")

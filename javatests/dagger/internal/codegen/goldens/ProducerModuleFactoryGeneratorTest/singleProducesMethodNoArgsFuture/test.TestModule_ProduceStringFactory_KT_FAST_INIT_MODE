@@ -34,11 +34,6 @@ public final class TestModule_ProduceStringFactory extends AbstractProducesMetho
     this.module = module;
   }
 
-  public static TestModule_ProduceStringFactory create(Object module, Provider<?> executorProvider,
-      Provider<?> productionComponentMonitorProvider) {
-    return new TestModule_ProduceStringFactory((TestModule) (module), (Provider<Executor>) (executorProvider), (Provider<ProductionComponentMonitor>) (productionComponentMonitorProvider));
-  }
-
   @Override
   protected ListenableFuture<Void> collectDependencies() {
     return Futures.<Void>immediateFuture(null);
@@ -47,5 +42,10 @@ public final class TestModule_ProduceStringFactory extends AbstractProducesMetho
   @Override
   public ListenableFuture<String> callProducesMethod(Void ignoredVoidArg) {
     return module.produceString();
+  }
+
+  public static TestModule_ProduceStringFactory create(Object module, Provider<?> executorProvider,
+      Provider<?> productionComponentMonitorProvider) {
+    return new TestModule_ProduceStringFactory((TestModule) (module), (Provider<Executor>) (executorProvider), (Provider<ProductionComponentMonitor>) (productionComponentMonitorProvider));
   }
 }

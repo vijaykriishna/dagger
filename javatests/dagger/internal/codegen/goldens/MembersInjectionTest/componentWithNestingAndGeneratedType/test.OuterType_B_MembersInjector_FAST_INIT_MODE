@@ -29,13 +29,13 @@ public final class OuterType_B_MembersInjector implements MembersInjector<OuterT
     this.aProvider = aProvider;
   }
 
-  public static MembersInjector<OuterType.B> create(Provider<OuterType.A> aProvider) {
-    return new OuterType_B_MembersInjector(aProvider);
-  }
-
   @Override
   public void injectMembers(OuterType.B instance) {
     injectA(instance, aProvider.get());
+  }
+
+  public static MembersInjector<OuterType.B> create(Provider<OuterType.A> aProvider) {
+    return new OuterType_B_MembersInjector(aProvider);
   }
 
   @InjectedFieldSignature("test.OuterType.B.a")

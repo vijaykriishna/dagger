@@ -32,15 +32,15 @@ public final class Inaccessible_MembersInjector implements MembersInjector<Inacc
     this.fooProvider2 = fooProvider2;
   }
 
-  public static MembersInjector<Inaccessible> create(Provider<Foo> fooProvider,
-      Provider<Foo> fooProvider2) {
-    return new Inaccessible_MembersInjector(fooProvider, fooProvider2);
-  }
-
   @Override
   public void injectMembers(Inaccessible instance) {
     injectFoo(instance, fooProvider.get());
     injectMethod(instance, fooProvider2.get());
+  }
+
+  public static MembersInjector<Inaccessible> create(Provider<Foo> fooProvider,
+      Provider<Foo> fooProvider2) {
+    return new Inaccessible_MembersInjector(fooProvider, fooProvider2);
   }
 
   @InjectedFieldSignature("other.Inaccessible.foo")

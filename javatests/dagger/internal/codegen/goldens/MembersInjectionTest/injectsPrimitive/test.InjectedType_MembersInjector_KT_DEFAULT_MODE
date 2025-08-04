@@ -33,15 +33,15 @@ public final class InjectedType_MembersInjector implements MembersInjector<Injec
     this.boxedIntProvider = boxedIntProvider;
   }
 
-  public static MembersInjector<InjectedType> create(Provider<?> primitiveIntProvider,
-      Provider<?> boxedIntProvider) {
-    return new InjectedType_MembersInjector((Provider<Integer>) (primitiveIntProvider), (Provider<Integer>) (boxedIntProvider));
-  }
-
   @Override
   public void injectMembers(InjectedType instance) {
     injectPrimitiveInt(instance, primitiveIntProvider.get());
     injectBoxedInt(instance, boxedIntProvider.get());
+  }
+
+  public static MembersInjector<InjectedType> create(Provider<?> primitiveIntProvider,
+      Provider<?> boxedIntProvider) {
+    return new InjectedType_MembersInjector((Provider<Integer>) (primitiveIntProvider), (Provider<Integer>) (boxedIntProvider));
   }
 
   @InjectedFieldSignature("test.InjectedType.primitiveInt")

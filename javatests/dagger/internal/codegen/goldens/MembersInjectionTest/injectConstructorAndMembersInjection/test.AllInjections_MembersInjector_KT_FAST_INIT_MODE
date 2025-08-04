@@ -32,15 +32,15 @@ public final class AllInjections_MembersInjector implements MembersInjector<AllI
     this.sProvider2 = sProvider2;
   }
 
-  public static MembersInjector<AllInjections> create(Provider<?> sProvider,
-      Provider<?> sProvider2) {
-    return new AllInjections_MembersInjector((Provider<String>) (sProvider), (Provider<String>) (sProvider2));
-  }
-
   @Override
   public void injectMembers(AllInjections instance) {
     injectS(instance, sProvider.get());
     injectS2(instance, sProvider2.get());
+  }
+
+  public static MembersInjector<AllInjections> create(Provider<?> sProvider,
+      Provider<?> sProvider2) {
+    return new AllInjections_MembersInjector((Provider<String>) (sProvider), (Provider<String>) (sProvider2));
   }
 
   @InjectedFieldSignature("test.AllInjections.s")

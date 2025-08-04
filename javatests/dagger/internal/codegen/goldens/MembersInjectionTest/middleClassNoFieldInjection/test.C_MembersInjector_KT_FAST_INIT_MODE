@@ -29,13 +29,13 @@ public final class C_MembersInjector implements MembersInjector<C> {
     this.valueCProvider = valueCProvider;
   }
 
-  public static MembersInjector<C> create(Provider<?> valueCProvider) {
-    return new C_MembersInjector((Provider<String>) (valueCProvider));
-  }
-
   @Override
   public void injectMembers(C instance) {
     injectValueC(instance, valueCProvider.get());
+  }
+
+  public static MembersInjector<C> create(Provider<?> valueCProvider) {
+    return new C_MembersInjector((Provider<String>) (valueCProvider));
   }
 
   @InjectedFieldSignature("test.C.valueC")

@@ -34,15 +34,15 @@ public final class MyClass_MembersInjector implements MembersInjector<MyClass> {
     this.nullableObjectProvider = nullableObjectProvider;
   }
 
-  public static MembersInjector<MyClass> create(Provider<String> nullableStringProvider,
-      Provider<Object> nullableObjectProvider) {
-    return new MyClass_MembersInjector(nullableStringProvider, nullableObjectProvider);
-  }
-
   @Override
   public void injectMembers(MyClass instance) {
     injectNullableString(instance, nullableStringProvider.get());
     injectNullableObject(instance, nullableObjectProvider.get());
+  }
+
+  public static MembersInjector<MyClass> create(Provider<String> nullableStringProvider,
+      Provider<Object> nullableObjectProvider) {
+    return new MyClass_MembersInjector(nullableStringProvider, nullableObjectProvider);
   }
 
   @InjectedFieldSignature("test.MyClass.nullableString")

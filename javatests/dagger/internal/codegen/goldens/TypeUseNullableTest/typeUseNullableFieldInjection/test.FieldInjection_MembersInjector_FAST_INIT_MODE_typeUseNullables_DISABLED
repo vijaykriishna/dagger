@@ -29,13 +29,13 @@ public final class FieldInjection_MembersInjector implements MembersInjector<Fie
     this.nullableStringProvider = nullableStringProvider;
   }
 
-  public static MembersInjector<FieldInjection> create(Provider<String> nullableStringProvider) {
-    return new FieldInjection_MembersInjector(nullableStringProvider);
-  }
-
   @Override
   public void injectMembers(FieldInjection instance) {
     injectNullableString(instance, nullableStringProvider.get());
+  }
+
+  public static MembersInjector<FieldInjection> create(Provider<String> nullableStringProvider) {
+    return new FieldInjection_MembersInjector(nullableStringProvider);
   }
 
   @InjectedFieldSignature("test.FieldInjection.nullableString")

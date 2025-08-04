@@ -29,13 +29,13 @@ public final class FieldInjection_MembersInjector implements MembersInjector<Fie
     this.stringProvider = stringProvider;
   }
 
-  public static MembersInjector<FieldInjection> create(Provider<?> stringProvider) {
-    return new FieldInjection_MembersInjector((Provider<String>) (stringProvider));
-  }
-
   @Override
   public void injectMembers(FieldInjection instance) {
     injectString(instance, stringProvider.get());
+  }
+
+  public static MembersInjector<FieldInjection> create(Provider<?> stringProvider) {
+    return new FieldInjection_MembersInjector((Provider<String>) (stringProvider));
   }
 
   @InjectedFieldSignature("test.FieldInjection.string")
