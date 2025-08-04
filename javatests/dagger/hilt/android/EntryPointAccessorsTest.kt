@@ -27,18 +27,16 @@ import com.google.common.truth.Truth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.EntryPoint
-import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.FragmentComponent
 import dagger.hilt.android.components.FragmentRetainedComponent
 import dagger.hilt.android.components.ViewComponent
-import dagger.hilt.android.internal.managers.InternalFragmentRetainedComponent
+import dagger.hilt.android.scopes.FragmentRetainedScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
 import javax.inject.Qualifier
 import org.junit.Rule
 import org.junit.Test
@@ -125,6 +123,7 @@ class EntryPointAccessorsTest {
   @InstallIn(FragmentComponent::class)
   internal interface FragmentEntryPoint {
     @FragmentLevel fun getString(): String
+
   }
 
   @EntryPoint
@@ -172,8 +171,7 @@ class EntryPointAccessorsTest {
   class TestActivity : Hilt_EntryPointAccessorsTest_TestActivity()
 
   @AndroidEntryPoint(Fragment::class)
-  class TestFragment : Hilt_EntryPointAccessorsTest_TestFragment() {
-  }
+  class TestFragment : Hilt_EntryPointAccessorsTest_TestFragment() {}
 
   @AndroidEntryPoint(View::class)
   class TestView(context: Context) : Hilt_EntryPointAccessorsTest_TestView(context)
