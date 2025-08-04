@@ -36,7 +36,7 @@ public final class ParentModule_ProvideListBFactory<A extends CharSequence, B, C
 
   @Override
   public Object get() {
-    return provideListB(module, bProvider.get());
+    return ParentModule_ProvideListBFactory.<A, B, C>provideListB(module, bProvider.get());
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideListBFactory<A, B, C> create(

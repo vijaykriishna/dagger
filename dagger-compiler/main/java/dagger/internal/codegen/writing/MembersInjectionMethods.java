@@ -30,13 +30,8 @@ import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
-import com.google.common.collect.ImmutableSet;
-import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.BindingGraph;
-import dagger.internal.codegen.binding.InjectionBinding;
-import dagger.internal.codegen.binding.MembersInjectionBinding;
-import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.ComponentImplementation.ShardImplementation;
@@ -125,31 +120,19 @@ final class MembersInjectionMethods {
     XCodeBlock instance = XCodeBlock.of("%N", instanceName);
     XCodeBlock invokeInjectionSites =
         InjectionSiteMethod.invokeAll(
-            injectionSites(binding),
+            binding,
             shardImplementation.name(),
             instance,
             membersInjectedType,
             request ->
                 bindingExpressions
                     .getDependencyArgumentExpression(request, shardImplementation.name())
-                    .codeBlock());
+                    .codeBlock(),
+            compilerOptions);
     methodBuilder.addCode(invokeInjectionSites).addStatement("return %L", instance);
 
     XFunSpec method = methodBuilder.build();
     shardImplementation.addMethod(MEMBERS_INJECTION_METHOD, method);
     return XExpression.create(membersInjectedType, XCodeBlock.of("%N", method));
-  }
-
-  private static ImmutableSet<InjectionSite> injectionSites(Binding binding) {
-    switch (binding.kind()) {
-      case INJECTION:
-        return ((InjectionBinding) binding).injectionSites();
-      case ASSISTED_INJECTION:
-        return ((AssistedInjectionBinding) binding).injectionSites();
-      case MEMBERS_INJECTION:
-        return ((MembersInjectionBinding) binding).injectionSites();
-      default:
-        throw new IllegalArgumentException("Unexpected binding kind: " + binding.kind());
-    }
   }
 }

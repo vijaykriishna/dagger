@@ -35,7 +35,7 @@ public final class GenericClass_Factory<T1, T2 extends Bar<T1>> implements Facto
 
   @Override
   public Object get() {
-    return newInstance(t1Provider.get(), t2Provider.get());
+    return GenericClass_Factory.<T1, T2>newInstance(t1Provider.get(), t2Provider.get());
   }
 
   public static <T1, T2 extends Bar<T1>> GenericClass_Factory<T1, T2> create(Provider<?> t1Provider,

@@ -25,7 +25,7 @@ import javax.annotation.processing.Generated;
 public final class GenericClass_Factory<T> implements Factory<Object> {
   @Override
   public Object get() {
-    return newInstance();
+    return GenericClass_Factory.<T>newInstance();
   }
 
   @SuppressWarnings("unchecked")

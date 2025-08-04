@@ -32,7 +32,7 @@ public final class GenericClass_Factory<T> implements Factory<Object> {
 
   @Override
   public Object get() {
-    return newInstance(tProvider.get());
+    return GenericClass_Factory.<T>newInstance(tProvider.get());
   }
 
   public static <T> GenericClass_Factory<T> create(Provider<?> tProvider) {

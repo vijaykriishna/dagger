@@ -35,7 +35,7 @@ public final class GenericClass_Factory<A extends Bar> implements Factory<Object
 
   @Override
   public Object get() {
-    return newInstance(aProvider.get(), barProvider.get());
+    return GenericClass_Factory.<A>newInstance(aProvider.get(), barProvider.get());
   }
 
   public static <A extends Bar> GenericClass_Factory<A> create(Provider<?> aProvider,

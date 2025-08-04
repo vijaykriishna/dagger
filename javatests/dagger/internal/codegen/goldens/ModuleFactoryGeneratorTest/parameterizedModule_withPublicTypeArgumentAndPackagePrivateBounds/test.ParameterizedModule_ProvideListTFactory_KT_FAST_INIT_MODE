@@ -37,7 +37,7 @@ public final class ParameterizedModule_ProvideListTFactory<T extends Bar> implem
 
   @Override
   public Object get() {
-    return provideListT(module, tProvider.get());
+    return ParameterizedModule_ProvideListTFactory.<T>provideListT(module, tProvider.get());
   }
 
   public static <T extends Bar> ParameterizedModule_ProvideListTFactory<T> create(Object module,

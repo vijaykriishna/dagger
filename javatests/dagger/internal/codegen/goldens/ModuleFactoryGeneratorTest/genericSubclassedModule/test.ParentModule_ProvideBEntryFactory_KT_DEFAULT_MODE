@@ -36,7 +36,7 @@ public final class ParentModule_ProvideBEntryFactory<A extends CharSequence, B, 
 
   @Override
   public Object get() {
-    return provideBEntry(module, bProvider.get());
+    return ParentModule_ProvideBEntryFactory.<A, B, C>provideBEntry(module, bProvider.get());
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideBEntryFactory<A, B, C> create(

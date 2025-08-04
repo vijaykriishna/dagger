@@ -16,6 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
+import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
 import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedParameter;
@@ -27,6 +29,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.xprocessing.Accessibility.isRawTypeAccessible;
 import static dagger.internal.codegen.xprocessing.Accessibility.isRawTypePubliclyAccessible;
+import static dagger.internal.codegen.xprocessing.Accessibility.isTypePubliclyAccessible;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toConcatenatedCodeBlock;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
@@ -34,6 +37,8 @@ import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeNames.asClassName;
+import static dagger.internal.codegen.xprocessing.XTypeNames.replaceTypeVariablesWithBounds;
+import static dagger.internal.codegen.xprocessing.XTypes.asMemberOf;
 import static dagger.internal.codegen.xprocessing.XTypes.erasedTypeName;
 
 import androidx.room.compiler.codegen.XClassName;
@@ -42,14 +47,18 @@ import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XExecutableElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
 import androidx.room.compiler.processing.XType;
+import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import dagger.internal.codegen.base.UniqueNameSet;
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
+import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.binding.ContributionBinding;
 import dagger.internal.codegen.binding.InjectionBinding;
+import dagger.internal.codegen.binding.MembersInjectionBinding;
 import dagger.internal.codegen.binding.MembersInjectionBinding.InjectionSite;
 import dagger.internal.codegen.binding.ProvisionBinding;
 import dagger.internal.codegen.compileroption.CompilerOptions;
@@ -110,7 +119,12 @@ final class InjectionMethods {
 
       XClassName enclosingClass = generatedClassNameForBinding(binding);
       String methodName = generatedProxyMethodName(binding);
-      return invokeMethod(methodName, arguments.build(), enclosingClass, requestingClass);
+      return invokeMethod(
+          methodName,
+          methodTypeArguments(binding, compilerOptions),
+          arguments.build(),
+          enclosingClass,
+          requestingClass);
     }
 
     static ImmutableList<XCodeBlock> invokeArguments(
@@ -180,12 +194,13 @@ final class InjectionMethods {
      * @param instanceType the type of the {@code instance} parameter
      */
     static XCodeBlock invokeAll(
-        ImmutableSet<InjectionSite> injectionSites,
+        Binding binding,
         XClassName generatedTypeName,
         XCodeBlock instanceCodeBlock,
         XType instanceType,
-        Function<DependencyRequest, XCodeBlock> dependencyUsage) {
-      return injectionSites.stream()
+        Function<DependencyRequest, XCodeBlock> dependencyUsage,
+        CompilerOptions compilerOptions) {
+      return injectionSites(binding).stream()
           .map(
               injectionSite -> {
                 XType injectSiteType = injectionSite.enclosingTypeElement().getType();
@@ -204,7 +219,13 @@ final class InjectionMethods {
                         : instanceCodeBlock;
                 return XCodeBlock.of(
                     "%L;",
-                    invoke(injectionSite, generatedTypeName, maybeCastedInstance, dependencyUsage));
+                    invoke(
+                        binding,
+                        injectionSite,
+                        generatedTypeName,
+                        maybeCastedInstance,
+                        dependencyUsage,
+                        compilerOptions));
               })
           .collect(toConcatenatedCodeBlock());
     }
@@ -214,10 +235,12 @@ final class InjectionMethods {
      * using the {@code dependencyUsage} function.
      */
     private static XCodeBlock invoke(
+        Binding binding,
         InjectionSite injectionSite,
         XClassName generatedTypeName,
         XCodeBlock instanceCodeBlock,
-        Function<DependencyRequest, XCodeBlock> dependencyUsage) {
+        Function<DependencyRequest, XCodeBlock> dependencyUsage,
+        CompilerOptions compilerOptions) {
       ImmutableList<XCodeBlock> arguments =
           ImmutableList.<XCodeBlock>builder()
               .add(instanceCodeBlock)
@@ -226,21 +249,106 @@ final class InjectionMethods {
                       .map(dependencyUsage)
                       .collect(toImmutableList()))
               .build();
-      XClassName enclosingClass = membersInjectorNameForType(injectionSite.enclosingTypeElement());
+      XTypeElement enclosingTypeElement = injectionSite.enclosingTypeElement();
+      XClassName enclosingClass = membersInjectorNameForType(enclosingTypeElement);
       String methodName = membersInjectorMethodName(injectionSite);
-      return invokeMethod(methodName, arguments, enclosingClass, generatedTypeName);
+      return invokeMethod(
+          methodName,
+          methodTypeArguments(binding, injectionSite, compilerOptions),
+          arguments,
+          enclosingClass,
+          generatedTypeName);
     }
+
+    private static ImmutableSortedSet<InjectionSite> injectionSites(Binding binding) {
+      switch (binding.kind()) {
+        case INJECTION:
+          return ((InjectionBinding) binding).injectionSites();
+        case ASSISTED_INJECTION:
+          return ((AssistedInjectionBinding) binding).injectionSites();
+        case MEMBERS_INJECTION:
+          return ((MembersInjectionBinding) binding).injectionSites();
+        default:
+          throw new AssertionError("Unexpected binding kind: " + binding.kind());
+      }
+    }
+  }
+
+  private static ImmutableList<XTypeName> methodTypeArguments(
+      Binding binding, CompilerOptions compilerOptions) {
+    return methodTypeArguments(binding, Optional.empty(), compilerOptions);
+  }
+
+  private static ImmutableList<XTypeName> methodTypeArguments(
+      Binding binding, InjectionSite injectionSite, CompilerOptions compilerOptions) {
+    return methodTypeArguments(binding, Optional.of(injectionSite), compilerOptions);
+  }
+
+  private static ImmutableList<XTypeName> methodTypeArguments(
+      Binding binding, Optional<InjectionSite> injectionSite, CompilerOptions compilerOptions) {
+    if (!requiresMethodTypeArguments(binding, compilerOptions)) {
+      return ImmutableList.of();
+    }
+    XTypeElement enclosingTypeElement =
+        injectionSite.map(InjectionSite::enclosingTypeElement)
+            .orElse(binding.bindingTypeElement().get());
+    if (enclosingTypeElement.getTypeParameters().isEmpty()) {
+      return ImmutableList.of();
+    }
+    XType unresolvedType = enclosingTypeElement.getType();
+    XType resolvedType =
+        asMemberOf(
+            enclosingTypeElement,
+            binding.contributingModule().isPresent()
+                ? binding.contributingModule().get().getType()
+                : binding.key().type().xprocessing());
+    ImmutableList.Builder<XTypeName> builder = ImmutableList.builder();
+    for (int i = 0; i < resolvedType.getTypeArguments().size(); i++) {
+      XType typeArgument = resolvedType.getTypeArguments().get(i);
+      // If the type argument is publicly accessible, we can use it directly. Otherwise, we try to
+      // use the bounds of the type variables. If neither of these are possible, we should have
+      // failed earlier during the binding graph validation stage.
+      if (isTypePubliclyAccessible(typeArgument)) {
+        builder.add(typeArgument.asTypeName());
+      } else {
+        XType unresolvedTypeArgument = unresolvedType.getTypeArguments().get(i);
+        builder.add(replaceTypeVariablesWithBounds(unresolvedTypeArgument.asTypeName()));
+      }
+    }
+    return builder.build();
+  }
+
+  private static boolean requiresMethodTypeArguments(
+      Binding binding, CompilerOptions compilerOptions) {
+    return false;
   }
 
   private static XCodeBlock invokeMethod(
       String methodName,
+      ImmutableList<XTypeName> typeArguments,
       ImmutableList<XCodeBlock> parameters,
       XClassName enclosingClass,
       XClassName requestingClass) {
-    XCodeBlock parameterBlock = makeParametersCodeBlock(parameters);
-    return enclosingClass.equals(requestingClass)
-        ? XCodeBlock.of("%L(%L)", methodName, parameterBlock)
-        : XCodeBlock.of("%T.%L(%L)", enclosingClass, methodName, parameterBlock);
+    XCodeBlock.Builder builder = XCodeBlock.builder();
+    if (!enclosingClass.equals(requestingClass)) {
+      builder.add("%T.", enclosingClass);
+    } else if (!typeArguments.isEmpty()) {
+      // In Java, if the method requires type arguments we also need to add the enclosing class. For
+      // example, "<Bar>create(bar)" is invalid but "Foo_Factory.<Bar>create(bar)" is valid.
+      toJavaPoet(builder).add("$T.", toJavaPoet(enclosingClass));
+    }
+    if (typeArguments.isEmpty()) {
+      builder.add("%N", methodName);
+    } else {
+      XCodeBlock typeParametersCodeBlock =
+          typeArguments.stream()
+              .map(typeParameter -> XCodeBlock.of("%T", typeParameter))
+              .collect(toParametersCodeBlock());
+      toJavaPoet(builder).add("<$L>$N", toJavaPoet(typeParametersCodeBlock), methodName);
+      toKotlinPoet(builder).add("%N<%L>", methodName, toKotlinPoet(typeParametersCodeBlock));
+    }
+    builder.add("(%L)", makeParametersCodeBlock(parameters));
+    return builder.build();
   }
 
   static XCodeBlock copyParameters(
@@ -287,7 +395,7 @@ final class InjectionMethods {
         name,
         typeName,
         isTypeNameAccessible,
-        XTypeName.ANY_OBJECT,
+        XTypeName.ANY_OBJECT.copy(/* nullable= */ true),
         nullability,
         compilerOptions);
   }

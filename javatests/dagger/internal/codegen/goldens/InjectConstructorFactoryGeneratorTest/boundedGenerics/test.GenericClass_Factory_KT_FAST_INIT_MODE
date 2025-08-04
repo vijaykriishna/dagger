@@ -40,7 +40,7 @@ public final class GenericClass_Factory<A extends Number & Comparable<A>, B exte
 
   @Override
   public Object get() {
-    return newInstance(aProvider.get(), bProvider.get(), cProvider.get());
+    return GenericClass_Factory.<A, B, C>newInstance(aProvider.get(), bProvider.get(), cProvider.get());
   }
 
   public static <A extends Number & Comparable<A>, B extends List<? extends String>, C extends List<? super String>> GenericClass_Factory<A, B, C> create(

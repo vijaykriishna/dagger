@@ -17,7 +17,10 @@
 package dagger.internal.codegen.xprocessing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
+import static java.util.stream.Collectors.joining;
 import static kotlin.streams.jdk8.StreamsKt.asStream;
 
 import androidx.room.compiler.codegen.XTypeName;
@@ -27,7 +30,14 @@ import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XTypeParameterElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.squareup.javapoet.ArrayTypeName;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeVariableName;
+import com.squareup.javapoet.WildcardTypeName;
+import java.util.HashSet;
+import java.util.Set;
 
 // TODO(bcorso): Consider moving these methods into XProcessing library.
 /** A utility class for {@link XTypeElement} helper methods. */
@@ -136,6 +146,75 @@ public final class XTypeElements {
       currentElement = currentElement.getEnclosingTypeElement();
     }
     return visibilities.build();
+  }
+
+  /**
+   * Returns a string representation of {@link XTypeElement} that is independent of the backend
+   * (javac/ksp).
+   *
+   * <p>This method is similar to {@link XElements#toStableString(XElement)} and
+   * {@link XTypes#toStableString(XType)}, but this string representation includes the type variables and
+   * their bounds, e.g. {@code Foo<T extends Comparable<T>>}. This is useful for error messages that
+   * need to reference the type variable bounds.
+   */
+  public static String toStableString(XTypeElement typeElement) {
+    try {
+      return toStableString(typeElement.getType().getTypeName(), new HashSet<>(), /* depth= */ 0);
+    } catch (TypeNotPresentException e) {
+      return e.typeName();
+    }
+  }
+
+  private static String toStableString(TypeName typeName, Set<TypeName> visited, int depth) {
+    if (typeName instanceof ClassName) {
+      return ((ClassName) typeName).canonicalName();
+    } else if (typeName instanceof ArrayTypeName) {
+      return String.format(
+          "%s[]", toStableString(((ArrayTypeName) typeName).componentType, visited, depth + 1));
+    } else if (typeName instanceof ParameterizedTypeName) {
+      ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
+      return String.format(
+          "%s<%s>",
+          parameterizedTypeName.rawType,
+          parameterizedTypeName.typeArguments.stream()
+              .map(typeArgument -> toStableString(typeArgument, visited, depth + 1))
+              // We purposely don't use a space after the comma to for backwards compatibility with
+              // usages that depended on the previous TypeMirror#toString() implementation.
+              .collect(joining(",")));
+    } else if (typeName instanceof WildcardTypeName) {
+      WildcardTypeName wildcardTypeName = (WildcardTypeName) typeName;
+      // Wildcard types have exactly 1 upper bound.
+      TypeName upperBound = getOnlyElement(wildcardTypeName.upperBounds);
+      if (!upperBound.equals(TypeName.OBJECT)) {
+        // Wildcards with non-Object upper bounds can't have lower bounds.
+        checkState(wildcardTypeName.lowerBounds.isEmpty());
+        return String.format("? extends %s", toStableString(upperBound, visited, depth + 1));
+      }
+      if (!wildcardTypeName.lowerBounds.isEmpty()) {
+        // Wildcard types can have at most 1 lower bound.
+        TypeName lowerBound = getOnlyElement(wildcardTypeName.lowerBounds);
+        return String.format("? super %s", toStableString(lowerBound, visited, depth + 1));
+      }
+      // If the upper bound is Object and there is no lower bound then just use "?".
+      return "?";
+    } else if (typeName instanceof TypeVariableName) {
+      // The idea here is that for an XTypeElement with type variables, we only want to include the
+      // bounds in the definition, i.e. at depth == 1, and not every time the type variable is
+      // referenced. For example, for `class Foo<T1 extends Bar, T2 extends List<T1>>`, we want the
+      // bounds for `T2` to show up as `List<T1>` and not as `List<T1 extends Bar>`.
+      TypeVariableName typeVariableName = (TypeVariableName) typeName;
+      return typeVariableName.bounds.isEmpty() || depth != 1
+          ? typeVariableName.name
+          : String.format(
+              "%s extends %s",
+              typeVariableName.name,
+              typeVariableName.bounds.stream()
+                  .map(bound -> toStableString(bound, visited, depth + 1))
+                  .collect(joining(" & ")));
+    } else {
+      // For all other types (e.g. primitive types) just use the TypeName's toString()
+      return typeName.toString();
+    }
   }
 
   private XTypeElements() {}

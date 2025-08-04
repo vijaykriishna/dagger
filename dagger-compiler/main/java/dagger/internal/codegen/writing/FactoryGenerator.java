@@ -318,28 +318,27 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
             factoryFields.moduleField.map(module -> XCodeBlock.of("%N", module)),
             compilerOptions);
 
-    if (binding.kind().equals(PROVISION)) {
-      getMethod
-          .addAnnotationNames(binding.nullability().nonTypeUseNullableAnnotations())
-          .addStatement("return %L", invokeNewInstance);
-    } else if (!injectionSites(binding).isEmpty()) {
+    if (!injectionSites(binding).isEmpty()) {
       XCodeBlock instance = XCodeBlock.of("instance");
       XCodeBlock invokeInjectionSites =
           InjectionSiteMethod.invokeAll(
-              injectionSites(binding),
+              binding,
               generatedClassNameForBinding(binding),
               instance,
               binding.key().type().xprocessing(),
               sourceFiles.frameworkFieldUsages(
                       binding.dependencies(), factoryFields.frameworkFields)
-                  ::get);
+                  ::get,
+              compilerOptions);
       getMethod
           .addStatement("%T %L = %L", providedTypeName(binding), instance, invokeNewInstance)
           .addCode(invokeInjectionSites)
           .addStatement("return %L", instance);
 
     } else {
-      getMethod.addStatement("return %L", invokeNewInstance);
+      getMethod
+          .addAnnotationNames(binding.nullability().nonTypeUseNullableAnnotations())
+          .addStatement("return %L", invokeNewInstance);
     }
     return getMethod.build();
   }

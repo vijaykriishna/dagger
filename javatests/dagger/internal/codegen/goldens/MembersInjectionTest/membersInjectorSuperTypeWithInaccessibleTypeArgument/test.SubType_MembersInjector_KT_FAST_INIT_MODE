@@ -72,11 +72,11 @@ public final class SubType_MembersInjector implements MembersInjector<SubType> {
 
   @Override
   public void injectMembers(SubType instance) {
-    SuperType_MembersInjector.injectT(instance, tProvider.get());
-    SuperType_MembersInjector.injectListT(instance, listTProvider.get());
-    SuperType_MembersInjector.injectListExtendsT(instance, listExtendsTProvider.get());
-    SuperType_MembersInjector.injectArrayListExtendsT(instance, arrayListExtendsTProvider.get());
-    SuperType_MembersInjector.injectMethod(instance, tProvider2.get(), listTProvider2.get(), listExtendsTProvider2.get(), arrayListExtendsTProvider2.get());
+    SuperType_MembersInjector.<Object>injectT(instance, tProvider.get());
+    SuperType_MembersInjector.<Object>injectListT(instance, listTProvider.get());
+    SuperType_MembersInjector.<Object>injectListExtendsT(instance, listExtendsTProvider.get());
+    SuperType_MembersInjector.<Object>injectArrayListExtendsT(instance, arrayListExtendsTProvider.get());
+    SuperType_MembersInjector.<Object>injectMethod(instance, tProvider2.get(), listTProvider2.get(), listExtendsTProvider2.get(), arrayListExtendsTProvider2.get());
     injectI(instance, iProvider.get());
   }
 
