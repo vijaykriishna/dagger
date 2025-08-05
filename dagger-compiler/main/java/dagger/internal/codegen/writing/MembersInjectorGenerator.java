@@ -79,6 +79,7 @@ import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XAnnotationSpecs;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XParameterSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
@@ -332,7 +333,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
   }
 
   private XAnnotationSpec qualifierMetadataAnnotation(MembersInjectionBinding binding) {
-    XAnnotationSpec.Builder builder = XAnnotationSpec.builder(XTypeNames.QUALIFIER_METADATA);
+    XAnnotationSpecs.Builder builder = XAnnotationSpecs.builder(XTypeNames.QUALIFIER_METADATA);
     binding.injectionSites().stream()
         // filter out non-local injection sites. Injection sites for super types will be in their
         // own generated _MembersInjector class.
@@ -346,7 +347,7 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         .map(DaggerAnnotation::xprocessing)
         .map(XAnnotation::getQualifiedName)
         .distinct()
-        .forEach(qualifier -> builder.addMember("value", "%S", qualifier));
+        .forEach(qualifier -> builder.addArrayMember("value", "%S", qualifier));
     return builder.build();
   }
 

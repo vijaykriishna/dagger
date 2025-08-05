@@ -85,6 +85,7 @@ import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.writing.InjectionMethods.InjectionSiteMethod;
 import dagger.internal.codegen.writing.InjectionMethods.ProvisionMethod;
 import dagger.internal.codegen.xprocessing.Nullability;
+import dagger.internal.codegen.xprocessing.XAnnotationSpecs;
 import dagger.internal.codegen.xprocessing.XFunSpecs;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -451,7 +452,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
   }
 
   private XAnnotationSpec qualifierMetadataAnnotation(ContributionBinding binding) {
-    XAnnotationSpec.Builder builder = XAnnotationSpec.builder(XTypeNames.QUALIFIER_METADATA);
+    XAnnotationSpecs.Builder builder = XAnnotationSpecs.builder(XTypeNames.QUALIFIER_METADATA);
     // Collect all qualifiers on the binding itself or its dependencies. For injection bindings, we
     // don't include the injection sites, as that is handled by MembersInjectorFactory.
     Stream.concat(
@@ -462,7 +463,7 @@ public final class FactoryGenerator extends SourceFileGenerator<ContributionBind
         .map(DaggerAnnotation::xprocessing)
         .map(XAnnotation::getQualifiedName)
         .distinct()
-        .forEach(qualifier -> builder.addMember("value", "%S", qualifier));
+        .forEach(qualifier -> builder.addArrayMember("value", "%S", qualifier));
     return builder.build();
   }
 

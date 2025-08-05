@@ -88,8 +88,8 @@ public abstract class SourceFileGenerator<T> {
         findGeneratedAnnotation()
             .map(
                 annotation ->
-                    XAnnotationSpec.builder(annotation.asClassName())
-                        .addMember("value", "%S", "dagger.internal.codegen.ComponentProcessor")
+                    XAnnotationSpecs.builder(annotation.asClassName())
+                        .addArrayMember("value", "%S", "dagger.internal.codegen.ComponentProcessor")
                         .addMember("comments", "%S", GENERATED_COMMENTS)
                         .build());
     generatedAnnotation.ifPresent(typeSpecBuilder::addAnnotation);
