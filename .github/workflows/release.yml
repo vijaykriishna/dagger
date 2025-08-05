@@ -7,6 +7,11 @@ on:
         description: 'The Dagger version to use in this release.'
         required: true
 
+# Cancel in-progress jobs for the same workflow and branch except for the master branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 env:
   USE_JAVA_DISTRIBUTION: 'zulu'
   USE_JAVA_VERSION: '11'
