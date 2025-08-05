@@ -111,17 +111,17 @@ public final class FragmentGenerator {
   //   initializeComponentContext();
   //   inject();
   // }
-  private MethodSpec onAttachContextMethod() {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("onAttach")
+  private static MethodSpec onAttachContextMethod() {
+    return MethodSpec.methodBuilder("onAttach")
         .addAnnotation(Override.class)
         .addAnnotation(AndroidClassNames.CALL_SUPER)
         .addModifiers(Modifier.PUBLIC)
         .addParameter(AndroidClassNames.CONTEXT, "context")
         .addStatement("super.onAttach(context)")
-        .addStatement("initializeComponentContext()");
-    // The inject method will internally check if injected already
-    builder.addStatement("inject()");
-    return builder.build();
+        .addStatement("initializeComponentContext()")
+        // The inject method will internally check if injected already
+        .addStatement("inject()")
+        .build();
   }
 
   // @CallSuper
@@ -135,8 +135,8 @@ public final class FragmentGenerator {
   //   initializeComponentContext();
   //   inject();
   // }
-  private MethodSpec onAttachActivityMethod() {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("onAttach")
+  private static MethodSpec onAttachActivityMethod() {
+    return MethodSpec.methodBuilder("onAttach")
         .addAnnotation(Override.class)
         .addAnnotation(
             AnnotationSpec.builder(ClassNames.SUPPRESS_WARNINGS)
@@ -155,10 +155,10 @@ public final class FragmentGenerator {
             COMPONENT_CONTEXT_FIELD,
             "onAttach called multiple times with different Context! "
                 + "Hilt Fragments should not be retained.")
-        .addStatement("initializeComponentContext()");
-    // The inject method will internally check if injected already
-    builder.addStatement("inject()");
-    return builder.build();
+        .addStatement("initializeComponentContext()")
+        // The inject method will internally check if injected already
+        .addStatement("inject()")
+        .build();
   }
 
   // private void initializeComponentContext() {

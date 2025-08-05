@@ -29,10 +29,10 @@ android_library(
     srcs = [
         "ActivityComponentManager.java",
         "ActivityRetainedComponentManager.java",
-        "ActivitySavedStateHandleModule.java",
         "ApplicationComponentManager.java",
         "BroadcastReceiverComponentManager.java",
         "FragmentComponentManager.java",
+        "SavedStateHandleModule.java",
         "ServiceComponentManager.java",
         "ViewComponentManager.java",
     ],

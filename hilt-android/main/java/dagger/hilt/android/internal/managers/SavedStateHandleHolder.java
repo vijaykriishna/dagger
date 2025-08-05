@@ -33,12 +33,12 @@ public final class SavedStateHandleHolder {
   @Nullable private SavedStateHandle handle;
   private final boolean isComponentActivity;
 
-  public SavedStateHandleHolder(@Nullable CreationExtras extras) {
+  SavedStateHandleHolder(@Nullable CreationExtras extras) {
     isComponentActivity = (extras != null);
     this.extras = extras;
   }
 
-  public SavedStateHandle getSavedStateHandle() {
+  SavedStateHandle getSavedStateHandle() {
     ThreadUtil.ensureMainThread();
     checkState(
         isComponentActivity,

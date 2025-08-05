@@ -29,7 +29,7 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped;
 /** Module providing SavedStateHandle from ActivityRetainedComponent. */
 @Module
 @InstallIn(ActivityRetainedComponent.class)
-abstract class ActivitySavedStateHandleModule {
+abstract class SavedStateHandleModule {
   @OptIn(markerClass = UnstableApi.class)
   @ActivityRetainedSavedState
   @ActivityRetainedScoped

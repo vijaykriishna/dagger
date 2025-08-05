@@ -23,13 +23,11 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.stream.Collectors.joining;
-import static kotlin.streams.jdk8.StreamsKt.asStream;
 
 import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XType;
 import androidx.room.compiler.processing.XTypeElement;
 import androidx.room.compiler.processing.XVariableElement;
@@ -37,7 +35,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -49,7 +46,6 @@ import com.squareup.javapoet.TypeSpec;
 import dagger.hilt.android.processor.internal.AndroidClassNames;
 import dagger.hilt.android.processor.internal.androidentrypoint.AndroidEntryPointMetadata.AndroidType;
 import dagger.hilt.processor.internal.ClassNames;
-import dagger.hilt.processor.internal.MethodSignature;
 import dagger.hilt.processor.internal.Processors;
 import java.util.List;
 import java.util.Optional;
@@ -264,17 +260,6 @@ final class Generators {
       default:
         throw new AssertionError();
     }
-  }
-
-  /** Returns the nearest super class method for the given method signature. */
-  static XMethodElement nearestSuperClassMethod(
-      MethodSignature methodSignature, AndroidEntryPointMetadata metadata) {
-    ImmutableList<XMethodElement> methodOnBaseElement =
-        asStream(metadata.baseElement().getAllMethods())
-            .filter(method -> MethodSignature.of(method).equals(methodSignature))
-            .collect(toImmutableList());
-    Preconditions.checkState(methodOnBaseElement.size() >= 1);
-    return Iterables.getLast(methodOnBaseElement);
   }
 
   // @Override
