@@ -2529,4 +2529,76 @@ public class MissingBindingValidationTest {
         .withProcessingOptions(compilerMode.processorOptions())
         .compile(subject -> subject.hasErrorCount(0));
   }
+
+  @Test
+  public void tooManySimilarBindingsAreFiltered() {
+    Source component =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import javax.inject.Named;",
+            "",
+            "@Component(modules = TestModule.class)",
+            "interface TestComponent {",
+            "  @Named(\"requested\") String getString();",
+            "}");
+    Source module =
+        CompilerTests.javaSource(
+            "test.TestModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import javax.inject.Named;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Provides static @Named(\"1\") String provide1() { return null; }",
+            "  @Provides static @Named(\"2\") String provide2() { return null; }",
+            "  @Provides static @Named(\"3\") String provide3() { return null; }",
+            "  @Provides static @Named(\"4\") String provide4() { return null; }",
+            "  @Provides static @Named(\"5\") String provide5() { return null; }",
+            "  @Provides static @Named(\"6\") String provide6() { return null; }",
+            "  @Provides static @Named(\"7\") String provide7() { return null; }",
+            "  @Provides static @Named(\"8\") String provide8() { return null; }",
+            "  @Provides static @Named(\"9\") String provide9() { return null; }",
+            "  @Provides static @Named(\"10\") String provide10() { return null; }",
+            "  @Provides static @Named(\"11\") String provide11() { return null; }",
+            "  @Provides static @Named(\"12\") String provide12() { return null; }",
+            "  @Provides static @Named(\"13\") String provide13() { return null; }",
+            "  @Provides static @Named(\"14\") String provide14() { return null; }",
+            "  @Provides static @Named(\"15\") String provide15() { return null; }",
+            "  @Provides static @Named(\"16\") String provide16() { return null; }",
+            "  @Provides static @Named(\"17\") String provide17() { return null; }",
+            "  @Provides static @Named(\"18\") String provide18() { return null; }",
+            "  @Provides static @Named(\"19\") String provide19() { return null; }",
+            "  @Provides static @Named(\"20\") String provide20() { return null; }",
+            "  @Provides static @Named(\"21\") String provide21() { return null; }",
+            "  @Provides static @Named(\"22\") String provide22() { return null; }",
+            "  @Provides static @Named(\"23\") String provide23() { return null; }",
+            "  @Provides static @Named(\"24\") String provide24() { return null; }",
+            "  @Provides static @Named(\"25\") String provide25() { return null; }",
+            "  @Provides static @Named(\"26\") String provide26() { return null; }",
+            "  @Provides static @Named(\"27\") String provide27() { return null; }",
+            "  @Provides static @Named(\"28\") String provide28() { return null; }",
+            "  @Provides static @Named(\"29\") String provide29() { return null; }",
+            "  @Provides static @Named(\"30\") String provide30() { return null; }",
+            "}");
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "interface Foo {}");
+    CompilerTests.daggerCompiler(component, module, foo)
+        .withProcessingOptions(compilerMode.processorOptions())
+        .compile(
+            subject -> {
+              subject.hasErrorCount(1);
+              // Current max is 20 so expect it to filter 10
+              subject.hasErrorContaining("...and 10 other bindings not shown");
+            });
+  }
 }

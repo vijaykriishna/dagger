@@ -50,6 +50,9 @@ import javax.inject.Inject;
 /** Reports errors for missing bindings. */
 final class MissingBindingValidator extends ValidationBindingGraphPlugin {
 
+  // Limit on the number of similar bindings to print
+  private static final int SIMILAR_BINDINGS_LIMIT = 20;
+
   private final InjectBindingRegistry injectBindingRegistry;
   private final DiagnosticMessageGenerator.Factory diagnosticMessageGeneratorFactory;
 
@@ -203,7 +206,17 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
     StringBuilder message =
         new StringBuilder(
             "\n\nNote: A similar binding is provided in the following other components:");
+    int count = 0;
     for (Binding similarBinding : similarBindings) {
+      if (count >= SIMILAR_BINDINGS_LIMIT) {
+        message
+            .append("\n")
+            .append(INDENT)
+            .append("...and ")
+            .append(similarBindings.size() - SIMILAR_BINDINGS_LIMIT)
+            .append(" other bindings not shown");
+        break;
+      }
       message
           .append("\n")
           .append(INDENT)
@@ -212,6 +225,7 @@ final class MissingBindingValidator extends ValidationBindingGraphPlugin {
           .append("\n")
           .append(DOUBLE_INDENT)
           .append(asString(similarBinding));
+      count++;
     }
     message.append("\n")
         .append(
