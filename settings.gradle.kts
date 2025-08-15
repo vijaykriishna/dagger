@@ -48,6 +48,8 @@ includeProject(":dagger-testing", "dagger-testing")
 
 includeProject(":hilt-android", "hilt-android")
 
+includeProject(":hilt-android-testing", "hilt-android-testing")
+
 includeProject(":hilt-compiler", "hilt-compiler")
 
 includeProject(":hilt-core", "hilt-core")

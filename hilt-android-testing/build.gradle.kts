@@ -10,15 +10,18 @@ plugins {
 
 dependencies {
   api(project(":dagger"))
-  implementation(project(":dagger-lint-aar"))
-  api(project(":hilt-core"))
+  api(project(":hilt-android"))
 
   api(libs.androidx.activity)
   api(libs.androidx.annotations)
   api(libs.androidx.fragment)
   api(libs.androidx.lifecycle.viewmodel)
   api(libs.androidx.lifecycle.viewmodel.savedstate)
+  api(libs.androidx.multidex)
   api(libs.androidx.savedstate)
+  api(libs.androidx.test.core)
+  api(libs.junit)
+  implementation(libs.auto.value.annotations)
   implementation(libs.findBugs)
   implementation(libs.kotlin.stdlib)
 
@@ -26,14 +29,7 @@ dependencies {
   annotationProcessor(project(":hilt-compiler", "unshaded"))
   annotationProcessor(libs.auto.common)
   annotationProcessor(files(project.findXProcessingJar()))
-}
-
-android {
-  buildTypes {
-    defaultConfig {
-      proguardFiles("$projectDir/main/resources/META-INF/com.android.tools/r8/dagger-android.pro")
-    }
-  }
+  annotationProcessor(libs.auto.value.compiler)
 }
 
 daggerBuild {
@@ -41,6 +37,6 @@ daggerBuild {
   isPublished = true
 }
 
-android { namespace = "dagger.hilt.android" }
+android { namespace = "dagger.hilt.android.testing" }
 
 kotlin { explicitApi() }

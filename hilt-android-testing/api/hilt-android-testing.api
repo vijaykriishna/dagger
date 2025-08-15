@@ -1,0 +1,117 @@
+public abstract class dagger/hilt/android/internal/testing/EarlySingletonComponentCreator {
+	public fun <init> ()V
+}
+
+public abstract interface annotation class dagger/hilt/android/internal/testing/InternalTestRoot : java/lang/annotation/Annotation {
+	public abstract fun applicationBaseClass ()Ljava/lang/Class;
+	public abstract fun testClass ()Ljava/lang/Class;
+}
+
+public final class dagger/hilt/android/internal/testing/MarkThatRulesRanRule : org/junit/rules/TestRule {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+	public fun componentReady ()V
+	public fun delayComponentReady ()V
+	public fun inject ()V
+}
+
+public final class dagger/hilt/android/internal/testing/TestApplicationComponentManager : dagger/hilt/android/testing/OnComponentReadyRunner$OnComponentReadyRunnerHolder, dagger/hilt/internal/TestSingletonComponentManager {
+	public fun <init> (Landroid/app/Application;)V
+	public fun earlySingletonComponent ()Ljava/lang/Object;
+	public fun generatedComponent ()Ljava/lang/Object;
+	public fun getDescription ()Lorg/junit/runner/Description;
+	public fun getOnComponentReadyRunner ()Ldagger/hilt/android/testing/OnComponentReadyRunner;
+	public fun getTestInstance ()Ljava/lang/Object;
+	public fun registerModule (Ljava/lang/Class;Ljava/lang/Object;)V
+}
+
+public abstract interface class dagger/hilt/android/internal/testing/TestApplicationComponentManagerHolder : dagger/hilt/internal/GeneratedComponentManagerHolder {
+}
+
+public final class dagger/hilt/android/internal/testing/TestComponentData {
+	public fun <init> (ZLdagger/hilt/android/internal/testing/TestInjector;Ljava/util/Set;Ljava/util/Set;Ldagger/hilt/android/internal/testing/TestComponentData$ComponentSupplier;)V
+	public fun componentSupplier ()Ldagger/hilt/android/internal/testing/TestComponentData$ComponentSupplier;
+	public fun daggerRequiredModules ()Ljava/util/Set;
+	public fun hiltRequiredModules ()Ljava/util/Set;
+	public fun testInjector ()Ldagger/hilt/android/internal/testing/TestInjector;
+	public fun waitForBindValue ()Z
+}
+
+public abstract interface class dagger/hilt/android/internal/testing/TestComponentData$ComponentSupplier {
+	public abstract fun get (Ljava/util/Map;Ljava/lang/Object;Ljava/lang/Boolean;)Ljava/lang/Object;
+}
+
+public abstract class dagger/hilt/android/internal/testing/TestComponentDataSupplier {
+	public fun <init> ()V
+	protected abstract fun get ()Ldagger/hilt/android/internal/testing/TestComponentData;
+}
+
+public abstract interface class dagger/hilt/android/internal/testing/TestInjector {
+	public abstract fun injectTest (Ljava/lang/Object;)V
+}
+
+public abstract interface annotation class dagger/hilt/android/internal/uninstallmodules/AggregatedUninstallModules : java/lang/annotation/Annotation {
+	public abstract fun test ()Ljava/lang/String;
+	public abstract fun uninstallModules ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/BindElementsIntoSet : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/BindValue : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/BindValueIntoMap : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/BindValueIntoSet : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/CustomTestApplication : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/Class;
+}
+
+public final class dagger/hilt/android/testing/HiltAndroidRule : org/junit/rules/TestRule {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+	public fun componentReady ()Ldagger/hilt/android/testing/HiltAndroidRule;
+	public fun delayComponentReady ()Ldagger/hilt/android/testing/HiltAndroidRule;
+	public fun inject ()V
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/HiltAndroidTest : java/lang/annotation/Annotation {
+}
+
+public final class dagger/hilt/android/testing/HiltTestApplication : androidx/multidex/MultiDexApplication, dagger/hilt/android/internal/testing/TestApplicationComponentManagerHolder, dagger/hilt/internal/GeneratedComponentManager {
+	public fun <init> ()V
+	public final fun componentManager ()Ldagger/hilt/internal/GeneratedComponentManager;
+	public final fun generatedComponent ()Ljava/lang/Object;
+}
+
+public final class dagger/hilt/android/testing/OnComponentReadyRunner {
+	public fun <init> ()V
+	public static fun addListener (Landroid/content/Context;Ljava/lang/Class;Ldagger/hilt/android/testing/OnComponentReadyRunner$OnComponentReadyListener;)V
+	public fun isEmpty ()Z
+	public fun setComponentManager (Ldagger/hilt/internal/GeneratedComponentManager;)V
+}
+
+public abstract interface class dagger/hilt/android/testing/OnComponentReadyRunner$OnComponentReadyListener {
+	public abstract fun onComponentReady (Ljava/lang/Object;)V
+}
+
+public abstract interface class dagger/hilt/android/testing/OnComponentReadyRunner$OnComponentReadyRunnerHolder {
+	public abstract fun getOnComponentReadyRunner ()Ldagger/hilt/android/testing/OnComponentReadyRunner;
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/SkipTestInjection : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/hilt/android/testing/UninstallModules : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/Class;
+}
+
+public abstract interface annotation class dagger/hilt/testing/TestInstallIn : java/lang/annotation/Annotation {
+	public abstract fun components ()[Ljava/lang/Class;
+	public abstract fun replaces ()[Ljava/lang/Class;
+}
+

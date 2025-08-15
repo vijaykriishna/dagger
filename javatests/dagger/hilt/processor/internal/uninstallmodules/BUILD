@@ -29,7 +29,7 @@ compiler_test(
         "//third_party/java/androidx/annotation",
     ],
     deps = [
-        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
+        "//hilt-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/junit",
     ],
 )

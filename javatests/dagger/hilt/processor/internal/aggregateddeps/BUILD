@@ -34,7 +34,7 @@ compiler_test(
     shard_count = 3,
     deps = [
         "//dagger-compiler/main/java/dagger/internal/codegen/xprocessing:xprocessing-testing",
-        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
+        "//hilt-testing/main/java/dagger/hilt/android/testing/compile",
         "//javatests/dagger/hilt/processor/internal:generated_import",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",

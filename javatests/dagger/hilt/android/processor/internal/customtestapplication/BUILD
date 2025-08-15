@@ -26,7 +26,7 @@ compiler_test(
         "//third_party/java/android/android_sdk_linux:android_runtime",
     ],
     deps = [
-        "//hilt-android-testing/main/java/dagger/hilt/android/testing/compile",
+        "//hilt-testing/main/java/dagger/hilt/android/testing/compile",
         "//third_party/java/guava/collect",
         "//third_party/java/junit",
         "//third_party/java/truth",
