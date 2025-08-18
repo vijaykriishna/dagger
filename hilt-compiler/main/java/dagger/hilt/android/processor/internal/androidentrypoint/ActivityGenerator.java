@@ -16,10 +16,7 @@
 
 package dagger.hilt.android.processor.internal.androidentrypoint;
 
-import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
-import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
-import static kotlin.streams.jdk8.StreamsKt.asStream;
 
 import androidx.room.compiler.processing.JavaPoetExtKt;
 import androidx.room.compiler.processing.XAnnotated;
@@ -29,8 +26,6 @@ import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeParameterElement;
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -187,7 +182,7 @@ public final class ActivityGenerator {
   //
   private MethodSpec onCreateComponentActivity() {
     XMethodElement nearestSuperClassMethod =
-        nearestSuperClassMethod(ActivityMethod.ON_CREATE, metadata);
+        Generators.nearestSuperClassMethod(ActivityMethod.ON_CREATE.signature, metadata);
     if (nearestSuperClassMethod.isFinal()) {
       env.getMessager()
           .printMessage(
@@ -262,7 +257,7 @@ public final class ActivityGenerator {
   // }
   private MethodSpec onDestroyComponentActivity() {
     XMethodElement nearestSuperClassMethod =
-        nearestSuperClassMethod(ActivityMethod.ON_DESTROY, metadata);
+        Generators.nearestSuperClassMethod(ActivityMethod.ON_DESTROY.signature, metadata);
     if (nearestSuperClassMethod.isFinal()) {
       env.getMessager()
           .printMessage(
@@ -286,15 +281,5 @@ public final class ActivityGenerator {
     return metadata.element().getDeclaredMethods().stream()
         .filter(method -> MethodSignature.of(method).equals(activityMethod.signature))
         .collect(toOptional());
-  }
-
-  private static XMethodElement nearestSuperClassMethod(
-      ActivityMethod activityMethod, AndroidEntryPointMetadata metadata) {
-    ImmutableList<XMethodElement> methodOnBaseElement =
-        asStream(metadata.baseElement().getAllMethods())
-            .filter(method -> MethodSignature.of(method).equals(activityMethod.signature))
-            .collect(toImmutableList());
-    checkState(methodOnBaseElement.size() >= 1);
-    return Iterables.getLast(methodOnBaseElement);
   }
 }

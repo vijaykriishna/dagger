@@ -109,19 +109,20 @@ public final class FragmentGenerator {
   // public void onAttach(Context context) {
   //   super.onAttach(context);
   //   initializeComponentContext();
+  //   componentManager().initSavedStateHandleHolder();
   //   inject();
   // }
-  private static MethodSpec onAttachContextMethod() {
-    return MethodSpec.methodBuilder("onAttach")
+  private MethodSpec onAttachContextMethod() {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("onAttach")
         .addAnnotation(Override.class)
         .addAnnotation(AndroidClassNames.CALL_SUPER)
         .addModifiers(Modifier.PUBLIC)
         .addParameter(AndroidClassNames.CONTEXT, "context")
         .addStatement("super.onAttach(context)")
-        .addStatement("initializeComponentContext()")
-        // The inject method will internally check if injected already
-        .addStatement("inject()")
-        .build();
+        .addStatement("initializeComponentContext()");
+    // The inject method will internally check if injected already
+    builder.addStatement("inject()");
+    return builder.build();
   }
 
   // @CallSuper
@@ -133,10 +134,11 @@ public final class FragmentGenerator {
   //       componentContext == null || FragmentComponentManager.findActivity(
   //           componentContext) == activity, "...");
   //   initializeComponentContext();
+  //   componentManager().initSavedStateHandleHolder();
   //   inject();
   // }
-  private static MethodSpec onAttachActivityMethod() {
-    return MethodSpec.methodBuilder("onAttach")
+  private MethodSpec onAttachActivityMethod() {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("onAttach")
         .addAnnotation(Override.class)
         .addAnnotation(
             AnnotationSpec.builder(ClassNames.SUPPRESS_WARNINGS)
@@ -155,10 +157,10 @@ public final class FragmentGenerator {
             COMPONENT_CONTEXT_FIELD,
             "onAttach called multiple times with different Context! "
                 + "Hilt Fragments should not be retained.")
-        .addStatement("initializeComponentContext()")
-        // The inject method will internally check if injected already
-        .addStatement("inject()")
-        .build();
+        .addStatement("initializeComponentContext()");
+    // The inject method will internally check if injected already
+    builder.addStatement("inject()");
+    return builder.build();
   }
 
   // private void initializeComponentContext() {

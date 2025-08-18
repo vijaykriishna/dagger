@@ -212,6 +212,13 @@ public final class dagger/hilt/android/internal/managers/ActivityRetainedCompone
 	public static fun provideActivityRetainedLifecycle ()Ldagger/hilt/android/ActivityRetainedLifecycle;
 }
 
+public final class dagger/hilt/android/internal/managers/ActivitySavedStateHandleModule_ProvideSavedStateHandleFactory : dagger/internal/Factory {
+	public static fun create (Ldagger/internal/Provider;)Ldagger/hilt/android/internal/managers/ActivitySavedStateHandleModule_ProvideSavedStateHandleFactory;
+	public fun get ()Landroidx/lifecycle/SavedStateHandle;
+	public synthetic fun get ()Ljava/lang/Object;
+	public static fun provideSavedStateHandle (Ldagger/hilt/android/internal/managers/SavedStateHandleHolder;)Landroidx/lifecycle/SavedStateHandle;
+}
+
 public final class dagger/hilt/android/internal/managers/ApplicationComponentManager : dagger/hilt/internal/GeneratedComponentManager {
 	public fun <init> (Ldagger/hilt/android/internal/managers/ComponentSupplier;)V
 	public fun generatedComponent ()Ljava/lang/Object;
@@ -249,21 +256,16 @@ public final class dagger/hilt/android/internal/managers/HiltWrapper_ActivityRet
 	public fun <init> ()V
 }
 
-public final class dagger/hilt/android/internal/managers/HiltWrapper_SavedStateHandleModule {
+public final class dagger/hilt/android/internal/managers/HiltWrapper_ActivitySavedStateHandleModule {
 	public fun <init> ()V
 }
 
 public final class dagger/hilt/android/internal/managers/SavedStateHandleHolder {
+	public fun <init> (Landroidx/lifecycle/viewmodel/CreationExtras;)V
 	public fun clear ()V
+	public fun getSavedStateHandle ()Landroidx/lifecycle/SavedStateHandle;
 	public fun isInvalid ()Z
 	public fun setExtras (Landroidx/lifecycle/viewmodel/CreationExtras;)V
-}
-
-public final class dagger/hilt/android/internal/managers/SavedStateHandleModule_ProvideSavedStateHandleFactory : dagger/internal/Factory {
-	public static fun create (Ldagger/internal/Provider;)Ldagger/hilt/android/internal/managers/SavedStateHandleModule_ProvideSavedStateHandleFactory;
-	public fun get ()Landroidx/lifecycle/SavedStateHandle;
-	public synthetic fun get ()Ljava/lang/Object;
-	public static fun provideSavedStateHandle (Ldagger/hilt/android/internal/managers/SavedStateHandleHolder;)Landroidx/lifecycle/SavedStateHandle;
 }
 
 public final class dagger/hilt/android/internal/managers/ServiceComponentManager : dagger/hilt/internal/GeneratedComponentManager {
@@ -536,7 +538,7 @@ public class hilt_aggregated_deps/_dagger_hilt_android_internal_managers_HiltWra
 	public fun <init> ()V
 }
 
-public class hilt_aggregated_deps/_dagger_hilt_android_internal_managers_HiltWrapper_SavedStateHandleModule {
+public class hilt_aggregated_deps/_dagger_hilt_android_internal_managers_HiltWrapper_ActivitySavedStateHandleModule {
 	public fun <init> ()V
 }
 
