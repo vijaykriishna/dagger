@@ -21,5 +21,6 @@ import javax.inject.Singleton;
 
 /** A Hilt component for singleton bindings. */
 @Singleton
+@jakarta.inject.Singleton
 @DefineComponent
 public interface SingletonComponent {}

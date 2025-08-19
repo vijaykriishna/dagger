@@ -101,6 +101,7 @@ gen_maven_artifact(
         "com.google.code.findbugs:jsr305",
         "com.google.dagger:dagger",
         "com.google.dagger:hilt-android",
+        "jakarta.inject:jakarta.inject-api",
         "javax.inject:javax.inject",
         "junit:junit",
         "org.jetbrains.kotlin:kotlin-stdlib",

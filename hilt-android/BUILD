@@ -118,6 +118,7 @@ gen_maven_artifact(
         "com.google.dagger:dagger-lint-aar",
         "com.google.dagger:dagger",
         "com.google.dagger:hilt-core",
+        "jakarta.inject:jakarta.inject-api",
         "javax.inject:javax.inject",
         "org.jetbrains.kotlin:kotlin-stdlib",
     ],

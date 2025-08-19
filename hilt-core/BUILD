@@ -83,6 +83,7 @@ gen_maven_artifact(
     artifact_target_maven_deps = [
         "com.google.code.findbugs:jsr305",
         "com.google.dagger:dagger",
+        "jakarta.inject:jakarta.inject-api",
         "javax.inject:javax.inject",
     ],
     artifact_target_maven_deps_banned = [
