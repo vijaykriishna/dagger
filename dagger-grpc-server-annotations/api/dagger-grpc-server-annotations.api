@@ -1,0 +1,11 @@
+public abstract interface annotation class dagger/grpc/server/CallScoped : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dagger/grpc/server/ForGrpcService : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/Class;
+}
+
+public abstract interface annotation class dagger/grpc/server/GrpcService : java/lang/annotation/Annotation {
+	public abstract fun grpcClass ()Ljava/lang/Class;
+}
+

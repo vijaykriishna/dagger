@@ -36,6 +36,12 @@ includeProject(":dagger-android-processor", "dagger-android-processor")
 
 includeProject(":dagger-compiler", "dagger-compiler")
 
+includeProject(":dagger-grpc-server", "dagger-grpc-server")
+
+includeProject(":dagger-grpc-server-annotations", "dagger-grpc-server-annotations")
+
+includeProject(":dagger-grpc-server-processor", "dagger-grpc-server-processor")
+
 includeProject(":dagger-lint", "dagger-lint")
 
 includeProject(":dagger-lint-aar", "dagger-lint-android")

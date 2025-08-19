@@ -9,6 +9,7 @@ lifecycle = "2.5.1"
 lint = "30.3.1"
 guava = "33.0.0-jre"
 gradleIncap = "0.2"
+grpc = "1.2.0"
 jdk = "17"
 junit = "4.13"
 jvmTarget = "1.8"
@@ -43,10 +44,14 @@ binaryCompatibilityValidatorPlugin = { module = "org.jetbrains.kotlinx:binary-co
 checkerFramework = { module = "org.checkerframework:checker-compat-qual", version = "2.5.3" }
 errorprone-annotations = { module = "com.google.errorprone:error_prone_annotations", version = "2.23.0" }
 findBugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.1" }
-guava-jre = { module = "com.google.guava:guava", version.ref = "guava" }
-guava-failureAccess = { module = "com.google.guava:failureaccess", version = "1.0.1" }
 gradleIncap-annotations = { module = "net.ltgt.gradle.incap:incap", version.ref = "gradleIncap" }
 gradleIncap-compiler = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "gradleIncap" }
+grpc-context = { module = "io.grpc:grpc-context", version.ref = "grpc" }
+grpc-core = { module = "io.grpc:grpc-core", version.ref = "grpc" }
+grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
+guava-jre = { module = "com.google.guava:guava", version.ref = "guava" }
+guava-failureAccess = { module = "com.google.guava:failureaccess", version = "1.0.1" }
 javaFormatter = { module = "com.google.googlejavaformat:google-java-format", version = "1.5" }
 javaCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.18" }
 jakarta-inject = { module = "jakarta.inject:jakarta.inject-api", version = "2.0.1" }
@@ -68,6 +73,7 @@ ksp-embeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embedd
 lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
 lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lint" }
 lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version = "4.29.3" }
 publishPlugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "publish" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.14.1" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
