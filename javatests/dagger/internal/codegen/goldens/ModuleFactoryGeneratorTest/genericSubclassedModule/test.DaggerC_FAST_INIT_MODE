@@ -1,0 +1,86 @@
+package test;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Preconditions;
+import java.util.List;
+import javax.annotation.processing.Generated;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+final class DaggerC {
+  private DaggerC() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static C create() {
+    return new Builder().build();
+  }
+
+  static final class Builder {
+    private ChildNumberModule childNumberModule;
+
+    private ChildIntegerModule childIntegerModule;
+
+    private Builder() {
+    }
+
+    public Builder childNumberModule(ChildNumberModule childNumberModule) {
+      this.childNumberModule = Preconditions.checkNotNull(childNumberModule);
+      return this;
+    }
+
+    public Builder childIntegerModule(ChildIntegerModule childIntegerModule) {
+      this.childIntegerModule = Preconditions.checkNotNull(childIntegerModule);
+      return this;
+    }
+
+    public C build() {
+      if (childNumberModule == null) {
+        this.childNumberModule = new ChildNumberModule();
+      }
+      if (childIntegerModule == null) {
+        this.childIntegerModule = new ChildIntegerModule();
+      }
+      return new CImpl(childNumberModule, childIntegerModule);
+    }
+  }
+
+  private static final class CImpl implements C {
+    private final ChildNumberModule childNumberModule;
+
+    private final ChildIntegerModule childIntegerModule;
+
+    private final CImpl cImpl = this;
+
+    CImpl(ChildNumberModule childNumberModuleParam, ChildIntegerModule childIntegerModuleParam) {
+      this.childNumberModule = childNumberModuleParam;
+      this.childIntegerModule = childIntegerModuleParam;
+
+    }
+
+    @Override
+    public List<Number> numberList() {
+      return ParentModule_ProvideListBFactory.provideListB(childNumberModule, ChildNumberModule_ProvideNumberFactory.provideNumber(childNumberModule));
+    }
+
+    @Override
+    public List<Integer> integerList() {
+      return ParentModule_ProvideListBFactory.provideListB(childIntegerModule, ChildIntegerModule_ProvideIntegerFactory.provideInteger(childIntegerModule));
+    }
+  }
+}

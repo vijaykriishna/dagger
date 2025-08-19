@@ -1,0 +1,62 @@
+package other;
+
+import dagger.internal.DaggerGenerated;
+import javax.annotation.processing.Generated;
+import test.Foo_Factory;
+import test.GenericClass_Factory;
+import test.Usage;
+import test.Usage_Factory;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+final class DaggerMyComponent {
+  private DaggerMyComponent() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static MyComponent create() {
+    return new Builder().build();
+  }
+
+  static final class Builder {
+    private Builder() {
+    }
+
+    public MyComponent build() {
+      return new MyComponentImpl();
+    }
+  }
+
+  private static final class MyComponentImpl implements MyComponent {
+    private final MyComponentImpl myComponentImpl = this;
+
+    MyComponentImpl() {
+
+
+    }
+
+    Object genericClassOfFoo() {
+      return GenericClass_Factory.newInstance(Foo_Factory.newInstance());
+    }
+
+    @Override
+    public Usage usage() {
+      return (Usage) ((Object) (Usage_Factory.newInstance(genericClassOfFoo())));
+    }
+  }
+}

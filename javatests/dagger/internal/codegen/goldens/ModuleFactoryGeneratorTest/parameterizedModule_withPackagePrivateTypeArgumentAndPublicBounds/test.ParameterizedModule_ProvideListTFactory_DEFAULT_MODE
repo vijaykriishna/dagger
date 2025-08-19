@@ -1,0 +1,52 @@
+package test;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Factory;
+import dagger.internal.Preconditions;
+import dagger.internal.Provider;
+import dagger.internal.QualifierMetadata;
+import dagger.internal.ScopeMetadata;
+import java.util.List;
+import javax.annotation.processing.Generated;
+
+@ScopeMetadata
+@QualifierMetadata
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+public final class ParameterizedModule_ProvideListTFactory<T extends Bar> implements Factory<List<T>> {
+  private final ParameterizedModule<T> module;
+
+  private final Provider<T> tProvider;
+
+  private ParameterizedModule_ProvideListTFactory(ParameterizedModule<T> module,
+      Provider<T> tProvider) {
+    this.module = module;
+    this.tProvider = tProvider;
+  }
+
+  @Override
+  public List<T> get() {
+    return provideListT(module, tProvider.get());
+  }
+
+  public static <T extends Bar> ParameterizedModule_ProvideListTFactory<T> create(
+      ParameterizedModule<T> module, Provider<T> tProvider) {
+    return new ParameterizedModule_ProvideListTFactory<T>(module, tProvider);
+  }
+
+  public static <T extends Bar> List<T> provideListT(ParameterizedModule<T> instance, T t) {
+    return Preconditions.checkNotNullFromProvides(instance.provideListT(t));
+  }
+}

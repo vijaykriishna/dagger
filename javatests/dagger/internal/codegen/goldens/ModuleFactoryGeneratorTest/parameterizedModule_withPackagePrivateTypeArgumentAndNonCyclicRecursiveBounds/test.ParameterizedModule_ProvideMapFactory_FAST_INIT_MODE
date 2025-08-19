@@ -1,0 +1,53 @@
+package test;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Factory;
+import dagger.internal.Preconditions;
+import dagger.internal.Provider;
+import dagger.internal.QualifierMetadata;
+import dagger.internal.ScopeMetadata;
+import java.util.Map;
+import javax.annotation.processing.Generated;
+
+@ScopeMetadata
+@QualifierMetadata
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+public final class ParameterizedModule_ProvideMapFactory<T1, T2 extends Bar<T1>> implements Factory<Map<T1, T2>> {
+  private final ParameterizedModule<T1, T2> module;
+
+  private final Provider<T1> t1Provider;
+
+  private ParameterizedModule_ProvideMapFactory(ParameterizedModule<T1, T2> module,
+      Provider<T1> t1Provider) {
+    this.module = module;
+    this.t1Provider = t1Provider;
+  }
+
+  @Override
+  public Map<T1, T2> get() {
+    return provideMap(module, t1Provider.get());
+  }
+
+  public static <T1, T2 extends Bar<T1>> ParameterizedModule_ProvideMapFactory<T1, T2> create(
+      ParameterizedModule<T1, T2> module, Provider<T1> t1Provider) {
+    return new ParameterizedModule_ProvideMapFactory<T1, T2>(module, t1Provider);
+  }
+
+  public static <T1, T2 extends Bar<T1>> Map<T1, T2> provideMap(
+      ParameterizedModule<T1, T2> instance, T1 t1) {
+    return Preconditions.checkNotNullFromProvides(instance.provideMap(t1));
+  }
+}

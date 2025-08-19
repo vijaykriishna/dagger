@@ -278,6 +278,375 @@ public final class InjectConstructorFactoryGeneratorTest {
   }
 
   @Test
+  public void boundedGenerics_withPublicTypeArgumentAndPackagePrivateBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.Usage;",
+            "",
+            "@Component",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "import java.util.List;",
+            "",
+            "class GenericClass<A extends Bar> {",
+            "  @Inject GenericClass(A a) {}",
+            "}");
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source packagePrivateBar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    daggerCompiler(component, usage, genericClass, foo, packagePrivateBar)
+        .compile(
+            subject -> {
+              // Note: In this case, when calling the factory the component will use the requested
+              // type, Foo, e.g. "GenericClass_Factory.<Foo>create()" since Foo is publicly
+              // accessible. It doesn't matter that the bound type, Bar, is package-private.
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/GenericClass_Factory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void boundedGenerics_withPackagePrivateTypeArgumentAndPublicBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.Usage;",
+            "",
+            "@Component",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class GenericClass<A extends Bar> {",
+            "  @Inject GenericClass(A a) {}",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar {}");
+    daggerCompiler(component, usage, genericClass, packagePrivateFoo, bar)
+        .compile(
+            subject -> {
+              // Note: In this case, the requested type is GenericClass<Foo>, but when calling the
+              // factory with Kotlin codegen, the component will use the bound type, Bar, e.g.
+              // "GenericClass_Factory.<Bar>create()" since Foo is not publicly accessible.
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/GenericClass_Factory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void boundedGenerics_withPackagePrivateTypeArgumentAndNonCyclicRecursiveBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.BarModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {BarModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo, Bar<Foo>> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class GenericClass<T1, T2 extends Bar<T1>> {",
+            "  @Inject GenericClass(T1 t1, T2 t2) {}",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar<T> {}");
+    Source barModule =
+        CompilerTests.javaSource(
+            "test.BarModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "",
+            "@Module",
+            "public interface BarModule {",
+            "  @Provides static Bar<Foo> provideBar() { return null; }",
+            "}");
+    daggerCompiler(component, usage, genericClass, packagePrivateFoo, bar, barModule)
+        .compile(
+            subject -> {
+              // Note: In this case, the requested type is GenericClass<Foo, Bar<Foo>, but when
+              // calling the factory with Kotlin codegen, the component will use the type,
+              // "GenericClass_Factory.<Object, Bar<Object>>create()" since Foo is not publicly
+              // accessible.
+              subject.hasErrorCount(0);
+              subject.generatedSource(goldenFileRule.goldenSource("test/GenericClass_Factory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void boundedGenerics_withPackagePrivateTypeArgumentAndPackagePrivateBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.Usage;",
+            "",
+            "@Component",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class GenericClass<A extends Bar> {",
+            "  @Inject GenericClass(A a) {}",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source packagePrivateBar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    daggerCompiler(component, usage, genericClass, packagePrivateFoo, packagePrivateBar)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
+  public void boundedGenerics_withPackagePrivateTypeArgumentAndIntersectionBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.Usage;",
+            "",
+            "@Component",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class GenericClass<A extends Bar & Baz> {",
+            "  @Inject GenericClass(A a) {}",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar, Baz {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar {}");
+    Source baz =
+        CompilerTests.javaSource(
+            "test.Baz",
+            "package test;",
+            "",
+            "public interface Baz {}");
+    daggerCompiler(component, usage, genericClass, packagePrivateFoo, bar, baz)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
+  public void boundedGenerics_withPackagePrivateTypeArgumentAndCyclicRecursiveBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.Usage;",
+            "",
+            "@Component",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(GenericClass<Foo> genericClass) {}",
+            "}");
+    Source genericClass =
+        CompilerTests.javaSource(
+            "test.GenericClass",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class GenericClass<A extends Bar<A>> {",
+            "  @Inject GenericClass(A a) {}",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar<Foo> {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar<T> {}");
+    daggerCompiler(component, usage, genericClass, packagePrivateFoo, bar)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
   public void packagePrivateDependency() {
     Source foo =
         CompilerTests.javaSource(

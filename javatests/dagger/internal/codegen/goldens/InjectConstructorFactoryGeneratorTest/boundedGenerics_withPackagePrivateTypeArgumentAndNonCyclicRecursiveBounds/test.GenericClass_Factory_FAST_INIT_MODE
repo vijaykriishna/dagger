@@ -1,0 +1,49 @@
+package test;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Factory;
+import dagger.internal.Provider;
+import dagger.internal.QualifierMetadata;
+import dagger.internal.ScopeMetadata;
+import javax.annotation.processing.Generated;
+
+@ScopeMetadata
+@QualifierMetadata
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+public final class GenericClass_Factory<T1, T2 extends Bar<T1>> implements Factory<GenericClass<T1, T2>> {
+  private final Provider<T1> t1Provider;
+
+  private final Provider<T2> t2Provider;
+
+  private GenericClass_Factory(Provider<T1> t1Provider, Provider<T2> t2Provider) {
+    this.t1Provider = t1Provider;
+    this.t2Provider = t2Provider;
+  }
+
+  @Override
+  public GenericClass<T1, T2> get() {
+    return newInstance(t1Provider.get(), t2Provider.get());
+  }
+
+  public static <T1, T2 extends Bar<T1>> GenericClass_Factory<T1, T2> create(
+      Provider<T1> t1Provider, Provider<T2> t2Provider) {
+    return new GenericClass_Factory<T1, T2>(t1Provider, t2Provider);
+  }
+
+  public static <T1, T2 extends Bar<T1>> GenericClass<T1, T2> newInstance(T1 t1, T2 t2) {
+    return new GenericClass<T1, T2>(t1, t2);
+  }
+}

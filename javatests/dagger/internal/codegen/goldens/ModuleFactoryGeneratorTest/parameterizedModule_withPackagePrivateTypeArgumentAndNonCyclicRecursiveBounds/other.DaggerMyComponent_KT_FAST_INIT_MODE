@@ -1,0 +1,76 @@
+package other;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Preconditions;
+import javax.annotation.processing.Generated;
+import test.ConcreteModule;
+import test.Foo_Factory;
+import test.ParameterizedModule_ProvideMapFactory;
+import test.Usage;
+import test.Usage_Factory;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+final class DaggerMyComponent {
+  private DaggerMyComponent() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static MyComponent create() {
+    return new Builder().build();
+  }
+
+  static final class Builder {
+    private ConcreteModule concreteModule;
+
+    private Builder() {
+    }
+
+    public Builder concreteModule(ConcreteModule concreteModule) {
+      this.concreteModule = Preconditions.checkNotNull(concreteModule);
+      return this;
+    }
+
+    public MyComponent build() {
+      if (concreteModule == null) {
+        this.concreteModule = new ConcreteModule();
+      }
+      return new MyComponentImpl(concreteModule);
+    }
+  }
+
+  private static final class MyComponentImpl implements MyComponent {
+    private final ConcreteModule concreteModule;
+
+    private final MyComponentImpl myComponentImpl = this;
+
+    MyComponentImpl(ConcreteModule concreteModuleParam) {
+      this.concreteModule = concreteModuleParam;
+
+    }
+
+    Object mapOfFooAndBarOfFoo() {
+      return ParameterizedModule_ProvideMapFactory.provideMap(concreteModule, Foo_Factory.newInstance());
+    }
+
+    @Override
+    public Usage usage() {
+      return (Usage) ((Object) (Usage_Factory.newInstance(mapOfFooAndBarOfFoo(), Foo_Factory.newInstance())));
+    }
+  }
+}

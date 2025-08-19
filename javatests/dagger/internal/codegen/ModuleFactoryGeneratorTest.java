@@ -901,6 +901,8 @@ public class ModuleFactoryGeneratorTest {
                   goldenFileRule.goldenSource("test/ChildNumberModule_ProvideNumberFactory"));
               subject.generatedSource(
                   goldenFileRule.goldenSource("test/ChildIntegerModule_ProvideIntegerFactory"));
+              subject.generatedSource(
+                  goldenFileRule.goldenSource("test/DaggerC"));
             });
   }
 
@@ -948,6 +950,457 @@ public class ModuleFactoryGeneratorTest {
                   goldenFileRule.goldenSource(
                       "test/ParameterizedModule_ProvideNonGenericTypeWithDepsFactory"));
             });
+  }
+
+  @Test
+  public void parameterizedModule_withPublicTypeArgumentAndPackagePrivateBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.List;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(List<Foo> listFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T extends Bar> {",
+            "  @Provides",
+            "  List<T> provideListT(T t) { return null; }",
+            "}");
+    Source foo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "public class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source packagePrivateBar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    daggerCompiler(component, usage, concreteModule, parameterizedModule, foo, packagePrivateBar)
+        .compile(
+            subject -> {
+              // Note: In this case, when calling the factory the component will use the requested
+              // type, Foo, e.g. "ParameterizedModule_ProvideListTFactory.<Foo>create()" since Foo
+              // is publicly accessible. It doesn't matter that the bound type, Bar, is
+              // package-private.
+              subject.hasErrorCount(0);
+              subject.generatedSource(
+                  goldenFileRule.goldenSource("test/ParameterizedModule_ProvideListTFactory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void parameterizedModule_withPackagePrivateTypeArgumentAndPublicBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.List;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(List<Foo> listFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T extends Bar> {",
+            "  @Provides",
+            "  List<T> provideListT(T t) { return null; }",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar {}");
+    daggerCompiler(component, usage, concreteModule, parameterizedModule, packagePrivateFoo, bar)
+        .compile(
+            subject -> {
+              // Note: In this case, the requested type is List<Foo>, but when calling the factory
+              // with Kotlin codegen, the component will use the bound type, Bar, e.g.
+              // "ParameterizedModule_ProvideListTFactory.<Bar>create()" since Foo is not publicly
+              // accessible.
+              subject.hasErrorCount(0);
+              subject.generatedSource(
+                  goldenFileRule.goldenSource("test/ParameterizedModule_ProvideListTFactory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void parameterizedModule_withPackagePrivateTypeArgumentAndNonCyclicRecursiveBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.Map;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(Map<Foo, Bar<Foo>> mapFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo, Bar<Foo>> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.Map;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T1, T2 extends Bar<T1>> {",
+            "  @Provides",
+            "  Map<T1, T2> provideMap(T1 t1) { return null; }",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar<T> {}");
+    daggerCompiler(component, usage, concreteModule, parameterizedModule, packagePrivateFoo, bar)
+        .compile(
+            subject -> {
+              // Note: In this case, the requested type is Map<Foo, Bar<Foo>, but when calling the
+              // factory with Kotlin codegen, the component will use the type,
+              // "ParameterizedModule_ProvideMapFactory.<Object, Bar<Object>>create()" since Foo is
+              // not publicly accessible.
+              subject.hasErrorCount(0);
+              subject.generatedSource(
+                  goldenFileRule.goldenSource("test/ParameterizedModule_ProvideMapFactory"));
+              subject.generatedSource(goldenFileRule.goldenSource("other/DaggerMyComponent"));
+            });
+  }
+
+  @Test
+  public void parameterizedModule_withPackagePrivateTypeArgumentAndPackagePrivateBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.List;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(List<Foo> listFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T extends Bar> {",
+            "  @Provides",
+            "  List<T> provideListT(T t) { return null; }",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar {",
+            "  @Inject Foo() {}",
+            "}");
+    Source packagePrivateBar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "interface Bar {}");
+    daggerCompiler(component, usage, concreteModule, parameterizedModule, packagePrivateFoo, packagePrivateBar)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
+  public void parameterizedModule_withPackagePrivateTypeArgumentAndIntersectionBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.List;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(List<Foo> listFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T extends Bar & Baz> {",
+            "  @Provides",
+            "  List<T> provideListT(T t) { return null; }",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar, Baz {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar {}");
+    Source baz =
+        CompilerTests.javaSource(
+            "test.Baz",
+            "package test;",
+            "",
+            "public interface Baz {}");
+    daggerCompiler(
+            component, usage, concreteModule, parameterizedModule, packagePrivateFoo, bar, baz)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
+  @Test
+  public void parameterizedModule_withPackagePrivateTypeArgumentAndCyclicRecursiveBounds() {
+    Source component =
+        CompilerTests.javaSource(
+            "other.MyComponent",
+            "package other;",
+            "",
+            "import dagger.Component;",
+            "import test.ConcreteModule;",
+            "import test.Usage;",
+            "",
+            "@Component(modules = {ConcreteModule.class})",
+            "interface MyComponent {",
+            "  Usage usage();",
+            "}");
+    Source usage =
+        CompilerTests.javaSource(
+            "test.Usage",
+            "package test;",
+            "",
+            "import java.util.List;",
+            "import javax.inject.Inject;",
+            "",
+            "public class Usage {",
+            "  @Inject Usage(List<Foo> listFoo, Foo foo) {}",
+            "}");
+    Source concreteModule =
+        CompilerTests.javaSource(
+            "test.ConcreteModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "",
+            "@Module",
+            "public final class ConcreteModule extends ParameterizedModule<Foo> {}");
+    Source parameterizedModule =
+        CompilerTests.javaSource(
+            "test.ParameterizedModule",
+            "package test;",
+            "",
+            "import dagger.Module;",
+            "import dagger.Provides;",
+            "import java.util.List;",
+            "",
+            "@Module",
+            "abstract class ParameterizedModule<T extends Bar<T>> {",
+            "  @Provides",
+            "  List<T> provideListT(T t) { return null; }",
+            "}");
+    Source packagePrivateFoo =
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "import javax.inject.Inject;",
+            "",
+            "class Foo implements Bar<Foo> {",
+            "  @Inject Foo() {}",
+            "}");
+    Source bar =
+        CompilerTests.javaSource(
+            "test.Bar",
+            "package test;",
+            "",
+            "public interface Bar<T> {}");
+    daggerCompiler(component, usage, concreteModule, parameterizedModule, packagePrivateFoo, bar)
+        .compile(subject -> subject.hasErrorCount(0));
   }
 
   private static final Source QUALIFIER_A =
