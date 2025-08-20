@@ -30,6 +30,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
+import com.android.build.gradle.api.AndroidBasePlugin
 import com.android.build.gradle.tasks.JdkImageInput
 import dagger.hilt.android.plugin.task.AggregateDepsTask
 import dagger.hilt.android.plugin.transform.AggregatedPackagesTransform
@@ -45,6 +46,7 @@ import dagger.hilt.android.plugin.util.getKspConfigName
 import dagger.hilt.android.plugin.util.isKspTask
 import dagger.hilt.android.plugin.util.onAllVariants
 import dagger.hilt.processor.internal.optionvalues.GradleProjectType
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
@@ -69,14 +71,21 @@ import org.objectweb.asm.Opcodes
  */
 class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactory) :
   Plugin<Project> {
+
   override fun apply(project: Project) {
-    var configured = false
+    val configured = AtomicBoolean(false)
     project.plugins.withId("com.android.base") {
-      configured = true
-      configureHilt(project)
+      if (configured.compareAndSet(false, true)) {
+        configureHilt(project)
+      }
+    }
+    project.plugins.withType(AndroidBasePlugin::class.java) {
+      if (configured.compareAndSet(false, true)) {
+        configureHilt(project)
+      }
     }
     project.afterEvaluate {
-      check(configured) {
+      check(configured.get()) {
         // Check if configuration was applied, if not inform the developer they have applied the
         // plugin to a non-android project.
         "The Hilt Android Gradle plugin can only be applied to an Android project."
