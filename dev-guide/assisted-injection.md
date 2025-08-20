@@ -18,9 +18,9 @@ creating the object.
 ## Dagger assisted injection
 
 To use Dagger's assisted injection, annotate the constructor of an object with
-[`@AssistedInject`](https://github.com/google/dagger/blob/master/java/dagger/assisted/AssistedInject.java)
+[`@AssistedInject`](https://github.com/google/dagger/blob/master/dagger-runtime/main/java/dagger/assisted/AssistedInject.java)
 and annotate any assisted parameters with
-[`@Assisted`](https://github.com/google/dagger/blob/master/java/dagger/assisted/Assisted.java),
+[`@Assisted`](https://github.com/google/dagger/blob/master/dagger-runtime/main/java/dagger/assisted/Assisted.java),
 as shown below:
 
 <div class="c-codeselector__button c-codeselector__button_java">Java</div>
@@ -42,7 +42,7 @@ class MyDataService @AssistedInject constructor(
 
 Next, define a factory that can be used to create an instance of the object.
 The factory must be annotated with
-[`@AssistedFactory`](https://github.com/google/dagger/blob/master/java/dagger/assisted/AssistedFactory.java)
+[`@AssistedFactory`](https://github.com/google/dagger/blob/master/dagger-runtime/main/java/dagger/assisted/AssistedFactory.java)
 and must contain an abstract method that returns the `@AssistedInject` type and
 takes in all `@Assisted` parameters defined in its constructor (in the same
 order). This is shown below:
