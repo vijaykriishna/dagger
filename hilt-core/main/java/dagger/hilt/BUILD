@@ -38,7 +38,6 @@ java_library(
     name = "entry_point",
     srcs = [
         "EntryPoint.java",
-        "EntryPoints.java",
     ],
     exported_plugins = [
         # This is required so that we can fail if @InstallIn is missing.
@@ -46,8 +45,19 @@ java_library(
         "//hilt-compiler/main/java/dagger/hilt/processor/internal/aggregateddeps:plugin",
     ],
     proguard_specs = ["//hilt-core/main/resources:proguard"],
+    exports = [":entry_points"],
     deps = [
         ":generates_root_input",
+        ":package_info",
+    ],
+)
+
+java_library(
+    name = "entry_points",
+    srcs = [
+        "EntryPoints.java",
+    ],
+    deps = [
         ":package_info",
         "//hilt-core/main/java/dagger/hilt/internal:component_manager",
         "//hilt-core/main/java/dagger/hilt/internal:generated_component",

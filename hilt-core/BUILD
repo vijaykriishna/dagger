@@ -60,6 +60,7 @@ gen_maven_artifact(
     artifact_target_libs = [
         "//hilt-core/main/java/dagger/hilt:define_component",
         "//hilt-core/main/java/dagger/hilt:entry_point",
+        "//hilt-core/main/java/dagger/hilt:entry_points",
         "//hilt-core/main/java/dagger/hilt:generates_root_input",
         "//hilt-core/main/java/dagger/hilt:install_in",
         "//hilt-core/main/java/dagger/hilt:package_info",
