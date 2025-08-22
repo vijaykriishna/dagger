@@ -147,6 +147,11 @@ jobs:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
           CI_GPG_PASSPHRASE: ${{ secrets.CI_GPG_PASSPHRASE }}
+      - name: 'Upload artifacts to Sonatype'
+        run: util/upload-to-sonatype.sh
+        shell: bash
+        env:
+          SONATYPE_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
       - name: 'Set git credentials'
         run: |
             git config --global user.email "dagger-dev+github@google.com"
