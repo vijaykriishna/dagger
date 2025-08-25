@@ -75,12 +75,12 @@ final class DaggerC {
 
     @Override
     public List<Number> numberList() {
-      return (List<Number>) ((Object) (ParentModule_ProvideListBFactory.provideListB(childNumberModule, ChildNumberModule_ProvideNumberFactory.provideNumber(childNumberModule))));
+      return (List<Number>) ((Object) (ParentModule_ProvideListBFactory.<String, Number, Double>provideListB(childNumberModule, ChildNumberModule_ProvideNumberFactory.provideNumber(childNumberModule))));
     }
 
     @Override
     public List<Integer> integerList() {
-      return (List<Integer>) ((Object) (ParentModule_ProvideListBFactory.provideListB(childIntegerModule, ChildIntegerModule_ProvideIntegerFactory.provideInteger(childIntegerModule))));
+      return (List<Integer>) ((Object) (ParentModule_ProvideListBFactory.<StringBuilder, Integer, Float>provideListB(childIntegerModule, ChildIntegerModule_ProvideIntegerFactory.provideInteger(childIntegerModule))));
     }
   }
 }

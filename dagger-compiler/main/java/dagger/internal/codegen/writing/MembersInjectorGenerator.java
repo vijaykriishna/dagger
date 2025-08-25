@@ -319,11 +319,12 @@ public final class MembersInjectorGenerator extends SourceFileGenerator<MembersI
         sourceFiles.frameworkFieldUsages(binding.dependencies(), frameworkFields);
     XCodeBlock invokeInjectionSites =
         InjectionSiteMethod.invokeAll(
-            binding.injectionSites(),
+            binding,
             membersInjectorNameForType(binding.membersInjectedType()),
             XCodeBlock.of("instance"),
             instanceType,
-            dependencyCodeBlocks::get);
+            dependencyCodeBlocks::get,
+            compilerOptions);
     return methodBuilder("injectMembers")
         .addModifiers(PUBLIC)
         .isOverride(true)

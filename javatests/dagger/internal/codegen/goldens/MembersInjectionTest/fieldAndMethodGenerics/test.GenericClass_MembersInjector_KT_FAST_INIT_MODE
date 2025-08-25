@@ -34,8 +34,8 @@ public final class GenericClass_MembersInjector<A, B> implements MembersInjector
 
   @Override
   public void injectMembers(GenericClass<A, B> instance) {
-    injectA(instance, aProvider.get());
-    injectRegister(instance, bProvider.get());
+    GenericClass_MembersInjector.<A, B>injectA(instance, aProvider.get());
+    GenericClass_MembersInjector.<A, B>injectRegister(instance, bProvider.get());
   }
 
   public static <A, B> MembersInjector<GenericClass<A, B>> create(Provider<?> aProvider,

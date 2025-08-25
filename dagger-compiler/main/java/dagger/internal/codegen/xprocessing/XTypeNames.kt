@@ -23,9 +23,19 @@ import androidx.room.compiler.codegen.compat.XConverters.toJavaPoet
 import androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet
 import androidx.room.compiler.codegen.compat.XConverters.toXPoet
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.ArrayTypeName as JArrayTypeName
+import com.squareup.javapoet.ClassName as JClassName
+import com.squareup.javapoet.ParameterizedTypeName as JParameterizedTypeName
+import com.squareup.javapoet.TypeName as JTypeName
+import com.squareup.javapoet.WildcardTypeName as JWildcardTypeName
+import com.squareup.javapoet.TypeVariableName as JTypeVariableName
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.ClassName as KClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName as KParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName as KTypeName
+import com.squareup.kotlinpoet.WildcardTypeName as KWildcardTypeName
+import com.squareup.kotlinpoet.TypeVariableName as KTypeVariableName
 
 /** Common names and convenience methods for XPoet {@link XTypeName} usage. */
 @OptIn(com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview::class)
@@ -56,6 +66,7 @@ object XTypeNames {
 
   // Dagger Internal classnames
   @JvmField val DAGGER_GENERATED = XClassName.get("dagger.internal", "DaggerGenerated")
+  @JvmField val DAGGER_CASTS = XClassName.get("dagger.internal", "DaggerCasts")
   @JvmField val IDENTIFIER_NAME_STRING = XClassName.get("dagger.internal", "IdentifierNameString")
   @JvmField val KEEP_FIELD_TYPE = XClassName.get("dagger.internal", "KeepFieldType")
   @JvmField val LAZY_CLASS_KEY = XClassName.get("dagger.multibindings", "LazyClassKey")
@@ -173,8 +184,8 @@ object XTypeNames {
   val UNSUPPORTED_OPERATION_EXCEPTION = XClassName.get("java.lang", "UnsupportedOperationException")
   @JvmField
   val DEPRECATED = toXPoet(
-    ClassName.get("java.lang", "Deprecated"),
-    com.squareup.kotlinpoet.ClassName("kotlin", "Deprecated")
+    JClassName.get("java.lang", "Deprecated"),
+    KClassName("kotlin", "Deprecated")
   )
   @JvmField val CAN_IGNORE_RETURN_VALUE =
    XClassName.get("com.google.errorprone.annotations", "CanIgnoreReturnValue")
@@ -308,19 +319,19 @@ object XTypeNames {
     // work in XProcessing due to b/427261839. Instead, we cast the JavaPoet and KotlinPoet
     // representations separately and create a new XClassName from the result.
     return toXPoet(
-      toJavaPoet() as ClassName,
-      toKotlinPoet() as com.squareup.kotlinpoet.ClassName,
+      toJavaPoet() as JClassName,
+      toKotlinPoet() as KClassName,
     )
   }
 
   /**
-   * Returns the {@link TypeName} for the raw type of the given {@link TypeName}. If the argument
+   * Returns the {@link JTypeName} for the raw type of the given {@link JTypeName}. If the argument
    * isn't a parameterized type, it returns the argument unchanged.
    */
   // TODO(bcorso): Take in an XTypeName once we can check for XParameterizedTypeName in XPoet.
   @JvmStatic
-  fun rawJavaTypeName(typeName: TypeName): TypeName {
-    return if (typeName is ParameterizedTypeName) {
+  fun rawJavaTypeName(typeName: JTypeName): JTypeName {
+    return if (typeName is JParameterizedTypeName) {
       typeName.rawType
     } else {
       typeName
@@ -333,6 +344,145 @@ object XTypeNames {
       XClassName.get(className.packageName, *className.simpleNames.dropLast(1).toTypedArray())
     } else {
       null
+    }
+  }
+
+  @JvmStatic
+  fun XTypeName.boundsHasSelfReference(): Boolean =
+    // The result should be the same for both JavaPoet and KotlinPoet, so we only need to check one.
+    toJavaPoet().boundsHasSelfReference(mutableMapOf())
+
+  private fun JTypeName.boundsHasSelfReference(
+    typeParametersMap: MutableMap<JTypeName, Boolean>
+  ): Boolean {
+    if (isPrimitive) {
+      return false
+    }
+    return when (this) {
+      is JClassName -> false
+      is JParameterizedTypeName -> typeArguments.any {
+        it.boundsHasSelfReference(typeParametersMap)
+      }
+      is JWildcardTypeName -> if (!lowerBounds.isEmpty()) {
+        lowerBounds.first().boundsHasSelfReference(typeParametersMap)
+      } else {
+        upperBounds.first().boundsHasSelfReference(typeParametersMap)
+      }
+      is JArrayTypeName -> componentType.boundsHasSelfReference(typeParametersMap)
+      is JTypeVariableName -> {
+        if (bounds.isEmpty()) {
+          return false
+        }
+        if (!typeParametersMap.contains(this)) {
+          // Initialize the map to true so that we can catch cycles before a real value is assigned.
+          typeParametersMap.put(this, true)
+          typeParametersMap.put(
+            this,
+            bounds.any { it.boundsHasSelfReference(typeParametersMap) }
+          )
+        }
+        typeParametersMap.get(this)!!
+      }
+      else -> error("Unexpected type name: $this")
+    }
+  }
+
+  @JvmStatic
+  fun XTypeName.replaceTypeVariablesWithBounds() =
+    toXPoet(
+      toJavaPoet().replaceTypeVariablesWithBounds(mutableMapOf()),
+      toKotlinPoet().replaceTypeVariablesWithBounds(mutableMapOf())
+    )
+
+  private val JCYCLIC_BOUNDS_SENTINEL = JClassName.get("", "JCYCLIC_BOUNDS_SENTINEL")
+
+  private fun JTypeName.replaceTypeVariablesWithBounds(
+    typeParametersMap: MutableMap<JTypeName, JTypeName?>
+  ): JTypeName {
+    if (isPrimitive) {
+      return this
+    }
+    return when (this) {
+      is JClassName -> this
+      is JParameterizedTypeName -> JParameterizedTypeName.get(
+        rawType,
+        *typeArguments.map {
+          it.replaceTypeVariablesWithBounds(typeParametersMap)
+        }.toTypedArray()
+      )
+      is JWildcardTypeName -> if (!lowerBounds.isEmpty()) {
+        JWildcardTypeName.supertypeOf(
+          lowerBounds.first().replaceTypeVariablesWithBounds(typeParametersMap)
+        )
+      } else {
+        JWildcardTypeName.subtypeOf(
+          upperBounds.first().replaceTypeVariablesWithBounds(typeParametersMap)
+        )
+      }
+      is JArrayTypeName ->
+        JArrayTypeName.of(componentType.replaceTypeVariablesWithBounds(typeParametersMap))
+      is JTypeVariableName -> {
+        if (bounds.isEmpty()) {
+          return JTypeName.OBJECT
+        }
+        if (!typeParametersMap.contains(this)) {
+          // Initialize the map to a sentinel to catch cycles before a real value is assigned.
+          typeParametersMap.put(this, JCYCLIC_BOUNDS_SENTINEL)
+          check(bounds.size == 1) {
+            "Cannot replace type variables with intersection bounds: $this"
+          }
+          val bound = bounds.first().replaceTypeVariablesWithBounds(typeParametersMap)
+          typeParametersMap.put(this, bound)
+        }
+        check(typeParametersMap.get(this) != JCYCLIC_BOUNDS_SENTINEL) {
+          "Cannot replace type variables with cyclic bounds: $this"
+        }
+        return typeParametersMap.get(this)!!
+      }
+      else -> error("Unexpected type name: $this")
+    }
+  }
+
+  private val KCYCLIC_BOUNDS_SENTINEL = KClassName("", "KCYCLIC_BOUNDS_SENTINEL")
+
+  private fun KTypeName.replaceTypeVariablesWithBounds(
+    typeParametersMap: MutableMap<KTypeName, KTypeName>
+  ): KTypeName {
+    return when (this) {
+      is KClassName -> this
+      is KParameterizedTypeName -> rawType.parameterizedBy(
+        *typeArguments.map {
+          it.replaceTypeVariablesWithBounds(typeParametersMap)
+        }.toTypedArray()
+      )
+      is KWildcardTypeName -> if (!inTypes.isEmpty()) {
+        KWildcardTypeName.consumerOf(
+          inTypes.first().replaceTypeVariablesWithBounds(typeParametersMap)
+        )
+      } else {
+        KWildcardTypeName.producerOf(
+          outTypes.first().replaceTypeVariablesWithBounds(typeParametersMap)
+        )
+      }
+      is KTypeVariableName -> {
+        if (bounds.isEmpty()) {
+          return ANY.copy(nullable = true)
+        }
+        if (!typeParametersMap.contains(this)) {
+          // Initialize the map to a sentinel to catch cycles before a real value is assigned.
+          typeParametersMap.put(this, KCYCLIC_BOUNDS_SENTINEL)
+          check(bounds.size == 1) {
+            "Cannot replace type variables with intersection bounds: $this"
+          }
+          val bound = bounds.first().replaceTypeVariablesWithBounds(typeParametersMap)
+          typeParametersMap.put(this, bound)
+        }
+        check(typeParametersMap.get(this) != KCYCLIC_BOUNDS_SENTINEL) {
+          "Cannot replace type variables with cyclic bounds: $this"
+        }
+        return typeParametersMap.get(this)!!
+      }
+      else -> error("Unexpected type name: $this")
     }
   }
 

@@ -593,6 +593,36 @@ public final class XTypes {
     }
   }
 
+  /**
+   * Returns the given {@code superTypeElement} as a member of the given {@code subType}.
+   *
+   * <p>For example, if we have {@code class A<T> : B<Foo, List<T>>} and {@code class B<T1, T2>}:
+   * <ul>
+   *   <li>{@code asMemberOf(b, b)} gives {@code B<T1, T2>}.
+   *   <li>{@code asMemberOf(b, a)} gives {@code B<Foo, List<T>>}.
+   * </ul>
+   *
+   * @throws IllegalArgumentException if {@code superTypeElement} is not a supertype of
+   *   {@code subType}.
+   */
+  public static XType asMemberOf(XTypeElement superTypeElement, XType subType) {
+    if (superTypeElement.equals(subType.getTypeElement())) {
+      return subType;
+    }
+    XType currentSubType = subType;
+    while (!currentSubType.getSuperTypes().isEmpty()) {
+      currentSubType = currentSubType.getSuperTypes().get(0);
+      if (superTypeElement.equals(currentSubType.getTypeElement())) {
+        return currentSubType;
+      }
+    }
+    throw new IllegalArgumentException(
+        String.format(
+            "%s is not a super type of %s",
+            XElements.toStableString(superTypeElement),
+            XTypes.toStableString(subType)));
+  }
+
   /** Returns {@code true} if the given type or any of its type arguments are type parameters. */
   public static boolean containsTypeParameter(XType type) {
     if (isTypeVariable(type)) {

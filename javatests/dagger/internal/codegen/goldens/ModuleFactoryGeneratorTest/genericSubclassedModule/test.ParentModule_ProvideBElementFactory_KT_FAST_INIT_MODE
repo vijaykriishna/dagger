@@ -36,7 +36,7 @@ public final class ParentModule_ProvideBElementFactory<A extends CharSequence, B
 
   @Override
   public Object get() {
-    return provideBElement(module, bProvider.get());
+    return ParentModule_ProvideBElementFactory.<A, B, C>provideBElement(module, bProvider.get());
   }
 
   public static <A extends CharSequence, B, C extends Number & Comparable<C>> ParentModule_ProvideBElementFactory<A, B, C> create(

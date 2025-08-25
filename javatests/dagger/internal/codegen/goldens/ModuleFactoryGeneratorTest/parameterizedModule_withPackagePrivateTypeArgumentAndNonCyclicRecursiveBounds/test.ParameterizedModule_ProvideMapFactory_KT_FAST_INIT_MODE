@@ -37,7 +37,7 @@ public final class ParameterizedModule_ProvideMapFactory<T1, T2 extends Bar<T1>>
 
   @Override
   public Object get() {
-    return provideMap(module, t1Provider.get());
+    return ParameterizedModule_ProvideMapFactory.<T1, T2>provideMap(module, t1Provider.get());
   }
 
   public static <T1, T2 extends Bar<T1>> ParameterizedModule_ProvideMapFactory<T1, T2> create(

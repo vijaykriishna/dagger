@@ -18,8 +18,10 @@ package dagger.functional.kotlinsrc.generictypes
 
 import javax.inject.Inject
 
+@Suppress("REDUNDANT_PROJECTION")
 class BoundedGenerics<
-  T1, T2 : List<CharSequence>, T3 : MutableList<in String>, T4 : T1, T5 : Iterable<T4>>
+  // TODO(b/438251676): Remove the "out" variance in List<out CharSequence> once this bug is fixed.
+  T1, T2 : List<out CharSequence>, T3 : MutableList<in String>, T4 : T1, T5 : Iterable<T4>>
 @Inject
 constructor(
   val t1: T1,

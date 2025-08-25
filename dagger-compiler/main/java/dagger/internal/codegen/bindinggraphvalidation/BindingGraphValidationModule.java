@@ -45,24 +45,24 @@ public interface BindingGraphValidationModule {
       InvalidProductionBindingScopeValidator validation10,
       SetMultibindingValidator validation11,
       SubcomponentFactoryMethodValidator validation12) {
-    ImmutableSet<ValidationBindingGraphPlugin> plugins =
-        ImmutableSet.of(
-            validation1,
-            validation2,
-            validation3,
-            validation4,
-            validation5,
-            validation6,
-            validation7,
-            validation8,
-            validation9,
-            validation10,
-            validation11,
-            validation12);
+    ImmutableSet.Builder<ValidationBindingGraphPlugin> builder =
+        ImmutableSet.<ValidationBindingGraphPlugin>builder()
+            .add(validation1)
+            .add(validation2)
+            .add(validation3)
+            .add(validation4)
+            .add(validation5)
+            .add(validation6)
+            .add(validation7)
+            .add(validation8)
+            .add(validation9)
+            .add(validation10)
+            .add(validation11)
+            .add(validation12);
     if (compilerOptions.experimentalDaggerErrorMessages()) {
-      return ImmutableSet.of(factory.create(plugins));
+      return ImmutableSet.of(factory.create(builder.build()));
     } else {
-      return plugins;
+      return builder.build();
     }
   }
 }

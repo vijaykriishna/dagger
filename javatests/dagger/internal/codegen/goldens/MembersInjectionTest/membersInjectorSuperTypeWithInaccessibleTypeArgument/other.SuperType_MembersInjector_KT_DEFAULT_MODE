@@ -57,11 +57,11 @@ public final class SuperType_MembersInjector<T> implements MembersInjector<Super
 
   @Override
   public void injectMembers(SuperType<T> instance) {
-    injectT(instance, tProvider.get());
-    injectListT(instance, listTProvider.get());
-    injectListExtendsT(instance, listExtendsTProvider.get());
-    injectArrayListExtendsT(instance, arrayListExtendsTProvider.get());
-    injectMethod(instance, tProvider2.get(), listTProvider2.get(), listExtendsTProvider2.get(), arrayListExtendsTProvider2.get());
+    SuperType_MembersInjector.<T>injectT(instance, tProvider.get());
+    SuperType_MembersInjector.<T>injectListT(instance, listTProvider.get());
+    SuperType_MembersInjector.<T>injectListExtendsT(instance, listExtendsTProvider.get());
+    SuperType_MembersInjector.<T>injectArrayListExtendsT(instance, arrayListExtendsTProvider.get());
+    SuperType_MembersInjector.<T>injectMethod(instance, tProvider2.get(), listTProvider2.get(), listExtendsTProvider2.get(), arrayListExtendsTProvider2.get());
   }
 
   public static <T> MembersInjector<SuperType<T>> create(Provider<?> tProvider,
