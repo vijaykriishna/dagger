@@ -18,6 +18,7 @@ package dagger.gradle.build
 
 import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryPlugin
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -74,11 +75,14 @@ class DaggerConventionPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     val daggerExtension = project.extensions.create<DaggerBuildExtension>("daggerBuild")
 
+    project.group = "com.google.dagger"
+    project.version = project.findProperty("PUBLISH_VERSION").toString()
+
     // Perform different configuration action based on the plugins applied to the project
     project.plugins.configureEach {
       when (this) {
-        is LibraryPlugin -> configureWithAndroidLibraryPlugin(project)
-        is KotlinBasePluginWrapper -> configureWithKotlinPlugin(project)
+        is LibraryPlugin -> configureWithAndroidLibraryPlugin(project, daggerExtension)
+        is KotlinBasePluginWrapper -> configureWithKotlinPlugin(project, daggerExtension)
         is ShadowPlugin -> configureWithShadowPlugin(project, daggerExtension)
       }
     }
@@ -93,7 +97,10 @@ class DaggerConventionPlugin : Plugin<Project> {
     project.afterEvaluate { configurePublish(project, daggerExtension) }
   }
 
-  private fun configureWithAndroidLibraryPlugin(project: Project) {
+  private fun configureWithAndroidLibraryPlugin(
+    project: Project,
+    daggerExtension: DaggerBuildExtension,
+  ) {
     val libraryExtension = project.extensions.getByType<LibraryExtension>()
     libraryExtension.apply {
       configureAndroidSourceSets(sourceSets)
@@ -104,6 +111,10 @@ class DaggerConventionPlugin : Plugin<Project> {
       compileSdk = project.getVersionByName("androidCompileSdk").toInt()
       defaultConfig.minSdk = project.getVersionByName("androidMinSdk").toInt()
     }
+
+    val libraryAndroidComponentsExtension =
+      project.extensions.getByType<LibraryAndroidComponentsExtension>()
+    project.configureVersionFileWriter(libraryAndroidComponentsExtension, daggerExtension)
   }
 
   private fun configureAndroidSourceSets(
@@ -114,7 +125,7 @@ class DaggerConventionPlugin : Plugin<Project> {
         java.srcDirs(sourceDir)
         kotlin.srcDirs(sourceDir)
         resources.srcDirs(resourceDir)
-        res.srcDirs(resourceDir)
+        res.srcDirs(resDir)
         manifest.srcFile("$name/AndroidManifest.xml")
       }
     }
@@ -138,9 +149,12 @@ class DaggerConventionPlugin : Plugin<Project> {
     )
   }
 
-  private fun configureWithKotlinPlugin(project: Project) {
+  private fun configureWithKotlinPlugin(project: Project, daggerExtension: DaggerBuildExtension) {
     configureKotlinSourceSets(project)
     configureKotlinJvmTarget(project)
+
+    val kotlinExtension = project.extensions.getByType<KotlinProjectExtension>()
+    project.configureVersionFileWriter(kotlinExtension, daggerExtension)
   }
 
   private fun configureKotlinSourceSets(project: Project) {
@@ -266,9 +280,9 @@ class DaggerConventionPlugin : Plugin<Project> {
           else -> error("Cannot publish library of type ${daggerExtension.type}.")
         }
         coordinates(
-          groupId = "com.google.dagger",
+          groupId = project.group as String,
           artifactId = project.name,
-          version = project.findProperty("PUBLISH_VERSION").toString(),
+          version = project.version.toString(),
         )
         publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
         pom {
