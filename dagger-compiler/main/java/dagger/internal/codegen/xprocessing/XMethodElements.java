@@ -16,9 +16,13 @@
 
 package dagger.internal.codegen.xprocessing;
 
+import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room.compiler.processing.compat.XConverters.toKS;
 
 import androidx.room.compiler.processing.XMethodElement;
+import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
+import com.google.devtools.ksp.symbol.Modifier;
 
 // TODO(bcorso): Consider moving these methods into XProcessing library.
 /** A utility class for {@link XMethodElement} helper methods. */
@@ -35,6 +39,19 @@ public final class XMethodElements {
   /** Returns {@code true} if the given method has type parameters. */
   public static boolean hasTypeParameters(XMethodElement method) {
     return !method.getExecutableType().getTypeVariableNames().isEmpty();
+  }
+
+  public static boolean hasOverride(XMethodElement method) {
+    XProcessingEnv.Backend backend = getProcessingEnv(method).getBackend();
+    switch (backend) {
+      case JAVAC:
+        return method.hasAnnotation(XTypeNames.OVERRIDE);
+      case KSP:
+        return method.getEnclosingElement().isFromJava()
+            ? method.hasAnnotation(XTypeNames.OVERRIDE)
+            : toKS(method).getModifiers().contains(Modifier.OVERRIDE);
+    }
+    throw new AssertionError("Unsupported backend: " + backend);
   }
 
   private XMethodElements() {}
