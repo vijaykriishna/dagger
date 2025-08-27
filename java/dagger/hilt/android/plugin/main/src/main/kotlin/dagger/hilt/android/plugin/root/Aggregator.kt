@@ -41,10 +41,7 @@ import org.slf4j.Logger
 
 /** Aggregates Hilt dependencies. */
 internal class Aggregator
-private constructor(
-  private val logger: Logger,
-  private val asmApiVersion: Int,
-) {
+private constructor(private val logger: Logger, private val asmApiVersion: Int) {
   private val classVisitor = AggregatedDepClassVisitor(logger, asmApiVersion)
 
   val aggregatedRoots: Set<AggregatedRootIr>
@@ -98,7 +95,7 @@ private constructor(
       name: String,
       signature: String?,
       superName: String?,
-      interfaces: Array<out String>?
+      interfaces: Array<out String>?,
     ) {
       accessCode = access
       annotatedClassName = Type.getObjectType(name).toClassName()
@@ -114,7 +111,7 @@ private constructor(
         allAggregatedDepProxies.add(
           AggregatedElementProxyIr(
             fqName = annotatedClassName.peerClass("_" + annotatedClassName.simpleName()),
-            value = annotatedClassName
+            value = annotatedClassName,
           )
         )
       }
@@ -161,14 +158,19 @@ private constructor(
             }
 
             override fun visitEnd() {
-              val rootClassName = parseClassNameWithFallback(
-                rootPackage, rootSimpleNames, rootClass)
+              val rootClassName =
+                parseClassNameWithFallback(rootPackage, rootSimpleNames, rootClass)
               val originatingRootClassName =
                 parseClassNameWithFallback(
                   originatingRootPackage,
                   originatingRootSimpleNames,
-                  originatingRootClass
+                  originatingRootClass,
                 )
+              if (!::rootComponentPackage.isInitialized) {
+                error(
+                  "rootComponentPackage is not initialized. Check the class: ${annotatedClassName.canonicalName()}"
+                )
+              }
               val rootComponentName = parseClassName(rootComponentPackage, rootComponentSimpleNames)
 
               aggregatedRoots.add(
@@ -209,7 +211,8 @@ private constructor(
 
             override fun visit(name: String, value: Any?) {
               when (name) {
-                "component", "builder" -> componentClass = value as String
+                "component",
+                "builder" -> componentClass = value as String
               }
               super.visit(name, value)
             }
@@ -290,7 +293,7 @@ private constructor(
                   replaces = replacesClasses,
                   module = moduleClass,
                   entryPoint = entryPoint,
-                  componentEntryPoint = componentEntryPoint
+                  componentEntryPoint = componentEntryPoint,
                 )
               )
               super.visitEnd()
@@ -344,7 +347,7 @@ private constructor(
                 AggregatedUninstallModulesIr(
                   fqName = annotatedClassName,
                   test = testClass,
-                  uninstallModules = uninstallModulesClasses
+                  uninstallModules = uninstallModulesClasses,
                 )
               )
               super.visitEnd()
@@ -366,7 +369,7 @@ private constructor(
               earlyEntryPointDeps.add(
                 AggregatedEarlyEntryPointIr(
                   fqName = annotatedClassName,
-                  earlyEntryPoint = earlyEntryPointClass
+                  earlyEntryPoint = earlyEntryPointClass,
                 )
               )
               super.visitEnd()
@@ -415,7 +418,7 @@ private constructor(
     ClassReader(classFileInputStream)
       .accept(
         classVisitor,
-        ClassReader.SKIP_CODE and ClassReader.SKIP_DEBUG and ClassReader.SKIP_FRAMES
+        ClassReader.SKIP_CODE and ClassReader.SKIP_DEBUG and ClassReader.SKIP_FRAMES,
       )
   }
 
@@ -456,11 +459,11 @@ private constructor(
 
     fun parseClassName(packageName: String, simpleNames: List<String>): ClassName {
       check(simpleNames.isNotEmpty())
-        return ClassName.get(
-          packageName,
-          simpleNames.first(),
-          *simpleNames.subList(1, simpleNames.size).toTypedArray()
-        )
+      return ClassName.get(
+        packageName,
+        simpleNames.first(),
+        *simpleNames.subList(1, simpleNames.size).toTypedArray(),
+      )
     }
   }
 }
