@@ -100,9 +100,9 @@ class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactor
 
     val androidExtension = project.extensions.findByType(AndroidComponentsExtension::class.java)
     check(androidExtension != null) { "Could not find the Android Gradle Plugin (AGP) extension." }
-    check(androidExtension.pluginVersion >= AndroidPluginVersion(8, 1)) {
+    check(androidExtension.pluginVersion >= AndroidPluginVersion(8, 4)) {
       "The Hilt Android Gradle plugin is only compatible with Android Gradle plugin (AGP) " +
-        "version 8.1.0 or higher (found ${androidExtension.pluginVersion})."
+        "version 8.4.0 or higher (found ${androidExtension.pluginVersion})."
     }
 
     configureDependencyTransforms(project)
@@ -116,11 +116,9 @@ class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactor
   private fun configureDependencyTransforms(project: Project) =
     project.dependencies.apply {
       registerTransform(CopyTransform::class.java) { spec ->
-        // Java/Kotlin library projects offer an artifact of type 'jar'.
+        //  Android library projects (with or without Kotlin) offer an artifact of type 'jar',
+        // meanwhile Java/Kotlin library projects offer an artifact of type 'jar'.
         spec.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, "jar")
-        // Android library projects (with or without Kotlin) offer an artifact of type
-        // 'android-classes', which AGP can offer as a jar.
-        spec.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, "android-classes")
         spec.to.attribute(ARTIFACT_TYPE_ATTRIBUTE, DAGGER_ARTIFACT_TYPE_VALUE)
       }
       registerTransform(CopyTransform::class.java) { spec ->
@@ -313,7 +311,9 @@ class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactor
       ) {
         it.compileClasspath.setFrom(getInputClasspath(AGGREGATED_HILT_ARTIFACT_TYPE_VALUE))
         it.outputDir.set(
-          project.file(project.buildDir.resolve("generated/hilt/component_trees/${variant.name}/"))
+          project.file(
+            project.layout.buildDirectory.dir("generated/hilt/component_trees/${variant.name}/")
+          )
         )
         @Suppress("DEPRECATION") // Older variant API is deprecated
         it.testEnvironment.set(
@@ -329,7 +329,7 @@ class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactor
 
     val componentClasses =
       project.files(
-        project.buildDir.resolve("intermediates/hilt/component_classes/${variant.name}/")
+        project.layout.buildDirectory.dir("intermediates/hilt/component_classes/${variant.name}/")
       )
     val componentsJavaCompileTask =
       project.tasks.register(
@@ -364,7 +364,7 @@ class HiltGradlePlugin @Inject constructor(private val providers: ProviderFactor
           annotationProcessorPath = hiltAnnotationProcessorConfiguration
           generatedSourceOutputDirectory.set(
             project.file(
-              project.buildDir.resolve("generated/hilt/component_sources/${variant.name}/")
+              project.layout.buildDirectory.dir("generated/hilt/component_sources/${variant.name}/")
             )
           )
           if (

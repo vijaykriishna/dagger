@@ -22,7 +22,7 @@ plugins {
 android {
 
     namespace 'hilt.lazyclasskey'
-    compileSdkVersion 33
+    compileSdkVersion 34
     defaultConfig {
         applicationId 'hilt.lazyclasskey'
         minSdk 16

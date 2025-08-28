@@ -22,7 +22,7 @@ plugins {
 android {
 
     namespace 'dagger.hilt.viewmodel'
-    compileSdkVersion 33
+    compileSdkVersion 34
     defaultConfig {
         applicationId 'dagger.hilt.viewmodel'
         minSdk 16

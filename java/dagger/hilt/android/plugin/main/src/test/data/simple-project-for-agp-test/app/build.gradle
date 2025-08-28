@@ -20,13 +20,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     namespace "simple.app"
 
     defaultConfig {
         applicationId "simple.app"
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
     }
 
     namespace = "simple.app"

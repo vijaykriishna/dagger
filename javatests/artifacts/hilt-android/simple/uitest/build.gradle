@@ -18,12 +18,12 @@ apply plugin: 'com.android.test'
 apply plugin: 'com.google.dagger.hilt.android'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "33.0.1"
+    compileSdkVersion 34
+    buildToolsVersion "34.0.0"
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 33
+        targetSdkVersion 34
         testInstrumentationRunner "dagger.hilt.android.simple.uitest.TestRunner"
         missingDimensionStrategy 'tier', 'free'
     }

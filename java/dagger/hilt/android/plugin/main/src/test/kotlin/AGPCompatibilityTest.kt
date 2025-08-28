@@ -30,10 +30,7 @@ import org.junit.runners.Parameterized
 const val TASK = ":app:transformDebugClassesWithAsm"
 
 @RunWith(Parameterized::class)
-class AGPCompatibilityTest(
-  private val agpVersion: String,
-  private val gradleVersion: String
-) {
+class AGPCompatibilityTest(private val agpVersion: String, private val gradleVersion: String) {
   @get:Rule val testProjectDir = TemporaryFolder()
 
   @get:Rule val expect: Expect = Expect.create()
@@ -59,7 +56,8 @@ class AGPCompatibilityTest(
             mavenCentral()
           }
         }
-      """.trimIndent()
+      """
+          .trimIndent()
       )
     }
   }
@@ -67,8 +65,7 @@ class AGPCompatibilityTest(
   @Test
   fun test() {
     val result = runGradleTasks(TASK)
-    expect.that(result.task(TASK)!!.outcome)
-        .isEqualTo(TaskOutcome.SUCCESS)
+    expect.that(result.task(TASK)!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
   }
 
   private fun runGradleTasks(vararg args: String): BuildResult {
@@ -87,8 +84,8 @@ class AGPCompatibilityTest(
     @Parameterized.Parameters(name = "agpVersion = {0}, gradleVersion = {1}")
     fun parameters() =
       listOf(
-        // AGP 8.3 requires Gradle 8.4 and JDK 17.
-        arrayOf("8.3.0", "8.4"),
+        // AGP 8.4 requires Gradle 8.6 and JDK 17.
+        arrayOf("8.4.2", "8.6")
       )
   }
 }

@@ -15,6 +15,7 @@
  */
 
 import com.google.common.truth.Expect
+import dagger.hilt.android.plugin.util.capitalize
 import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -137,7 +138,7 @@ class IncrementalProcessorTest(private val incapMode: String) {
           mavenCentral()
         }
         dependencies {
-          classpath 'com.android.tools.build:gradle:7.1.2'
+          classpath 'com.android.tools.build:gradle:8.4.2'
         }
       }
 
@@ -147,13 +148,13 @@ class IncrementalProcessorTest(private val incapMode: String) {
       }
 
       android {
-        compileSdkVersion 33
-        buildToolsVersion "33.0.1"
+        compileSdkVersion 34
+        buildToolsVersion "34.0.0"
 
         defaultConfig {
           applicationId "hilt.simple"
           minSdkVersion 21
-          targetSdkVersion 33
+          targetSdkVersion 34
           javaCompileOptions {
             annotationProcessorOptions {
                 arguments += ["dagger.hilt.shareTestComponents" : "true"]
@@ -215,13 +216,14 @@ class IncrementalProcessorTest(private val incapMode: String) {
       }
     val rootGenSrcDir = getRootGenSrcDir("debug")
     val testRootGenSrcDir = getRootGenSrcDir("debugUnitTest")
-    val defaultClassesDir = "build/intermediates/javac/debug/classes"
-    val testDefaultClassesDir = "build/intermediates/javac/debugUnitTest/classes"
+    val defaultClassesDir = "build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+    val testDefaultClassesDir =
+      "build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes"
     fun getRootClassesDir(variant: String) =
       if (incapMode == ISOLATING_MODE) {
         "build/intermediates/hilt/component_classes/$variant/"
       } else {
-        "build/intermediates/javac/$variant/classes"
+        "build/intermediates/javac/$variant/compile${variant.capitalize()}JavaWithJavac/classes"
       }
     val rootClassesDir = getRootClassesDir("debug")
     val testRootClassesDir = getRootClassesDir("debugUnitTest")
