@@ -95,7 +95,7 @@ kotlin {
   compilerOptions {
     apiVersion = KotlinVersion.KOTLIN_2_0
     languageVersion = KotlinVersion.KOTLIN_2_0
-    coreLibrariesVersion = KotlinVersion.KOTLIN_2_0
+    coreLibrariesVersion = "2.0.21"
 
     allWarningsAsErrors = true
     freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi")
