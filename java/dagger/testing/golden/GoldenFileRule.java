@@ -71,12 +71,25 @@ public final class GoldenFileRule implements TestRule {
    * output the correct golden file in the proper location.
    */
   public Source goldenSource(String generatedFilePath) {
+    return goldenSource(generatedFilePath, /* isKotlin= */ false);
+  }
+
+  /**
+   * Returns the golden file as a {@link Source} containing the file's content.
+   *
+   * <p>If the golden file does not exist, the returned file object contains an error message
+   * pointing to the location of the missing golden file. This can be used with scripting tools to
+   * output the correct golden file in the proper location.
+   */
+  public Source goldenSource(String generatedFilePath, boolean isKotlin) {
     // Note: we wrap the IOException in a RuntimeException so that this can be called from within
     // the lambda required by XProcessing's testing APIs. We could avoid this by calling this method
     // outside of the lambda, but that seems like an non-worthwile hit to readability.
+    String qualifiedName = generatedFilePath.replace('/', '.');
     try {
-      return Source.Companion.java(
-          generatedFilePath, goldenFileContent(generatedFilePath.replace('/', '.')));
+      return isKotlin
+          ? Source.Companion.kotlin(generatedFilePath + ".kt", goldenFileContent(qualifiedName))
+          : Source.Companion.java(generatedFilePath, goldenFileContent(qualifiedName));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -100,7 +113,7 @@ public final class GoldenFileRule implements TestRule {
    * to the location of the missing golden file. This can be used with scripting tools to output
    * the correct golden file in the proper location.
    */
-  public String goldenFileContent(String qualifiedName) throws IOException {
+  private String goldenFileContent(String qualifiedName) throws IOException {
     String fileName = relativeGoldenFileName(description, qualifiedName);
     String resourceName = "goldens/" + fileName;
     URL url = description.getTestClass().getResource(resourceName);
