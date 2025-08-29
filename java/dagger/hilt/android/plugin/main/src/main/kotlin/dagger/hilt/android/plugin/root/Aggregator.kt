@@ -166,12 +166,15 @@ private constructor(private val logger: Logger, private val asmApiVersion: Int) 
                   originatingRootSimpleNames,
                   originatingRootClass,
                 )
-              if (!::rootComponentPackage.isInitialized) {
-                error(
-                  "rootComponentPackage is not initialized. Check the class: ${annotatedClassName.canonicalName()}"
-                )
-              }
-              val rootComponentName = parseClassName(rootComponentPackage, rootComponentSimpleNames)
+              val rootComponentName =
+                if (::rootComponentPackage.isInitialized) {
+                  parseClassName(rootComponentPackage, rootComponentSimpleNames)
+                } else {
+                  // If rootComponentPackage isn't there, that means that this is likely coming from
+                  // an older Dagger version, so assume the root component is the SingletonComponent
+                  // for backwards compatibility.
+                  SINGLETON_COMPONENT
+                }
 
               aggregatedRoots.add(
                 AggregatedRootIr(
@@ -423,6 +426,8 @@ private constructor(private val logger: Logger, private val asmApiVersion: Int) 
   }
 
   companion object {
+    val SINGLETON_COMPONENT = ClassName.get("dagger.hilt.components", "SingletonComponent")
+
     fun from(logger: Logger, asmApiVersion: Int, input: Iterable<File>) =
       Aggregator(logger, asmApiVersion).apply { process(input) }
 
