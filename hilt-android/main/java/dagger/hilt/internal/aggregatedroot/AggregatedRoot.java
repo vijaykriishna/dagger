@@ -62,8 +62,10 @@ public @interface AggregatedRoot {
   Class<?> rootAnnotation();
 
   /** Package of the root component this root is for. */
-  String rootComponentPackage();
+  // This has a default value for backwards compatibility.
+  String rootComponentPackage() default "";
 
   /** Root component simple names, in order of outer to inner. */
-  String[] rootComponentSimpleNames();
+  // This has a default value for backwards compatibility.
+  String[] rootComponentSimpleNames() default {};
 }
