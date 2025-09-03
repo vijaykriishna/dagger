@@ -19,9 +19,11 @@ package dagger.internal.codegen.xprocessing;
 import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
 import static androidx.room.compiler.processing.compat.XConverters.toKS;
 
+import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XProcessingEnv;
 import androidx.room.compiler.processing.XTypeElement;
+import com.google.devtools.ksp.symbol.KSDeclaration;
 import com.google.devtools.ksp.symbol.Modifier;
 
 // TODO(bcorso): Consider moving these methods into XProcessing library.
@@ -49,7 +51,14 @@ public final class XMethodElements {
       case KSP:
         return method.getEnclosingElement().isFromJava()
             ? method.hasAnnotation(XTypeNames.OVERRIDE)
-            : toKS(method).getModifiers().contains(Modifier.OVERRIDE);
+            // TODO(bcorso): Fix XConverters.toKS to avoid the two casts below.
+            //   1. The cast to XElement is needed to force the use of toKS(XElement) rather than
+            //      toKS(XExecutableElement) -- the former returns the underlying property
+            //      declaration when used with a KspSyntheticPropertyMethodElement, while the latter
+            //      will throw an exception.
+            //   2. The cast to KSDeclaration is needed because toKS(XElement) returns an XAnnotated
+            //      rather than KSDeclaration, and KSDeclaration is needed to access the modifiers.
+            : ((KSDeclaration) toKS((XElement) method)).getModifiers().contains(Modifier.OVERRIDE);
     }
     throw new AssertionError("Unsupported backend: " + backend);
   }
