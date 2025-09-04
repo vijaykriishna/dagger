@@ -97,14 +97,24 @@ abstract class AggregatedRootMetadata {
         rootElement,
         env.requireTypeElement(annotation.getAsString("originatingRoot")),
         annotation.getAsType("rootAnnotation").getTypeElement(),
-        parseClassName(
+        parseRootComponentClassName(
             annotation.getAsString("rootComponentPackage"),
             annotation.getAsStringList("rootComponentSimpleNames")),
         allowSharingComponent);
   }
 
-  private static ClassName parseClassName(String pkg, List<String> simpleNames) {
+  private static ClassName parseRootComponentClassName(
+      String rootComponentPackage, List<String> rootComponentSimpleNames) {
+    // If rootComponentPackage isn't there, that means that this is likely coming from an older
+    // Dagger version, so assume the root component is the SingletonComponent for backwards
+    // compatibility.
+    if (rootComponentPackage.isEmpty()) {
+      return ClassNames.SINGLETON_COMPONENT;
+    }
     return ClassName.get(
-        pkg, simpleNames.get(0), simpleNames.subList(1, simpleNames.size()).toArray(new String[0]));
+        rootComponentPackage,
+        rootComponentSimpleNames.get(0),
+        rootComponentSimpleNames.subList(1, rootComponentSimpleNames.size())
+            .toArray(new String[0]));
   }
 }

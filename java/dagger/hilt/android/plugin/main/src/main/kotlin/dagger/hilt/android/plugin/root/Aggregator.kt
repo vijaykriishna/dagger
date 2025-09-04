@@ -167,19 +167,14 @@ private constructor(private val logger: Logger, private val asmApiVersion: Int) 
                   originatingRootClass,
                 )
               val rootComponentName =
-                // TODO(erichang): This is a bit of a hedge since the rootComponentPackage attribute
-                // has a default value. So either the visitor visits it even if unset because it has
-                // a default and it is always initialized and we only need the empty check or it
-                // doesn't visit it despite the default value and we only need the initialized
-                // check. The ASM documentation wasn't very clear though and since this cross
-                // version setup is a bit difficult to test, just checking both for now to get this
-                // fixed quickly.
-                if (::rootComponentPackage.isInitialized && !rootComponentPackage.isEmpty()) {
+                // If rootComponentPackage isn't there, that means that this is likely coming from
+                // an older Dagger version, so assume the root component is the SingletonComponent
+                // for backwards compatibility.
+                // Also, even though these have default values, if they are unset then the visitor
+                // still does not visit them so we only have to check if it is initialized.
+                if (::rootComponentPackage.isInitialized) {
                   parseClassName(rootComponentPackage, rootComponentSimpleNames)
                 } else {
-                  // If rootComponentPackage isn't there, that means that this is likely coming from
-                  // an older Dagger version, so assume the root component is the SingletonComponent
-                  // for backwards compatibility.
                   SINGLETON_COMPONENT
                 }
 
