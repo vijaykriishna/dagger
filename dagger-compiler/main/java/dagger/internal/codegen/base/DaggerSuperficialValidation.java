@@ -318,12 +318,6 @@ public final class DaggerSuperficialValidation {
    */
   private void validateType(String desc, XType type) {
     checkNotNull(type);
-    // TODO(b/242569252): Due to a bug in kotlinc, a TypeName may incorrectly contain a "$" instead
-    // of "." if the TypeName is requested before the type has been resolved. Furthermore,
-    // XProcessing will cache the incorrect TypeName so that further calls will still contain the
-    // "$" even after the type has been resolved. Thus, we try to resolve the type as early as
-    // possible to prevent using/caching the incorrect TypeName.
-    XTypes.resolveIfNeeded(type);
     try {
       if (isArray(type)) {
         validateType("array component type", asArray(type).getComponentType());
