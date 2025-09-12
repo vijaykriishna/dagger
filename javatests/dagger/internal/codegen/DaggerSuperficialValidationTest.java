@@ -639,6 +639,74 @@ public class DaggerSuperficialValidationTest {
         });
   }
 
+  @Test
+  public void invalidSupertypeInClass() {
+    runTest(
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "",
+            "final class Foo implements MissingType {}"),
+        CompilerTests.kotlinSource(
+            "test.Foo.kt",
+            "package test",
+            "",
+            "class Foo : MissingType"),
+        (processingEnv, superficialValidation) -> {
+          XTypeElement foo = processingEnv.findTypeElement("test.Foo");
+          if (processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC) {
+            // TODO: b/444278301 - Javac's model is missing the error types.
+            superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType());
+            return;
+          }
+          ValidationException exception =
+              assertThrows(
+                  ValidationException.KnownErrorType.class,
+                  () -> superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType()));
+          assertThat(exception)
+              .hasMessageThat()
+              .contains(
+                  NEW_LINES.join(
+                      "Validation trace:",
+                      "  => element (CLASS): test.Foo",
+                      "  => type (DECLARED type): test.Foo",
+                      "  => type (ERROR supertype): MissingType"));
+        });
+  }
+
+  @Test
+  public void invalidSupertypeInInterface() {
+    runTest(
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "interface Foo extends MissingType {}"),
+        CompilerTests.kotlinSource(
+            "test.Foo.kt",
+            "package test",
+            "interface Foo : MissingType"),
+        (processingEnv, superficialValidation) -> {
+          XTypeElement foo = processingEnv.findTypeElement("test.Foo");
+          if (processingEnv.getBackend() == XProcessingEnv.Backend.JAVAC) {
+            // TODO: b/444278301 - Javac's model is missing the error types.
+            superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType());
+            return;
+          }
+          ValidationException exception =
+              assertThrows(
+                  ValidationException.KnownErrorType.class,
+                  () -> superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType()));
+          assertThat(exception)
+              .hasMessageThat()
+              .contains(
+                  NEW_LINES.join(
+                      "Validation trace:",
+                      "  => element (INTERFACE): test.Foo",
+                      "  => type (DECLARED type): test.Foo",
+                      "  => type (ERROR supertype): MissingType"));
+        });
+  }
+
   private void runTest(
       Source.JavaSource javaSource,
       Source.KotlinSource kotlinSource,
