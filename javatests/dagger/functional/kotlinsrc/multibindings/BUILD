@@ -26,21 +26,7 @@ package(default_visibility = ["//:src"])
 
 GenKtTests(
     name = "MultibindingTest",
-    srcs = [
-        "BooleanKey.kt",
-        "ByteKey.kt",
-        "CharKey.kt",
-        "MultibindingComponent.kt",
-        "MultibindingDependency.kt",
-        "MultibindingModule.kt",
-        "MultibindingTest.kt",
-        "MultibindsModule.kt",
-        "NestedAnnotationContainer.kt",
-        "NumberClassKey.kt",
-        "ShortKey.kt",
-        "UnwrappedAnnotationKey.kt",
-        "WrappedAnnotationKey.kt",
-    ],
+    srcs = ["MultibindingTest.kt"],
     gen_library_deps = [
         "//javatests/dagger/functional/kotlinsrc/multibindings/subpackage:ContributionsModule",
     ],
