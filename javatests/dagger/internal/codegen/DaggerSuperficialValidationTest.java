@@ -707,6 +707,99 @@ public class DaggerSuperficialValidationTest {
         });
   }
 
+  @Test
+  public void invalidSuperInterfaceInTypeHierarchy() {
+    runTest(
+        CompilerTests.javaSource(
+            "test.Foo",
+            "package test;",
+            "class Foo extends Bar<Baz> {}",
+            "class Bar<T> {}",
+            "class Baz extends MissingType {}"),
+        CompilerTests.kotlinSource(
+            "test.Foo.kt",
+            "package test;",
+            "class Foo : Bar<Baz> {}",
+            "open class Bar<T> {}",
+            "class Baz : MissingType {}"),
+        (processingEnv, superficialValidation) -> {
+          XTypeElement foo = processingEnv.findTypeElement("test.Foo");
+          if (isKAPT(processingEnv)) {
+            // https://youtrack.jetbrains.com/issue/KT-34193/Kapt-CorrectErrorTypes-doesnt-work-for-generics
+            // There's no way to work around this bug in KAPT so validation doesn't catch this case.
+            superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType());
+            return;
+          }
+          ValidationException exception =
+              assertThrows(
+                  ValidationException.KnownErrorType.class,
+                  () -> superficialValidation.validateTypeHierarchyOf("type", foo, foo.getType()));
+          assertThat(exception)
+              .hasMessageThat()
+              .contains(
+                  NEW_LINES.join(
+                      "Validation trace:",
+                      "  => element (CLASS): test.Foo",
+                      "  => type (DECLARED type): test.Foo",
+                      "  => type (DECLARED supertype): test.Bar<test.Baz>",
+                      "  => type (DECLARED type argument): test.Baz",
+                      "  => type (ERROR supertype): MissingType"));
+        });
+  }
+
+  @Test
+  public void invalidSuperInterfaceInArrayTypeHierarchy() {
+    runTest(
+        CompilerTests.javaSource(
+            "test.Outer",
+            "package test;",
+            "",
+            "final class Outer {",
+            "  static class Foo extends Bar<Baz[]> {}",
+            "  static class Bar<T> {}",
+            "  static class Baz extends MissingType {}",
+            "  Foo getFoo() { return null; }",
+            "}"),
+        CompilerTests.kotlinSource(
+            "test.Outer.kt",
+            "package test;",
+            "",
+            "class Outer {",
+            "  class Foo : Bar<Array<Baz>> {}",
+            "  open class Bar<T> {}",
+            "  class Baz : MissingType {}",
+            "  fun getFoo(): Foo = TODO()",
+            "}"),
+        (processingEnv, superficialValidation) -> {
+          XTypeElement outerElement = processingEnv.findTypeElement("test.Outer");
+          XMethodElement getFooMethod = outerElement.getDeclaredMethods().get(0);
+          if (isKAPT(processingEnv)) {
+            // https://youtrack.jetbrains.com/issue/KT-34193/Kapt-CorrectErrorTypes-doesnt-work-for-generics
+            // There's no way to work around this bug in KAPT so validation doesn't catch this case.
+            superficialValidation.validateTypeHierarchyOf(
+                "return type", getFooMethod, getFooMethod.getReturnType());
+            return;
+          }
+          ValidationException exception =
+              assertThrows(
+                  ValidationException.KnownErrorType.class,
+                  () ->
+                      superficialValidation.validateTypeHierarchyOf(
+                          "return type", getFooMethod, getFooMethod.getReturnType()));
+          final String expectedTrace =
+              NEW_LINES.join(
+                  "Validation trace:",
+                  "  => element (CLASS): test.Outer",
+                  "  => element (METHOD): getFoo()",
+                  "  => type (DECLARED return type): test.Outer.Foo",
+                  "  => type (DECLARED supertype): test.Outer.Bar<test.Outer.Baz[]>",
+                  "  => type (ARRAY type argument): test.Outer.Baz[]",
+                  "  => type (DECLARED array component type): test.Outer.Baz",
+                  "  => type (ERROR supertype): MissingType");
+          assertThat(exception).hasMessageThat().contains(expectedTrace);
+        });
+  }
+
   private void runTest(
       Source.JavaSource javaSource,
       Source.KotlinSource kotlinSource,

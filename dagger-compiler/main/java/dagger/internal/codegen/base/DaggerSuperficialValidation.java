@@ -39,12 +39,15 @@ import static dagger.internal.codegen.xprocessing.XExecutableTypes.asMethodType;
 import static dagger.internal.codegen.xprocessing.XExecutableTypes.getKindName;
 import static dagger.internal.codegen.xprocessing.XExecutableTypes.isMethodType;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
+import static dagger.internal.codegen.xprocessing.XTypes.asTypeVariable;
 import static dagger.internal.codegen.xprocessing.XTypes.getKindName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
+import static dagger.internal.codegen.xprocessing.XTypes.isTypeVariable;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 
 import androidx.room.compiler.codegen.XClassName;
+import androidx.room.compiler.codegen.XTypeName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XAnnotationValue;
 import androidx.room.compiler.processing.XElement;
@@ -68,8 +71,10 @@ import dagger.internal.codegen.xprocessing.XTypeNames;
 import dagger.internal.codegen.xprocessing.XTypes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Inject;
 
 /**
@@ -230,16 +235,32 @@ public final class DaggerSuperficialValidation {
    */
   public void validateTypeHierarchyOf(String typeDescription, XElement element, XType type) {
     try {
-      validateTypeHierarchy(typeDescription, type);
+      validateTypeHierarchy(typeDescription, type, new HashSet<>());
     } catch (RuntimeException exception) {
       throw ValidationException.from(exception).append(element);
     }
   }
 
-  private void validateTypeHierarchy(String desc, XType type) {
+  private void validateTypeHierarchy(String desc, XType type, Set<XTypeName> visited) {
+    if (!visited.add(type.asTypeName())) {
+      return;
+    }
     validateType(desc, type);
     try {
-      type.getSuperTypes().forEach(supertype -> validateTypeHierarchy("supertype", supertype));
+      if (isArray(type)) {
+        validateTypeHierarchy("array component type", asArray(type).getComponentType(), visited);
+      } else if (isDeclared(type)) {
+        type.getTypeArguments()
+            .forEach(typeArg -> validateTypeHierarchy("type argument", typeArg, visited));
+        type.getSuperTypes()
+            .forEach(supertype -> validateTypeHierarchy("supertype", supertype, visited));
+      } else if (isWildcard(type) && type.extendsBound() != null) {
+        validateTypeHierarchy("extends bound type", type.extendsBound(), visited);
+      } else if (isTypeVariable(type)) {
+        asTypeVariable(type)
+            .getUpperBounds()
+            .forEach(bound -> validateTypeHierarchy("type variable bound type", bound, visited));
+      }
     } catch (RuntimeException exception) {
       throw ValidationException.from(exception).append(desc, type);
     }
