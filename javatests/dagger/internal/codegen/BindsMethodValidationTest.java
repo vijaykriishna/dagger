@@ -29,7 +29,6 @@ import dagger.producers.ProducerModule;
 import dagger.testing.compile.CompilerTests;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
-import java.util.Collection;
 import javax.inject.Qualifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +38,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class BindsMethodValidationTest {
   @Parameters
-  public static Collection<Object[]> data() {
+  public static ImmutableList<Object[]> data() {
     return ImmutableList.copyOf(new Object[][] {{Module.class}, {ProducerModule.class}});
   }
 
@@ -425,6 +424,38 @@ public class BindsMethodValidationTest {
             subject -> {
               subject.hasErrorCount(1);
               subject.hasErrorContaining("Map<test.K,Provider<test.V>> cannot be provided");
+            });
+  }
+
+  @Test
+  public void javaKeywordAsProvidesMethodName_failsWithExpectedError() throws Exception {
+    Source moduleSrc =
+        CompilerTests.kotlinSource(
+            "test/MyModule.kt",
+            "package test",
+            "",
+            "import dagger.Module",
+            "import dagger.Provides",
+            "",
+            "@Module",
+            "class MyModule {",
+            "  @Provides fun int(): Int = 3 // Offending function name",
+            "}");
+
+    CompilerTests.daggerCompiler(moduleSrc)
+        .compile(
+            subject -> {
+              switch (CompilerTests.backend(subject)) {
+                case KSP:
+                  subject
+                      .hasErrorContaining("cannot use the Java keyword, 'int', as a name")
+                      .onSource(moduleSrc)
+                      .onLineContaining("fun int()");
+                  break;
+                default:
+                  subject.hasErrorCount(0);
+                  break;
+              }
             });
   }
 

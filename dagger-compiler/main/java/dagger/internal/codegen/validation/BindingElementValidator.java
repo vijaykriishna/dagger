@@ -23,9 +23,11 @@ import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedInjectionType;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeys;
+import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeVariable;
+import static javax.lang.model.SourceVersion.isKeyword;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
@@ -38,7 +40,6 @@ import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.base.SetType;
 import dagger.internal.codegen.binding.InjectionAnnotations;
-import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XElements;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -47,7 +48,6 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.inject.Qualifier;
 
 /** A validator for elements that represent binding declarations. */
 public abstract class BindingElementValidator<E extends XElement> {
@@ -148,7 +148,24 @@ public abstract class BindingElementValidator<E extends XElement> {
       checkMultibindingAnnotations();
       checkScopes();
       checkAdditionalProperties();
+      checkNoJavaKeywords();
       return report.build();
+    }
+
+    /**
+     * Adds an error if the element has a name that is a Java keyword.
+     *
+     * <p>This is not allowed because Dagger currently generates Java code for KSP.
+     */
+    protected void checkNoJavaKeywords() {
+      String elementName = getSimpleName(this.element);
+      if (isKeyword(elementName)) {
+        report.addError(
+            bindingElements(
+                "cannot use the Java keyword, '%s', as a name because Dagger currently"
+                    + " generates Java. Please rename the %s.",
+                elementName, bindingElements()));
+      }
     }
 
     /** Check any additional properties of the element. Does nothing by default. */
