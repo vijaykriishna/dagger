@@ -44,10 +44,6 @@ abstract class KotlinMetadata {
   private final Map<XFieldElement, Optional<MethodForAnnotations>> elementFieldAnnotationMethodMap =
       new HashMap<>();
 
-  // Map that associates field elements with its Kotlin getter method.
-  private final Map<XFieldElement, Optional<XMethodElement>> elementFieldGetterMethodMap =
-      new HashMap<>();
-
   abstract XTypeElement typeElement();
 
   abstract ClassMetadata classMetadata();
@@ -98,17 +94,6 @@ abstract class KotlinMetadata {
                     // The method may be missing across different compilations.
                     // See https://youtrack.jetbrains.com/issue/KT-34684
                     .orElse(MethodForAnnotations.MISSING));
-  }
-
-  /** Gets the getter method of a given field element corresponding to a property. */
-  Optional<XMethodElement> getPropertyGetter(XFieldElement fieldElement) {
-    return elementFieldGetterMethodMap.computeIfAbsent(
-        fieldElement, this::getPropertyGetterUncached);
-  }
-
-  private Optional<XMethodElement> getPropertyGetterUncached(XFieldElement fieldElement) {
-    return Optional.ofNullable(findProperty(fieldElement).getGetterSignature())
-        .flatMap(signature -> Optional.ofNullable(methodDescriptors().get(signature)));
   }
 
   private PropertyMetadata findProperty(XFieldElement field) {

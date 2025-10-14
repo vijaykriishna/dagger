@@ -24,12 +24,10 @@ import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
 import androidx.room.compiler.processing.XElement;
 import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XMethodElement;
 import androidx.room.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.xprocessing.XTypeNames;
-import java.util.Optional;
 import javax.inject.Inject;
 
 /** Utility class for interacting with Kotlin Metadata. */
@@ -72,10 +70,6 @@ public final class KotlinMetadataUtil {
    */
   public boolean isMissingSyntheticPropertyForAnnotations(XFieldElement fieldElement) {
     return metadataFactory.create(fieldElement).isMissingSyntheticAnnotationMethod(fieldElement);
-  }
-
-  public Optional<XMethodElement> getPropertyGetter(XFieldElement fieldElement) {
-    return metadataFactory.create(fieldElement).getPropertyGetter(fieldElement);
   }
 
   /**
