@@ -173,6 +173,73 @@ public class MultibindingTest {
             });
   }
 
+  // Regression test for b/448510944.
+  // Requires Provider<Usage> to trigger the bug.
+  @Test
+  public void mapSuppressJvmWildcardsWithExplicitOutOnValue() {
+    Source usage =
+        CompilerTests.kotlinSource(
+            "test.Usage.kt",
+            "package test",
+            "",
+            "import javax.inject.Inject",
+            "",
+            "class Usage @Inject constructor(",
+            // When the bug is present, the generated code will fail to compile because the map's
+            // value will be `? extends MyInterface` which ignores the `@JvmSuppressWildcards`
+            // annotation of the outer type. Note that this was not a bug in XProcessing, but rather
+            // a bug in Dagger itself due to the way we manually constructed the Map from the
+            // individual key and value types which loses the @JvmSuppressWildcards information of
+            // the actual type.
+            "    map: @JvmSuppressWildcards Map<String, out MyInterface>",
+            ")");
+    Source myInterface =
+        CompilerTests.kotlinSource(
+            "test.MyInterface.kt",
+            "package test",
+            "",
+            "interface MyInterface");
+    Source myImpl =
+        CompilerTests.kotlinSource(
+            "test.MyImpl.kt",
+            "package test",
+            "",
+            "import javax.inject.Inject",
+            "",
+            "class MyImpl @Inject constructor() : MyInterface");
+    Source module =
+        CompilerTests.kotlinSource(
+            "test.TestModule.kt",
+            "package test;",
+            "",
+            "import dagger.Binds;",
+            "import dagger.Module;",
+            "import dagger.multibindings.IntoMap;",
+            "import dagger.multibindings.StringKey;",
+            "",
+            "@Module",
+            "interface TestModule {",
+            "  @Binds",
+            "  @IntoMap",
+            "  @StringKey(\"key1\")",
+            "  fun bind1(myImpl: MyImpl): MyInterface",
+            "}");
+    Source component =
+        CompilerTests.javaSource(
+            "test.TestComponent",
+            "package test;",
+            "",
+            "import dagger.Component;",
+            "import javax.inject.Provider;",
+            "",
+            "@Component(modules = TestModule.class)",
+            "interface TestComponent {",
+            "  Provider<Usage> usageProvider();",
+            "}");
+    CompilerTests.daggerCompiler(module, component, myInterface, myImpl, usage)
+        .compile(subject -> subject.hasErrorCount(0));
+  }
+
   @Test
   public void produceConcreteSet_andRequestSetOfProduced() {
     Source module =

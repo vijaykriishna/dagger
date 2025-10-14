@@ -347,6 +347,30 @@ object XTypeNames {
     }
   }
 
+  /** The default [KTypeName] returned by xprocessing APIs when the backend is not KSP. */
+  internal val UNAVAILABLE_KTYPE_NAME =
+      KClassName("androidx.room.compiler.codegen", "Unavailable")
+
+  @JvmStatic
+  fun XTypeName.unwrap(): XTypeName = getParameterizedTypeArgument(0)
+
+  // TODO(b/448510944): We shouldn't need to reach into the JavaPoet/KotlinPoet internals once this
+  // bug is fixed.
+  @JvmStatic
+  fun XTypeName.getParameterizedTypeArgument(index: Int): XTypeName {
+    return toXPoet(
+      jTypeName = when (val jTypeName = toJavaPoet()) {
+        is JParameterizedTypeName -> jTypeName.typeArguments[index]
+        else -> error("Expected a parameterized type name but got $jTypeName")
+      },
+      kTypeName = when (val kTypeName = toKotlinPoet()) {
+        UNAVAILABLE_KTYPE_NAME -> kTypeName
+        is KParameterizedTypeName -> kTypeName.typeArguments[index]
+        else -> error("Expected a parameterized type name but got $kTypeName")
+      }
+    )
+  }
+
   @JvmStatic
   fun XTypeName.boundsHasSelfReference(): Boolean =
     // The result should be the same for both JavaPoet and KotlinPoet, so we only need to check one.

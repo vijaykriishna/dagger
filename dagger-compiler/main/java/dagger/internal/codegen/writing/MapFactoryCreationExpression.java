@@ -167,7 +167,7 @@ final class MapFactoryCreationExpression extends MultibindingFactoryCreationExpr
   }
 
   private XTypeName valueTypeName() {
-    return MapType.from(binding.key()).unwrappedFrameworkValueType().asTypeName();
+    return MapType.from(binding.key()).unwrappedFrameworkValueTypeName();
   }
 
   private XCodeBlock keyExpression(DependencyRequest dependency) {

@@ -19,6 +19,7 @@ package dagger.internal.codegen.base;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
+import static dagger.internal.codegen.xprocessing.XTypeNames.unwrap;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
@@ -90,9 +91,22 @@ public final class MapType {
    *
    * @throws IllegalStateException if {@link #isRawType()} is true.
    */
+  // TODO: b/448510944 - This is deprecated because using valueType() directly can lead to incorrect
+  // variance. We should remove this method once all usages are migrated to valueTypeName().
+  @Deprecated // Use valueTypeName() instead.
   public XType valueType() {
     checkState(!isRawType());
     return type.getTypeArguments().get(1);
+  }
+
+  /**
+   * The map value type name.
+   *
+   * @throws IllegalStateException if {@link #isRawType()} is true.
+   */
+  public XTypeName valueTypeName() {
+    checkState(!isRawType());
+    return XTypeNames.getParameterizedTypeArgument(typeName(), 1);
   }
 
   /** Returns {@code true} if the raw type of {@link #valueType()} is {@code className}. */
@@ -122,8 +136,16 @@ public final class MapType {
    *
    * @throws IllegalStateException if {@link #isRawType()} is true.
    */
+  // TODO: b/448510944 - This is deprecated because using unwrappedFrameworkValueType() directly can
+  // lead to incorrect variance.  We should remove this method once all usages are migrated to
+  // unwrappedFrameworkValueTypeAsTypeName().
+  @Deprecated // Use unwrappedFrameworkValueTypeAsTypeName() instead.
   public XType unwrappedFrameworkValueType() {
     return valuesAreFrameworkType() ? unwrapType(valueType()) : valueType();
+  }
+
+  public XTypeName unwrappedFrameworkValueTypeName() {
+    return valuesAreFrameworkType() ? unwrap(valueTypeName()) : valueTypeName();
   }
 
   /**
