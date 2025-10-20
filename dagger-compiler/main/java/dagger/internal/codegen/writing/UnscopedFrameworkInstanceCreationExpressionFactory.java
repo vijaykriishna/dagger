@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.binding.BoundInstanceBinding;
 import dagger.internal.codegen.binding.ComponentDependencyBinding;
 import dagger.internal.codegen.binding.ComponentDependencyProductionBinding;

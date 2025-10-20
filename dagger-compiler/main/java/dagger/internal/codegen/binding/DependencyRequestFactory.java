@@ -30,12 +30,12 @@ import static dagger.internal.codegen.model.RequestKind.PROVIDER;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XVariableElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.Lazy;
 import dagger.internal.codegen.base.MapType;

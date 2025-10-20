@@ -23,9 +23,9 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.ClearableCache;

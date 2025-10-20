@@ -19,7 +19,7 @@ package dagger.hilt.android.processor.internal.aggregateddeps;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static dagger.hilt.android.testing.compile.HiltCompilerTests.compiler;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import dagger.hilt.android.testing.compile.HiltCompilerTests;

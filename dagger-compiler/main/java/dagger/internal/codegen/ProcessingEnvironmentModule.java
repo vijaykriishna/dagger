@@ -16,10 +16,10 @@
 
 package dagger.internal.codegen;
 
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.compat.XConverters;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.compat.XConverters;
 import com.google.googlejavaformat.java.filer.FormattingFiler;
 import dagger.Binds;
 import dagger.Module;

@@ -20,9 +20,9 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.VOLATILE;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;

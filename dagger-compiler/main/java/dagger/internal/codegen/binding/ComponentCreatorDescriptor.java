@@ -25,12 +25,12 @@ import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableMap;

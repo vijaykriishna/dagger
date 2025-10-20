@@ -21,8 +21,8 @@ import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 import static dagger.internal.codegen.extension.DaggerGraphs.unreachableNodes;
 import static dagger.internal.codegen.model.BindingKind.SUBCOMPONENT_CREATOR;
 
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.MutableNetwork;

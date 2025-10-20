@@ -16,15 +16,15 @@
 
 package dagger.hilt.android.processor.internal.bindvalue;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XRoundEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XRoundEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;

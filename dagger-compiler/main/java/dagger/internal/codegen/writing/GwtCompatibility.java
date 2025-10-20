@@ -18,9 +18,9 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import androidx.room.compiler.codegen.XAnnotationSpec;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.codegen.XAnnotationSpec;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
 import dagger.internal.codegen.binding.Binding;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import java.util.Optional;

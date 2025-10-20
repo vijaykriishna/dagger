@@ -19,10 +19,10 @@ package dagger.hilt.processor.internal;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.MethodSpec;

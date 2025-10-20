@@ -16,10 +16,10 @@
 
 package dagger.hilt.processor.internal.root;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;

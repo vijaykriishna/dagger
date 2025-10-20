@@ -21,10 +21,10 @@ import static dagger.internal.codegen.base.ComponentAnnotation.anyComponentAnnot
 import static dagger.internal.codegen.base.ModuleAnnotation.moduleAnnotation;
 import static dagger.internal.codegen.xprocessing.XMethodElements.getEnclosingTypeElement;
 
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XVariableElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XVariableElement;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.ModuleAnnotation;
 import dagger.internal.codegen.binding.InjectionAnnotations;

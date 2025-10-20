@@ -19,9 +19,9 @@ package dagger.internal.codegen.base;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import dagger.internal.codegen.xprocessing.XTypeNames;

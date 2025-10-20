@@ -16,13 +16,13 @@
 
 package dagger.internal.codegen.xprocessing
 
-import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.box
-import androidx.room.compiler.codegen.compat.XConverters.toJavaPoet
-import androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet
-import androidx.room.compiler.codegen.compat.XConverters.toXPoet
-import androidx.room.compiler.processing.XType
+import androidx.room3.compiler.codegen.XClassName
+import androidx.room3.compiler.codegen.XTypeName
+import androidx.room3.compiler.codegen.box
+import androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet
+import androidx.room3.compiler.codegen.compat.XConverters.toKotlinPoet
+import androidx.room3.compiler.codegen.compat.XConverters.toXPoet
+import androidx.room3.compiler.processing.XType
 import com.squareup.javapoet.ArrayTypeName as JArrayTypeName
 import com.squareup.javapoet.ClassName as JClassName
 import com.squareup.javapoet.ParameterizedTypeName as JParameterizedTypeName
@@ -349,7 +349,7 @@ object XTypeNames {
 
   /** The default [KTypeName] returned by xprocessing APIs when the backend is not KSP. */
   internal val UNAVAILABLE_KTYPE_NAME =
-      KClassName("androidx.room.compiler.codegen", "Unavailable")
+      KClassName("androidx.room3.compiler.codegen", "Unavailable")
 
   @JvmStatic
   fun XTypeName.unwrap(): XTypeName = getParameterizedTypeArgument(0)

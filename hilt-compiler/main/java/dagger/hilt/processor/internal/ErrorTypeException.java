@@ -16,7 +16,7 @@
 
 package dagger.hilt.processor.internal;
 
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElement;
 
 /**
  * Exception to throw when a required {@link Element} is or inherits from an error kind.

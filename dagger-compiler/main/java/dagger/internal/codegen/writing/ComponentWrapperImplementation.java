@@ -23,10 +23,10 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeSpec;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;

@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.validation;
 
-import static androidx.room.compiler.processing.XElementKt.isConstructor;
-import static androidx.room.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.XElementKt.isConstructor;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedFactoryMethod;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
@@ -25,9 +25,9 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.xprocessing.XTypeNames;

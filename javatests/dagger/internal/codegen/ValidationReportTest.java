@@ -18,11 +18,11 @@ package dagger.internal.codegen;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingStep;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.validation.ValidationReport;
 import dagger.testing.compile.CompilerTests;

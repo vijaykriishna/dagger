@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.processing.XElementKt.isField;
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
-import static androidx.room.compiler.processing.XTypeKt.isArray;
+import static androidx.room3.compiler.processing.XElementKt.isField;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XTypeKt.isArray;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.isExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.isPackage;
@@ -34,12 +34,12 @@ import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeVariable;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMemberContainer;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMemberContainer;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import java.util.Optional;
 

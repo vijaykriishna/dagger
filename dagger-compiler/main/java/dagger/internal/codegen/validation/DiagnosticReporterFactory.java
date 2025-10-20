@@ -20,9 +20,9 @@ import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.xprocessing.XElements.transitivelyEncloses;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.model.BindingGraph;
 import dagger.internal.codegen.model.BindingGraph.ChildFactoryMethodEdge;

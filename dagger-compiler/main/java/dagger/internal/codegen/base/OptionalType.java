@@ -23,11 +23,11 @@ import static dagger.internal.codegen.xprocessing.XTypeNames.providerTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableMap;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypeNames;

@@ -16,10 +16,10 @@
 
 package dagger.internal.codegen.model;
 
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import androidx.room.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XExecutableElement;
 import com.google.auto.value.AutoValue;
 import javax.lang.model.element.ExecutableElement;
 

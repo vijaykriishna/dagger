@@ -21,11 +21,11 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.isAbstract;
 import static dagger.internal.codegen.xprocessing.XElements.isStatic;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XElementKt;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElementKt;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;

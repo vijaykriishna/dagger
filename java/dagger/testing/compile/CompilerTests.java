@@ -23,16 +23,16 @@ import static com.google.testing.compile.Compiler.javac;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.stream.Collectors.toMap;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingEnvConfig;
-import androidx.room.compiler.processing.XProcessingStep;
-import androidx.room.compiler.processing.util.CompilationResultSubject;
-import androidx.room.compiler.processing.util.ProcessorTestExtKt;
-import androidx.room.compiler.processing.util.Source;
-import androidx.room.compiler.processing.util.XTestInvocation;
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments;
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult;
-import androidx.room.compiler.processing.util.compiler.TestKotlinCompilerKt;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnvConfig;
+import androidx.room3.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.util.CompilationResultSubject;
+import androidx.room3.compiler.processing.util.ProcessorTestExtKt;
+import androidx.room3.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.XTestInvocation;
+import androidx.room3.compiler.processing.util.compiler.TestCompilationArguments;
+import androidx.room3.compiler.processing.util.compiler.TestCompilationResult;
+import androidx.room3.compiler.processing.util.compiler.TestKotlinCompilerKt;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableCollection;
@@ -187,6 +187,7 @@ public final class CompilerTests {
       return ImmutableList.copyOf(
           ProcessorTestExtKt.compileFiles(
               sources(),
+              /* classpath= */ ImmutableList.of(),
               /* options= */ ImmutableMap.of(),
               /* annotationProcessors= */ ImmutableList.of(),
               /* symbolProcessorProviders= */ ImmutableList.of(),

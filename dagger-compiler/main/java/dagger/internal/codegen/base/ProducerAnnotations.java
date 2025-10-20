@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.base;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**

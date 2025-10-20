@@ -24,11 +24,11 @@ import static dagger.internal.codegen.xprocessing.XProcessingEnvs.getUnboundedWi
 import static dagger.internal.codegen.xprocessing.XTypes.isAssignableTo;
 import static dagger.internal.codegen.xprocessing.XTypes.rewrapType;
 
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.ContributionType;
 import dagger.internal.codegen.xprocessing.XExpressionType;

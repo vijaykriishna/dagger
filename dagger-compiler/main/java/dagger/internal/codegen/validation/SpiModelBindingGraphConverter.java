@@ -16,22 +16,22 @@
 
 package dagger.internal.codegen.validation;
 
-import static androidx.room.compiler.processing.XElementKt.isMethod;
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
-import static androidx.room.compiler.processing.compat.XConverters.toKS;
-import static androidx.room.compiler.processing.compat.XConverters.toKSResolver;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toKS;
+import static androidx.room3.compiler.processing.compat.XConverters.toKSResolver;
 import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableMap;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Equivalence;

@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.validation;
 
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import dagger.internal.codegen.compileroption.CompilerOptions;

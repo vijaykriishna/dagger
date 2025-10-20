@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static androidx.room.compiler.processing.XElementKt.isConstructor;
-import static androidx.room.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.processing.XElementKt.isConstructor;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.xprocessing.Accessibility.isElementAccessibleFrom;
 import static dagger.internal.codegen.xprocessing.Accessibility.isRawTypeAccessible;
@@ -29,15 +29,15 @@ import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;

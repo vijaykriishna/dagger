@@ -20,9 +20,9 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplementedMethods;
 import static javax.lang.model.SourceVersion.isKeyword;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import javax.inject.Inject;
 

@@ -16,13 +16,13 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.processing.XTypeKt.isVoid;
+import static androidx.room3.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XMethodElement;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;

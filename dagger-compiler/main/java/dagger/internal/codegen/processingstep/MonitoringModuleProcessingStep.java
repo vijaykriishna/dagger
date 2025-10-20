@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.processingstep;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import javax.inject.Inject;

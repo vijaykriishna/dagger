@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.validation;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
-import static androidx.room.compiler.processing.compat.XConverters.toKS;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.compat.XConverters.toKS;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -35,14 +35,14 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.nonObjectSuperclass;
 import static dagger.internal.codegen.xprocessing.XTypes.unwrapType;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XConstructorElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.devtools.ksp.symbol.Origin;

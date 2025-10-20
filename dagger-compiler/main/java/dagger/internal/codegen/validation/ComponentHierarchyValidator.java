@@ -24,8 +24,8 @@ import static dagger.internal.codegen.base.Scopes.getReadableSource;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;

@@ -18,10 +18,10 @@ package dagger.android.internal.proguard;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dagger.android.processor.BaseProcessingStep;

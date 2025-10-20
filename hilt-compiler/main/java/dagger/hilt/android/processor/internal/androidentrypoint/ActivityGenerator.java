@@ -18,13 +18,13 @@ package dagger.hilt.android.processor.internal.androidentrypoint;
 
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XAnnotated;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeParameterElement;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XAnnotated;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeParameterElement;
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;

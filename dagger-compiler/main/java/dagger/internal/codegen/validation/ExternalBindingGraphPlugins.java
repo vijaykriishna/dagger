@@ -16,12 +16,12 @@
 
 package dagger.internal.codegen.validation;
 
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;

@@ -16,16 +16,16 @@
 
 package dagger.hilt.processor.internal.aggregateddeps;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XAnnotationValue;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;

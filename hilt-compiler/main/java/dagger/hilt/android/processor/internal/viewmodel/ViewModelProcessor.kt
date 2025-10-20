@@ -16,7 +16,7 @@
 
 package dagger.hilt.android.processor.internal.viewmodel
 
-import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room3.compiler.processing.ExperimentalProcessingApi
 import com.google.auto.service.AutoService
 import dagger.hilt.processor.internal.BaseProcessingStep
 import dagger.hilt.processor.internal.JavacBaseProcessingStepProcessor

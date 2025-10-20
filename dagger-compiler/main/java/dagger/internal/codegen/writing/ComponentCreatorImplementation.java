@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.writing;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeSpec;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import dagger.internal.codegen.binding.ComponentRequirement;

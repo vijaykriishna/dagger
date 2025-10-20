@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
 
 /**
  * A factory for expressions of {@link ComponentRequirement}s in the generated component. This is

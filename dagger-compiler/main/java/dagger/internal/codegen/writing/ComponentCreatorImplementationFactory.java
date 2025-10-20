@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static androidx.room.compiler.processing.XTypeKt.isVoid;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -32,15 +32,15 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
-import androidx.room.compiler.codegen.XAnnotationSpec;
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XParameterSpec;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XAnnotationSpec;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XParameterSpec;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;

@@ -19,10 +19,10 @@ package dagger.hilt.processor.internal.generatesrootinput;
 import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XRoundEnv;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XRoundEnv;
+import androidx.room3.compiler.processing.util.Source;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;

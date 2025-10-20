@@ -18,9 +18,9 @@ package dagger.internal.codegen;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.testing.compile.CompilationRule;
 import com.squareup.javapoet.ClassName;
 import dagger.Component;

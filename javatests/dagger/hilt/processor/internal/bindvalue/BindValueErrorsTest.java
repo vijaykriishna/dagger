@@ -18,7 +18,7 @@ package dagger.hilt.processor.internal.bindvalue;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import dagger.hilt.android.processor.internal.bindvalue.BindValueProcessor;

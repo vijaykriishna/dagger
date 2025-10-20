@@ -21,7 +21,7 @@ import static dagger.internal.codegen.extension.DaggerStreams.presentValues;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.model.BindingGraph.SubcomponentCreatorBindingEdge;
 import dagger.internal.codegen.model.DaggerTypeElement;

@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
 import static dagger.internal.codegen.binding.MapKeys.KEEP_FIELD_TYPE_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.LAZY_CLASS_KEY_NAME_FIELD;
 import static dagger.internal.codegen.binding.MapKeys.lazyClassKeyProxyClassName;
@@ -24,14 +24,14 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;

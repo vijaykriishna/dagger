@@ -25,9 +25,9 @@ import static dagger.internal.codegen.base.ComponentKind.SUBCOMPONENT;
 import static dagger.internal.codegen.binding.ErrorMessages.ComponentCreatorMessages.moreThanOneRefToSubcomponent;
 import static dagger.internal.codegen.binding.ErrorMessages.componentMessagesFor;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.util.CompilationResultSubject;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.util.CompilationResultSubject;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.ComponentCreatorAnnotation;
 import dagger.testing.compile.CompilerTests;

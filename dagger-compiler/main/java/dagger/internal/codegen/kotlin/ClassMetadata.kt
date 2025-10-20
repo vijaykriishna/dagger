@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.kotlin
 
-import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.compat.XConverters.toJavac
+import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.compiler.processing.compat.XConverters.toJavac
 import kotlin.Metadata
 import kotlin.metadata.KmClass
 import kotlin.metadata.KmConstructor

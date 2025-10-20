@@ -16,18 +16,18 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.codegen.XTypeNameKt;
-import androidx.room.compiler.processing.XConstructorType;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XExecutableType;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XTypeNameKt;
+import androidx.room3.compiler.processing.XConstructorType;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XExecutableType;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.TypeName;
 

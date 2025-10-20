@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import static androidx.room.compiler.processing.XTypeKt.isVoid;
+import static androidx.room3.compiler.processing.XTypeKt.isVoid;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
@@ -27,11 +27,11 @@ import static dagger.internal.codegen.xprocessing.XCodeBlocks.makeParametersCode
 import static dagger.internal.codegen.xprocessing.XFunSpecs.overriding;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.isPreJava8SourceVersion;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.MapType;
 import dagger.internal.codegen.base.OptionalType;

@@ -16,16 +16,16 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.processing.XElementKt.isMethod;
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
-import static androidx.room.compiler.processing.XElementKt.isVariableElement;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isVariableElement;
 import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 import static dagger.internal.codegen.base.RequestKinds.requestType;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableCollection;
 import dagger.internal.codegen.base.Formatter;
 import dagger.internal.codegen.model.BindingGraph;

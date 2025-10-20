@@ -16,7 +16,7 @@
 
 package dagger.hilt.android.processor.internal.androidentrypoint;
 
-import static androidx.room.compiler.processing.JavaPoetExtKt.toAnnotationSpec;
+import static androidx.room3.compiler.processing.JavaPoetExtKt.toAnnotationSpec;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.extension.DaggerCollectors.toOptional;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
@@ -25,14 +25,14 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.stream.Collectors.joining;
 import static kotlin.streams.jdk8.StreamsKt.asStream;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XVariableElement;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XConstructorElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XVariableElement;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

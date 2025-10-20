@@ -19,9 +19,9 @@ package dagger.internal.codegen.xprocessing;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toXPoet;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.processing.XRawType;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.processing.XRawType;
+import androidx.room3.compiler.processing.XType;
 import com.squareup.javapoet.CodeBlock;
 
 /**

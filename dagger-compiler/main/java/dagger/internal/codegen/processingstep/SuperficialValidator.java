@@ -18,8 +18,8 @@ package dagger.internal.codegen.processingstep;
 
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.DaggerSuperficialValidation.ValidationException;

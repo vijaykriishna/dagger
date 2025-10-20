@@ -16,16 +16,16 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
 
-import androidx.room.compiler.codegen.CodeLanguage;
-import androidx.room.compiler.codegen.XFileSpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.codegen.CodeLanguage;
+import androidx.room3.compiler.codegen.XFileSpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingStep;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import java.util.Map;

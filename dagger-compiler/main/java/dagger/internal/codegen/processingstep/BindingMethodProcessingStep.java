@@ -18,8 +18,8 @@ package dagger.internal.codegen.processingstep;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.validation.AnyBindingMethodValidator;
 import javax.inject.Inject;

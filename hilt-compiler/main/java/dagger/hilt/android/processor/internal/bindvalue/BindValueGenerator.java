@@ -20,9 +20,9 @@ import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static java.util.Comparator.comparing;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;

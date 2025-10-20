@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.model;
 
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
 
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElement;
 import com.google.auto.value.AutoValue;
 import javax.lang.model.element.Element;
 

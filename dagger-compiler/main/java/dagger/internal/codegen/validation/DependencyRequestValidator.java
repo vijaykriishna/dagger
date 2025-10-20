@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.validation;
 
-import static androidx.room.compiler.processing.XElementKt.isField;
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isField;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static dagger.internal.codegen.base.FrameworkTypes.isDisallowedType;
 import static dagger.internal.codegen.base.FrameworkTypes.isFrameworkType;
 import static dagger.internal.codegen.base.FrameworkTypes.isMapValueFrameworkType;
@@ -34,13 +34,13 @@ import static dagger.internal.codegen.xprocessing.XTypes.isRawParameterizedType;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XVariableElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.FrameworkTypes;
 import dagger.internal.codegen.base.MapType;

@@ -19,8 +19,8 @@ package dagger.hilt.android.processor.internal.androidentrypoint;
 import static com.google.common.truth.Truth.assertThat;
 import static dagger.hilt.android.testing.compile.HiltCompilerTests.compileWithKapt;
 
-import androidx.room.compiler.processing.util.DiagnosticMessage;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.DiagnosticMessage;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;

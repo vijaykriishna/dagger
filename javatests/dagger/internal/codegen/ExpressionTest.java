@@ -16,12 +16,12 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.xprocessing.XProcessingEnvs.getPrimitiveIntType;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import com.google.testing.compile.CompilationRule;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;

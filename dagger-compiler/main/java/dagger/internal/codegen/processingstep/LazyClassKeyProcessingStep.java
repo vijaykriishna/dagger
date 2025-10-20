@@ -16,16 +16,16 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;

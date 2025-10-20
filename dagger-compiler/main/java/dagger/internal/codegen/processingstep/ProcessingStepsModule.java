@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.processingstep;
 
-import androidx.room.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.XProcessingStep;
 import com.google.common.collect.ImmutableList;
 import dagger.Binds;
 import dagger.Module;

@@ -22,9 +22,9 @@ import static dagger.internal.codegen.xprocessing.XMethodElements.hasOverride;
 import static dagger.testing.compile.CompilerTests.javaSource;
 import static dagger.testing.compile.CompilerTests.kotlinSource;
 
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.testing.compile.CompilerTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;

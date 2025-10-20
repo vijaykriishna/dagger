@@ -29,16 +29,17 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Traverser;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.Binds;
 import dagger.BindsOptionalOf;
 import dagger.Module;
@@ -223,6 +224,7 @@ public abstract class ModuleDescriptor {
           collectIncludedModules(new LinkedHashSet<>(), moduleDescriptor.moduleElement()));
     }
 
+    @CanIgnoreReturnValue
     private Set<XTypeElement> collectIncludedModules(
         Set<XTypeElement> includedModules, XTypeElement moduleElement) {
       XType superclass = moduleElement.getSuperType();

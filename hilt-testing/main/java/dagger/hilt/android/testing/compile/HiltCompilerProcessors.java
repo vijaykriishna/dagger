@@ -16,7 +16,7 @@
 
 package dagger.hilt.android.testing.compile;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.devtools.ksp.processing.SymbolProcessor;
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment;
 import com.google.devtools.ksp.processing.SymbolProcessorProvider;

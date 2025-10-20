@@ -18,7 +18,7 @@ package dagger.internal.codegen.base;
 
 import static dagger.internal.codegen.base.DiagnosticFormatting.stripCommonTypePrefixes;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Scope;
 

@@ -16,26 +16,26 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toKotlinPoet;
 import static com.google.common.base.Preconditions.checkState;
 import static dagger.internal.codegen.xprocessing.NullableTypeNames.asNullableTypeName;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
-import androidx.room.compiler.codegen.VisibilityModifier;
-import androidx.room.compiler.codegen.XAnnotationSpec;
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XName;
-import androidx.room.compiler.codegen.XParameterSpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.VisibilityModifier;
+import androidx.room3.compiler.codegen.XAnnotationSpec;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XName;
+import androidx.room3.compiler.codegen.XParameterSpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.kotlinpoet.KModifier;

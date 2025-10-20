@@ -18,7 +18,7 @@ package dagger.internal.codegen.binding;
 
 import static dagger.internal.codegen.base.ElementFormatter.elementToString;
 
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XMethodElement;
 import dagger.internal.codegen.model.BindingGraph.ChildFactoryMethodEdge;
 import dagger.internal.codegen.model.DaggerExecutableElement;
 

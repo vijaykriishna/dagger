@@ -18,7 +18,7 @@ package dagger.hilt.processor.internal.originatingelement;
 
 import static dagger.hilt.android.testing.compile.HiltCompilerTests.hiltCompiler;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.hilt.android.testing.compile.HiltCompilerTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;

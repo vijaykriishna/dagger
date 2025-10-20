@@ -22,13 +22,13 @@ import static dagger.internal.codegen.xprocessing.XMethodElements.hasTypeParamet
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XVariableElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.FormatMethod;
 import dagger.internal.codegen.binding.InjectionAnnotations;

@@ -16,16 +16,16 @@
 
 package dagger.hilt.processor.internal.definecomponent;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.processor.internal.ClassNames;

@@ -23,10 +23,10 @@ import static dagger.internal.codegen.xprocessing.XCodeBlocks.parameterNames;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.methodBuilder;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XParameterSpec;
-import androidx.room.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XParameterSpec;
+import androidx.room3.compiler.codegen.XTypeName;
 import com.google.common.collect.ImmutableSet;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;

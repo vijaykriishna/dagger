@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.writing;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;

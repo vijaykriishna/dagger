@@ -18,9 +18,9 @@ package dagger.internal.codegen.processingstep;
 
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.assistedInjectAssistedParameters;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XConstructorElement;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedParameter;

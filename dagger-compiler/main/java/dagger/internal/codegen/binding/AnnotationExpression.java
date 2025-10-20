@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.processing.XTypeKt.isArray;
+import static androidx.room3.compiler.processing.XTypeKt.isArray;
 import static dagger.internal.codegen.binding.SourceFiles.classFileName;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.xprocessing.XAnnotationValues.characterLiteralWithSingleQuotes;
@@ -26,12 +26,12 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XTypes.asArray;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XAnnotationValue;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /**

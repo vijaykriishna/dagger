@@ -19,8 +19,8 @@ package dagger.hilt.processor.internal.root;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.Comparator.comparing;
 
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.base.Joiner;
 import com.google.common.base.Utf8;
 import com.google.common.collect.ImmutableCollection;

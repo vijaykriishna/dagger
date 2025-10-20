@@ -19,7 +19,7 @@ package dagger.internal.codegen.bindinggraphvalidation;
 import static dagger.internal.codegen.extension.DaggerStreams.instancesOf;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.internal.codegen.binding.KeyFactory;
 import dagger.internal.codegen.model.Binding;
 import dagger.internal.codegen.model.BindingGraph;

@@ -22,8 +22,8 @@ import static dagger.internal.codegen.xprocessing.XTypeNames.MEMBERS_INJECTOR;
 import static dagger.internal.codegen.xprocessing.XTypeNames.javaxProviderOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.membersInjectorOf;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import com.google.testing.compile.CompilationRule;
 import dagger.Component;
 import dagger.internal.codegen.binding.FrameworkField;

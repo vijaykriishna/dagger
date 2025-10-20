@@ -16,20 +16,20 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.processing.XElementKt.isMethod;
-import static androidx.room.compiler.processing.XElementKt.isVariableElement;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.XElementKt.isVariableElement;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XElements.asVariable;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.compat.XConverters;
-import androidx.room.compiler.processing.XAnnotated;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XNullability;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.compat.XConverters;
+import androidx.room3.compiler.processing.XAnnotated;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XNullability;
+import androidx.room3.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;

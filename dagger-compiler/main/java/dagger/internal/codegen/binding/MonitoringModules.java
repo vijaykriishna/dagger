@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.binding;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 import dagger.internal.codegen.base.ClearableCache;
 import java.util.HashSet;
 import java.util.Set;

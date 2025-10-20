@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 import static org.junit.Assert.assertThrows;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.util.CompilationResultSubject;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.util.CompilationResultSubject;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dagger.internal.codegen.xprocessing.XTypeNames;

@@ -19,10 +19,10 @@ package dagger.hilt.processor.internal.root;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.compat.XConverters;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.compat.XConverters;
 import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.JavaFile;
 import java.io.BufferedWriter;

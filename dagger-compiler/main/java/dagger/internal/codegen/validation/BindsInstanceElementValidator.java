@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.validation;
 
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElement;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 
 abstract class BindsInstanceElementValidator<E extends XElement>

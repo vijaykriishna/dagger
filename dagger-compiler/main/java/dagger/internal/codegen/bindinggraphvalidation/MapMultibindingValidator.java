@@ -23,7 +23,7 @@ import static dagger.internal.codegen.model.BindingKind.MULTIBOUND_MAP;
 import static dagger.internal.codegen.xprocessing.XAnnotations.asClassName;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;

@@ -16,9 +16,9 @@
 
 package dagger.android.internal.proguard;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingStep;
-import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.javac.JavacBasicAnnotationProcessor;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import javax.annotation.processing.Processor;

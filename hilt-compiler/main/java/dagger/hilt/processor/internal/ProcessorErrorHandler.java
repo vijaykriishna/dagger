@@ -16,12 +16,12 @@
 
 package dagger.hilt.processor.internal;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Throwables;
 import java.util.ArrayList;

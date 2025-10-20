@@ -16,9 +16,9 @@
 
 package dagger.hilt.processor.internal.root;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 import dagger.hilt.processor.internal.ClassNames;

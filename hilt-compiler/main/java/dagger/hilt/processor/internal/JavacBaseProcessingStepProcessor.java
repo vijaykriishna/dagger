@@ -16,10 +16,10 @@
 
 package dagger.hilt.processor.internal;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingStep;
-import androidx.room.compiler.processing.XRoundEnv;
-import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.XRoundEnv;
+import androidx.room3.compiler.processing.javac.JavacBasicAnnotationProcessor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;

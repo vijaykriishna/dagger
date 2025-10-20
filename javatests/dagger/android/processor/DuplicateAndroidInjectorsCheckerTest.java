@@ -16,7 +16,7 @@
 
 package dagger.android.processor;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.internal.codegen.ComponentProcessor;
 import dagger.internal.codegen.KspComponentProcessor;
 import dagger.testing.compile.CompilerTests;

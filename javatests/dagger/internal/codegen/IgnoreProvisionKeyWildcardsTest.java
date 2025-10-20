@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen;
 
-import androidx.room.compiler.processing.util.CompilationResultSubject;
+import androidx.room3.compiler.processing.util.CompilationResultSubject;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -575,7 +575,7 @@ public class IgnoreProvisionKeyWildcardsTest {
         subject -> {
           if (!isIgnoreProvisionKeyWildcardsEnabled) {
             if (CompilerTests.backend(subject) ==
-                androidx.room.compiler.processing.XProcessingEnv.Backend.KSP) {
+                androidx.room3.compiler.processing.XProcessingEnv.Backend.KSP) {
               subject.hasErrorCount(1);
               subject.hasErrorContaining(
                   "When using KSP, you must also enable the 'dagger.ignoreProvisionKeyWildcards'");

@@ -16,7 +16,7 @@
 
 package dagger.hilt.processor.internal;
 
-import androidx.room.compiler.processing.XProcessingEnvConfig;
+import androidx.room3.compiler.processing.XProcessingEnvConfig;
 
 /** The {@link XProcessingEnvConfig} used when processing Hilt. */
 public final class HiltProcessingEnvConfigs {

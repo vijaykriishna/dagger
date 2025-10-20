@@ -17,7 +17,7 @@
 package dagger.hilt.processor.internal;
 
 
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElement;
 import com.google.common.collect.ImmutableList;
 
 /**

@@ -19,8 +19,8 @@ package dagger.hilt.android.processor.internal.androidentrypoint;
 import static dagger.hilt.processor.internal.HiltCompilerOptions.getGradleProjectType;
 import static dagger.hilt.processor.internal.HiltCompilerOptions.useAggregatingRootProcessor;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ClassName;
 import dagger.hilt.android.processor.internal.AndroidClassNames;

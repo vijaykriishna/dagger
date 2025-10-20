@@ -18,9 +18,9 @@ package dagger.internal.codegen;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.internal.codegen.xprocessing.XExecutableTypes;
 import dagger.testing.compile.CompilerTests;
 import org.junit.Test;

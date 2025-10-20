@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.writing;
 
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.MapKey;
 import java.util.Set;
 import javax.inject.Inject;

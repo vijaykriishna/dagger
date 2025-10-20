@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen.validation;
 
-import androidx.room.compiler.processing.XAnnotationKt;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XTypeKt;
+import androidx.room3.compiler.processing.XAnnotationKt;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeKt;
 import dagger.MapKey;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.List;

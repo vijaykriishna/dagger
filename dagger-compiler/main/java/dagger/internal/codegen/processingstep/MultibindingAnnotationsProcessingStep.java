@@ -18,8 +18,8 @@ package dagger.internal.codegen.processingstep;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XExecutableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.validation.AnyBindingMethodValidator;
 import dagger.internal.codegen.xprocessing.XTypeNames;

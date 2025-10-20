@@ -18,7 +18,7 @@ package dagger.internal.codegen.writing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XCodeBlock;
 import dagger.internal.codegen.writing.FrameworkFieldInitializer.FrameworkInstanceCreationExpression;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.function.Supplier;

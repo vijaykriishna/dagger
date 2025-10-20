@@ -23,11 +23,11 @@ import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 import static java.util.stream.Collectors.joining;
 import static kotlin.streams.jdk8.StreamsKt.asStream;
 
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XHasModifiers;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XTypeParameterElement;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XHasModifiers;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeParameterElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ArrayTypeName;

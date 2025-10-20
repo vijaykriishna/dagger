@@ -23,10 +23,10 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XAnnotationValue;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMessager;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Traverser;

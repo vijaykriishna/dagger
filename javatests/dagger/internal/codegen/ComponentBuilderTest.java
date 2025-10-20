@@ -19,7 +19,7 @@ package dagger.internal.codegen;
 import static dagger.internal.codegen.base.ComponentCreatorAnnotation.COMPONENT_BUILDER;
 import static dagger.internal.codegen.binding.ErrorMessages.creatorMessagesFor;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.internal.codegen.binding.ErrorMessages;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;

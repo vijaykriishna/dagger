@@ -16,8 +16,8 @@
 
 package dagger.internal.codegen.javac;
 
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.sun.tools.javac.model.JavacElements;
 import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.util.Context;

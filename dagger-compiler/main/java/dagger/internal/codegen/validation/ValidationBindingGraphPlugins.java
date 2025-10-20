@@ -19,7 +19,7 @@ package dagger.internal.codegen.validation;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;

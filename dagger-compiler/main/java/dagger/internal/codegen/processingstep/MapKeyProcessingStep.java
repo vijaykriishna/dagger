@@ -19,9 +19,9 @@ package dagger.internal.codegen.processingstep;
 import static dagger.internal.codegen.binding.MapKeys.getUnwrappedMapKeyType;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.MapKey;
 import dagger.internal.codegen.validation.MapKeyValidator;

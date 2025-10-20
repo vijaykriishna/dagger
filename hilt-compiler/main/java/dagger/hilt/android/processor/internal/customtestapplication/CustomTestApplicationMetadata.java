@@ -18,11 +18,11 @@ package dagger.hilt.android.processor.internal.customtestapplication;
 
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableList;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XElementKt;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElementKt;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

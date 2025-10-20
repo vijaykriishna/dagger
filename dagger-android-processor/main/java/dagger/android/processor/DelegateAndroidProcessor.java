@@ -16,9 +16,9 @@
 
 package dagger.android.processor;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingEnvConfig;
-import androidx.room.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnvConfig;
+import androidx.room3.compiler.processing.XProcessingStep;
 import com.google.common.collect.ImmutableList;
 import dagger.BindsInstance;
 import dagger.Component;

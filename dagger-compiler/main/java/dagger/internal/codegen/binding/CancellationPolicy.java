@@ -19,7 +19,7 @@ package dagger.internal.codegen.binding;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 
-import androidx.room.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotation;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 

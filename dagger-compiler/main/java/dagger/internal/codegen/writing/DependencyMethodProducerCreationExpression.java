@@ -21,12 +21,12 @@ import static dagger.internal.codegen.xprocessing.XElements.asMethod;
 import static dagger.internal.codegen.xprocessing.XTypeNames.dependencyMethodProducerOf;
 import static dagger.internal.codegen.xprocessing.XTypeNames.listenableFutureOf;
 
-import androidx.room.compiler.codegen.VisibilityModifier;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.codegen.VisibilityModifier;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.XTypeSpec;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;

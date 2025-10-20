@@ -19,7 +19,7 @@ package dagger.internal.codegen.writing;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.internal.codegen.binding.BindingRequest.bindingRequest;
 
-import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XCodeBlock;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;

@@ -22,11 +22,11 @@ import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.ContributionBinding;

@@ -20,7 +20,7 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.lang.Character.isISOControl;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XAnnotationValue;
 import com.google.common.base.Equivalence;
 import com.squareup.javapoet.CodeBlock;
 

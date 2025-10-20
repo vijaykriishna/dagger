@@ -18,8 +18,8 @@ package dagger.internal.codegen;
 
 import static dagger.internal.codegen.DaggerModuleMethodSubject.Factory.assertThatModuleMethod;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.Module;
 import dagger.producers.ProducerModule;
 import dagger.testing.compile.CompilerTests;

@@ -23,7 +23,7 @@ import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.lang.String.format;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;

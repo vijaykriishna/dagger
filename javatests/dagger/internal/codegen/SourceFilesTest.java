@@ -18,7 +18,7 @@ package dagger.internal.codegen;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 import dagger.internal.codegen.binding.SourceFiles;
 import java.util.List;
 import org.junit.Test;

@@ -34,7 +34,7 @@ import static dagger.internal.codegen.model.RequestKind.MEMBERS_INJECTION;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeOf;
 
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;

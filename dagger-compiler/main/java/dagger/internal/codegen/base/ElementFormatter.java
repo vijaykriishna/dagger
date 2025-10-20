@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.base;
 
-import static androidx.room.compiler.processing.XElementKt.isField;
-import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isField;
+import static androidx.room3.compiler.processing.XElementKt.isMethodParameter;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.asExecutable;
 import static dagger.internal.codegen.xprocessing.XElements.asMethodParameter;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
@@ -26,8 +26,8 @@ import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static dagger.internal.codegen.xprocessing.XElements.isExecutable;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableElement;
 import dagger.internal.codegen.xprocessing.XTypes;
 import javax.inject.Inject;
 

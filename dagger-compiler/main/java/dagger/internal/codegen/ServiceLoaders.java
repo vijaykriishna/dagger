@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableSet;
 import java.util.ServiceLoader;
 import javax.annotation.processing.ProcessingEnvironment;

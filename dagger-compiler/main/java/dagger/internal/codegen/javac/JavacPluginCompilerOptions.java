@@ -19,7 +19,7 @@ package dagger.internal.codegen.javac;
 import static dagger.internal.codegen.compileroption.ValidationType.NONE;
 import static javax.tools.Diagnostic.Kind.NOTE;
 
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.compileroption.ValidationType;
 import javax.inject.Inject;

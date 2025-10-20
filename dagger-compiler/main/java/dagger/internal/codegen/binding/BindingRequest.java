@@ -18,8 +18,8 @@ package dagger.internal.codegen.binding;
 
 import static dagger.internal.codegen.base.RequestKinds.requestType;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
 import com.google.auto.value.AutoValue;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;

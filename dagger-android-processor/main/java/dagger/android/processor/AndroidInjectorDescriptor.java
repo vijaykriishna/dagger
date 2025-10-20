@@ -16,15 +16,15 @@
 
 package dagger.android.processor;
 
-import androidx.room.compiler.processing.JavaPoetExtKt;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XAnnotationValue;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.JavaPoetExtKt;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;

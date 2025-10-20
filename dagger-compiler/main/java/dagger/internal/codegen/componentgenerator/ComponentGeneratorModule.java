@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.componentgenerator;
 
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;

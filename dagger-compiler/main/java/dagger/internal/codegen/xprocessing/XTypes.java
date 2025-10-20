@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.processing.XTypeKt.isArray;
-import static androidx.room.compiler.processing.XTypeKt.isVoid;
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
-import static androidx.room.compiler.processing.compat.XConverters.toJavac;
-import static androidx.room.compiler.processing.compat.XConverters.toXProcessing;
+import static androidx.room3.compiler.processing.XTypeKt.isArray;
+import static androidx.room3.compiler.processing.XTypeKt.isVoid;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.toJavac;
+import static androidx.room3.compiler.processing.compat.XConverters.toXProcessing;
 import static com.google.auto.common.MoreTypes.asDeclared;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -33,15 +33,15 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isNoType;
 import static java.util.stream.Collectors.joining;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XArrayType;
-import androidx.room.compiler.processing.XConstructorType;
-import androidx.room.compiler.processing.XExecutableType;
-import androidx.room.compiler.processing.XMethodType;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.XTypeVariableType;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XArrayType;
+import androidx.room3.compiler.processing.XConstructorType;
+import androidx.room3.compiler.processing.XExecutableType;
+import androidx.room3.compiler.processing.XMethodType;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XTypeVariableType;
 import com.google.auto.common.MoreElements;
 import com.google.common.base.Equivalence;
 import com.squareup.javapoet.ArrayTypeName;

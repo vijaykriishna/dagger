@@ -16,20 +16,20 @@
 
 package dagger.hilt.android.processor.internal.androidentrypoint;
 
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
-import static androidx.room.compiler.processing.XTypeKt.isVoidObject;
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XTypeKt.isVoidObject;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static dagger.hilt.processor.internal.HiltCompilerOptions.isAndroidSuperClassValidationDisabled;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Preconditions;

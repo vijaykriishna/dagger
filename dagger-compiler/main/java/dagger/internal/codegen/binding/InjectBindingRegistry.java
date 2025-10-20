@@ -16,9 +16,9 @@
 
 package dagger.internal.codegen.binding;
 
-import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XConstructorElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XMethodElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dagger.Component;
 import dagger.Provides;

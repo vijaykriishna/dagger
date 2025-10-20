@@ -16,10 +16,10 @@
 
 package dagger.hilt.android.processor.internal.viewmodel
 
-import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.processing.ExperimentalProcessingApi
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.addOriginatingElement
+import androidx.room3.compiler.codegen.XTypeName
+import androidx.room3.compiler.processing.ExperimentalProcessingApi
+import androidx.room3.compiler.processing.XProcessingEnv
+import androidx.room3.compiler.processing.addOriginatingElement
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile

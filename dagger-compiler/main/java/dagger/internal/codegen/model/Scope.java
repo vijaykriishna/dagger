@@ -18,7 +18,7 @@ package dagger.internal.codegen.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 import com.google.auto.value.AutoValue;
 import dagger.internal.codegen.xprocessing.XAnnotations;
 

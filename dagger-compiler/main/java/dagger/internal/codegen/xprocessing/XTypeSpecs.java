@@ -16,22 +16,22 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toKotlinPoet;
-import static androidx.room.compiler.codegen.compat.XConverters.toXPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toKotlinPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toXPoet;
 import static com.google.common.base.Preconditions.checkState;
 
-import androidx.room.compiler.codegen.VisibilityModifier;
-import androidx.room.compiler.codegen.XAnnotationSpec;
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XFunSpec;
-import androidx.room.compiler.codegen.XPropertySpec;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.VisibilityModifier;
+import androidx.room3.compiler.codegen.XAnnotationSpec;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XFunSpec;
+import androidx.room3.compiler.codegen.XPropertySpec;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.squareup.kotlinpoet.KModifier;
 import java.util.ArrayList;

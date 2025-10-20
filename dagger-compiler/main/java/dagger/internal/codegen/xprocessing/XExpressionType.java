@@ -18,12 +18,12 @@ package dagger.internal.codegen.xprocessing;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XRawType;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.compat.XConverters;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XRawType;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.compat.XConverters;
 import com.squareup.javapoet.TypeName;
 import java.util.Optional;
 

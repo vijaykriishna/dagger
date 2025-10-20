@@ -16,13 +16,13 @@
 
 package dagger.internal.codegen.processingstep;
 
-import static androidx.room.compiler.processing.XElementKt.isMethod;
-import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.XElementKt.isMethodParameter;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableParameterElement;
-import androidx.room.compiler.processing.XMethodElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableParameterElement;
+import androidx.room3.compiler.processing.XMethodElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.validation.BindsInstanceMethodValidator;
 import dagger.internal.codegen.validation.BindsInstanceParameterValidator;

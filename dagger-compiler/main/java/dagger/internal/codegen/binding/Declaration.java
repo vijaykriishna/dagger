@@ -20,8 +20,8 @@ import static dagger.internal.codegen.extension.Optionals.emptiesLast;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
 import static java.util.Comparator.comparing;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.model.BindingKind;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XElements;

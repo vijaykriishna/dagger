@@ -16,10 +16,10 @@
 
 package dagger.hilt.processor.internal.aggregateddeps;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;

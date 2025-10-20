@@ -16,10 +16,10 @@
 
 package dagger.internal.codegen;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XProcessingStep;
-import androidx.room.compiler.processing.XRoundEnv;
-import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XProcessingStep;
+import androidx.room3.compiler.processing.XRoundEnv;
+import androidx.room3.compiler.processing.ksp.KspBasicAnnotationProcessor;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;

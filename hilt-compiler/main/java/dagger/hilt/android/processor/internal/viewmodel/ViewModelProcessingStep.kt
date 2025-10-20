@@ -16,9 +16,9 @@
 
 package dagger.hilt.android.processor.internal.viewmodel
 
-import androidx.room.compiler.processing.ExperimentalProcessingApi
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room3.compiler.processing.ExperimentalProcessingApi
+import androidx.room3.compiler.processing.XElement
+import androidx.room3.compiler.processing.XProcessingEnv
 import com.google.common.collect.ImmutableSet
 import com.squareup.javapoet.ClassName
 import dagger.hilt.android.processor.internal.AndroidClassNames

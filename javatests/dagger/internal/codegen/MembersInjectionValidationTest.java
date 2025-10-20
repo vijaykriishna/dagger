@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.testing.compile.CompilerTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -322,16 +322,9 @@ public class MembersInjectionValidationTest {
     CompilerTests.daggerCompiler(component, testModule)
         .compile(
             subject -> {
-              switch (CompilerTests.backend(subject)) {
-                case KSP:
-                  subject.hasErrorCount(2);
-                  break;
-                case JAVAC:
-                  subject.hasErrorCount(3);
-                  subject.hasErrorContaining(
-                      "Dagger does not support injection into static fields");
-                  break;
-              }
+              subject.hasErrorCount(3);
+              subject.hasErrorContaining(
+                  "Dagger does not support injection into static fields");
               subject.hasErrorContaining("Dagger does not support injection into Kotlin objects");
               subject.hasErrorContaining("KotlinObjectWithMemberInjection cannot be provided");
             });
@@ -380,16 +373,7 @@ public class MembersInjectionValidationTest {
     CompilerTests.daggerCompiler(component, testModule)
         .compile(
             subject -> {
-              switch (CompilerTests.backend(subject)) {
-                case KSP:
-                  subject.hasErrorCount(4);
-                  subject.hasErrorContaining(
-                      "Dagger does not support injection into Kotlin objects");
-                  break;
-                case JAVAC:
-                  subject.hasErrorCount(2);
-                  break;
-              }
+              subject.hasErrorCount(2);
               subject.hasErrorContaining("Dagger does not support injection into static fields");
               subject.hasErrorContaining(
                   "KotlinClassWithMemberInjectedCompanion cannot be provided");
@@ -413,17 +397,7 @@ public class MembersInjectionValidationTest {
     CompilerTests.daggerCompiler(component, testModule)
         .compile(
             subject -> {
-              switch (CompilerTests.backend(subject)) {
-                case KSP:
-                  // TODO(b/268257007): The KSP results should match KAPT once this bug is fixed.
-                  subject.hasErrorCount(3);
-                  subject.hasErrorContaining(
-                      "Dagger does not support injection into static methods");
-                  break;
-                case JAVAC:
-                  subject.hasErrorCount(2);
-                  break;
-              }
+              subject.hasErrorCount(2);
               subject.hasErrorContaining("Dagger does not support injection into Kotlin objects");
               subject.hasErrorContaining(
                   "KotlinClassWithSetterMemberInjectedCompanion.Companion cannot be provided");
@@ -449,16 +423,7 @@ public class MembersInjectionValidationTest {
     CompilerTests.daggerCompiler(component, testModule)
         .compile(
             subject -> {
-              switch (CompilerTests.backend(subject)) {
-                case KSP:
-                  subject.hasErrorCount(4);
-                  subject.hasErrorContaining(
-                      "Dagger does not support injection into Kotlin objects");
-                  break;
-                case JAVAC:
-                  subject.hasErrorCount(2);
-                  break;
-              }
+              subject.hasErrorCount(2);
               subject.hasErrorContaining("Dagger does not support injection into static fields");
               subject.hasErrorContaining(
                   "KotlinClassWithMemberInjectedNamedCompanion cannot be provided");
@@ -483,17 +448,7 @@ public class MembersInjectionValidationTest {
     CompilerTests.daggerCompiler(component, testModule)
         .compile(
             subject -> {
-              switch (CompilerTests.backend(subject)) {
-                case KSP:
-                  // TODO(b/268257007): The KSP results should match KAPT once this bug is fixed.
-                  subject.hasErrorCount(3);
-                  subject.hasErrorContaining(
-                      "Dagger does not support injection into static methods");
-                  break;
-                case JAVAC:
-                  subject.hasErrorCount(2);
-                  break;
-              }
+              subject.hasErrorCount(2);
               subject.hasErrorContaining("Dagger does not support injection into Kotlin objects");
               subject.hasErrorContaining(
                   "KotlinClassWithSetterMemberInjectedNamedCompanion.TheCompanion "

@@ -22,8 +22,8 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XType;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;

@@ -21,9 +21,9 @@ import static dagger.internal.codegen.xprocessing.XElements.hasAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isRawParameterizedType;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XType;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XType;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.internal.codegen.model.DaggerAnnotation;
 import dagger.internal.codegen.model.Key;
 import java.util.Optional;

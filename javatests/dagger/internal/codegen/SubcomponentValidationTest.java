@@ -18,9 +18,9 @@ package dagger.internal.codegen;
 
 import static dagger.internal.codegen.xprocessing.XFunSpecs.constructorBuilder;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.internal.codegen.xprocessing.XTypeSpecs;
 import dagger.testing.compile.CompilerTests;
 import dagger.testing.golden.GoldenFileRule;

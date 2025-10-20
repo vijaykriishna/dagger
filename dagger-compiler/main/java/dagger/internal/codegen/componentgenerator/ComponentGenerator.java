@@ -16,10 +16,10 @@
 
 package dagger.internal.codegen.componentgenerator;
 
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import com.google.common.collect.ImmutableList;
 import dagger.Component;
 import dagger.internal.codegen.base.SourceFileGenerator;

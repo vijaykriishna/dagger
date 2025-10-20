@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.xprocessing.XCodeBlocks.toParametersCodeBlock;
 
-import androidx.room.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XCodeBlock;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;

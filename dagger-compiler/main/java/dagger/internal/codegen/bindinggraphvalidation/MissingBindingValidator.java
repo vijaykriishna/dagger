@@ -29,7 +29,7 @@ import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isWildcard;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-import androidx.room.compiler.processing.XType;
+import androidx.room3.compiler.processing.XType;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.TypeName;
 import dagger.internal.codegen.binding.ComponentNodeImpl;

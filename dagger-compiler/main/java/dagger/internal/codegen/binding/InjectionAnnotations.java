@@ -16,11 +16,11 @@
 
 package dagger.internal.codegen.binding;
 
-import static androidx.room.compiler.processing.XElementKt.isConstructor;
-import static androidx.room.compiler.processing.XElementKt.isField;
-import static androidx.room.compiler.processing.XElementKt.isMethod;
-import static androidx.room.compiler.processing.XElementKt.isMethodParameter;
-import static androidx.room.compiler.processing.XElementKt.isTypeElement;
+import static androidx.room3.compiler.processing.XElementKt.isConstructor;
+import static androidx.room3.compiler.processing.XElementKt.isField;
+import static androidx.room3.compiler.processing.XElementKt.isMethod;
+import static androidx.room3.compiler.processing.XElementKt.isMethodParameter;
+import static androidx.room3.compiler.processing.XElementKt.isTypeElement;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -40,14 +40,14 @@ import static dagger.internal.codegen.xprocessing.XTypeNames.injectTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypeNames.qualifierTypeNames;
 import static dagger.internal.codegen.xprocessing.XTypeNames.scopeTypeNames;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XConstructorElement;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XExecutableElement;
-import androidx.room.compiler.processing.XFieldElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XConstructorElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XExecutableElement;
+import androidx.room3.compiler.processing.XFieldElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;

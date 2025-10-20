@@ -18,8 +18,8 @@ package dagger.hilt.processor.internal.kotlin;
 
 
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XTypeElement;
 import dagger.hilt.processor.internal.ClassNames;
 import dagger.internal.codegen.xprocessing.XElements;
 import java.util.HashMap;

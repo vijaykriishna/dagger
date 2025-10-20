@@ -56,23 +56,8 @@ def bazel_kt_android_library(name, kwargs):
     # suffixed with "_kt". Thus, we have to do a bit of name aliasing to ensure that
     # the jars exist at the expected targets.
     kt_android_library(
-        name = "{}_internal".format(name),
-        **kwargs
-    )
-
-    native.alias(
         name = name,
-        actual = ":{}_internal_kt".format(name),
-    )
-
-    native.alias(
-        name = "lib{}.jar".format(name),
-        actual = ":{}_internal_kt.jar".format(name),
-    )
-
-    native.alias(
-        name = "lib{}-src.jar".format(name),
-        actual = ":{}_internal_kt-sources.jar".format(name),
+        **kwargs
     )
 
 def bazel_kt_jvm_library(name, kwargs):

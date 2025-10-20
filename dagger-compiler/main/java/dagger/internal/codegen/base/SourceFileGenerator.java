@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.base;
 
-import static androidx.room.compiler.codegen.compat.XConverters.toJavaPoet;
+import static androidx.room3.compiler.codegen.compat.XConverters.toJavaPoet;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.CAST;
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.DEPRECATION;
@@ -26,15 +26,15 @@ import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.U
 import static dagger.internal.codegen.xprocessing.XAnnotationSpecs.Suppression.UNINITIALIZED;
 import static dagger.internal.codegen.xprocessing.XElements.closestEnclosingTypeElement;
 
-import androidx.room.compiler.codegen.CodeLanguage;
-import androidx.room.compiler.codegen.XAnnotationSpec;
-import androidx.room.compiler.codegen.XFileSpec;
-import androidx.room.compiler.codegen.XTypeSpec;
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XFiler;
-import androidx.room.compiler.processing.XMessager;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.codegen.CodeLanguage;
+import androidx.room3.compiler.codegen.XAnnotationSpec;
+import androidx.room3.compiler.codegen.XFileSpec;
+import androidx.room3.compiler.codegen.XTypeSpec;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XFiler;
+import androidx.room3.compiler.processing.XMessager;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.xprocessing.XAnnotationSpecs;

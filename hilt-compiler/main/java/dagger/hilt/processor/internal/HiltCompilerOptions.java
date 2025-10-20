@@ -16,12 +16,12 @@
 
 package dagger.hilt.processor.internal;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
 import static com.google.common.base.Ascii.toUpperCase;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.compat.XConverters;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.compat.XConverters;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.processor.internal.optionvalues.BooleanValue;
 import dagger.hilt.processor.internal.optionvalues.GradleProjectType;

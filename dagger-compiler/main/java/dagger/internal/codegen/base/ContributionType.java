@@ -16,7 +16,7 @@
 
 package dagger.internal.codegen.base;
 
-import androidx.room.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XElement;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 
 /** Whether a binding or declaration is for a unique contribution or a map or set multibinding. */

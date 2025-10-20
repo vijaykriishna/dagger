@@ -16,7 +16,7 @@
 
 package dagger.android.processor;
 
-import androidx.room.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XClassName;
 
 // TODO(bcorso): Dedupe with dagger/internal/codegen/xprocessing/XTypeNames.java?
 /** Common names and methods for {@link XClassName} usages. */

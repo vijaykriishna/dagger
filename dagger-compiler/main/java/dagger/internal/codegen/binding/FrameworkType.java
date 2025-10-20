@@ -19,10 +19,10 @@ package dagger.internal.codegen.binding;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
-import androidx.room.compiler.codegen.XClassName;
-import androidx.room.compiler.codegen.XCodeBlock;
-import androidx.room.compiler.codegen.XTypeName;
-import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.codegen.XClassName;
+import androidx.room3.compiler.codegen.XCodeBlock;
+import androidx.room3.compiler.codegen.XTypeName;
+import androidx.room3.compiler.processing.XProcessingEnv;
 import dagger.internal.codegen.base.RequestKinds;
 import dagger.internal.codegen.model.RequestKind;
 import dagger.internal.codegen.xprocessing.XExpression;

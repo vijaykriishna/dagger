@@ -16,13 +16,13 @@
 
 package dagger.internal.codegen.xprocessing;
 
-import static androidx.room.compiler.processing.compat.XConverters.getProcessingEnv;
-import static androidx.room.compiler.processing.compat.XConverters.toKS;
+import static androidx.room3.compiler.processing.compat.XConverters.getProcessingEnv;
+import static androidx.room3.compiler.processing.compat.XConverters.toKS;
 
-import androidx.room.compiler.processing.XElement;
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XElement;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.google.devtools.ksp.symbol.KSDeclaration;
 import com.google.devtools.ksp.symbol.Modifier;
 

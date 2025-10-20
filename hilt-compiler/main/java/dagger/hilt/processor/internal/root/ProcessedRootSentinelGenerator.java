@@ -16,8 +16,8 @@
 
 package dagger.hilt.processor.internal.root;
 
-import androidx.room.compiler.processing.XFiler.Mode;
-import androidx.room.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.XFiler.Mode;
+import androidx.room3.compiler.processing.XTypeElement;
 import com.squareup.javapoet.AnnotationSpec;
 import dagger.hilt.processor.internal.ClassNames;
 import dagger.hilt.processor.internal.Processors;

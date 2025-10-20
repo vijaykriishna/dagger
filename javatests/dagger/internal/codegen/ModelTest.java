@@ -18,7 +18,7 @@ package dagger.internal.codegen;
 
 import static dagger.spi.model.testing.BindingGraphSubject.assertThat;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.spi.model.BindingGraph;
 import dagger.spi.model.BindingGraphPlugin;
 import dagger.spi.model.DiagnosticReporter;

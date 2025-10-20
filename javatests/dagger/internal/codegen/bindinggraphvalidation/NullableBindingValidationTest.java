@@ -18,7 +18,7 @@ package dagger.internal.codegen.bindinggraphvalidation;
 
 import static dagger.internal.codegen.bindinggraphvalidation.NullableBindingValidator.nullableToNonNullable;
 
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dagger.internal.codegen.CompilerMode;

@@ -19,8 +19,8 @@ package dagger.internal.codegen;
 import static dagger.internal.codegen.TestUtils.message;
 import static org.junit.Assume.assumeFalse;
 
-import androidx.room.compiler.processing.XProcessingEnv;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XProcessingEnv;
+import androidx.room3.compiler.processing.util.Source;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dagger.testing.compile.CompilerTests;

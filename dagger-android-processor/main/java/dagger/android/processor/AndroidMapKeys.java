@@ -16,8 +16,8 @@
 
 package dagger.android.processor;
 
-import androidx.room.compiler.processing.XAnnotation;
-import androidx.room.compiler.processing.XAnnotationValue;
+import androidx.room3.compiler.processing.XAnnotation;
+import androidx.room3.compiler.processing.XAnnotationValue;
 import java.util.Optional;
 
 final class AndroidMapKeys {

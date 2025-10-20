@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static dagger.internal.codegen.extension.DaggerCollectors.onlyElement;
 import static dagger.internal.codegen.xprocessing.XTypes.stripVariances;
 
-import androidx.room.compiler.processing.XMethodElement;
-import androidx.room.compiler.processing.XTypeElement;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.XMethodElement;
+import androidx.room3.compiler.processing.XTypeElement;
+import androidx.room3.compiler.processing.util.Source;
 import com.squareup.javapoet.TypeName;
 import dagger.testing.compile.CompilerTests;
 import org.junit.Test;

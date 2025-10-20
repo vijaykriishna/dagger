@@ -16,8 +16,8 @@
 
 package dagger.hilt.processor.internal.aggregateddeps;
 
-import androidx.room.compiler.processing.util.CompilationResultSubject;
-import androidx.room.compiler.processing.util.Source;
+import androidx.room3.compiler.processing.util.CompilationResultSubject;
+import androidx.room3.compiler.processing.util.Source;
 import dagger.hilt.android.testing.compile.HiltCompilerTests;
 import dagger.hilt.processor.internal.GeneratedImport;
 import java.util.function.Consumer;
