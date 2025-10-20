@@ -25,7 +25,6 @@ import static dagger.internal.codegen.xprocessing.XTypeElements.getAllUnimplemen
 import static dagger.internal.codegen.xprocessing.XTypeElements.hasTypeParameters;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 import static dagger.internal.codegen.xprocessing.XTypes.isSubtype;
-import static javax.lang.model.SourceVersion.isKeyword;
 
 import androidx.room.compiler.processing.XConstructorElement;
 import androidx.room.compiler.processing.XExecutableParameterElement;
@@ -40,7 +39,6 @@ import dagger.internal.codegen.base.ComponentCreatorAnnotation;
 import dagger.internal.codegen.binding.ErrorMessages;
 import dagger.internal.codegen.binding.ErrorMessages.ComponentCreatorMessages;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +52,13 @@ public final class ComponentCreatorValidator implements ClearableCache {
 
   private final Map<XTypeElement, ValidationReport> reports = new HashMap<>();
   private final MethodSignatureFormatter methodSignatureFormatter;
-  private final KotlinMetadataUtil metadataUtil;
+  private final KeywordValidator keywordValidator;
 
   @Inject
   ComponentCreatorValidator(
-      MethodSignatureFormatter methodSignatureFormatter, KotlinMetadataUtil metadataUtil) {
+      MethodSignatureFormatter methodSignatureFormatter, KeywordValidator keywordValidator) {
     this.methodSignatureFormatter = methodSignatureFormatter;
-    this.metadataUtil = metadataUtil;
+    this.keywordValidator = keywordValidator;
   }
 
   @Override
@@ -149,6 +147,9 @@ public final class ComponentCreatorValidator implements ClearableCache {
         return report.build();
       }
 
+      // Validate methods names for a JavaKeyword.
+      keywordValidator.validateMethodsName(creator, report);
+
       switch (annotation.creatorKind()) {
         case FACTORY:
           validateFactory();
@@ -213,7 +214,6 @@ public final class ComponentCreatorValidator implements ClearableCache {
     }
 
     private void validateBuilder() {
-      validateClassMethodName();
       XMethodElement buildMethod = null;
       for (XMethodElement method : getAllUnimplementedMethods(creator)) {
         switch (method.getParameters().size()) {
@@ -249,21 +249,6 @@ public final class ComponentCreatorValidator implements ClearableCache {
         report.addError(messages.missingFactoryMethod());
       } else {
         validateNotGeneric(buildMethod);
-      }
-    }
-
-    private void validateClassMethodName() {
-      // Only Kotlin class can have method name the same as a Java reserved keyword, so only check
-      // the method name if this class is a Kotlin class.
-      if (metadataUtil.hasMetadata(creator)) {
-        metadataUtil
-            .getAllMethodNamesBySignature(creator)
-            .forEach(
-                (signature, name) -> {
-                  if (isKeyword(name)) {
-                    report.addError("Can not use a Java keyword as method name: " + signature);
-                  }
-                });
       }
     }
 

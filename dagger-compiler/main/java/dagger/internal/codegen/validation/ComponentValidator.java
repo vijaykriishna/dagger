@@ -35,6 +35,7 @@ import static dagger.internal.codegen.binding.ConfigurationAnnotations.enclosedA
 import static dagger.internal.codegen.binding.ErrorMessages.ComponentCreatorMessages.builderMethodRequiresNoArgs;
 import static dagger.internal.codegen.binding.ErrorMessages.ComponentCreatorMessages.moreThanOneRefToSubcomponent;
 import static dagger.internal.codegen.extension.DaggerStreams.toImmutableSet;
+import static dagger.internal.codegen.validation.KeywordValidator.validateNoJavaKeyword;
 import static dagger.internal.codegen.xprocessing.XElements.asTypeElement;
 import static dagger.internal.codegen.xprocessing.XElements.getAnyAnnotation;
 import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
@@ -59,7 +60,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import dagger.Component;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.ComponentAnnotation;
 import dagger.internal.codegen.base.ComponentKind;
@@ -68,7 +68,6 @@ import dagger.internal.codegen.base.ModuleKind;
 import dagger.internal.codegen.binding.DependencyRequestFactory;
 import dagger.internal.codegen.binding.ErrorMessages;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
-import dagger.internal.codegen.kotlin.KotlinMetadataUtil;
 import dagger.internal.codegen.model.DependencyRequest;
 import dagger.internal.codegen.model.Key;
 import dagger.internal.codegen.xprocessing.XTypeElements;
@@ -85,7 +84,6 @@ import java.util.Queue;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.lang.model.SourceVersion;
 
 /**
  * Performs superficial validation of the contract of the {@link Component} and {@link
@@ -101,7 +99,7 @@ public final class ComponentValidator implements ClearableCache {
   private final DependencyRequestFactory dependencyRequestFactory;
   private final DaggerSuperficialValidation superficialValidation;
   private final Map<XTypeElement, ValidationReport> reports = new HashMap<>();
-  private final KotlinMetadataUtil metadataUtil;
+  private final KeywordValidator keywordValidator;
 
   @Inject
   ComponentValidator(
@@ -112,7 +110,7 @@ public final class ComponentValidator implements ClearableCache {
       MethodSignatureFormatter methodSignatureFormatter,
       DependencyRequestFactory dependencyRequestFactory,
       DaggerSuperficialValidation superficialValidation,
-      KotlinMetadataUtil metadataUtil) {
+      KeywordValidator keywordValidator) {
     this.moduleValidator = moduleValidator;
     this.creatorValidator = creatorValidator;
     this.dependencyRequestValidator = dependencyRequestValidator;
@@ -120,7 +118,7 @@ public final class ComponentValidator implements ClearableCache {
     this.methodSignatureFormatter = methodSignatureFormatter;
     this.dependencyRequestFactory = dependencyRequestFactory;
     this.superficialValidation = superficialValidation;
-    this.metadataUtil = metadataUtil;
+    this.keywordValidator = keywordValidator;
   }
 
   @Override
@@ -180,8 +178,13 @@ public final class ComponentValidator implements ClearableCache {
       validateComponentDependencies();
       validateReferencedModules();
       validateSubcomponents();
+      validateComponentName();
 
       return report.build();
+    }
+
+    private void validateComponentName() {
+      validateNoJavaKeyword(component, report);
     }
 
     private String moreThanOneComponentAnnotationError() {
@@ -245,23 +248,10 @@ public final class ComponentValidator implements ClearableCache {
     }
 
     private void validateComponentMethods() {
-      validateClassMethodName();
+      keywordValidator.validateMethodsName(component, report);
       getAllUnimplementedMethods(component).stream()
           .map(ComponentMethodValidator::new)
           .forEachOrdered(ComponentMethodValidator::validateMethod);
-    }
-
-    private void validateClassMethodName() {
-      if (metadataUtil.hasMetadata(component)) {
-        metadataUtil
-            .getAllMethodNamesBySignature(component)
-            .forEach(
-                (signature, name) -> {
-                  if (SourceVersion.isKeyword(name)) {
-                    report.addError("Can not use a Java keyword as method name: " + signature);
-                  }
-                });
-      }
     }
 
     private class ComponentMethodValidator {

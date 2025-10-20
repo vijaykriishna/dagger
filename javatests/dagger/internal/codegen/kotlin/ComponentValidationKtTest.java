@@ -66,8 +66,7 @@ public final class ComponentValidationKtTest {
           List<DiagnosticMessage> errors = result.getDiagnostics().get(Kind.ERROR);
           assertThat(errors).hasSize(1);
           assertThat(errors.get(0).getMsg())
-              .contains(
-                  "Can not use a Java keyword as method name: int(I)Ltest/FooComponent$Builder");
+              .contains("The name 'int' cannot be used because it is a Java keyword");
         });
   }
 
@@ -111,7 +110,7 @@ public final class ComponentValidationKtTest {
           List<DiagnosticMessage> errors = result.getDiagnostics().get(Kind.ERROR);
           assertThat(errors).hasSize(1);
           assertThat(errors.get(0).getMsg())
-              .contains("Can not use a Java keyword as method name: int(I)Ljava/lang/String");
+              .contains("The name 'int' cannot be used because it is a Java keyword");
         });
   }
 }

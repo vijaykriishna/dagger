@@ -23,11 +23,10 @@ import static dagger.internal.codegen.base.Util.reentrantComputeIfAbsent;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedFactoryType;
 import static dagger.internal.codegen.binding.AssistedInjectionAnnotations.isAssistedInjectionType;
 import static dagger.internal.codegen.binding.MapKeys.getMapKeys;
-import static dagger.internal.codegen.xprocessing.XElements.getSimpleName;
+import static dagger.internal.codegen.validation.KeywordValidator.validateNoJavaKeyword;
 import static dagger.internal.codegen.xprocessing.XTypes.isDeclared;
 import static dagger.internal.codegen.xprocessing.XTypes.isPrimitive;
 import static dagger.internal.codegen.xprocessing.XTypes.isTypeVariable;
-import static javax.lang.model.SourceVersion.isKeyword;
 
 import androidx.room.compiler.codegen.XClassName;
 import androidx.room.compiler.processing.XAnnotation;
@@ -149,6 +148,7 @@ public abstract class BindingElementValidator<E extends XElement> {
       checkScopes();
       checkAdditionalProperties();
       checkNoJavaKeywords();
+      // TODO(emjich): Add check for Kotlin keywords if useKotlinCodegen flag is true
       return report.build();
     }
 
@@ -158,14 +158,7 @@ public abstract class BindingElementValidator<E extends XElement> {
      * <p>This is not allowed because Dagger currently generates Java code for KSP.
      */
     protected void checkNoJavaKeywords() {
-      String elementName = getSimpleName(this.element);
-      if (isKeyword(elementName)) {
-        report.addError(
-            bindingElements(
-                "cannot use the Java keyword, '%s', as a name because Dagger currently"
-                    + " generates Java. Please rename the %s.",
-                elementName, bindingElements()));
-      }
+      validateNoJavaKeyword(element, report);
     }
 
     /** Check any additional properties of the element. Does nothing by default. */
