@@ -17,7 +17,8 @@
 package dagger.functional.producers;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
+import static com.google.common.util.concurrent.Futures.immediateFuture;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -26,17 +27,19 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import dagger.Lazy;
+import dagger.Module;
+import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
 import dagger.multibindings.IntoSet;
 import dagger.producers.Produced;
 import dagger.producers.Producer;
 import dagger.producers.ProducerModule;
 import dagger.producers.Produces;
-import dagger.producers.internal.AbstractProducer;
-import dagger.producers.internal.CancellableProducer;
+import dagger.producers.Production;
+import dagger.producers.ProductionComponent;
+import dagger.producers.ProductionScope;
 import dagger.producers.monitoring.ProducerMonitor;
 import dagger.producers.monitoring.ProducerToken;
 import dagger.producers.monitoring.ProductionComponentMonitor;
@@ -51,14 +54,56 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class ProducerFactoryTest {
+  @ProductionComponent(modules = {ExecutorModule.class, MonitorModule.class, TestModule.class})
+  interface TestComponent {
+    SettableFuture<String> settableFutureString();
+    @TestModule.Qual(-2) Producer<String> throwingProducer();
+    @TestModule.Qual(-1) Producer<String> settableFutureStringProducer();
+    @TestModule.Qual(0) Producer<String> strProducer();
+    @TestModule.Qual(2) Producer<String> strWithArgProducer();
+  }
+
+  @Module
+  interface ExecutorModule {
+    @Provides
+    @Production
+    static Executor executor() {
+      return directExecutor();
+    }
+  }
+
+  @Module
+  static final class MonitorModule {
+    private final ProductionComponentMonitor productionComponentMonitor;
+
+    MonitorModule(ProductionComponentMonitor productionComponentMonitor) {
+      this.productionComponentMonitor = productionComponentMonitor;
+    }
+
+    @Provides
+    @IntoSet
+    ProductionComponentMonitor.Factory provideMonitorFactory() {
+      return new ProductionComponentMonitor.Factory() {
+        @Override
+        public ProductionComponentMonitor create(Object component) {
+          return productionComponentMonitor;
+        }
+      };
+    }
+
+    @Provides
+    @ProductionScope
+    static SettableFuture<String> provideSettableFuture() {
+      return SettableFuture.create();
+    }
+  }
+
   @ProducerModule
-  static final class TestModule {
+  interface TestModule {
     @Qualifier @interface Qual {
       int value();
     }
@@ -86,19 +131,19 @@ public class ProducerFactoryTest {
     @Produces
     @Qual(1)
     static ListenableFuture<String> futureStr() {
-      return Futures.immediateFuture("future str");
+      return immediateFuture("future str");
     }
 
     @Produces
     @Qual(2)
-    static String strWithArg(@SuppressWarnings("unused") int i) {
-      return "str with arg";
+    static String strWithArg(@Qual(-1) String str) {
+      return "str with arg " + str;
     }
 
     @Produces
     @Qual(3)
     static ListenableFuture<String> futureStrWithArg(@SuppressWarnings("unused") int i) {
-      return Futures.immediateFuture("future str with arg");
+      return immediateFuture("future str with arg");
     }
 
     @Produces
@@ -112,7 +157,7 @@ public class ProducerFactoryTest {
     @Qual(5)
     @SuppressWarnings("unused") // unthrown exception for test
     static ListenableFuture<String> futureStrThrowingException() throws IOException {
-      return Futures.immediateFuture("future str throwing exception");
+      return immediateFuture("future str throwing exception");
     }
 
     @Produces
@@ -126,7 +171,7 @@ public class ProducerFactoryTest {
     @Qual(7)
     @SuppressWarnings("unused") // unthrown exception for test, unused parameter for test
     static ListenableFuture<String> futureStrWithArgThrowingException(int i) throws IOException {
-      return Futures.immediateFuture("future str with arg throwing exception");
+      return immediateFuture("future str with arg throwing exception");
     }
 
     @Produces
@@ -154,7 +199,7 @@ public class ProducerFactoryTest {
         @SuppressWarnings("unused") Produced<Double> b,
         @SuppressWarnings("unused") Producer<Object> c,
         @SuppressWarnings("unused") Provider<Boolean> d) {
-      return Futures.immediateFuture("future str with args");
+      return immediateFuture("future str with args");
     }
 
     @Produces
@@ -162,7 +207,7 @@ public class ProducerFactoryTest {
     @SuppressWarnings("unused") // unthrown exception for test, unused parameter for test
     static ListenableFuture<String> futureStrWithArgsThrowingException(
         int i, Produced<Double> b, Producer<Object> c, Provider<Boolean> d) throws IOException {
-      return Futures.immediateFuture("str with args throwing exception");
+      return immediateFuture("str with args throwing exception");
     }
 
     @Produces
@@ -197,14 +242,14 @@ public class ProducerFactoryTest {
     @Produces
     @IntoSet
     static ListenableFuture<String> setOfStrFutureElement() {
-      return Futures.immediateFuture("set of str element");
+      return immediateFuture("set of str element");
     }
 
     @Produces
     @IntoSet
     @SuppressWarnings("unused") // unthrown exception for test
     static ListenableFuture<String> setOfStrFutureElementThrowingException() throws IOException {
-      return Futures.immediateFuture("set of str element throwing exception");
+      return immediateFuture("set of str element throwing exception");
     }
 
     @Produces
@@ -224,7 +269,7 @@ public class ProducerFactoryTest {
     @IntoSet
     static ListenableFuture<String> setOfStrFutureElementWithArg(
         @SuppressWarnings("unused") int i) {
-      return Futures.immediateFuture("set of str element with arg");
+      return immediateFuture("set of str element with arg");
     }
 
     @Produces
@@ -232,7 +277,7 @@ public class ProducerFactoryTest {
     @SuppressWarnings("unused") // unthrown exception for test, unused parameter for test
     static ListenableFuture<String> setOfStrFutureElementWithArgThrowingException(int i)
         throws IOException {
-      return Futures.immediateFuture("set of str element with arg throwing exception");
+      return immediateFuture("set of str element with arg throwing exception");
     }
 
     @Produces
@@ -303,41 +348,26 @@ public class ProducerFactoryTest {
     }
   }
 
-  @Mock private ProductionComponentMonitor componentMonitor;
+  private ProductionComponentMonitor componentMonitor;
   private ProducerMonitor monitor;
-  private dagger.internal.Provider<Executor> executorProvider;
-  private dagger.internal.Provider<ProductionComponentMonitor> componentMonitorProvider;
+  private TestComponent component;
 
   @Before
-  public void setUpMocks() {
-    MockitoAnnotations.initMocks(this);
+  public void setup() {
+    componentMonitor = Mockito.mock(ProductionComponentMonitor.class, Mockito.CALLS_REAL_METHODS);
     monitor = Mockito.mock(ProducerMonitor.class, Mockito.CALLS_REAL_METHODS);
     when(componentMonitor.producerMonitorFor(any(ProducerToken.class))).thenReturn(monitor);
-    executorProvider =
-        new dagger.internal.Provider<Executor>() {
-          @Override
-          public Executor get() {
-            return MoreExecutors.directExecutor();
-          }
-        };
-    componentMonitorProvider =
-        new dagger.internal.Provider<ProductionComponentMonitor>() {
-          @Override
-          public ProductionComponentMonitor get() {
-            return componentMonitor;
-          }
-        };
+    component =
+        DaggerProducerFactoryTest_TestComponent.builder()
+            .monitorModule(new MonitorModule(componentMonitor))
+            .build();
   }
 
   @Test
   public void noArgMethod() throws Exception {
-    ProducerToken token = ProducerToken.create(ProducerFactoryTest_TestModule_StrFactory.class);
-    Producer<String> producer =
-        ProducerFactoryTest_TestModule_StrFactory.create(
-            executorProvider, componentMonitorProvider);
+    Producer<String> producer = component.strProducer();
     assertThat(producer.get().get()).isEqualTo("str");
     InOrder order = inOrder(componentMonitor, monitor);
-    order.verify(componentMonitor).producerMonitorFor(token);
     order.verify(monitor).methodStarting();
     order.verify(monitor).methodFinished();
     order.verify(monitor).succeeded("str");
@@ -346,34 +376,21 @@ public class ProducerFactoryTest {
 
   @Test
   public void singleArgMethod() throws Exception {
-    SettableFuture<Integer> intFuture = SettableFuture.create();
-    CancellableProducer<Integer> intProducer = producerOfFuture(intFuture);
-    Producer<String> producer =
-        ProducerFactoryTest_TestModule_StrWithArgFactory.create(
-            executorProvider, componentMonitorProvider, intProducer);
+    Producer<String> producer = component.strWithArgProducer();
     assertThat(producer.get().isDone()).isFalse();
-    intFuture.set(42);
-    assertThat(producer.get().get()).isEqualTo("str with arg");
+    component.settableFutureString().set("42");
+    assertThat(producer.get().get()).isEqualTo("str with arg 42");
   }
 
   @Test
   public void successMonitor() throws Exception {
-    ProducerToken token =
-        ProducerToken.create(ProducerFactoryTest_TestModule_SettableFutureStrFactory.class);
-
-    SettableFuture<String> strFuture = SettableFuture.create();
+    SettableFuture<String> strFuture = component.settableFutureString();
     @SuppressWarnings("FutureReturnValueIgnored")
     SettableFuture<SettableFuture<String>> strFutureFuture = SettableFuture.create();
-    CancellableProducer<SettableFuture<String>> strFutureProducer =
-        producerOfFuture(strFutureFuture);
-    Producer<String> producer =
-        ProducerFactoryTest_TestModule_SettableFutureStrFactory.create(
-            executorProvider, componentMonitorProvider, strFutureProducer);
+    Producer<String> producer = component.settableFutureStringProducer();
     assertThat(producer.get().isDone()).isFalse();
 
     InOrder order = inOrder(componentMonitor, monitor);
-    order.verify(componentMonitor).producerMonitorFor(token);
-
     strFutureFuture.set(strFuture);
     order.verify(monitor).methodStarting();
     order.verify(monitor).methodFinished();
@@ -388,21 +405,13 @@ public class ProducerFactoryTest {
 
   @Test
   public void failureMonitor() throws Exception {
-    ProducerToken token =
-        ProducerToken.create(ProducerFactoryTest_TestModule_SettableFutureStrFactory.class);
-
-    SettableFuture<String> strFuture = SettableFuture.create();
+    SettableFuture<String> strFuture = component.settableFutureString();
     @SuppressWarnings("FutureReturnValueIgnored")
     SettableFuture<SettableFuture<String>> strFutureFuture = SettableFuture.create();
-    CancellableProducer<SettableFuture<String>> strFutureProducer =
-        producerOfFuture(strFutureFuture);
-    Producer<String> producer =
-        ProducerFactoryTest_TestModule_SettableFutureStrFactory.create(
-            executorProvider, componentMonitorProvider, strFutureProducer);
+    Producer<String> producer = component.settableFutureStringProducer();
     assertThat(producer.get().isDone()).isFalse();
 
     InOrder order = inOrder(componentMonitor, monitor);
-    order.verify(componentMonitor).producerMonitorFor(token);
 
     strFutureFuture.set(strFuture);
     order.verify(monitor).methodStarting();
@@ -424,16 +433,10 @@ public class ProducerFactoryTest {
 
   @Test
   public void failureMonitorDueToThrowingProducer() throws Exception {
-    ProducerToken token =
-        ProducerToken.create(ProducerFactoryTest_TestModule_ThrowingProducerFactory.class);
-
-    Producer<String> producer =
-        ProducerFactoryTest_TestModule_ThrowingProducerFactory.create(
-            executorProvider, componentMonitorProvider);
+    Producer<String> producer = component.throwingProducer();
     assertThat(producer.get().isDone()).isTrue();
 
     InOrder order = inOrder(componentMonitor, monitor);
-    order.verify(componentMonitor).producerMonitorFor(token);
 
     order.verify(monitor).methodStarting();
     order.verify(monitor).methodFinished();
@@ -446,21 +449,5 @@ public class ProducerFactoryTest {
     }
 
     order.verifyNoMoreInteractions();
-  }
-
-  @Test
-  public void nullComponentMonitorProvider() throws Exception {
-    assertThrows(
-        NullPointerException.class,
-        () -> ProducerFactoryTest_TestModule_StrFactory.create(executorProvider, null));
-  }
-
-  private static <T> CancellableProducer<T> producerOfFuture(final ListenableFuture<T> future) {
-    return new AbstractProducer<T>() {
-      @Override
-      public ListenableFuture<T> compute() {
-        return future;
-      }
-    };
   }
 }
