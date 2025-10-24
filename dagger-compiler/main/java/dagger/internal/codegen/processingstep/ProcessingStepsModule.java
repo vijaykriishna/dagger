@@ -32,7 +32,6 @@ public interface ProcessingStepsModule {
   static ImmutableList<XProcessingStep> processingSteps(
       MapKeyProcessingStep mapKeyProcessingStep,
       InjectProcessingStep injectProcessingStep,
-      AssistedInjectProcessingStep assistedInjectProcessingStep,
       AssistedFactoryProcessingStep assistedFactoryProcessingStep,
       AssistedProcessingStep assistedProcessingStep,
       MonitoringModuleProcessingStep monitoringModuleProcessingStep,
@@ -47,7 +46,6 @@ public interface ProcessingStepsModule {
     return ImmutableList.of(
         mapKeyProcessingStep,
         injectProcessingStep,
-        assistedInjectProcessingStep,
         assistedFactoryProcessingStep,
         assistedProcessingStep,
         monitoringModuleProcessingStep,

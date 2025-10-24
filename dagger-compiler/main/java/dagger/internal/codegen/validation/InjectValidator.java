@@ -44,14 +44,17 @@ import androidx.room3.compiler.processing.XVariableElement;
 import com.google.common.collect.ImmutableSet;
 import dagger.internal.codegen.base.ClearableCache;
 import dagger.internal.codegen.base.DaggerSuperficialValidation;
+import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedParameter;
 import dagger.internal.codegen.binding.InjectionAnnotations;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
 import dagger.internal.codegen.compileroption.CompilerOptions;
 import dagger.internal.codegen.model.Scope;
 import dagger.internal.codegen.xprocessing.XTypeNames;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.tools.Diagnostic;
@@ -245,10 +248,22 @@ public final class InjectValidator implements ClearableCache {
         }
       }
 
+      Set<AssistedParameter> uniqueAssistedParameters = new HashSet<>();
       for (XExecutableParameterElement parameter : constructorElement.getParameters()) {
         superficialValidation.validateTypeOf(parameter);
         if (isAssistedParameter(parameter)) {
           builder.addSubreport(assistedValidator.validate(parameter));
+          AssistedParameter assistedParameter =
+              AssistedParameter.create(parameter, parameter.getType());
+          if (!uniqueAssistedParameters.add(assistedParameter)) {
+            builder.addError(
+                String.format(
+                    "@AssistedInject constructor has duplicate @Assisted type: %s. Consider setting"
+                        + " an identifier on the parameter by using @Assisted(\"identifier\") in"
+                        + " both the factory and @AssistedInject constructor",
+                    assistedParameter),
+                assistedParameter.element());
+          }
         } else {
           // Only validate dependency requests for non-assisted parameters.
           validateDependencyRequest(builder, parameter);

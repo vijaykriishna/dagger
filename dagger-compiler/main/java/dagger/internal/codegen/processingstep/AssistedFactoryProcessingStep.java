@@ -55,6 +55,7 @@ import androidx.room3.compiler.processing.XType;
 import androidx.room3.compiler.processing.XTypeElement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dagger.internal.codegen.base.DaggerSuperficialValidation;
 import dagger.internal.codegen.base.SourceFileGenerator;
 import dagger.internal.codegen.binding.AssistedFactoryBinding;
 import dagger.internal.codegen.binding.AssistedInjectionAnnotations;
@@ -63,6 +64,7 @@ import dagger.internal.codegen.binding.AssistedInjectionAnnotations.AssistedPara
 import dagger.internal.codegen.binding.AssistedInjectionBinding;
 import dagger.internal.codegen.binding.BindingFactory;
 import dagger.internal.codegen.binding.MethodSignatureFormatter;
+import dagger.internal.codegen.validation.InjectValidator;
 import dagger.internal.codegen.validation.ValidationReport;
 import dagger.internal.codegen.xprocessing.XPropertySpecs;
 import dagger.internal.codegen.xprocessing.XTypeNames;
@@ -81,8 +83,8 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
   private final XFiler filer;
   private final BindingFactory bindingFactory;
   private final MethodSignatureFormatter methodSignatureFormatter;
-  @SuppressWarnings("HidingField")
-  private final SuperficialValidator superficialValidator;
+  private final DaggerSuperficialValidation superficialValidation;
+  private final InjectValidator injectValidator;
 
   @Inject
   AssistedFactoryProcessingStep(
@@ -91,13 +93,20 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
       XFiler filer,
       BindingFactory bindingFactory,
       MethodSignatureFormatter methodSignatureFormatter,
-      SuperficialValidator superficialValidator) {
+      DaggerSuperficialValidation superficialValidation,
+      InjectValidator injectValidator) {
     this.processingEnv = processingEnv;
     this.messager = messager;
     this.filer = filer;
     this.bindingFactory = bindingFactory;
     this.methodSignatureFormatter = methodSignatureFormatter;
-    this.superficialValidator = superficialValidator;
+    this.superficialValidation = superficialValidation;
+    this.injectValidator = injectValidator;
+  }
+
+  @Override
+  protected boolean requiresPreValidation() {
+    return false;
   }
 
   @Override
@@ -142,12 +151,16 @@ final class AssistedFactoryProcessingStep extends TypeCheckingProcessingStep<XTy
       }
 
       for (XMethodElement method : abstractFactoryMethods) {
+        superficialValidation.validateElement(method);
         XType returnType = method.asMemberOf(factory.getType()).getReturnType();
         // The default superficial validation only applies to the @AssistedFactory-annotated
         // element, so we have to manually check the superficial validation  of the @AssistedInject
         // element before using it to ensure it's ready for processing.
         if (isDeclared(returnType)) {
-          superficialValidator.throwIfNearestEnclosingTypeNotValid(returnType.getTypeElement());
+          ValidationReport injectReport = injectValidator.validate(returnType.getTypeElement());
+          if (!injectReport.isClean()) {
+            report.addSubreport(injectReport);
+          }
         }
         if (!isAssistedInjectionType(returnType)) {
           report.addError(

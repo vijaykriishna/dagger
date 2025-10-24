@@ -42,6 +42,11 @@ final class AssistedProcessingStep extends TypeCheckingProcessingStep<XExecutabl
   }
 
   @Override
+  protected boolean requiresPreValidation() {
+    return false;
+  }
+
+  @Override
   protected void process(
       XExecutableParameterElement assisted, ImmutableSet<XClassName> annotations) {
     // If the AssistedValidator already validated this element as part of InjectValidator, then we
